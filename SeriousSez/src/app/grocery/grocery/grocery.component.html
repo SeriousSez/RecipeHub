@@ -1,61 +1,111 @@
-<div class="container">
+<div class="grocery-page container py-4">
+  <section class="grocery-hero mb-4">
+    <div class="grocery-hero-copy">
+      <p class="grocery-eyebrow mb-2">Meal prep</p>
+      <h1 class="mb-2">Grocery list</h1>
+      <p class="grocery-lead mb-0">Keep ingredients organized, inspect details, and sort the list before you head to the store.</p>
+    </div>
 
-  <div class="mb-3">
-    <button class="btn btn-brand-alt" type="button" routerLink="/recipes">Add a recipe</button>
-    <button class="btn btn-brand-alt ms-3" type="button" routerLink="/dashboard/ingredients">Add an ingredient</button>
-  </div>
+    <div class="grocery-hero-actions">
+      <button class="btn btn-brand-alt" type="button" routerLink="/recipes">Add a recipe</button>
+      <button class="btn btn-brand-secondary" type="button" routerLink="/dashboard/ingredients">Add an ingredient</button>
+      <button class="btn btn-brand" type="button" [disabled]="!hasIngredients" (click)="save()">Create grocery list</button>
+    </div>
 
-  <table class="table table-hover caption-top">
-    <caption>List of ingredients</caption>
-    <thead>
-      <tr>
-        <th scope="col">#</th>
-        <th scope="col" class="cursor-pointer" (click)="sort('name')">Ingredient @if (sortSetting == 'name') {
-          <i class="fas fa-sort"></i>
-          }
-        </th>
-        <th scope="col" class="cursor-pointer" (click)="sort('amount')">Amount @if (sortSetting == 'amount') {
-          <i class="fas fa-sort"></i>
-          }
-        </th>
-        <th scope="col" class="cursor-pointer" (click)="sort('created')">Created @if (sortSetting == 'created') {
-          <i class="fas fa-sort"></i>
-          }
-        </th>
-      </tr>
-    </thead>
-    @for (ingredient of ingredients; track ingredient; let i = $index) {
-    <tbody>
-      <tr id="table-row{{i}}" tabindex="1" class="clickable collapsed">
-        <th scope="row">
-          <input class="form-check-input me-1 cursor-pointer" type="checkbox" value="" (click)="toggleIngredientSelected(ingredient)">
-        </th>
-        <td class="cursor-pointer" (click)="toggleAccordionAndLoad(ingredient, 'accordion' + i, 'table-row' + i)">
-          {{ingredient.name}}
-        </td>
-        <td class="cursor-pointer" (click)="toggleAccordionAndLoad(ingredient, 'accordion' + i, 'table-row' + i)">
-          {{ingredient.amount}} {{ingredient.amountType}}
-        </td>
-        <td class="cursor-pointer" (click)="toggleAccordionAndLoad(ingredient, 'accordion' + i, 'table-row' + i)">
-          {{displayDateOnly(ingredient.created)}}
-        </td>
-      </tr>
-      <tr>
-        <td colspan="12" id="accordion{{i}}" class="accordion-collapse collapse tr">
-          @if (isIngredientDetailsLoading(ingredient)) {
-          <div class="col-3 figure-img img-fluid rounded ingredient-image-skeleton"></div>
-          }
-          @if (ingredient.image && !isIngredientDetailsLoading(ingredient)) {
-          <img [src]="ingredient.image.url" class="col-3 figure-img img-fluid rounded" [alt]="ingredient.image.caption">
-          }
-          <div class="col-9 list-group list-group-flush float-end ps-3">
-            <h5>Description</h5>{{ingredient.description}}
-          </div>
-        </td>
-      </tr>
-    </tbody>
-    }
-  </table>
+    <div class="grocery-stats">
+      <div class="stat-card">
+        <span class="stat-value">{{ ingredientCount }}</span>
+        <span class="stat-label">Ingredients</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value">{{ selectedIngredientCount }}</span>
+        <span class="stat-label">Selected</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value">{{ sortLabel }}</span>
+        <span class="stat-label">Sorted by</span>
+      </div>
+    </div>
+  </section>
+
+  @if (hasIngredients) {
+  <section class="grocery-card">
+    <div class="grocery-card-header">
+      <div>
+        <h2 class="mb-1">Ingredient list</h2>
+        <p class="mb-0">Select items, sort the columns, and click any row to preview the ingredient image and description.</p>
+      </div>
+      <button class="btn btn-outline-brand" type="button" [disabled]="selectedIngredientCount === 0" (click)="clearSelection()">Clear selection</button>
+    </div>
+
+    <table class="table table-hover align-middle caption-top grocery-table mb-0">
+      <caption>List of ingredients</caption>
+      <thead>
+        <tr>
+          <th scope="col" class="selection-column"></th>
+          <th scope="col" class="cursor-pointer" (click)="sort('name')">Ingredient @if (sortSetting == 'name') {
+            <i [ngClass]="ascending ? 'fas fa-sort-down' : 'fas fa-sort-up'"></i>
+            }
+          </th>
+          <th scope="col" class="cursor-pointer" (click)="sort('amount')">Amount @if (sortSetting == 'amount') {
+            <i [ngClass]="ascending ? 'fas fa-sort-down' : 'fas fa-sort-up'"></i>
+            }
+          </th>
+          <th scope="col" class="cursor-pointer" (click)="sort('created')">Created @if (sortSetting == 'created') {
+            <i [ngClass]="ascending ? 'fas fa-sort-down' : 'fas fa-sort-up'"></i>
+            }
+          </th>
+        </tr>
+      </thead>
+      @for (ingredient of ingredients; track ingredient; let i = $index) {
+      <tbody>
+        <tr id="table-row{{i}}" tabindex="1" class="clickable collapsed" [class.is-selected]="isIngredientSelected(ingredient)">
+          <th scope="row">
+            <input class="form-check-input me-1 cursor-pointer" type="checkbox" [checked]="isIngredientSelected(ingredient)" (click)="$event.stopPropagation(); toggleIngredientSelected(ingredient)">
+          </th>
+          <td class="cursor-pointer" (click)="handleIngredientClick(ingredient, 'accordion' + i, 'table-row' + i)">
+            {{ingredient.name}}
+          </td>
+          <td class="cursor-pointer" (click)="handleIngredientClick(ingredient, 'accordion' + i, 'table-row' + i)">
+            {{ingredient.amount}} {{ingredient.amountType}}
+          </td>
+          <td class="cursor-pointer" (click)="handleIngredientClick(ingredient, 'accordion' + i, 'table-row' + i)">
+            {{displayDateOnly(ingredient.created)}}
+          </td>
+        </tr>
+        <tr>
+          <td colspan="12" id="accordion{{i}}" class="accordion-collapse collapse tr ingredient-details-cell">
+            <div class="ingredient-details-grid">
+              <div class="ingredient-media">
+                @if (isIngredientDetailsLoading(ingredient)) {
+                <div class="ingredient-image-skeleton"></div>
+                }
+                @if (ingredient.image && !isIngredientDetailsLoading(ingredient)) {
+                <img [src]="ingredient.image.url" class="ingredient-image img-fluid rounded" [alt]="ingredient.image.caption">
+                }
+              </div>
+              <div class="ingredient-description">
+                <h5 class="mb-2">Description</h5>
+                <p class="mb-0">{{ ingredient.description || 'No description available yet.' }}</p>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+      }
+    </table>
+  </section>
+  } @else {
+  <section class="grocery-empty-state">
+    <div class="empty-badge">Nothing here yet</div>
+    <h2 class="mt-3 mb-2">Start your grocery list</h2>
+    <p class="mb-4">Add ingredients manually or pull them in from recipes to build a list that is ready to shop from.</p>
+    <div class="grocery-empty-actions">
+      <button class="btn btn-brand-alt" type="button" routerLink="/recipes">Add a recipe</button>
+      <button class="btn btn-brand-secondary" type="button" routerLink="/dashboard/ingredients">Add an ingredient</button>
+    </div>
+  </section>
+  }
 </div>
 
 <app-list-overlay [title]="'Add to grocery list'"></app-list-overlay>

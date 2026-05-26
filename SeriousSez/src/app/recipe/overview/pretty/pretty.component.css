@@ -1,42 +1,92 @@
-.card-group{
+.card-group {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
 }
 
-.card{
+.card {
     box-shadow: 0 2px 3px rgb(0 0 0 / 5%);
     background-color: white;
     border: 1px solid #eee;
+    position: relative;
+    overflow: hidden;
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
 }
 
-img{
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px rgb(0 0 0 / 10%);
+}
+
+.is-selected {
+    border-color: rgba(90, 180, 140, 0.75);
+    box-shadow: 0 0 0 3px rgba(90, 180, 140, 0.16), 0 14px 30px rgb(0 0 0 / 10%);
+}
+
+.recipe-select {
+    position: absolute;
+    top: .75rem;
+    right: .75rem;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    color: #17324d;
+    opacity: 0;
+    transform: scale(0.92);
+    transition: opacity .15s ease, transform .15s ease;
+    box-shadow: none;
+    padding: 0;
+}
+
+.card:hover .recipe-select,
+.card:focus-within .recipe-select {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.recipe-select:hover {
+    background: transparent;
+}
+
+.recipe-select i {
+    font-size: 1.05rem;
+}
+
+img {
     object-fit: cover;
     max-height: 225px;
     min-height: 225px;
 }
 
 @media only screen and (max-device-width: 480px) {
-   /* styles for mobile browsers smaller than 480px; (iPhone) */
-    .card-group{
+
+    /* styles for mobile browsers smaller than 480px; (iPhone) */
+    .card-group {
         grid-template-columns: repeat(1, 1fr);
     }
 }
+
 @media only screen and (device-width: 768px) {
-   /* default iPad screens */
-    .card-group{
+
+    /* default iPad screens */
+    .card-group {
         grid-template-columns: repeat(1, 1fr);
     }
 }
+
 /* different techniques for iPad screening */
 @media only screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:portrait) {
-    .card-group{
+    .card-group {
         grid-template-columns: repeat(1, 1fr);
     }
 }
 
 @media only screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:landscape) {
-  /* For landscape layouts only */
-    .card-group{
+
+    /* For landscape layouts only */
+    .card-group {
         grid-template-columns: repeat(3, 1fr);
     }
 }

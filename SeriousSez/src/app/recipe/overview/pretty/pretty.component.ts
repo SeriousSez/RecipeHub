@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { DatePipe } from '@angular/common'
 import { Router } from '@angular/router';
 import { UserService } from 'src/app/shared/services/user.service';
@@ -18,12 +18,13 @@ import { UtilityService } from 'src/app/shared/utils/utility.service';
 export class PrettyComponent implements OnInit {
   @Input() recipes: Recipe[] = [];
   @Input() favoredRecipes: Recipe[] = [];
+  @Input() selectedRecipes: Recipe[] = [];
+  @Output() selectRecipe = new EventEmitter<Recipe>();
 
   public recipeList: Recipe[] = [];
   public groceryList: Ingredient[] = [];
 
   public shownRecipes: Recipe[] = [];
-  public selectedRecipes: Recipe[] = [];
   public showFavorites: boolean = false;
 
   public sortSetting: string = 'created';
@@ -79,7 +80,7 @@ export class PrettyComponent implements OnInit {
   }
 
   displayDateOnly(created: string) {
-    this.utilityService.displayDateOnly(created);
+    return this.utilityService.displayDateOnly(created);
   }
 
   sort(sortSetting: string) {

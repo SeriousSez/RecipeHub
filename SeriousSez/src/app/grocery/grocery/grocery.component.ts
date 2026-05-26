@@ -18,7 +18,7 @@ export class GroceryComponent implements OnInit {
 
   targetUrl: string = '/dashboard/createingredients';
 
-  ingredients: Ingredient[];
+  ingredients: Ingredient[] = [];
   loadingIngredientDetails: Set<string> = new Set<string>();
   loadedIngredientDetails: Set<string> = new Set<string>();
 
@@ -37,6 +37,29 @@ export class GroceryComponent implements OnInit {
 
   getIngredients() {
     this.ingredients = this.groceryService.getIngredientList();
+  }
+
+  get ingredientCount() {
+    return this.ingredients.length;
+  }
+
+  get selectedIngredientCount() {
+    return this.selectedIngredients.length;
+  }
+
+  get hasIngredients() {
+    return this.ingredientCount > 0;
+  }
+
+  get sortLabel() {
+    switch (this.sortSetting) {
+      case 'amount':
+        return 'Amount';
+      case 'created':
+        return 'Created';
+      default:
+        return 'Ingredient';
+    }
   }
 
   save() {
@@ -62,6 +85,14 @@ export class GroceryComponent implements OnInit {
     }
   }
 
+  isIngredientSelected(ingredient: Ingredient) {
+    return this.selectedIngredients.indexOf(ingredient, 0) > -1;
+  }
+
+  clearSelection() {
+    this.selectedIngredients = [];
+  }
+
   removeIngredientFromList(ingredient: Ingredient) {
     var index = this.ingredients.indexOf(ingredient, 0);
     if (index > -1) {
@@ -85,6 +116,12 @@ export class GroceryComponent implements OnInit {
     switch (sortSetting) {
       case 'name':
         this.ingredients.sort((a, b) => this.ascending == true ? a.name.localeCompare(b.name) : -(a.name.localeCompare(b.name)));
+        this.ascending = !this.ascending;
+        return;
+      case 'amount':
+        this.ingredients.sort((a, b) => this.ascending == true
+          ? (a.amount - b.amount) || a.name.localeCompare(b.name)
+          : (b.amount - a.amount) || b.name.localeCompare(a.name));
         this.ascending = !this.ascending;
         return;
       case 'created':
@@ -141,6 +178,15 @@ export class GroceryComponent implements OnInit {
     this.toggleAccordion(id, tableRowId);
   }
 
+  handleIngredientClick(ingredient: Ingredient, id: string, tableRowId: string) {
+    if (this.isMobileViewport()) {
+      this.toggleIngredientSelected(ingredient);
+      return;
+    }
+
+    this.toggleAccordionAndLoad(ingredient, id, tableRowId);
+  }
+
   isIngredientDetailsLoading(ingredient: Ingredient) {
     return this.loadingIngredientDetails.has(this.getIngredientKey(ingredient));
   }
@@ -170,5 +216,9 @@ export class GroceryComponent implements OnInit {
 
   private getIngredientKey(ingredient: Ingredient) {
     return ingredient?.name?.trim().toLowerCase() ?? '';
+  }
+
+  private isMobileViewport() {
+    return typeof window !== 'undefined' && window.innerWidth <= 600;
   }
 }

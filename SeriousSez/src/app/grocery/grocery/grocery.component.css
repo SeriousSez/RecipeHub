@@ -25,10 +25,245 @@
         float: left !important;
         margin-top: .5rem;
     }
+
+    .grocery-hero,
+    .grocery-card,
+    .grocery-empty-state {
+        padding: 1rem;
+    }
+
+    .grocery-hero-actions,
+    .grocery-empty-actions {
+        flex-direction: column;
+    }
+
+    .grocery-hero-actions .btn,
+    .grocery-empty-actions .btn {
+        width: 100%;
+    }
+
+    .grocery-stats,
+    .ingredient-details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .grocery-table .is-selected td,
+    .grocery-table .is-selected th {
+        opacity: 0.5;
+    }
+
+    .grocery-table .is-selected input {
+        opacity: 1;
+    }
+}
+
+.grocery-page {
+    color: #17324d;
+}
+
+.grocery-hero,
+.grocery-card,
+.grocery-empty-state {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(23, 50, 77, 0.08);
+    border-radius: 1.5rem;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(245, 248, 252, 0.96));
+    box-shadow: 0 24px 60px rgba(16, 24, 40, 0.08);
+}
+
+.grocery-hero {
+    padding: 1.5rem;
+    background:
+        radial-gradient(circle at top right, rgba(90, 180, 140, 0.2), transparent 32%),
+        radial-gradient(circle at bottom left, rgba(78, 134, 192, 0.14), transparent 38%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(243, 247, 251, 0.96));
+}
+
+.grocery-hero-copy {
+    max-width: 42rem;
+}
+
+.grocery-eyebrow {
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: .18em;
+    font-weight: 700;
+    color: #5c7c6a;
+}
+
+.grocery-hero h1,
+.grocery-card h2,
+.grocery-empty-state h2 {
+    font-weight: 800;
+    letter-spacing: -0.03em;
+}
+
+.grocery-lead,
+.grocery-card p,
+.grocery-empty-state p {
+    color: #5f6f7f;
+}
+
+.grocery-hero-actions,
+.grocery-empty-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    margin-top: 1.25rem;
+}
+
+.grocery-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: .75rem;
+    margin-top: 1.25rem;
+}
+
+.stat-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 5.25rem;
+    padding: 1rem 1.1rem;
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(23, 50, 77, 0.08);
+    backdrop-filter: blur(6px);
+}
+
+.stat-value {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #17324d;
+    line-height: 1.1;
+}
+
+.stat-label {
+    margin-top: .25rem;
+    font-size: .88rem;
+    color: #66788a;
+}
+
+.grocery-card {
+    padding: 1.25rem;
+}
+
+.grocery-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.grocery-table {
+    margin-bottom: 0;
+}
+
+.selection-column {
+    width: 3rem;
+}
+
+.clickable {
+    transition: background-color .2s ease, transform .2s ease;
+}
+
+.clickable:hover {
+    transform: translateY(-1px);
+}
+
+.is-selected {
+    background: rgba(90, 180, 140, 0.12) !important;
+}
+
+.grocery-table .is-selected td,
+.grocery-table .is-selected th {
+    text-decoration: line-through;
+    text-decoration-thickness: 2px;
+}
+
+.ingredient-details-cell {
+    padding: 0 !important;
+    border-top: none !important;
+}
+
+.ingredient-details-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 1rem;
+    padding: 1rem;
+    align-items: stretch;
+}
+
+.ingredient-media {
+    min-height: 180px;
+}
+
+.ingredient-image,
+.ingredient-image-skeleton {
+    width: 100%;
+    height: 100%;
+    min-height: 180px;
+    object-fit: cover;
+    border-radius: 1rem;
 }
 
 .ingredient-image-skeleton {
-    min-height: 180px;
-    background-color: #e9ecef;
+    background:
+        linear-gradient(90deg, rgba(233, 236, 239, 0.9), rgba(214, 222, 230, 0.9), rgba(233, 236, 239, 0.9));
+    background-size: 200% 100%;
+    animation: grocery-pulse 1.4s ease-in-out infinite;
     border: 1px solid #dee2e6;
+}
+
+.ingredient-description {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 1.1rem;
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(23, 50, 77, 0.08);
+}
+
+.grocery-empty-state {
+    padding: 2rem;
+    text-align: center;
+}
+
+.empty-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: .4rem .85rem;
+    border-radius: 999px;
+    background: rgba(90, 180, 140, 0.14);
+    color: #4c7c66;
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.btn-outline-brand {
+    border-color: rgba(23, 50, 77, 0.18);
+    color: #17324d;
+}
+
+.btn-outline-brand:hover {
+    background: rgba(23, 50, 77, 0.06);
+}
+
+@keyframes grocery-pulse {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
 }

@@ -33,10 +33,13 @@ export class OverviewComponent implements OnInit {
 
   public loading: boolean = true;
   public loadError: boolean = false;
+  public groceryFeedbackMessage: string = '';
+  public groceryFeedbackType: 'success' | 'danger' = 'success';
   isAuthenticated: boolean = false;
   settings: UserSettings = { preferredLanguage: 'English', theme: 'Light', recipesTheme: 'Pretty', myRecipesTheme: 'Pretty' };
   subscription?: Subscription;
   settingsSubscription?: Subscription;
+  private groceryFeedbackTimer?: ReturnType<typeof setTimeout>;
 
   constructor(private recipeService: RecipeService, private userService: UserService, private favoriteService: FavoriteService, private groceryService: GroceryService, private datepipe: DatePipe, private router: Router, private utilityService: UtilityService) { }
 
@@ -102,9 +105,11 @@ export class OverviewComponent implements OnInit {
     forkJoin(selectedRecipeRequests).subscribe((fullRecipes: Recipe[]) => {
       fullRecipes.forEach(recipe => this.groceryService.toggleRecipeToList(recipe));
       this.recipeList = this.groceryService.getRecipeList();
+      this.showGroceryFeedback(`Added ${fullRecipes.length} recipe${fullRecipes.length === 1 ? '' : 's'} to groceries.`, 'success');
+      this.clearSelectedRecipes();
     },
       error => {
-        //this.notificationService.printErrorMessage(error);
+        this.showGroceryFeedback('Unable to add recipes to groceries right now.', 'danger');
       });
   }
 
@@ -115,6 +120,23 @@ export class OverviewComponent implements OnInit {
     } else {
       this.selectedRecipes.push(recipe);
     }
+  }
+
+  clearSelectedRecipes() {
+    this.selectedRecipes = [];
+  }
+
+  private showGroceryFeedback(message: string, type: 'success' | 'danger') {
+    this.groceryFeedbackMessage = message;
+    this.groceryFeedbackType = type;
+
+    if (this.groceryFeedbackTimer) {
+      clearTimeout(this.groceryFeedbackTimer);
+    }
+
+    this.groceryFeedbackTimer = setTimeout(() => {
+      this.groceryFeedbackMessage = '';
+    }, 3500);
   }
 
   toggleDisplay() {

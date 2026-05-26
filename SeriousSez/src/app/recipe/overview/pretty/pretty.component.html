@@ -1,7 +1,10 @@
 @if (recipes.length > 0) {
 <div class="card-group">
   @for (recipe of recipes; track recipe) {
-  <div (click)="openRecipe(recipe)" class="card cursor-pointer hover-90 m-1">
+  <div (click)="openRecipe(recipe)" class="card cursor-pointer hover-90 m-1" [class.is-selected]="selectedRecipes.includes(recipe)">
+    <button class="recipe-select" type="button" (click)="$event.stopPropagation(); selectRecipe.emit(recipe)" [attr.aria-pressed]="selectedRecipes.includes(recipe)">
+      <i [ngClass]="selectedRecipes.includes(recipe) ? 'fas fa-check-square' : 'far fa-square'"></i>
+    </button>
     <img class="card-img-top" [src]="recipe.image?.url || '../assets/images/food.png'" alt="Card image cap">
     <div class="card-body">
       <h5 class="card-title">{{recipe.title}}</h5>
