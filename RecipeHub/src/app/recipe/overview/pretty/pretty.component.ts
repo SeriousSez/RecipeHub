@@ -19,6 +19,8 @@ export class PrettyComponent implements OnInit {
   @Input() recipes: Recipe[] = [];
   @Input() favoredRecipes: Recipe[] = [];
   @Input() selectedRecipes: Recipe[] = [];
+  @Input() pantryIngredients: string[] = [];
+  @Input() bestMatchScore: number = 0;
   @Output() selectRecipe = new EventEmitter<Recipe>();
 
   public recipeList: Recipe[] = [];
@@ -81,6 +83,56 @@ export class PrettyComponent implements OnInit {
 
   displayDateOnly(created: string) {
     return this.utilityService.displayDateOnly(created);
+  }
+
+  getVisibleBadges(recipe: Recipe): Array<{ value: string, kind: 'category' | 'tag' }> {
+    const categories = (recipe.categories ?? []).map(item => item.trim()).filter(Boolean);
+    const tags = (recipe.tags ?? []).map(item => item.trim()).filter(Boolean);
+    const seen = new Set<string>();
+    const badges: Array<{ value: string, kind: 'category' | 'tag' }> = [];
+
+    categories.forEach(category => {
+      const normalized = category.toLowerCase();
+      if (!seen.has(normalized)) {
+        seen.add(normalized);
+        badges.push({ value: category, kind: 'category' });
+      }
+    });
+
+    tags.forEach(tag => {
+      const normalized = tag.toLowerCase();
+      if (!seen.has(normalized)) {
+        seen.add(normalized);
+        badges.push({ value: tag, kind: 'tag' });
+      }
+    });
+
+    return badges;
+  }
+
+  getIngredientMatchSummary(recipe: Recipe) {
+    if (!this.pantryIngredients || this.pantryIngredients.length === 0) {
+      return { matched: 0, missing: 0, isBestMatch: false };
+    }
+
+    const pantrySet = this.pantryIngredients.map(value => value.trim().toLowerCase()).filter(Boolean);
+    const recipeMatchCount = (recipe.ingredients ?? []).filter(ingredient => {
+      const ingredientName = ingredient.name.trim().toLowerCase();
+      return pantrySet.some(item =>
+        item === ingredientName ||
+        item.includes(ingredientName) ||
+        ingredientName.includes(item)
+      );
+    }).length;
+
+    const totalIngredients = (recipe.ingredients ?? []).length;
+    const missingCount = Math.max(totalIngredients - recipeMatchCount, 0);
+
+    return {
+      matched: recipeMatchCount,
+      missing: missingCount,
+      isBestMatch: this.bestMatchScore > 0 && recipeMatchCount === this.bestMatchScore
+    };
   }
 
   sort(sortSetting: string) {

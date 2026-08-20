@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Configuration;
 using RecipeHub.Domain.Entities;
 using RecipeHub.Domain.Entities.Fridge;
@@ -45,6 +48,34 @@ namespace RecipeHub.Infrastructure
         public DbSet<FridgeGrocery> FridgeGroceries { get; set; }
 
         public DbSet<Image> Images { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            var stringListComparer = new ValueComparer<List<string>>(
+                (left, right) => left != null && right != null && left.SequenceEqual(right),
+                value => value == null ? 0 : value.Aggregate(0, (hash, item) => HashCode.Combine(hash, item == null ? 0 : item.GetHashCode())),
+                value => value == null ? new List<string>() : value.ToList());
+
+            modelBuilder.Entity<Recipe>()
+                .Property(r => r.Categories)
+                .HasConversion(
+                    v => string.Join(";", v),
+                    v => string.IsNullOrWhiteSpace(v)
+                        ? new List<string>()
+                        : v.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList())
+                .Metadata.SetValueComparer(stringListComparer);
+
+            modelBuilder.Entity<Recipe>()
+                .Property(r => r.Tags)
+                .HasConversion(
+                    v => string.Join(";", v),
+                    v => string.IsNullOrWhiteSpace(v)
+                        ? new List<string>()
+                        : v.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList())
+                .Metadata.SetValueComparer(stringListComparer);
+        }
 
         //protected override void OnModelCreating(ModelBuilder modelBuilder)½                                   
         //{

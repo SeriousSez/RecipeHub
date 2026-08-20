@@ -47,6 +47,8 @@ namespace RecipeHub.ApplicationService.Services
 
             var recipe = _mapper.Map<Recipe>(model);
             recipe.Creator = user;
+            recipe.Categories = model.Categories ?? new List<string>();
+            recipe.Tags = model.Tags ?? new List<string>();
 
             await _recipeRepository.Create(recipe);
 
@@ -168,7 +170,9 @@ namespace RecipeHub.ApplicationService.Services
             foreach (var recipe in recipes)
             {
                 var recipeResponse = _mapper.Map<RecipeResponse>(recipe);
-                recipeResponse.Ingredients = new List<IngredientResponse>();
+                recipeResponse.Ingredients = recipe.RecipeIngredients == null
+                    ? new List<IngredientResponse>()
+                    : recipe.RecipeIngredients.Select(CreateIngredientResponeModel).ToList();
 
                 recipeList.Add(recipeResponse);
             }
@@ -199,9 +203,13 @@ namespace RecipeHub.ApplicationService.Services
                     Instructions = recipe.Instructions,
                     Language = recipe.Language,
                     Portions = recipe.Portions,
+                    Categories = recipe.Categories ?? new List<string>(),
+                    Tags = recipe.Tags ?? new List<string>(),
                     Created = recipe.Created,
                     Image = _mapper.Map<ImageResponse>(recipe.Image),
-                    Ingredients = new List<IngredientResponse>()
+                    Ingredients = recipe.RecipeIngredients == null
+                        ? new List<IngredientResponse>()
+                        : recipe.RecipeIngredients.Select(CreateIngredientResponeModel).ToList()
                 };
 
                 recipeList.Add(recipeResponse);
@@ -270,6 +278,8 @@ namespace RecipeHub.ApplicationService.Services
             recipe.Description = model.Description;
             recipe.Instructions = model.Instructions;
             recipe.Portions = model.Portions;
+            recipe.Categories = model.Categories ?? new List<string>();
+            recipe.Tags = model.Tags ?? new List<string>();
             //recipe.Language = model.Language;
             await _recipeRepository.Update(recipe);
 

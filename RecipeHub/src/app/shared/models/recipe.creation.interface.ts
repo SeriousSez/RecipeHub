@@ -12,4 +12,6 @@ export interface RecipeCreation {
     imageUrl: string;
     image: ImageCreation;
     ingredients: IngredientCreation[];
+    categories?: string[];
+    tags?: string[];
 }

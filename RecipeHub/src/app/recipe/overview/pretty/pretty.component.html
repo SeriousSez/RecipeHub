@@ -1,20 +1,27 @@
 @if (recipes.length > 0) {
 <div class="card-group">
   @for (recipe of recipes; track recipe) {
-  <div (click)="openRecipe(recipe)" class="card cursor-pointer hover-90 m-1" [class.is-selected]="selectedRecipes.includes(recipe)">
+  <article (click)="openRecipe(recipe)" class="recipe-card cursor-pointer" [class.is-selected]="selectedRecipes.includes(recipe)">
     <button class="recipe-select" type="button" (click)="$event.stopPropagation(); selectRecipe.emit(recipe)" [attr.aria-pressed]="selectedRecipes.includes(recipe)">
       <i [ngClass]="selectedRecipes.includes(recipe) ? 'fas fa-check-square' : 'far fa-square'"></i>
     </button>
-    <img class="card-img-top" [src]="recipe.image?.url || '../assets/images/food.png'" alt="Card image cap">
-    <div class="card-body">
-      <h5 class="card-title">{{recipe.title}}</h5>
-      <p class="card-text">{{ (recipe.description.length > 140) ? (recipe.description | slice:0:140) + '...' : recipe.description }}</p>
+
+    <div class="recipe-hero">
+      <img [src]="recipe.image?.url || '../assets/images/food.png'" [alt]="recipe.title">
+      <div class="recipe-badge" *ngIf="pantryIngredients.length > 0 && getIngredientMatchSummary(recipe).isBestMatch">Best match</div>
     </div>
-    <div class="card-footer">
-      <small class="text-muted">{{recipe.creator}}</small>
-      <small class="text-muted float-end">{{utilityService.displayDateOnly(recipe.created)}}</small>
+
+    <div class="recipe-body">
+      <h3 class="recipe-title">{{ recipe.title }}</h3>
+      <p class="recipe-subtitle" *ngIf="recipe.description">{{ recipe.description }}</p>
+
+      <div class="recipe-badges" *ngIf="getVisibleBadges(recipe).length > 0">
+        <span *ngFor="let badge of getVisibleBadges(recipe)" [ngClass]="badge.kind === 'category' ? 'recipe-category' : 'recipe-tag'">
+          {{ badge.value }}
+        </span>
+      </div>
     </div>
-  </div>
+  </article>
   }
 </div>
 }

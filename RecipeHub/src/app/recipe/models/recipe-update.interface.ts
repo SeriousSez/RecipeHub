@@ -11,4 +11,6 @@ export interface RecipeUpdate {
     created: string;
     image: Image | null;
     ingredients: Ingredient[];
+    categories?: string[];
+    tags?: string[];
 }

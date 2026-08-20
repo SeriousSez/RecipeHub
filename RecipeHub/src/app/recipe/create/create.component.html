@@ -117,10 +117,29 @@
                       }
                     </div>
                     }
-                    <!-- <input id="image-caption" type="text" name="language" class="form-control" [ngClass]="{ 'is-invalid': f.language.touched && f.language.errors }" placeholder="Card Description" autocomplete="off" data-lpignore="true" formControlName="description">
-                  <div *ngIf="f.description.touched && f.description.errors" class="invalid-feedback">
-                    <div *ngIf="f.description.errors.required">Description is required</div>
-                  </div> -->
+                  </div>
+
+                  <div class="form-group mt-3 suggestion-field-wrap">
+                    <label for="categories">Categories</label>
+                    <input id="categories" type="text" name="categories" class="form-control" placeholder="breakfast, lunch, healthy" autocomplete="off" data-lpignore="true" formControlName="categories" (input)="handlePresetSearch('category')"
+                      (focus)="showCategorySuggestions = true; handlePresetSearch('category')">
+                    <div class="suggestion-pills" *ngIf="filteredPresetCategories.length > 0">
+                      <button type="button" class="suggestion-pill" [class.is-active]="isPresetSelected('category', category)" *ngFor="let category of filteredPresetCategories" (mousedown)="$event.preventDefault(); addPresetValue('category', category)">
+                        {{ category }}
+                      </button>
+                    </div>
+                    <small class="text-muted">Type a custom value or choose from the suggestions.</small>
+                  </div>
+
+                  <div class="form-group mt-3 suggestion-field-wrap">
+                    <label for="tags">Tags</label>
+                    <input id="tags" type="text" name="tags" class="form-control" placeholder="quick, vegetarian, budget" autocomplete="off" data-lpignore="true" formControlName="tags" (input)="handlePresetSearch('tag')" (focus)="showTagSuggestions = true; handlePresetSearch('tag')">
+                    <div class="suggestion-pills" *ngIf="filteredPresetTags.length > 0">
+                      <button type="button" class="suggestion-pill" [class.is-active]="isPresetSelected('tag', tag)" *ngFor="let tag of filteredPresetTags" (mousedown)="$event.preventDefault(); addPresetValue('tag', tag)">
+                        {{ tag }}
+                      </button>
+                    </div>
+                    <small class="text-muted">Type a custom value or choose from the suggestions.</small>
                   </div>
                 </div>
               </div>
@@ -294,24 +313,30 @@ class="views-count-label tw-hidden md_tw-inline">views</span></span></div>
       }
 
       @if (recipePreview === false) {
-      <div class="card-group">
-        <div class="card cursor-pointer hover-90 m-1">
-          <img class="card-img-top" [src]="imageUrl == defaultImageUrl ? '../../assets/images/spices.jpg' : imageUrl" alt="Card image cap">
-          <div class="card-body">
-            <h5 class="card-title">{{recipeForm.get('title')?.value.length > 0 ? recipeForm.get('title')?.value : 'Bad Example'}}</h5>
-            @if (recipeForm.get('description')?.value.length > 0) {
-            <p class="card-text">{{ recipeForm.get('description')?.value.length > 140 ? (recipeForm.get('description')?.value | slice:0:140) + '...' : recipeForm.get('description')?.value }}</p>
-            }
-            @if (recipeForm.get('description')?.value.length == 0) {
-            <p class="card-text">{{ fakeDescription.length > 140 ? (fakeDescription | slice:0:140) + '...' : fakeDescription }}</p>
-            }
-          </div>
-          <div class="card-footer">
-            <small class="text-muted">{{userService.getUserName()}}</small>
-            <small class="text-muted float-end">{{utilityService.getCurrentDateAsDateOnly()}}</small>
+      <article class="create-preview-card">
+        <div class="create-preview-hero">
+          <img [src]="imageUrl == defaultImageUrl ? '../../assets/images/spices.jpg' : imageUrl" [alt]="recipeForm.get('title')?.value || 'Recipe preview image'">
+        </div>
+
+        <div class="create-preview-body">
+          <h3 class="create-preview-title">{{ recipeForm.get('title')?.value?.length > 0 ? recipeForm.get('title')?.value : 'Bad Example' }}</h3>
+
+          <p class="create-preview-subtitle" *ngIf="recipeForm.get('description')?.value?.length > 0; else defaultDescription">
+            {{ recipeForm.get('description')?.value.length > 140 ? (recipeForm.get('description')?.value | slice:0:140) + '...' : recipeForm.get('description')?.value }}
+          </p>
+
+          <ng-template #defaultDescription>
+            <p class="create-preview-subtitle">
+              {{ fakeDescription.length > 140 ? (fakeDescription | slice:0:140) + '...' : fakeDescription }}
+            </p>
+          </ng-template>
+
+          <div class="create-preview-badges" *ngIf="getSelectedValues(recipeForm.get('categories')?.value).length > 0 || getSelectedValues(recipeForm.get('tags')?.value).length > 0">
+            <span class="create-preview-category" *ngFor="let category of getSelectedValues(recipeForm.get('categories')?.value)">{{ category }}</span>
+            <span class="create-preview-tag" *ngFor="let tag of getSelectedValues(recipeForm.get('tags')?.value)">{{ tag }}</span>
           </div>
         </div>
-      </div>
+      </article>
       }
     </div>
   </div>

@@ -1,92 +1,167 @@
 .card-group {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+    align-items: stretch;
 }
 
-.card {
-    box-shadow: 0 2px 3px rgb(0 0 0 / 5%);
-    background-color: white;
-    border: 1px solid #eee;
-    position: relative;
+.recipe-card {
+    display: flex;
+    flex-direction: column;
+    background: #f7f7f7;
+    border: 1px solid #e4e4e4;
+    border-radius: 1rem;
     overflow: hidden;
-    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    padding: 0;
 }
 
-.card:hover {
+.recipe-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 14px 30px rgb(0 0 0 / 10%);
+    box-shadow: 0 16px 32px rgba(15, 23, 42, 0.12);
+    border-color: rgba(34, 99, 235, 0.2);
 }
 
 .is-selected {
     border-color: rgba(90, 180, 140, 0.75);
-    box-shadow: 0 0 0 3px rgba(90, 180, 140, 0.16), 0 14px 30px rgb(0 0 0 / 10%);
+    box-shadow: 0 0 0 3px rgba(90, 180, 140, 0.12), 0 18px 32px rgba(15, 23, 42, 0.12);
 }
 
 .recipe-select {
     position: absolute;
-    top: .75rem;
-    right: .75rem;
-    z-index: 2;
+    top: .85rem;
+    right: .85rem;
+    z-index: 3;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    width: 2.1rem;
+    height: 2.1rem;
     border: none;
-    background: transparent;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
     color: #17324d;
     opacity: 0;
     transform: scale(0.92);
-    transition: opacity .15s ease, transform .15s ease;
-    box-shadow: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
     padding: 0;
 }
 
-.card:hover .recipe-select,
-.card:focus-within .recipe-select {
+.recipe-card:hover .recipe-select,
+.recipe-card:focus-within .recipe-select {
     opacity: 1;
     transform: scale(1);
 }
 
-.recipe-select:hover {
-    background: transparent;
-}
-
 .recipe-select i {
-    font-size: 1.05rem;
+    font-size: 1rem;
 }
 
-img {
+.recipe-hero {
+    position: relative;
+    height: 260px;
+    background: #eaeaea;
+}
+
+.recipe-hero img {
+    width: 100%;
+    height: 100%;
     object-fit: cover;
-    max-height: 225px;
-    min-height: 225px;
+    display: block;
+}
+
+.recipe-badge {
+    position: absolute;
+    left: 1rem;
+    bottom: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(17, 24, 39, 0.7);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: .45rem .75rem;
+    border-radius: .6rem;
+    backdrop-filter: blur(5px);
+}
+
+.recipe-body {
+    padding: 1rem 1rem 1rem;
+}
+
+.recipe-title {
+    margin: 0;
+    font-size: clamp(1.1rem, 1.45vw, 1.55rem);
+    line-height: 1.18;
+    font-weight: 700;
+    letter-spacing: -0.045em;
+    color: #111827;
+}
+
+.recipe-subtitle {
+    margin: .55rem 0 0;
+    color: #4b5563;
+    font-size: .75rem;
+    line-height: 1.4;
+    font-weight: 400;
+}
+
+.recipe-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .45rem;
+    margin-top: .8rem;
+}
+
+.recipe-category,
+.recipe-tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 1.65rem;
+    padding: .3rem .6rem;
+    border-radius: .4rem;
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+    line-height: 1;
+    color: #fff;
+}
+
+.recipe-category {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+}
+
+.recipe-tag {
+    background: linear-gradient(135deg, #10b981, #059669);
 }
 
 @media only screen and (max-device-width: 480px) {
-
-    /* styles for mobile browsers smaller than 480px; (iPhone) */
     .card-group {
-        grid-template-columns: repeat(1, 1fr);
+        grid-template-columns: repeat(1, minmax(0, 1fr));
     }
 }
 
 @media only screen and (device-width: 768px) {
-
-    /* default iPad screens */
     .card-group {
-        grid-template-columns: repeat(1, 1fr);
+        grid-template-columns: repeat(1, minmax(0, 1fr));
     }
 }
 
-/* different techniques for iPad screening */
 @media only screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:portrait) {
     .card-group {
-        grid-template-columns: repeat(1, 1fr);
+        grid-template-columns: repeat(1, minmax(0, 1fr));
     }
 }
 
 @media only screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:landscape) {
-
-    /* For landscape layouts only */
     .card-group {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 }

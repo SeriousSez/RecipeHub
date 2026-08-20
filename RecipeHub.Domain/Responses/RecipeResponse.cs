@@ -12,6 +12,8 @@ namespace RecipeHub.Domain.Responses
         public string Instructions { get; set; }
         public string Language { get; set; }
         public string Portions { get; set; }
+        public List<string> Categories { get; set; } = new List<string>();
+        public List<string> Tags { get; set; } = new List<string>();
         public DateTime Created { get; set; }
         public ImageResponse Image { get; set; }
         public List<IngredientResponse> Ingredients { get; set; }

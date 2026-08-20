@@ -14,15 +14,17 @@ import { map } from 'rxjs/operators';
 import { UserService } from './user.service';
 import { GroceryList } from '../models/grocery-list.interface';
 
-@Injectable({ providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class GroceryService extends BaseService {
+    private readonly recipeListStorageKey = 'recipehub-grocery-recipes';
+    private readonly ingredientListStorageKey = 'recipehub-grocery-ingredients';
 
     baseUrl: string = '';
     private httpOptions = {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-      })
+        headers: new HttpHeaders({
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        })
     };
 
     private loggedIn = false;
@@ -34,104 +36,138 @@ export class GroceryService extends BaseService {
         super();
         this.loggedIn = !!localStorage.getItem('authToken');
         this.baseUrl = configService.getApiURI();
+        this.loadPersistedState();
     }
 
-    getGroceryLists(userId: string, recipe: Recipe){
-      return this.http.get<Ingredient[]>(this.baseUrl + `/grocery/getgrocerylists?userId=${userId}`, this.httpOptions)
-        .pipe(map(groceryLists => {
-          return groceryLists;
-        }, (error: any) => console.log(error, "fails")
-      ));
+    private loadPersistedState() {
+        if (typeof localStorage === 'undefined') {
+            return;
+        }
+
+        try {
+            const savedRecipes = localStorage.getItem(this.recipeListStorageKey);
+            const savedIngredients = localStorage.getItem(this.ingredientListStorageKey);
+
+            this.recipeList = savedRecipes ? JSON.parse(savedRecipes) as Recipe[] : [];
+            this.ingredientList = savedIngredients ? JSON.parse(savedIngredients) as Ingredient[] : [];
+        } catch {
+            this.recipeList = [];
+            this.ingredientList = [];
+        }
     }
-  
-    createPlan(){
+
+    private persistState() {
+        if (typeof localStorage === 'undefined') {
+            return;
+        }
+
+        localStorage.setItem(this.recipeListStorageKey, JSON.stringify(this.recipeList));
+        localStorage.setItem(this.ingredientListStorageKey, JSON.stringify(this.ingredientList));
+    }
+
+    getGroceryLists(userId: string, recipe: Recipe) {
+        return this.http.get<Ingredient[]>(this.baseUrl + `/grocery/getgrocerylists?userId=${userId}`, this.httpOptions)
+            .pipe(map(groceryLists => {
+                return groceryLists;
+            }, (error: any) => console.log(error, "fails")
+            ));
+    }
+
+    createPlan() {
         var model: GroceryPlan = {
             UserId: this.userService.getUserId(),
             Recipes: this.recipeList
         }
-    
+
         return this.http.post<GroceryPlan>(this.baseUrl + "/grocery/createplan", model, this.httpOptions)
             .pipe(map(result => {
-            return result;
+                return result;
             }, (error: any) => console.log(error, "fails")
-        ));
+            ));
     }
-  
-    createGroceryList(){
+
+    createGroceryList() {
         var model: GroceryList = {
             UserId: this.userService.getUserId(),
             Ingredients: this.ingredientList
         }
-    
+
         return this.http.post<GroceryList>(this.baseUrl + "/grocery/creategrocerylist", model, this.httpOptions)
             .pipe(map(result => {
-            return result;
+                return result;
             }, (error: any) => console.log(error, "fails")
-        ));
+            ));
     }
 
-    getRecipeList(){
+    getRecipeList() {
         return this.recipeList;
     }
 
-    isInGroceries(recipe: Recipe){
+    isInGroceries(recipe: Recipe) {
         return this.recipeList.some(r => r.title == recipe.title && r.creator == recipe.creator);
     }
 
-    getIngredientList(){
+    getIngredientList() {
         return this.ingredientList;
     }
 
-    toggleRecipeToList(recipe: Recipe){
-        if(this.recipeList.some(r => r.title == recipe.title && r.creator == recipe.creator)){
+    toggleRecipeToList(recipe: Recipe) {
+        if (this.recipeList.some(r => r.title == recipe.title && r.creator == recipe.creator)) {
             this.removeRecipeFromList(recipe);
-        }else{
+        } else {
             this.recipeList.push(recipe);
             this.addIngredientsFromRecipeToList(recipe);
         }
+
+        this.persistState();
     }
 
-    addIngredientsToList(ingredients: Ingredient[]){
+    addIngredientsToList(ingredients: Ingredient[]) {
         ingredients.forEach(ingredient => {
             var listIngredient = this.ingredientList.find(i => i.name == ingredient.name);
-            if(listIngredient && ingredient.amountType == listIngredient.amountType){
+            if (listIngredient && ingredient.amountType == listIngredient.amountType) {
                 this.ingredientList[this.ingredientList.indexOf(listIngredient)].amount = ingredient.amount + listIngredient.amount;
-            }else{
+            } else {
                 this.ingredientList.push(ingredient);
             }
         });
+
+        this.persistState();
     }
 
-    addIngredientsFromRecipeToList(recipe: Recipe){
+    addIngredientsFromRecipeToList(recipe: Recipe) {
         recipe.ingredients.forEach(ingredient => {
             var listIngredient = this.ingredientList.find(i => i.name == ingredient.name);
-            if(listIngredient && ingredient.amountType == listIngredient.amountType){
+            if (listIngredient && ingredient.amountType == listIngredient.amountType) {
                 this.ingredientList[this.ingredientList.indexOf(listIngredient)].amount = ingredient.amount + listIngredient.amount;
-            }else{
+            } else {
                 this.ingredientList.push(ingredient);
             }
         });
+
+        this.persistState();
     }
 
-    handleIngredientsOnRecipeRemoval(recipe: Recipe){
+    handleIngredientsOnRecipeRemoval(recipe: Recipe) {
         recipe.ingredients.forEach(ingredient => {
             var listIngredient = this.ingredientList.find(i => i.name == ingredient.name);
-            if(listIngredient && ingredient.amountType == listIngredient.amountType){
+            if (listIngredient && ingredient.amountType == listIngredient.amountType) {
                 this.ingredientList[this.ingredientList.indexOf(listIngredient)].amount = listIngredient.amount - ingredient.amount;
 
-                if(this.ingredientList[this.ingredientList.indexOf(listIngredient)].amount == 0){
+                if (this.ingredientList[this.ingredientList.indexOf(listIngredient)].amount == 0) {
                     this.removeIngredientFromList(ingredient);
                 }
             }
         });
     }
 
-    clearRecipeList(){
+    clearRecipeList() {
         this.recipeList = [];
         this.ingredientList = [];
+        this.persistState();
     }
 
-    removeRecipeFromList(recipe: Recipe){
+    removeRecipeFromList(recipe: Recipe) {
         var index = this.recipeList.indexOf(recipe, 0);
         if (index > -1) {
             this.recipeList.splice(index, 1);
@@ -139,12 +175,16 @@ export class GroceryService extends BaseService {
                 this.removeIngredientFromList(ingredient);
             });
         }
+
+        this.persistState();
     }
 
-    removeIngredientFromList(ingredient: Ingredient){
+    removeIngredientFromList(ingredient: Ingredient) {
         var index = this.ingredientList.indexOf(ingredient, 0);
         if (index > -1) {
             this.ingredientList.splice(index, 1);
         }
+
+        this.persistState();
     }
 }

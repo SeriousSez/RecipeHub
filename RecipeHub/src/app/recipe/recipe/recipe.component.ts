@@ -41,6 +41,14 @@ export class RecipeComponent implements OnInit {
   public currentIngredients: Ingredient[] = [];
   public newIngredients: Ingredient[] = [];
   public newIngredient: Ingredient = { name: "", description: "", amount: 0, amountType: 'Pinch or dash', image: null, created: '' };
+  public categoriesInput: string = '';
+  public tagsInput: string = '';
+  public presetCategories: string[] = ['Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Healthy', 'Quick', 'Vegetarian', 'Vegan', 'High Protein', 'Budget', 'Gluten Free', 'Dairy Free', 'Family Friendly'];
+  public presetTags: string[] = ['Quick', 'Easy', 'Meal Prep', 'Vegetarian', 'Vegan', 'High Protein', 'Budget', 'Comfort Food', 'Family Friendly', 'Low Carb', 'Kid Friendly', 'One Pot'];
+  public filteredPresetCategories: string[] = [];
+  public filteredPresetTags: string[] = [];
+  public showCategorySuggestions: boolean = false;
+  public showTagSuggestions: boolean = false;
 
   public edit: boolean = false;
   public canEdit: boolean = false;
@@ -95,6 +103,8 @@ export class RecipeComponent implements OnInit {
 
   ngOnInit(): void {
     this.getRecipe();
+    this.handlePresetSearch('category');
+    this.handlePresetSearch('tag');
     this.subscription = this.userService.authStatus$.subscribe(status => this.status = status);
   }
 
@@ -183,6 +193,8 @@ export class RecipeComponent implements OnInit {
     this.title = recipe.title;
     this.creator = recipe.creator;
     this.recipeId = recipe.id;
+    this.categoriesInput = (recipe.categories ?? []).join(', ');
+    this.tagsInput = (recipe.tags ?? []).join(', ');
     this.setCurrentIngredients();
     this.originalImageUrl = recipe.image != null ? recipe.image.url : "../assets/images/food.png";
     this.isFavored(recipe);
@@ -390,7 +402,81 @@ export class RecipeComponent implements OnInit {
     return model;
   }
 
+  handlePresetSearch(type: 'category' | 'tag'): void {
+    const source = type === 'category' ? this.presetCategories : this.presetTags;
+
+    if (type === 'category') {
+      this.filteredPresetCategories = source.slice(0, 12);
+      this.showCategorySuggestions = this.filteredPresetCategories.length > 0;
+    } else {
+      this.filteredPresetTags = source.slice(0, 12);
+      this.showTagSuggestions = this.filteredPresetTags.length > 0;
+    }
+  }
+
+  addPresetValue(type: 'category' | 'tag', value: string): void {
+    const normalizedValue = (value ?? '').trim();
+    if (!normalizedValue) {
+      return;
+    }
+
+    const target = type === 'category' ? this.categoriesInput : this.tagsInput;
+    const existingValues = this.parseCsv(target);
+
+    if (existingValues.some(item => item.toLowerCase() === normalizedValue.toLowerCase())) {
+      const updatedValues = existingValues.filter(item => item.toLowerCase() !== normalizedValue.toLowerCase());
+      const formatted = updatedValues.map(item => item.charAt(0).toUpperCase() + item.slice(1).toLowerCase()).join(', ');
+
+      if (type === 'category') {
+        this.categoriesInput = formatted;
+      } else {
+        this.tagsInput = formatted;
+      }
+
+      this.handlePresetSearch(type);
+      return;
+    }
+
+    existingValues.push(normalizedValue);
+    const formatted = existingValues.map(item => item.charAt(0).toUpperCase() + item.slice(1).toLowerCase()).join(', ');
+
+    if (type === 'category') {
+      this.categoriesInput = formatted;
+      this.showCategorySuggestions = true;
+      this.handlePresetSearch('category');
+    } else {
+      this.tagsInput = formatted;
+      this.showTagSuggestions = true;
+      this.handlePresetSearch('tag');
+    }
+  }
+
+  public getSelectedValues(rawValue: string | string[] | null | undefined): string[] {
+    return this.parseCsv(rawValue);
+  }
+
+  public isPresetSelected(type: 'category' | 'tag', value: string): boolean {
+    const selectedValues = this.getSelectedValues(type === 'category' ? this.categoriesInput : this.tagsInput).map(item => item.toLowerCase());
+    return selectedValues.includes(value.trim().toLowerCase());
+  }
+
+  private parseCsv(rawValue: string | string[] | null | undefined): string[] {
+    if (!rawValue) {
+      return [];
+    }
+
+    const items = Array.isArray(rawValue) ? rawValue : String(rawValue).split(',');
+
+    return items
+      .map(item => item.trim())
+      .filter(item => item.length > 0)
+      .map(item => item.charAt(0).toUpperCase() + item.slice(1).toLowerCase());
+  }
+
   createRecipeUpgradeModel(recipe: Recipe) {
+    const categories = this.parseCsv(this.categoriesInput);
+    const tags = this.parseCsv(this.tagsInput);
+
     var model: RecipeUpdate = {
       oldTitle: this.title,
       title: recipe.title,
@@ -401,6 +487,8 @@ export class RecipeComponent implements OnInit {
       created: recipe.created,
       image: recipe.image,
       ingredients: recipe.ingredients,
+      categories: categories.length > 0 ? categories : (recipe.categories ?? []),
+      tags: tags.length > 0 ? tags : (recipe.tags ?? []),
     }
 
     return model;

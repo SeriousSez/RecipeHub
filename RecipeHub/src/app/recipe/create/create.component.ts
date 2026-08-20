@@ -40,6 +40,14 @@ export class CreateComponent implements OnInit {
   public selectedIngredient: Ingredient | null = null;
   public newIngredients: IngredientCreation[] = [];
   public ingredients: Ingredient[];
+  public categoriesInput: string = '';
+  public tagsInput: string = '';
+  public presetCategories: string[] = ['Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Healthy', 'Quick', 'Vegetarian', 'Vegan', 'High Protein', 'Budget', 'Gluten Free', 'Dairy Free', 'Family Friendly'];
+  public presetTags: string[] = ['Quick', 'Easy', 'Meal Prep', 'Vegetarian', 'Vegan', 'High Protein', 'Budget', 'Comfort Food', 'Family Friendly', 'Low Carb', 'Kid Friendly', 'One Pot'];
+  public filteredPresetCategories: string[] = [];
+  public filteredPresetTags: string[] = [];
+  public showCategorySuggestions: boolean = false;
+  public showTagSuggestions: boolean = false;
 
   public defaultImageUrl: string = "../../assets/images/food.png";
   public imageUrl: string;
@@ -87,6 +95,8 @@ export class CreateComponent implements OnInit {
       instructions: ['', Validators.required],
       portions: ['', Validators.required],
       imageCaption: [''],
+      categories: [''],
+      tags: [''],
       ingredients: []
     });
 
@@ -94,6 +104,9 @@ export class CreateComponent implements OnInit {
       name: ['', Validators.required],
       description: ['']
     });
+
+    this.handlePresetSearch('category');
+    this.handlePresetSearch('tag');
   }
 
   getIngredients() {
@@ -116,6 +129,8 @@ export class CreateComponent implements OnInit {
     value.imageUrl = this.imageUrl;
     value.image = { url: this.imageUrl, caption: value.imageCaption }
     value.ingredients = this.newIngredients;
+    value.categories = this.parseCsv(value.categories ?? this.categoriesInput);
+    value.tags = this.parseCsv(value.tags ?? this.tagsInput);
 
     if (valid) {
       this.recipeService.create(value)
@@ -125,6 +140,71 @@ export class CreateComponent implements OnInit {
           this.isRequesting = false;
           this.errors = errors.error;
         });
+    }
+  }
+
+  public getSelectedValues(rawValue: string | string[] | null | undefined): string[] {
+    return this.parseCsv(rawValue);
+  }
+
+  public isPresetSelected(type: 'category' | 'tag', value: string): boolean {
+    const fieldName = type === 'category' ? 'categories' : 'tags';
+    const selectedValues = this.getSelectedValues(this.recipeForm.get(fieldName)?.value).map(item => item.toLowerCase());
+    return selectedValues.includes(value.trim().toLowerCase());
+  }
+
+  private parseCsv(rawValue: string | string[] | null | undefined): string[] {
+    if (!rawValue) {
+      return [];
+    }
+
+    const items = Array.isArray(rawValue) ? rawValue : String(rawValue).split(',');
+
+    return items
+      .map(item => item.trim())
+      .filter(item => item.length > 0)
+      .map(item => item.charAt(0).toUpperCase() + item.slice(1).toLowerCase());
+  }
+
+  handlePresetSearch(type: 'category' | 'tag'): void {
+    const source = type === 'category' ? this.presetCategories : this.presetTags;
+
+    if (type === 'category') {
+      this.filteredPresetCategories = source.slice(0, 12);
+      this.showCategorySuggestions = this.filteredPresetCategories.length > 0;
+    } else {
+      this.filteredPresetTags = source.slice(0, 12);
+      this.showTagSuggestions = this.filteredPresetTags.length > 0;
+    }
+  }
+
+  addPresetValue(type: 'category' | 'tag', value: string): void {
+    const normalizedValue = (value ?? '').trim();
+    if (!normalizedValue) {
+      return;
+    }
+
+    const fieldName = type === 'category' ? 'categories' : 'tags';
+    const currentValue = this.recipeForm.get(fieldName)?.value ?? '';
+    const existingValues = this.parseCsv(currentValue);
+
+    if (existingValues.some(item => item.toLowerCase() === normalizedValue.toLowerCase())) {
+      const updatedValues = existingValues.filter(item => item.toLowerCase() !== normalizedValue.toLowerCase());
+      this.recipeForm.get(fieldName)?.setValue(updatedValues.map(item => item.charAt(0).toUpperCase() + item.slice(1).toLowerCase()).join(', '));
+      this.handlePresetSearch(type);
+      return;
+    }
+
+    existingValues.push(normalizedValue);
+    const formatted = existingValues.map(item => item.charAt(0).toUpperCase() + item.slice(1).toLowerCase()).join(', ');
+    this.recipeForm.get(fieldName)?.setValue(formatted);
+
+    if (type === 'category') {
+      this.showCategorySuggestions = true;
+      this.handlePresetSearch('category');
+    } else {
+      this.showTagSuggestions = true;
+      this.handlePresetSearch('tag');
     }
   }
 

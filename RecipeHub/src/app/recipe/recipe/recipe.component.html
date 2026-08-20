@@ -35,6 +35,14 @@
                     </header>
                     <div class="list-group list-group-flush instructions" [innerHTML]="utilityService.transformToSafeHtml(recipe.instructions)"></div>
                 </div>
+                <div *ngIf="(recipe.categories ?? []).length > 0 || (recipe.tags ?? []).length > 0" class="mt-3">
+                    <div *ngIf="(recipe.categories ?? []).length > 0" class="recipe-category-list">
+                        <span *ngFor="let category of recipe.categories ?? []" class="recipe-category">{{ category }}</span>
+                    </div>
+                    <div *ngIf="(recipe.tags ?? []).length > 0" class="recipe-tag-list mt-2">
+                        <span *ngFor="let tag of recipe.tags ?? []" class="recipe-tag">{{ tag }}</span>
+                    </div>
+                </div>
                 <!-- POSSIBLE TAG PLACEMENT -->
                 <!-- <div class="post-tags tw-flex tw-flex-wrap tw-mt-6 tw--mb-2"><a
                         href="https://stein.rifki.net/stein/tag/creativity/" rel="tag">Creativity</a><a
@@ -135,6 +143,38 @@
                 </div>
 
                 <div class="accordion mt-3" id="accordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingDetails">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDetails" aria-expanded="false" aria-controls="collapseDetails">
+                                Categories & Tags
+                            </button>
+                        </h2>
+                        <div id="collapseDetails" class="accordion-collapse collapse" aria-labelledby="headingDetails" data-bs-parent="#accordion">
+                            <div class="accordion-body">
+                                <div class="form-group suggestion-field-wrap">
+                                    <label for="recipe-categories">Categories</label>
+                                    <input id="recipe-categories" type="text" class="form-control" placeholder="breakfast, lunch, healthy" [(ngModel)]="categoriesInput" (input)="handlePresetSearch('category')" (focus)="showCategorySuggestions = true; handlePresetSearch('category')">
+                                    <div class="suggestion-pills" *ngIf="filteredPresetCategories.length > 0">
+                                        <button type="button" class="suggestion-pill" [class.is-active]="isPresetSelected('category', category)" *ngFor="let category of filteredPresetCategories" (mousedown)="$event.preventDefault(); addPresetValue('category', category)">
+                                            {{ category }}
+                                        </button>
+                                    </div>
+                                    <small class="text-muted">Type a custom value or choose from the suggestions.</small>
+                                </div>
+                                <div class="form-group mt-3 suggestion-field-wrap">
+                                    <label for="recipe-tags">Tags</label>
+                                    <input id="recipe-tags" type="text" class="form-control" placeholder="quick, vegetarian, budget" [(ngModel)]="tagsInput" (input)="handlePresetSearch('tag')" (focus)="showTagSuggestions = true; handlePresetSearch('tag')">
+                                    <div class="suggestion-pills" *ngIf="filteredPresetTags.length > 0">
+                                        <button type="button" class="suggestion-pill" [class.is-active]="isPresetSelected('tag', tag)" *ngFor="let tag of filteredPresetTags" (mousedown)="$event.preventDefault(); addPresetValue('tag', tag)">
+                                            {{ tag }}
+                                        </button>
+                                    </div>
+                                    <small class="text-muted">Type a custom value or choose from the suggestions.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="headingIngredients">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseIngredients" aria-expanded="false" aria-controls="collapseIngredients">

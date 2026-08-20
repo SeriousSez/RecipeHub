@@ -19,6 +19,8 @@ import { UtilityService } from 'src/app/shared/utils/utility.service';
   standalone: false
 })
 export class OverviewComponent implements OnInit {
+  private readonly pantryStorageKey = 'recipehub-pantry-ingredients';
+
   public recipeList: Recipe[] = [];
   public groceryList: Ingredient[] = [];
 
@@ -28,6 +30,12 @@ export class OverviewComponent implements OnInit {
   public selectedRecipes: Recipe[] = [];
   public showFavorites: boolean = false;
   public searchTerm: string = '';
+  public categoryFilter: string = 'all';
+  public tagFilter: string = 'all';
+  public pantryIngredients: string = '';
+  public availableCategories: string[] = [];
+  public availableTags: string[] = [];
+  public bestMatchScore: number = 0;
 
   public sortSetting: string = 'created';
   public ascending: boolean = true;
@@ -45,12 +53,36 @@ export class OverviewComponent implements OnInit {
   constructor(private recipeService: RecipeService, private userService: UserService, private favoriteService: FavoriteService, private groceryService: GroceryService, private datepipe: DatePipe, private router: Router, private utilityService: UtilityService) { }
 
   ngOnInit(): void {
+    this.loadPantryIngredients();
     this.getRecipes();
     this.getGroceryLists();
     this.subscription = this.userService.authStatus$.subscribe(status => this.isAuthenticated = status);
     this.settingsSubscription = this.userService.settings$.subscribe(settings => this.settings = settings);
 
     if (this.isAuthenticated) this.getFavorites();
+  }
+
+  private loadPantryIngredients(): void {
+    if (typeof localStorage === 'undefined') {
+      return;
+    }
+
+    const savedIngredients = localStorage.getItem(this.pantryStorageKey);
+    this.pantryIngredients = savedIngredients ?? '';
+  }
+
+  public updatePantryIngredients(value: string): void {
+    this.pantryIngredients = value ?? '';
+
+    if (typeof localStorage !== 'undefined') {
+      if (this.pantryIngredients.trim().length === 0) {
+        localStorage.removeItem(this.pantryStorageKey);
+      } else {
+        localStorage.setItem(this.pantryStorageKey, this.pantryIngredients);
+      }
+    }
+
+    this.applyFiltersAndSort();
   }
 
   getGroceryLists() {
@@ -71,6 +103,7 @@ export class OverviewComponent implements OnInit {
     this.recipeService.getRecipes().subscribe((recipes: Recipe[]) => {
       const normalizedRecipes = Array.isArray(recipes) ? recipes : [];
       this.recipes = normalizedRecipes;
+      this.syncFilterOptions();
       this.applyFiltersAndSort();
       this.loading = false;
     },
@@ -149,24 +182,182 @@ export class OverviewComponent implements OnInit {
     return this.datepipe.transform(created, 'dd-MM-yyyy');
   }
 
-  applyFiltersAndSort() {
-    const source = this.showFavorites ? (this.favoredRecipes ?? []) : (this.recipes ?? []);
-    const term = this.searchTerm.trim().toLowerCase();
+  syncFilterOptions() {
+    const allRecipes = this.recipes ?? [];
+    const categories = new Set<string>();
+    const tags = new Set<string>();
 
-    const filtered = source.filter(recipe => {
-      if (!term) return true;
+    allRecipes.forEach(recipe => {
+      (recipe.categories ?? []).forEach(category => {
+        const normalized = this.normalizeText(category);
+        if (normalized) categories.add(normalized);
+      });
 
-      const searchable = [
-        recipe.title,
-        recipe.creator,
-        recipe.description,
-        recipe.instructions
-      ].filter(Boolean).join(' ').toLowerCase();
-
-      return searchable.includes(term);
+      (recipe.tags ?? []).forEach(tag => {
+        const normalized = this.normalizeText(tag);
+        if (normalized) tags.add(normalized);
+      });
     });
 
+    this.availableCategories = [...categories].sort((a, b) => a.localeCompare(b));
+    this.availableTags = [...tags].sort((a, b) => a.localeCompare(b));
+
+    if (this.categoryFilter !== 'all' && !this.availableCategories.includes(this.categoryFilter)) {
+      this.categoryFilter = 'all';
+    }
+
+    if (this.tagFilter !== 'all' && !this.availableTags.includes(this.tagFilter)) {
+      this.tagFilter = 'all';
+    }
+  }
+
+  private normalizeText(value: string | null | undefined): string {
+    return (value ?? '').trim().toLowerCase();
+  }
+
+  private normalizeIngredientText(value: string | null | undefined): string {
+    const normalized = this.normalizeText(value)
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    if (!normalized) {
+      return '';
+    }
+
+    return normalized
+      .split(' ')
+      .map(word => {
+        if (word.length <= 3) {
+          return word;
+        }
+
+        if (word.endsWith('ies') && word.length > 4) {
+          return word.slice(0, -3) + 'y';
+        }
+
+        if ((word.endsWith('sses') || word.endsWith('shes') || word.endsWith('ches') || word.endsWith('xes') || word.endsWith('zes')) && word.length > 4) {
+          return word.slice(0, -2);
+        }
+
+        if (word.endsWith('s') && !word.endsWith('ss')) {
+          return word.slice(0, -1);
+        }
+
+        return word;
+      })
+      .join(' ');
+  }
+
+  private ingredientNamesMatch(left: string | null | undefined, right: string | null | undefined): boolean {
+    const leftName = this.normalizeIngredientText(left);
+    const rightName = this.normalizeIngredientText(right);
+
+    if (!leftName || !rightName) {
+      return false;
+    }
+
+    return leftName === rightName ||
+      leftName.includes(rightName) ||
+      rightName.includes(leftName) ||
+      leftName.replace(/\s+/g, '').includes(rightName.replace(/\s+/g, '')) ||
+      rightName.replace(/\s+/g, '').includes(leftName.replace(/\s+/g, ''));
+  }
+
+  private parsePantryIngredients(): string[] {
+    return this.pantryIngredients
+      .split(',')
+      .map(item => this.normalizeIngredientText(item))
+      .filter(item => item.length > 0);
+  }
+
+  public getIngredientMatchScore(recipe: Recipe): number {
+    const pantryItems = this.parsePantryIngredients();
+    if (pantryItems.length === 0) {
+      return 0;
+    }
+
+    const recipeNames = (recipe.ingredients ?? []).map(ingredient => this.normalizeIngredientText(ingredient.name));
+
+    return pantryItems.reduce((score, pantryIngredient) => {
+      if (!pantryIngredient) {
+        return score;
+      }
+
+      const hasMatch = recipeNames.some(name => this.ingredientNamesMatch(name, pantryIngredient));
+
+      return hasMatch ? score + 1 : score;
+    }, 0);
+  }
+
+  public getMissingIngredientCount(recipe: Recipe): number {
+    const recipeItems = (recipe.ingredients ?? []).map(item => this.normalizeIngredientText(item.name));
+    const pantryItems = this.parsePantryIngredients();
+
+    if (pantryItems.length === 0 || recipeItems.length === 0) {
+      return 0;
+    }
+
+    return recipeItems.filter(item =>
+      !pantryItems.some(pantryItem => this.ingredientNamesMatch(item, pantryItem))
+    ).length;
+  }
+
+  public getPantryIngredientList(): string[] {
+    return this.parsePantryIngredients();
+  }
+
+  private recipeMatchesFilters(recipe: Recipe): boolean {
+    const term = this.searchTerm.trim().toLowerCase();
+    const categoryMatch = this.categoryFilter === 'all' || (recipe.categories ?? []).some(category => this.normalizeText(category) === this.categoryFilter);
+    const tagMatch = this.tagFilter === 'all' || (recipe.tags ?? []).some(tag => this.normalizeText(tag) === this.tagFilter);
+
+    if (!categoryMatch || !tagMatch) {
+      return false;
+    }
+
+    const pantryItems = this.parsePantryIngredients();
+    if (pantryItems.length > 0) {
+      const score = this.getIngredientMatchScore(recipe);
+      if (score === 0) {
+        return false;
+      }
+    }
+
+    if (!term) {
+      return true;
+    }
+
+    const searchable = [
+      recipe.title,
+      recipe.creator,
+      recipe.description,
+      recipe.instructions,
+      ...(recipe.categories ?? []),
+      ...(recipe.tags ?? []),
+      ...(recipe.ingredients ?? []).map(ingredient => ingredient.name)
+    ].filter(Boolean).join(' ').toLowerCase();
+
+    return searchable.includes(term);
+  }
+
+  applyFiltersAndSort() {
+    const source = this.showFavorites ? (this.favoredRecipes ?? []) : (this.recipes ?? []);
+
+    const filtered = source.filter(recipe => this.recipeMatchesFilters(recipe));
+
     this.shownRecipes = [...filtered].sort((a, b) => {
+      const pantryItems = this.parsePantryIngredients();
+      const ingredientScoreA = this.getIngredientMatchScore(a);
+      const ingredientScoreB = this.getIngredientMatchScore(b);
+
+      if (pantryItems.length > 0) {
+        const scoreComparison = ingredientScoreB - ingredientScoreA;
+        if (scoreComparison !== 0) {
+          return scoreComparison;
+        }
+      }
+
       let comparison = 0;
 
       switch (this.sortSetting) {
@@ -187,6 +378,10 @@ export class OverviewComponent implements OnInit {
 
       return this.ascending ? comparison : -comparison;
     });
+
+    this.bestMatchScore = this.shownRecipes.reduce((max, recipe) => {
+      return Math.max(max, this.getIngredientMatchScore(recipe));
+    }, 0);
   }
 
   sort(sortSetting: string) {

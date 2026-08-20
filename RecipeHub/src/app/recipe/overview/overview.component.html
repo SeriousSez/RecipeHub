@@ -37,7 +37,29 @@
 <div class="recipe-toolbar">
   <div class="recipe-filter-group">
     <label for="recipe-search" class="recipe-filter-label">Filter</label>
-    <input id="recipe-search" class="form-control recipe-filter-input" type="search" placeholder="Search by title, creator, or text" [value]="searchTerm" (input)="searchTerm = $any($event.target).value; applyFiltersAndSort()">
+    <input id="recipe-search" class="form-control recipe-filter-input" type="search" placeholder="Search by title, creator, tags, or text" [value]="searchTerm" (input)="searchTerm = $any($event.target).value; applyFiltersAndSort()">
+  </div>
+  <div class="recipe-filter-group">
+    <label for="recipe-ingredients" class="recipe-filter-label">Ingredients I have</label>
+    <input id="recipe-ingredients" class="form-control recipe-filter-input" type="text" placeholder="eggs, spinach, tomatoes" [value]="pantryIngredients" (input)="updatePantryIngredients($any($event.target).value)">
+  </div>
+  <div class="recipe-filter-group recipe-sort-group">
+    <label for="recipe-category" class="recipe-filter-label">Category</label>
+    <select id="recipe-category" class="form-select recipe-filter-select" [value]="categoryFilter" (change)="categoryFilter = $any($event.target).value; applyFiltersAndSort()">
+      <option value="all">All categories</option>
+      @for (category of availableCategories; track category) {
+      <option [value]="category">{{ category }}</option>
+      }
+    </select>
+  </div>
+  <div class="recipe-filter-group recipe-sort-group">
+    <label for="recipe-tag" class="recipe-filter-label">Tag</label>
+    <select id="recipe-tag" class="form-select recipe-filter-select" [value]="tagFilter" (change)="tagFilter = $any($event.target).value; applyFiltersAndSort()">
+      <option value="all">All tags</option>
+      @for (tag of availableTags; track tag) {
+      <option [value]="tag">{{ tag }}</option>
+      }
+    </select>
   </div>
   <div class="recipe-filter-group recipe-sort-group">
     <label for="recipe-sort" class="recipe-filter-label">Sort by</label>
@@ -56,7 +78,7 @@
 <table class="table table-hover caption-top">
   <caption>{{ showFavorites ? 'Favorite recipes' : 'All recipes' }}</caption>
   @if (settings.recipesTheme === 'Pretty') {
-  <app-pretty [recipes]="shownRecipes" [favoredRecipes]="favoredRecipes" [selectedRecipes]="selectedRecipes" (selectRecipe)="toggleRecipeSelected($event)"></app-pretty>
+  <app-pretty [recipes]="shownRecipes" [favoredRecipes]="favoredRecipes" [selectedRecipes]="selectedRecipes" [pantryIngredients]="getPantryIngredientList()" [bestMatchScore]="bestMatchScore" (selectRecipe)="toggleRecipeSelected($event)"></app-pretty>
   }
   @if (settings.recipesTheme === 'List') {
   <thead>

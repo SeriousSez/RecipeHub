@@ -11,6 +11,8 @@ namespace RecipeHub.Domain.Entities.Recipe
         public string Instructions { get; set; }
         public string Language { get; set; } = "English";
         public string Portions { get; set; }
+        public List<string> Categories { get; set; } = new List<string>();
+        public List<string> Tags { get; set; } = new List<string>();
 
         [ForeignKey("ImageId")]
         public Image Image { get; set; }
