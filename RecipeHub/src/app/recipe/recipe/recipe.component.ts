@@ -271,6 +271,21 @@ export class RecipeComponent implements OnInit {
     return this.getOrdinalNumber(day) + this.datepipe.transform(created, ' MMMM, yyyy');
   }
 
+  formatPortions(portions: string | null | undefined): string {
+    if (!portions || portions.trim() === '') {
+      return 'Serves 1';
+    }
+
+    const trimmed = portions.trim();
+    const matches = trimmed.match(/^\d+(?:\s*-\s*\d+)?$/);
+
+    if (!matches) {
+      return `Serves ${trimmed}`;
+    }
+
+    return `Serves ${trimmed}`;
+  }
+
   getMeasurementAbbreviation(measurement: string) {
     // 'Pinch or dash', 'Milliliter', 'Liter', 'Teaspoon', 'Tablespoon', 'Cup', 'Gram', 'Kilogram', 'Ounce', 'Pound'
     switch (measurement) {

@@ -30,7 +30,7 @@
                     <header>
                         <h3>
                             Instructions
-                            <small class="text-muted float-end">{{recipe.portions}}</small>
+                            <small class="text-muted float-end">{{formatPortions(recipe.portions)}}</small>
                         </h3>
                     </header>
                     <div class="list-group list-group-flush instructions" [innerHTML]="utilityService.transformToSafeHtml(recipe.instructions)"></div>
