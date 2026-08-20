@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "RecipeHub.Domain": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "Key": "Value"
+      }
+    }
+  }
+}

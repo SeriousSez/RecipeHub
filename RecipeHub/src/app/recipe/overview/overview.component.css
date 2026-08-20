@@ -1,0 +1,127 @@
+button:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.recipe-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.recipe-actions-left,
+.recipe-actions-right {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    flex-wrap: wrap;
+}
+
+.selection-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: .45rem .75rem;
+    border-radius: 999px;
+    background: rgba(23, 50, 77, 0.06);
+    color: #17324d;
+    font-weight: 700;
+}
+
+.recipe-toolbar {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.recipe-filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: .35rem;
+    min-width: 220px;
+    flex: 1 1 220px;
+}
+
+.recipe-sort-group {
+    max-width: 200px;
+}
+
+.recipe-filter-label {
+    font-size: .8rem;
+    font-weight: 700;
+    color: #17324d;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.recipe-filter-input,
+.recipe-filter-select {
+    border-radius: .75rem;
+    border: 1px solid rgba(23, 50, 77, 0.15);
+    background: #fff;
+}
+
+.recipe-direction-toggle {
+    min-width: 120px;
+}
+
+.alert {
+    border-radius: 1rem;
+    border-width: 1px;
+}
+
+.offcanvas {
+    height: 15vh;
+}
+
+.offcanvas-header {
+    padding: 0.5rem 1rem;
+}
+
+.offcanvas-title {
+    line-height: 0.5;
+}
+
+.dropdown-menu {
+    margin-top: -2px !important;
+    padding: .4rem 0;
+}
+
+.instructions {
+    max-width: 20vh;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+@media only screen and (max-device-width : 600px) {
+    .recipe-actions {
+        align-items: flex-start;
+    }
+
+    .recipe-actions-left,
+    .recipe-actions-right {
+        width: 100%;
+    }
+
+    .creator {
+        display: none;
+    }
+
+    span {
+        float: left !important;
+        margin-top: .5rem;
+    }
+
+    .btn-mobile {
+        margin-left: 0 !important;
+    }
+
+    .mobile-hide {
+        display: none;
+    }
+}

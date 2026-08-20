@@ -1,0 +1,93 @@
+<div class="button-group mb-3">
+  <button class="btn btn-danger" type="button" data-bs-toggle="offcanvas" data-bs-target="#deleteModal" aria-controls="deleteModal" [disabled]="selectedUsers.length == 0" #deleteButton>Delete</button>
+
+  <button class="btn btn-outline-dark ms-3" type="button" data-bs-toggle="modal" data-bs-target="#customerModal">Create a User</button>
+
+  <span class="float-end">
+    <button class="btn btn-warning ms-3 test-button" type="button" (click)="createTestUser()">Create Test User</button>
+    <button class="btn btn-secondary ms-3" type="button" (click)="deleteTestUsers()" [disabled]="noTestUsers">Delete all Test Users</button>
+  </span>
+</div>
+
+<table class="table table-hover caption-top">
+  <caption>List of users</caption>
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col" class="cursor-pointer fullname" (click)="sort('fullname')">Full name @if (sortSetting == 'fullname') {
+        <i class="fas fa-sort"></i>
+      }</th>
+      <th scope="col" class="cursor-pointer" (click)="sort('email')">Email @if (sortSetting == 'email') {
+        <i class="fas fa-sort"></i>
+      }</th>
+      <th scope="col" class="cursor-pointer" (click)="sort('username')">Username @if (sortSetting == 'username') {
+        <i class="fas fa-sort"></i>
+      }</th>
+      <th scope="col" class="cursor-pointer" (click)="sort('role')">Role @if (sortSetting == 'role') {
+        <i class="fas fa-sort"></i>
+      }</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (user of users; track user) {
+      <tr>
+        <th scope="row">
+          <input class="form-check-input me-1" type="checkbox" value="" (click)="toggleUserSelected(user)">
+        </th>
+        <td class="fullname">
+          {{user.fullName}}
+        </td>
+        <td class="cursor-copy" (click)="copyText(user.email)" recipe-hub-title="Copy">
+          {{user.email}}
+        </td>
+        <td>
+          {{user.userName}}
+        </td>
+        <td>
+          <select class="select" name="role" [(ngModel)]="user.role" (ngModelChange)="updateRole(user, $event)">
+            @for (role of roles; track role) {
+              <option class="select-items" [ngValue]="role" selected="user.role === role">{{role}}</option>
+            }
+          </select>
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>
+
+<div class="offcanvas offcanvas-bottom" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="deleteModal" aria-labelledby="deleteModalLabel" #deleteModal>
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="deleteModalLabel">
+      Delete -
+      @for (user of selectedUsers; track user; let isLast = $last) {
+        <small>
+          {{user.userName}}
+          @if (!isLast) {
+            <small>, </small>
+          }
+        </small>
+      }
+      @if (selectedUsers.length == 0) {
+        <small>No users selected</small>
+      }
+    </h5>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <button class="btn btn-danger me-1" type="button" (click)="deleteUsers()" [disabled]="selectedUsers.length == 0">Confirm</button>
+    <button class="btn btn-link text-reset" type="button" data-bs-dismiss="offcanvas" aria-label="Close">Cancel</button>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="customerModal" tabindex="-1" aria-labelledby="customerModalLabel" aria-hidden="true" #customerModal>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body" #container>
+        @if (roles) {
+          <app-registration-modal [title]="'Create a user'" [confirmButton]="'Create'" [baseUrl]="targetUrl" [navigationUrl]="'dashboard'" [roles]="roles" (finish)="closeCustomerModal($event)"></app-registration-modal>
+        }
+      </div>
+    </div>
+  </div>
+</div>

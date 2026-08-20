@@ -1,0 +1,18 @@
+using System.Collections.Generic;
+
+namespace RecipeHub.Domain.Models
+{
+    public class RecipeUpdateViewModel
+    {
+        public string OldTitle { get; set; }
+        public string Title { get; set; }
+        public string Creator { get; set; }
+        public string Description { get; set; }
+        public string Instructions { get; set; }
+        public string Language { get; set; }
+        public string Portions { get; set; }
+
+        public ImageViewModel Image { get; set; }
+        public List<IngredientViewModel> Ingredients { get; set; }
+    }
+}

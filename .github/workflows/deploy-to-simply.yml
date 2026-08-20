@@ -8,12 +8,12 @@ on:
 
 env:
   DOTNET_VERSION: "8.0.x"
-  PROJECT_PATH: "SeriousSez.Api/SeriousSez.Api.csproj"
+  PROJECT_PATH: "RecipeHub.Api/RecipeHub.Api.csproj"
   PUBLISH_PATH: "./publish"
   RUNTIME_IDENTIFIER: "win-x86"
   NODE_VERSION: "20.x"
-  ANGULAR_WORKING_DIR: "./SeriousSez"
-  ANGULAR_DIST_PATH: "./SeriousSez/dist/SeriousSez/browser"
+  ANGULAR_WORKING_DIR: "./RecipeHub"
+  ANGULAR_DIST_PATH: "./RecipeHub/dist/RecipeHub/browser"
   API_HEALTH_URL: "https://recipes.api.sezginsahin.dk/api/health/ping"
   WEB_HEALTH_URL: "https://recipes.sezginsahin.dk/"
 
@@ -33,14 +33,14 @@ jobs:
         with:
           filters: |
             api:
-              - 'SeriousSez.Api/**'
-              - 'SeriousSez.ApplicationService/**'
-              - 'SeriousSez.Domain/**'
-              - 'SeriousSez.Infrastructure/**'
+              - 'RecipeHub.Api/**'
+              - 'RecipeHub.ApplicationService/**'
+              - 'RecipeHub.Domain/**'
+              - 'RecipeHub.Infrastructure/**'
               - '.github/workflows/deploy-to-simply.yml'
             web:
-              - 'SeriousSez/**'
-              - '!SeriousSez.Api/**'
+              - 'RecipeHub/**'
+              - '!RecipeHub.Api/**'
 
   build-api:
     needs: detect-changes
@@ -58,7 +58,7 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Generate production appsettings from secrets
-        working-directory: ./SeriousSez.Api
+        working-directory: ./RecipeHub.Api
         shell: pwsh
         env:
           MYSQL_CONNECTION_STRING: ${{ secrets.MYSQL_CONNECTION_STRING }}
@@ -87,8 +87,8 @@ jobs:
               }
             }
             JWTSettings = @{
-              securityKey = "SeriousSezSecretKey 85738a5f-871a-4cd1-a03c-bfdfa352d3d2"
-              validIssuer = "SeriousSez"
+              securityKey = "RecipeHubSecretKey 85738a5f-871a-4cd1-a03c-bfdfa352d3d2"
+              validIssuer = "RecipeHub"
               validAudience = "https://recipes.api.sezginsahin.dk/"
               expiryInMinutes = 60
             }
@@ -104,7 +104,7 @@ jobs:
               OpenAIStylePrompt = "hand-drawn cross-hatching ink sketch, vintage packaging drawing, monochrome pen art, minimal color, clean white background"
               OpenAIFallbackModels = "dall-e-2"
               StableDiffusionEndpoint = "http://127.0.0.1:7860"
-              StyleReferenceImagePath = "..\\SeriousSez\\src\\assets\\images\\milk.jpg"
+              StyleReferenceImagePath = "..\\RecipeHub\\src\\assets\\images\\milk.jpg"
             }
             AllowedHosts = '*'
           }
@@ -169,7 +169,7 @@ jobs:
         working-directory: ${{ env.ANGULAR_WORKING_DIR }}
         shell: pwsh
         run: |
-          $dist = Join-Path "dist/SeriousSez/browser" "web.config"
+          $dist = Join-Path "dist/RecipeHub/browser" "web.config"
           if (-not (Test-Path $dist)) {
             Copy-Item "src/web.config" $dist -Force
           }
@@ -196,12 +196,12 @@ jobs:
         shell: pwsh
         run: |
           $publishDir = "${{ env.PUBLISH_PATH }}"
-          $exePath = Join-Path $publishDir "SeriousSez.Api.exe"
+          $exePath = Join-Path $publishDir "RecipeHub.Api.exe"
           $webConfigPath = Join-Path $publishDir "web.config"
           $identityEfPath = Join-Path $publishDir "Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll"
 
           if (-not (Test-Path $exePath)) {
-            throw "Missing SeriousSez.Api.exe in publish output."
+            throw "Missing RecipeHub.Api.exe in publish output."
           }
 
           if (-not (Test-Path $webConfigPath)) {
@@ -214,8 +214,8 @@ jobs:
 
           $webConfig = Get-Content $webConfigPath -Raw
 
-          if ($webConfig -notmatch 'processPath="\.\\SeriousSez\.Api\.exe"') {
-            throw "web.config processPath is not set to .\\SeriousSez.Api.exe"
+          if ($webConfig -notmatch 'processPath="\.\\RecipeHub\.Api\.exe"') {
+            throw "web.config processPath is not set to .\\RecipeHub.Api.exe"
           }
 
           if ($webConfig -notmatch 'hostingModel="outofprocess"|hostingModel="OutOfProcess"') {
@@ -309,7 +309,7 @@ jobs:
       #     username: ${{ secrets.FTP_USERNAME }}
       #     password: ${{ secrets.FTP_PASSWORD }}
       #     local-dir: ./rollback-api/
-      #     server-dir: /serioussez.api/
+      #     server-dir: /recipehub.api/
       #     dangerous-clean-slate: false
 
   deploy-web:

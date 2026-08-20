@@ -1,0 +1,37 @@
+<header class="navbar bg-dark mb-4" [ngClass]="{'navbar-fixed': isFixedNavbar}">
+  <div class="container" fxLayout="row wrap" fxLayoutAlign="start center">
+    <div class="navbar-mobile-top d-c" fxLayout="row" fxLayoutWrap="wrap" fxLayoutAlign="start center">
+      <div class="navbar-logo">
+        <a class="align-items-center col-md-3 ms-1 text-light text-decoration-none" routerLink="/" (click)="closeNavbar()">
+          <app-recipe-hub style="width: 15%; margin-right: 0px;"></app-recipe-hub>
+          RecipeHub
+        </a>
+      </div>
+      <a class="float-end btn-outline-brand-transparent menu me-2" (click)="toggleNavbar()">
+        <div class="menu-btn">
+          <div class="menu-btn__burger"></div>
+        </div>
+      </a>
+    </div>
+    <div fxFlex class="top-navbar bg-dark">
+      @if (isAuthenticated) {
+      <div class="mb-2">
+        @if (isAdmin) {
+        <a class="dropdown-item text-light" routerLinkActive="active" routerLink="dashboard/users" (click)="toggleNavbar()">Dashboard</a>
+        }
+        <a class="dropdown-item text-light" routerLinkActive="active" routerLink="account/profile" (click)="toggleNavbar()">Profile</a>
+        <hr class="dropdown-divider">
+        <a class="dropdown-item text-light" (click)="logout()">Sign out</a>
+      </div>
+      }
+
+      @if (!isAuthenticated) {
+      <div class="mb-2">
+        <hr class="dropdown-divider">
+        <a class="dropdown-item text-light" routerLinkActive="active" routerLink="/login" (click)="toggleNavbar()">Login</a>
+        <a class="dropdown-item text-light" routerLinkActive="active" routerLink="/register" (click)="toggleNavbar()">Sign Up</a>
+      </div>
+      }
+    </div>
+  </div>
+</header>

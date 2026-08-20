@@ -17,7 +17,7 @@ File: `.github/workflows/deploy-to-simply.yml`
 
 ## API startup behavior
 
-File: `SeriousSez.Api/Program.cs`
+File: `RecipeHub.Api/Program.cs`
 
 - `CreateDbIfNotExists(...)` is called **only in Development**.
 - Production startup should not create DB scope before `host.Run()`.

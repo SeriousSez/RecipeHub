@@ -1,0 +1,22 @@
+<section class="text-center">
+  <div class="vertical-center">
+    <h1 class="jumbotron-heading brand" style="margin-left: -2%;">
+      <app-recipe-hub style="width: 5%;"></app-recipe-hub>
+      RecipeHub
+    </h1>
+
+    @if (status) {
+    <div>
+      <p class="lead text-muted">Welcome, feel free to click around!</p>
+    </div>
+    }
+
+    @if (!status) {
+    <div>
+      <p class="lead text-muted">Welcome, please sign up or log in to your account below.</p>
+      <button type="button" class="btn btn-outline-primary btn-lg" style="margin-right: 1vh;" (click)="goToRegister()">Sign Up</button>
+      <button type="button" class="btn btn-outline-secondary btn-lg" (click)="goToLogin()">Log In</button>
+    </div>
+    }
+  </div>
+</section>

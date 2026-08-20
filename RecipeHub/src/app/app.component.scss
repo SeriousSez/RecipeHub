@@ -1,0 +1,108 @@
+/* RECIPEHUB FILES */
+// @import '../styling/colors.scss';
+@import '../styling/background.scss';
+@import '../styling/button.scss';
+@import '../styling/cursor.scss';
+@import '../styling/title.scss';
+@import '../styling/navigation.scss';
+@import '../styling/display.scss';
+@import '../styling/hamburger-menu.scss';
+@import '../styling/hover.scss';
+@import '../styling/text.scss';
+
+body {
+    background-color: #f9f9f9;
+    font-family: 'Calibri';
+}
+
+.brand {
+    color: #590d82;
+
+    &-alt {
+        color: #f25d9c;
+    }
+
+    &-secondary {
+        color: #7B5C8A;
+    }
+
+    &-third {
+        color: #FFE8FF;
+    }
+
+    &-fourth {
+        color: #5FBAAF;
+    }
+}
+
+.container-fluid {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    max-width: 920px;
+    margin-left: auto;
+    margin-right: auto
+}
+
+.select {
+    min-width: 5vh;
+    max-width: 6vh;
+    border-radius: 0.25em;
+    /* background: none; */
+    text-align-last: center;
+}
+
+.card {
+    box-shadow: 0 2px 3px rgba(0, 0, 0, .05);
+    position: relative;
+    background-color: #fff;
+    border: 1px solid #eee;
+    border-radius: 3px;
+    padding: 10px
+}
+
+.card-title {
+    margin: 0;
+    font-size: 1.25rem
+}
+
+form {
+    font-size: 14px;
+}
+
+table {
+    font-size: 14px;
+}
+
+.form-group {
+    margin-bottom: 1vh;
+}
+
+.vertical-center {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+}
+
+.horizontal-center {
+    width: 50vh;
+    margin: 0 auto;
+}
+
+hr {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    border: 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+@media screen and (max-device-width : 600px) {
+    // form {
+    //     font-size: 8px;
+    // }
+
+    // table {
+    //     font-size: 8px;
+    // }
+}

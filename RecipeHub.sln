@@ -1,0 +1,43 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31019.35
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RecipeHub.Api", "RecipeHub.Api\RecipeHub.Api.csproj", "{E102B948-4654-473F-AAF6-149F4A242DB2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RecipeHub.Domain", "RecipeHub.Domain\RecipeHub.Domain.csproj", "{A22DC1DF-6AF3-4190-AB31-B23F12721845}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecipeHub.ApplicationService", "RecipeHub.ApplicationService\RecipeHub.ApplicationService.csproj", "{64C17691-3685-46AB-9803-B5642D6230D9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecipeHub.Infrastructure", "RecipeHub.Infrastructure\RecipeHub.Infrastructure.csproj", "{EE133226-0B24-4A11-A2C3-202A2242E653}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E102B948-4654-473F-AAF6-149F4A242DB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E102B948-4654-473F-AAF6-149F4A242DB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E102B948-4654-473F-AAF6-149F4A242DB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E102B948-4654-473F-AAF6-149F4A242DB2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A22DC1DF-6AF3-4190-AB31-B23F12721845}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A22DC1DF-6AF3-4190-AB31-B23F12721845}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A22DC1DF-6AF3-4190-AB31-B23F12721845}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A22DC1DF-6AF3-4190-AB31-B23F12721845}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64C17691-3685-46AB-9803-B5642D6230D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64C17691-3685-46AB-9803-B5642D6230D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64C17691-3685-46AB-9803-B5642D6230D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64C17691-3685-46AB-9803-B5642D6230D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE133226-0B24-4A11-A2C3-202A2242E653}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE133226-0B24-4A11-A2C3-202A2242E653}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE133226-0B24-4A11-A2C3-202A2242E653}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE133226-0B24-4A11-A2C3-202A2242E653}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9B3D724B-CABF-44B4-949D-4214A19BE77C}
+	EndGlobalSection
+EndGlobal

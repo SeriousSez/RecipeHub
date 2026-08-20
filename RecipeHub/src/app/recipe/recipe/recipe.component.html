@@ -1,0 +1,271 @@
+<app-spinner *ngIf="!recipe" [centered]="true"></app-spinner>
+
+<div *ngIf="recipe">
+    <div *ngIf="edit == false" class="horizontal-center card">
+        <article class="m-3">
+            <header class="mb-2">
+                <div *ngIf="status" class="float-end">
+                    <i [ngClass]="inGroceries ? 'fas fa-file-alt' : 'far fa-file-alt'" class="cursor-pointer brand-secondary" (click)="toggleGroceries()" recipe-hub-title="Groceries"></i>
+                    <i [ngClass]="favored ? 'fas fa-star' : 'far fa-star'" class="cursor-pointer ms-2" style="color: gold;" (click)="toggleFavorite()" recipe-hub-title="Favorite"></i>
+                    <i *ngIf="canEdit" class="fas fa-pen cursor-pointer ms-1" (click)="edit = true" recipe-hub-title="Edit"></i>
+                </div>
+
+                <h2>{{recipe.title}}</h2>
+
+                <div>
+                    <span class="post-meta-author">
+                        <span>By </span>
+                        <a class="tw-text-strong hover_tw-no-underline" href="">{{recipe.creator}}</a>
+                    </span>
+                    <time class="post-meta-date"> - <i>{{displayDateOnly(recipe.created)}}</i></time>
+                </div>
+            </header>
+
+            <figure *ngIf="recipe.image" class="figure w-100">
+                <img [src]="recipe.image.url" class="figure-img img-fluid rounded w-100" [alt]="recipe.image.caption">
+                <figcaption class="figure-caption">{{recipe.image.caption}}</figcaption>
+            </figure>
+            <div>
+                <div>
+                    <header>
+                        <h3>
+                            Instructions
+                            <small class="text-muted float-end">{{recipe.portions}}</small>
+                        </h3>
+                    </header>
+                    <div class="list-group list-group-flush instructions" [innerHTML]="utilityService.transformToSafeHtml(recipe.instructions)"></div>
+                </div>
+                <!-- POSSIBLE TAG PLACEMENT -->
+                <!-- <div class="post-tags tw-flex tw-flex-wrap tw-mt-6 tw--mb-2"><a
+                        href="https://stein.rifki.net/stein/tag/creativity/" rel="tag">Creativity</a><a
+                        href="https://stein.rifki.net/stein/tag/health/" rel="tag">Health</a><a
+                        href="https://stein.rifki.net/stein/tag/world/" rel="tag">World</a></div> -->
+            </div>
+
+            <!-- POSSIBLE FOOTER -->
+            <footer>
+                <!-- <div class="tw-flex-1"> <a class="comments-count tw-text-strong hover_tw-no-underline"
+                        href="https://stein.rifki.net/stein/2019/04/29/few-facts-about-streaming-and-music-creation/#comments"><i
+                            class="comments-count-icon si si-comment tw-mr-1"></i><span
+                            class="comments-count-number">2</span> <span
+                            class="comments-count-label tw-hidden md_tw-inline">comments</span></a> <span
+                        class="views-count tw-text-strong tw-ml-3"><i
+                            class="views-count-icon si si-stats tw-mr-1"></i><span
+                            class="views-count-number">6.9K</span> <span
+                            class="views-count-label tw-hidden md_tw-inline">views</span></span></div>
+                <ul class="post-share tw-list-reset tw-flex tw-items-center tw--mx-3 md_tw--mx-3">
+                    <li class="tw-px-3 md_tw-px-3 tw-hidden md_tw-block"> Share:</li>
+                    <li class="tw-px-3 md_tw-px-3"> <a class="tw-text-base tw-text-strong hover_tw-no-underline"
+                            href="https://www.facebook.com/sharer/sharer.php?u=https://stein.rifki.net/stein/2019/04/29/few-facts-about-streaming-and-music-creation/&amp;t=Few Facts About Streaming and Music Creation"
+                            target="_blank" title="Facebook"><i class="si si-facebook"></i></a></li>
+                    <li class="tw-px-3 md_tw-px-3"> <a class="tw-text-base tw-text-strong hover_tw-no-underline"
+                            href="https://twitter.com/intent/tweet?url=https://stein.rifki.net/stein/2019/04/29/few-facts-about-streaming-and-music-creation/&amp;text=Few Facts About Streaming and Music Creation"
+                            target="_blank" title="Twitter"><i class="si si-twitter"></i></a></li>
+                    <li class="tw-px-3 md_tw-px-3"> <a class="tw-text-base tw-text-strong hover_tw-no-underline"
+                            href="https://www.linkedin.com/shareArticle?mini=1&amp;url=https://stein.rifki.net/stein/2019/04/29/few-facts-about-streaming-and-music-creation/&amp;title=Few Facts About Streaming and Music Creation"
+                            target="_blank" title="Linkedin"><i class="si si-linkedin"></i></a></li>
+                    <li class="tw-px-3 md_tw-px-3"> <a class="tw-text-base tw-text-strong hover_tw-no-underline"
+                            href="mailto:?subject=Few Facts About Streaming and Music Creation&amp;body=Check out this article: https://stein.rifki.net/stein/2019/04/29/few-facts-about-streaming-and-music-creation/"
+                            target="_blank" title="Email"><i class="si si-envelope"></i></a></li>
+                </ul> -->
+            </footer>
+        </article>
+    </div>
+
+    <div class="pb-1">
+        <div *ngIf="edit == false" class="ingredients card text-white bg-brand my-3">
+            <div class="card-header text-uppercase">
+                Ingredients
+                <i *ngIf="currentIngredients.length > 0" class="fas fa-eye cursor-pointer float-end ms-1" (click)="toggleIngredients()"></i>
+            </div>
+            <div *ngIf="showIngredients && currentIngredients.length > 0" class="card-body list-group-flush side bg-white text-dark" style="border: solid #f25d9c;">
+                <p *ngFor="let ingredient of currentIngredients" class="list-group-item">
+                    {{ingredient.name}} <span *ngIf="ingredient.amount">- <i>{{ingredient.amount}} {{getMeasurementAbbreviation(ingredient.amountType)}}</i></span>
+                </p>
+            </div>
+            <div *ngIf="!showIngredients && currentIngredients.length > 0" class="card-body list-group-flush side bg-white text-dark" style="border: solid #f25d9c;">
+                <p class="list-group-item">
+                    . . .
+                </p>
+            </div>
+            <div *ngIf="showIngredients && currentIngredients.length == 0" class="card-body list-group-flush side bg-white text-dark" style="border: solid #f25d9c;">
+                <p class="list-group-item">
+                    <i>This recipe does not contain any ingredients!</i>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="edit == true" class="horizontal-center card">
+        <article class="m-3">
+            <header class="mb-2">
+                <h2>
+                    <input id="title" type="text" name="title" value="{{recipe.title}}" class="form-control" placeholder="Recipe title" autocomplete="off" data-lpignore="true" [(ngModel)]="recipe.title">
+                </h2>
+                <div>
+                    <span class="post-meta-author">
+                        <span>By </span>
+                        <a class="tw-text-strong hover_tw-no-underline" href="">{{recipe.creator}}</a>
+                    </span>
+                    <time class="post-meta-date"> - <i>{{displayDateOnly(recipe.created)}}</i></time>
+                </div>
+            </header>
+
+            <figure *ngIf="recipe.image" class="figure w-100">
+                <!-- <img class="figure-img img-fluid rounded w-100" [src]="recipe.image.url"> -->
+                <image-cropper [imageURL]="recipe.image.url" [imageChangedEvent]="imageChangedEvent" [maintainAspectRatio]="false" [aspectRatio]="10 / 10" format="png" output="base64" (imageCropped)="imageCropped($event)" (imageLoaded)="imageLoaded()" (cropperReady)="cropperReady()"
+                    (loadImageFailed)="loadImageFailed()">
+                </image-cropper>
+                <input type="file" accept="image/*" class="my-2" (change)="handleFileInput($event)" #image>
+                <input id="image-caption" type="text" name="imageCaption" value="{{recipe.image.caption}}" class="form-control mt-2" placeholder="Image Caption" autocomplete="off" data-lpignore="true" [(ngModel)]="recipe.image.caption">
+            </figure>
+            <div *ngIf="!recipe.image" class="my-3">
+                <image-cropper *ngIf="showCropOverlay" [imageChangedEvent]="imageChangedEvent" [maintainAspectRatio]="false" [aspectRatio]="10 / 10" format="png" output="base64" (imageCropped)="imageCropped($event)" (imageLoaded)="imageLoaded()" (cropperReady)="cropperReady()"
+                    (loadImageFailed)="loadImageFailed()">
+                </image-cropper>
+                <input type="file" accept="image/*" class="form-control" (change)="handleFileInput($event)" #image>
+                <input id="image-caption" type="text" name="imageCaption" class="form-control mt-2" placeholder="Image Caption" autocomplete="off" data-lpignore="true" [ngModel]="''" (ngModelChange)="setImageCaption($event)">
+            </div>
+            <div>
+                <div>
+                    <header>
+                        <h3>Instructions</h3>
+                    </header>
+                    <angular-editor [config]="editorConfig" [(ngModel)]="recipe.instructions"></angular-editor>
+                </div>
+
+                <div class="accordion mt-3" id="accordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingIngredients">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseIngredients" aria-expanded="false" aria-controls="collapseIngredients">
+                                Ingredients
+                            </button>
+                        </h2>
+                        <div id="collapseIngredients" class="accordion-collapse collapse" aria-labelledby="headingIngredients" data-bs-parent="#accordion">
+                            <div class="accordion-body">
+                                <table class="table table-hover caption-top">
+                                    <caption>
+                                        Ingredients
+                                        <div class="form-group d-inline-block float-end ms-3 mobile-float">
+                                            <button type="submit" class="btn btn-outline-primary btn-sm" [disabled]="!newIngredient.name || !newIngredient.amount || !newIngredient.amountType || isRequesting" (click)="addIngredient(newIngredient)">Add ingredient</button>
+                                        </div>
+                                        <div class="form-group d-inline-block float-end mobile-float">
+                                            <th scope="col" class="d-inline">Pick existing - </th>
+                                            <select class="btn btn-white btn-sm dropdown-toggle" name="ingredient" (change)="addToNewIngredient($event)" id="select" #select>
+                                                <option class="select-items" *ngFor="let ingredient of ingredients" [ngValue]="ingredient">{{ingredient.name}}</option>
+                                            </select>
+                                        </div>
+                                    </caption>
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Ingredient</th>
+                                            <!-- <th scope="col" class="description">Description</th> -->
+                                            <th scope="col" class="amount">Amount</th>
+                                            <th scope="col">Measurement</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <input type="text" class="form-control" placeholder="Name" [(ngModel)]="newIngredient.name" autocomplete="off" data-lpignore="true" required="required" id="name" #name>
+                                            </td>
+                                            <!-- <td class="description">
+                                                <input type="text" class="form-control" placeholder="Description" [(ngModel)]="newIngredient.Description" autocomplete="off" data-lpignore="true" required="required" id="description" #description>
+                                            </td> -->
+                                            <td>
+                                                <input type="number" step="any" class="form-control" placeholder="Amount" [(ngModel)]="newIngredient.amount" autocomplete="off" data-lpignore="true" required="required" id="amount" #amount>
+                                            </td>
+                                            <td>
+                                                <select class="btn btn-white dropdown-toggle" name="measurement" [(ngModel)]="newIngredient.amountType">
+                                                    <option class="select-items" *ngFor="let measurement of measurements" [ngValue]="measurement">{{measurement}}</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                    <tbody>
+                                        <tr *ngFor="let ingredient of currentIngredients">
+                                            <td>
+                                                {{ingredient.name}}
+                                            </td>
+                                            <!-- <td class="description">
+                                                {{ingredient.Description}}
+                                            </td> -->
+                                            <td>
+                                                {{ingredient.amount}}
+                                                {{ingredient.amountType}}
+                                            </td>
+                                            <td>
+                                                <button type="submit" class="btn btn-link btn-sm" (click)="removeIngredient(ingredient)">Remove</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingCosmetics">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCosmetics" aria-expanded="false" aria-controls="collapseCosmetics">
+                                Cosmetics
+                                <!-- <i *ngIf="f.instructions.errors" class="fas fa-exclamation-circle ms-2 text-warning"></i> -->
+                            </button>
+                        </h2>
+                        <div id="collapseCosmetics" class="accordion-collapse collapse" aria-labelledby="headingBody" data-bs-parent="#accordion">
+                            <div class="accordion-body">
+                                <div class="form-group">
+                                    <label for="image-caption">Card Description</label>
+                                    <textarea id="image-caption" type="text" name="description" [(ngModel)]="recipe.description" class="form-control description" placeholder="Card Description" autocomplete="off" data-lpignore="true" required="required"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- POSSIBLE TAG PLACEMENT -->
+                <!-- <div class="post-tags tw-flex tw-flex-wrap tw-mt-6 tw--mb-2"><a
+                        href="https://stein.rifki.net/stein/tag/creativity/" rel="tag">Creativity</a><a
+                        href="https://stein.rifki.net/stein/tag/health/" rel="tag">Health</a><a
+                        href="https://stein.rifki.net/stein/tag/world/" rel="tag">World</a></div> -->
+            </div>
+
+            <!-- POSSIBLE FOOTER -->
+            <footer>
+                <!-- <div class="tw-flex-1"> <a class="comments-count tw-text-strong hover_tw-no-underline"
+                        href="https://stein.rifki.net/stein/2019/04/29/few-facts-about-streaming-and-music-creation/#comments"><i
+                            class="comments-count-icon si si-comment tw-mr-1"></i><span
+                            class="comments-count-number">2</span> <span
+                            class="comments-count-label tw-hidden md_tw-inline">comments</span></a> <span
+                        class="views-count tw-text-strong tw-ml-3"><i
+                            class="views-count-icon si si-stats tw-mr-1"></i><span
+                            class="views-count-number">6.9K</span> <span
+                            class="views-count-label tw-hidden md_tw-inline">views</span></span></div>
+                <ul class="post-share tw-list-reset tw-flex tw-items-center tw--mx-3 md_tw--mx-3">
+                    <li class="tw-px-3 md_tw-px-3 tw-hidden md_tw-block"> Share:</li>
+                    <li class="tw-px-3 md_tw-px-3"> <a class="tw-text-base tw-text-strong hover_tw-no-underline"
+                            href="https://www.facebook.com/sharer/sharer.php?u=https://stein.rifki.net/stein/2019/04/29/few-facts-about-streaming-and-music-creation/&amp;t=Few Facts About Streaming and Music Creation"
+                            target="_blank" title="Facebook"><i class="si si-facebook"></i></a></li>
+                    <li class="tw-px-3 md_tw-px-3"> <a class="tw-text-base tw-text-strong hover_tw-no-underline"
+                            href="https://twitter.com/intent/tweet?url=https://stein.rifki.net/stein/2019/04/29/few-facts-about-streaming-and-music-creation/&amp;text=Few Facts About Streaming and Music Creation"
+                            target="_blank" title="Twitter"><i class="si si-twitter"></i></a></li>
+                    <li class="tw-px-3 md_tw-px-3"> <a class="tw-text-base tw-text-strong hover_tw-no-underline"
+                            href="https://www.linkedin.com/shareArticle?mini=1&amp;url=https://stein.rifki.net/stein/2019/04/29/few-facts-about-streaming-and-music-creation/&amp;title=Few Facts About Streaming and Music Creation"
+                            target="_blank" title="Linkedin"><i class="si si-linkedin"></i></a></li>
+                    <li class="tw-px-3 md_tw-px-3"> <a class="tw-text-base tw-text-strong hover_tw-no-underline"
+                            href="mailto:?subject=Few Facts About Streaming and Music Creation&amp;body=Check out this article: https://stein.rifki.net/stein/2019/04/29/few-facts-about-streaming-and-music-creation/"
+                            target="_blank" title="Email"><i class="si si-envelope"></i></a></li>
+                </ul> -->
+            </footer>
+        </article>
+    </div>
+</div>
+
+<div *ngIf="edit == true" class="horizontal-center buttons mt-3">
+    <div class="form-group d-inline-block w-100">
+        <button *ngIf="recipe" type="submit" class="btn btn-primary ms-2" (click)="update()">Update</button>
+        <button type="submit" class="btn btn-outline-link float-end me-2" (click)="edit = false">Cancel</button>
+    </div>
+
+    <div *ngIf="errors" class="alert alert-danger d-inline-block float-end" role="alert">
+        <strong>Oops!</strong> {{errors}}
+    </div>
+</div>
