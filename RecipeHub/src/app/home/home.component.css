@@ -1,0 +1,145 @@
+.hero-section {
+    min-height: calc(100vh - 74px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 0 5rem;
+}
+
+.hero-shell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.hero-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    max-width: 760px;
+    width: 100%;
+}
+
+.eyebrow {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.45rem 0.8rem;
+    border-radius: 999px;
+    background: rgba(59, 130, 246, 0.1);
+    color: #1d4ed8;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.hero-title {
+    margin: 0;
+    font-size: clamp(2.6rem, 5vw, 5rem);
+    letter-spacing: -0.08em;
+    line-height: 0.95;
+    font-weight: 900;
+    color: #0f172a;
+}
+
+.brand-mark-inline {
+    display: inline-flex;
+    width: clamp(2.2rem, 4vw, 3.2rem);
+    height: clamp(2.2rem, 4vw, 3.2rem);
+    flex-shrink: 0;
+}
+
+.brand-mark-inline ::ng-deep svg {
+    width: 100%;
+    height: 100%;
+}
+
+.hero-text {
+    max-width: 620px;
+    margin: 1.2rem 0 0;
+    font-size: 1.12rem;
+    line-height: 1.7;
+    color: #475569;
+}
+
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+    margin-top: 1.75rem;
+}
+
+.mini-feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    width: 100%;
+    margin-top: 2rem;
+}
+
+.mini-feature-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 1rem;
+    padding: 1rem 1.1rem;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+}
+
+.mini-feature-label {
+    color: #3b82f6;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.mini-feature-card strong {
+    font-size: 1.5rem;
+    letter-spacing: -0.05em;
+    color: #0f172a;
+}
+
+.mini-feature-card small {
+    color: #475569;
+    line-height: 1.5;
+}
+
+@media (max-width: 991px) {
+    .mini-feature-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 576px) {
+    .hero-section {
+        padding-top: 3rem;
+    }
+
+    .title-row {
+        align-items: flex-start;
+        flex-direction: row;
+    }
+
+    .hero-title {
+        font-size: 2.7rem;
+    }
+
+    .hero-actions {
+        width: 100%;
+    }
+
+    .hero-actions .btn {
+        width: 100%;
+    }
+}

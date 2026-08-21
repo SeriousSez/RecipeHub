@@ -1,21 +1,21 @@
-.offcanvas{
+.offcanvas {
     height: 15vh;
 }
 
-.offcanvas-header{
+.offcanvas-header {
     padding: 0.5rem 1rem;
 }
 
-.offcanvas-title{
+.offcanvas-title {
     line-height: 0.5;
 }
 
-.dropdown-menu{
+.dropdown-menu {
     margin-top: -2px !important;
     padding: .4rem 0;
 }
 
-.instructions{
+.instructions {
     max-width: 20vh;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -26,4 +26,4 @@
     .creator {
         display: none;
     }
- }
+}

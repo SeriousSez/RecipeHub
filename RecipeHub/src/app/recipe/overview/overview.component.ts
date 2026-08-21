@@ -27,8 +27,20 @@ export class OverviewComponent implements OnInit {
   public shownRecipes: Recipe[] = [];
   public recipes: Recipe[];
   public favoredRecipes: Recipe[];
-  public selectedRecipes: Recipe[] = [];
+  public selectedRecipeIds: string[] = [];
   public showFavorites: boolean = false;
+  public showMyRecipes: boolean = false;
+  public showCreateMode: boolean = false;
+  public showMobileFilters: boolean = false;
+  public isClosingMobileFilters: boolean = false;
+
+  public get selectedRecipes(): Recipe[] {
+    return (this.recipes ?? []).filter(recipe => this.selectedRecipeIds.includes(recipe.id));
+  }
+
+  public set selectedRecipes(value: Recipe[]) {
+    this.selectedRecipeIds = value.map(recipe => recipe.id);
+  }
   public searchTerm: string = '';
   public categoryFilter: string = 'all';
   public tagFilter: string = 'all';
@@ -143,17 +155,23 @@ export class OverviewComponent implements OnInit {
       });
   }
 
+  isRecipeSelected(recipe: Recipe): boolean {
+    return this.selectedRecipeIds.includes(recipe.id);
+  }
+
   toggleRecipeSelected(recipe: Recipe) {
-    var index = this.selectedRecipes.indexOf(recipe, 0);
+    const recipeId = recipe.id;
+    const index = this.selectedRecipeIds.indexOf(recipeId);
+
     if (index > -1) {
-      this.selectedRecipes.splice(index, 1);
+      this.selectedRecipeIds.splice(index, 1);
     } else {
-      this.selectedRecipes.push(recipe);
+      this.selectedRecipeIds.push(recipeId);
     }
   }
 
   clearSelectedRecipes() {
-    this.selectedRecipes = [];
+    this.selectedRecipeIds = [];
   }
 
   private showGroceryFeedback(message: string, type: 'success' | 'danger') {
@@ -171,6 +189,52 @@ export class OverviewComponent implements OnInit {
 
   toggleDisplay() {
     this.showFavorites = !this.showFavorites;
+    if (this.showFavorites) {
+      this.showMyRecipes = false;
+    }
+    this.applyFiltersAndSort();
+  }
+
+  openMobileFilters() {
+    this.isClosingMobileFilters = false;
+    this.showMobileFilters = true;
+  }
+
+  closeMobileFilters() {
+    if (!this.showMobileFilters) {
+      return;
+    }
+
+    this.isClosingMobileFilters = true;
+
+    setTimeout(() => {
+      this.showMobileFilters = false;
+      this.isClosingMobileFilters = false;
+    }, 180);
+  }
+
+  toggleMobileFilters() {
+    if (this.showMobileFilters) {
+      this.closeMobileFilters();
+      return;
+    }
+
+    this.openMobileFilters();
+  }
+
+  openCreateRecipe() {
+    this.showCreateMode = true;
+  }
+
+  closeCreateRecipe() {
+    this.showCreateMode = false;
+  }
+
+  toggleMyRecipes() {
+    this.showMyRecipes = !this.showMyRecipes;
+    if (this.showMyRecipes) {
+      this.showFavorites = false;
+    }
     this.applyFiltersAndSort();
   }
 
@@ -342,7 +406,16 @@ export class OverviewComponent implements OnInit {
   }
 
   applyFiltersAndSort() {
-    const source = this.showFavorites ? (this.favoredRecipes ?? []) : (this.recipes ?? []);
+    let source = this.recipes ?? [];
+
+    if (this.showFavorites) {
+      source = this.favoredRecipes ?? [];
+    }
+
+    if (this.showMyRecipes) {
+      const username = this.userService.getUserName();
+      source = source.filter(recipe => recipe.creator?.toLowerCase() === username?.toLowerCase());
+    }
 
     const filtered = source.filter(recipe => this.recipeMatchesFilters(recipe));
 
@@ -392,11 +465,6 @@ export class OverviewComponent implements OnInit {
       this.ascending = !this.ascending;
     }
 
-    this.applyFiltersAndSort();
-  }
-
-  toggleSortDirection() {
-    this.ascending = !this.ascending;
     this.applyFiltersAndSort();
   }
 }

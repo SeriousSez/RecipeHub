@@ -1,24 +1,16 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes }        from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 
 import { AuthGuard } from '../shared/guards/auth.guard';
 import { CreateComponent } from './create/create.component';
 import { OverviewComponent } from './overview/overview.component';
-import { RootComponent } from './root/root.component';
 
-const recipeRoutes: Routes = ([
-  {
-    path: '', component: RootComponent,
-    
-    children: [
-      { path: '', component: OverviewComponent },
-      { path: 'recipes', component: OverviewComponent },
-      { path: 'create', component: CreateComponent, canActivate: [AuthGuard] },
-
-      { path: '**', component: OverviewComponent }
-    ]
-  }
-]);
+const recipeRoutes: Routes = [
+  { path: '', component: OverviewComponent },
+  { path: 'overview', component: OverviewComponent },
+  { path: 'create', component: CreateComponent, canActivate: [AuthGuard] },
+  { path: '**', redirectTo: '' }
+];
 
 @NgModule({
   imports: [RouterModule.forChild(recipeRoutes)],

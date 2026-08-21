@@ -1,11 +1,11 @@
-<div class="card-header bg-white mb-3">
-  <h4 class="card-title">{{title}}</h4>
+<div class="auth-header">
+  <p class="auth-kicker">Create account</p>
+  <h1>{{title}}</h1>
 </div>
 
-<div class="card-block">
-
-  <form (ngSubmit)="register()" [formGroup]="registerForm" novalidate>
-    <div class="form-group">
+<form (ngSubmit)="register()" [formGroup]="registerForm" novalidate class="auth-form">
+  <div class="field-grid">
+    <div class="field-group">
       <label for="user-name">Username</label>
       <input id="user-name" type="text" name="user-name" class="form-control" [ngClass]="{ 'is-invalid': f.username.touched && f.username.errors }" placeholder="Your display name" formControlName="username">
       @if (f.username.touched && f.username.errors) {
@@ -17,7 +17,7 @@
       }
     </div>
 
-    <div class="form-group">
+    <div class="field-group">
       <label for="first-name">First name</label>
       <input id="first-name" type="text" name="firstName" class="form-control" [ngClass]="{ 'is-invalid': f.firstName.touched && f.firstName.errors }" placeholder="Your first name" formControlName="firstName">
       @if (f.firstName.touched && f.firstName.errors) {
@@ -29,7 +29,7 @@
       }
     </div>
 
-    <div class="form-group">
+    <div class="field-group">
       <label for="last-name">Last name</label>
       <input id="last-name" type="text" name="lastName" class="form-control" [ngClass]="{ 'is-invalid': f.lastName.touched && f.lastName.errors }" placeholder="Your last name" formControlName="lastName">
       @if (f.lastName.touched && f.lastName.errors) {
@@ -41,7 +41,7 @@
       }
     </div>
 
-    <div class="form-group">
+    <div class="field-group">
       <label for="email">E-mail</label>
       <input id="email" type="text" name="email" class="form-control" [ngClass]="{ 'is-invalid': f.email.touched && f.email.errors }" placeholder="E-mail" formControlName="email">
       @if (f.email.touched && f.email.errors) {
@@ -55,38 +55,38 @@
       </div>
       }
     </div>
+  </div>
 
-    <div class="form-group mb-3">
-      <label for="password">Password</label>
-      <input id="password" type="password" name="password" class="form-control" [ngClass]="{ 'is-invalid': f.password.touched && f.password.errors }" placeholder="Password" formControlName="password">
-      @if (f.password.touched && f.password.errors) {
-      <div class="invalid-feedback">
-        @if (f.password.errors.required) {
-        <div>Password is required</div>
-        }
-      </div>
+  <div class="field-group">
+    <label for="password">Password</label>
+    <input id="password" type="password" name="password" class="form-control" [ngClass]="{ 'is-invalid': f.password.touched && f.password.errors }" placeholder="Password" formControlName="password">
+    @if (f.password.touched && f.password.errors) {
+    <div class="invalid-feedback">
+      @if (f.password.errors.required) {
+      <div>Password is required</div>
       }
     </div>
-
-    @if (roles) {
-    <div class="form-group mb-3">
-      <label for="role">Role</label>
-      <select class="form-control" formControlName="role">
-        @for (role of roles; track role) {
-        <option class="select-items" [ngValue]="role">{{role}}</option>
-        }
-      </select>
-    </div>
     }
+  </div>
 
-    <div class="form-group d-inline-block mt-1">
-      <button type="submit" class="btn btn-primary" [disabled]="registerForm.invalid || isRequesting">{{confirmButton}}</button>
-    </div>
+  @if (roles) {
+  <div class="field-group">
+    <label for="role">Role</label>
+    <select class="form-control" formControlName="role">
+      @for (role of roles; track role) {
+      <option class="select-items" [ngValue]="role">{{role}}</option>
+      }
+    </select>
+  </div>
+  }
 
-    @if (errors) {
-    <div class="alert alert-danger d-inline-block float-end" role="alert">
-      <strong>Oops!</strong> {{errors}}
-    </div>
-    }
-  </form>
-</div>
+  <div class="auth-actions">
+    <button type="submit" class="btn btn-primary" [disabled]="registerForm.invalid || isRequesting">{{confirmButton}}</button>
+  </div>
+
+  @if (errors) {
+  <div class="auth-alert-error" role="alert">
+    <strong>Oops!</strong> {{errors}}
+  </div>
+  }
+</form>

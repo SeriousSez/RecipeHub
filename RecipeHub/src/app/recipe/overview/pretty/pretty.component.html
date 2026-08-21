@@ -1,9 +1,9 @@
 @if (recipes.length > 0) {
 <div class="card-group">
   @for (recipe of recipes; track recipe) {
-  <article (click)="openRecipe(recipe)" class="recipe-card cursor-pointer" [class.is-selected]="selectedRecipes.includes(recipe)">
-    <button class="recipe-select" type="button" (click)="$event.stopPropagation(); selectRecipe.emit(recipe)" [attr.aria-pressed]="selectedRecipes.includes(recipe)">
-      <i [ngClass]="selectedRecipes.includes(recipe) ? 'fas fa-check-square' : 'far fa-square'"></i>
+  <article (click)="openRecipe(recipe)" class="recipe-card cursor-pointer" [class.is-selected]="isRecipeSelected(recipe)">
+    <button class="recipe-select" type="button" (click)="$event.stopPropagation(); selectRecipe.emit(recipe)" [attr.aria-pressed]="isRecipeSelected(recipe)">
+      <i [ngClass]="isRecipeSelected(recipe) ? 'fas fa-check-square' : 'far fa-square'"></i>
     </button>
 
     <div class="recipe-hero">

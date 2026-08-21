@@ -1,41 +1,41 @@
 <app-mobile-header></app-mobile-header>
 
-<header class="d-flex flex-wrap bg-dark align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
-  <a class="align-items-center col-md-3 mb-2 ms-2 mb-md-0 text-light text-decoration-none head" routerLink="/">
-    <app-recipe-hub style="width: 5%;"></app-recipe-hub>
-    RecipeHub
-  </a>
+<header class="topbar">
+  <div class="container-fluid topbar-inner">
+    <a class="brand-mark" routerLink="/">
+      <span class="brand-icon"><app-recipe-hub></app-recipe-hub></span>
+      <span class="brand-text">RecipeHub</span>
+    </a>
 
-  <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
-    <li><a class="nav-link px-2 text-header" routerLinkActive="active" routerLink="recipes/overview">Recipes</a></li>
-    @if (isAuthenticated && isAdmin) {
-    <li><a class="nav-link px-2 text-header" routerLinkActive="active" routerLink="dashboard/users">Dashboard</a></li>
-    }
-    <li><a class="nav-link px-2 text-header" routerLinkActive="active" routerLink="grocery">Grocery</a></li>
-  </ul>
+    <nav class="main-nav" aria-label="Main navigation">
+      <a routerLink="/recipes" routerLinkActive="active">Recipes</a>
+      @if (isAuthenticated && isAdmin) {
+      <a routerLink="dashboard/users" routerLinkActive="active">Dashboard</a>
+      }
+      <a routerLink="/grocery" routerLinkActive="active">Grocery</a>
+    </nav>
 
-  <div class="col-md-3 text-end">
-    <div class="me-3">
+    <div class="topbar-actions">
       @if (!isAuthenticated) {
-      <div>
-        <button type="button" class="btn btn-link text-header text-decoration-none" routerLinkActive="active" routerLink="/login">Login</button>
-        <button type="button" class="btn btn-link text-header text-decoration-none" routerLinkActive="active" routerLink="/register">Sign-up</button>
+      <div class="auth-actions">
+        <button type="button" class="btn btn-link btn-login" routerLink="/login">Login</button>
+        <button type="button" class="btn btn-primary btn-signup" routerLink="/register">Sign up</button>
       </div>
       }
 
       @if (isAuthenticated) {
-      <div>
-        <a href="#" class="link-light text-decoration-none dropdown-toggle" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-          {{username}} - <i>{{email}}</i>
-          <!-- <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle"> -->
-        </a>
-        <ul class="dropdown-menu text-small" aria-labelledby="profileDropdown">
-          <li><a class="dropdown-item" routerLinkActive="active" routerLink="account/profile">Profile</a></li>
-          <li><a class="dropdown-item" routerLinkActive="active" routerLink="account/recipes">My Recipes</a></li>
+      <div class="user-menu dropdown">
+        <button class="user-pill dropdown-toggle" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false" type="button">
+          <span class="user-name">{{ username }}</span>
+          <span class="user-email">{{ email }}</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end text-small" aria-labelledby="profileDropdown">
+          <li><a class="dropdown-item" routerLink="account/profile">Profile</a></li>
+          <li><a class="dropdown-item" routerLink="account/recipes">My Recipes</a></li>
           <li>
             <hr class="dropdown-divider">
           </li>
-          <li><a class="dropdown-item" (click)="logout()">Sign out</a></li>
+          <li><button type="button" class="dropdown-item" (click)="logout()">Sign out</button></li>
         </ul>
       </div>
       }

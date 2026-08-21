@@ -1,90 +1,101 @@
 @if (user) {
-  <div class="row profile vertical-center d-block">
-    <div class="horizontal-center">
-      <div class="accordion" id="accordion">
-        <div class="card">
-          <div class="card-header bg-white mb-3">
-            <h4 class="card-title">Account Information</h4>
-          </div>
-          <form (ngSubmit)="update(profileForm)" [formGroup]="profileForm" (change)="formCheck(profileForm)">
-            <div class="card-block">
-              <div class="form-group">
-                <label for="user-name">Username</label>
-                <input id="user-name" type="text" name="user-name" class="form-control" [ngClass]="{ 'is-invalid': f.UserName.touched && f.UserName.errors }" placeholder="Your display name" formControlName="UserName" autocomplete="off">
-                @if (f.UserName.touched && f.UserName.errors) {
-                  <div class="invalid-feedback">
-                    @if (f.UserName.errors.required) {
-                      <div>Username is required</div>
-                    }
-                  </div>
-                }
-              </div>
-              <div class="form-group">
-                <label for="first-name">First name</label>
-                <input id="first-name" type="text" name="firstName" class="form-control" [ngClass]="{ 'is-invalid': f.FirstName.touched && f.FirstName.errors }" placeholder="Your first name" formControlName="FirstName" autocomplete="off">
-                @if (f.FirstName.touched && f.FirstName.errors) {
-                  <div class="invalid-feedback">
-                    @if (f.FirstName.errors.required) {
-                      <div>First name is required</div>
-                    }
-                  </div>
-                }
-              </div>
-              <div class="form-group">
-                <label for="last-name">Last name</label>
-                <input id="last-name" type="text" name="lastName" class="form-control" [ngClass]="{ 'is-invalid': f.LastName.touched && f.LastName.errors }" placeholder="Your last name" formControlName="LastName" autocomplete="off">
-                @if (f.LastName.touched && f.LastName.errors) {
-                  <div class="invalid-feedback">
-                    @if (f.LastName.errors.required) {
-                      <div>Last name is required</div>
-                    }
-                  </div>
-                }
-              </div>
-              <div class="form-group">
-                <label for="email">E-mail</label>
-                <input id="email" type="text" name="email" class="form-control" [ngClass]="{ 'is-invalid': f.Email.touched && f.Email.errors }" placeholder="E-mail" formControlName="Email" [attr.disabled]="true">
-                @if (f.Email.touched && f.Email.errors) {
-                  <div class="invalid-feedback">
-                    @if (f.Email.errors.required) {
-                      <div>E-mail is required</div>
-                    }
-                    @if (f.Email.errors.email) {
-                      <div>E-mail is invalid</div>
-                    }
-                  </div>
-                }
-              </div>
-              <div class="form-group d-inline-block mt-3">
-                <button type="submit" class="btn btn-primary" [disabled]="isRequesting || formHasChanged === false" (click)="update(profileForm)">Update</button>
-              </div>
-              @if (errors) {
-                <div class="alert alert-danger d-inline-block float-end" role="alert">
-                  <strong>Oops!</strong> {{errors}}
-                </div>
+<div class="account-page">
+  <div class="account-panel">
+    <div class="account-card">
+      <div class="account-card-header">
+        <p class="account-kicker">Profile</p>
+        <h1>Account information</h1>
+      </div>
+
+      <form (ngSubmit)="update(profileForm)" [formGroup]="profileForm" (change)="formCheck(profileForm)" class="account-form">
+        <div class="field-grid">
+          <div class="field-group">
+            <label for="user-name">Username</label>
+            <input id="user-name" type="text" name="user-name" class="form-control" [ngClass]="{ 'is-invalid': f.UserName.touched && f.UserName.errors }" placeholder="Your display name" formControlName="UserName" autocomplete="off">
+            @if (f.UserName.touched && f.UserName.errors) {
+            <div class="invalid-feedback">
+              @if (f.UserName.errors.required) {
+              <div>Username is required</div>
               }
             </div>
-          </form>
-        </div>
-        <hr/>
-        <div class="card">
-          <div class="card-header bg-white mb-3">
-            <h4 class="card-title">Account Settings <i class="far fa-clock float-end text-muted fa-spin fa-sm"></i></h4>
+            }
           </div>
-          <div class="language-check mb-2">
-            <label class="form-check-label" for="preferredLanguage">Language</label>
-            <select class="btn btn-outline-dark btn-sm dropdown-toggle ms-2" name="preferredLanguage" [(ngModel)]="settings.preferredLanguage" (ngModelChange)="updateSettings()" #select>
-              @for (language of languages; track language) {
-                <option class="select-items" [ngValue]="language">{{language}}</option>
+
+          <div class="field-group">
+            <label for="first-name">First name</label>
+            <input id="first-name" type="text" name="firstName" class="form-control" [ngClass]="{ 'is-invalid': f.FirstName.touched && f.FirstName.errors }" placeholder="Your first name" formControlName="FirstName" autocomplete="off">
+            @if (f.FirstName.touched && f.FirstName.errors) {
+            <div class="invalid-feedback">
+              @if (f.FirstName.errors.required) {
+              <div>First name is required</div>
               }
-            </select>
+            </div>
+            }
           </div>
-          <div class="form-check form-switch">
+
+          <div class="field-group">
+            <label for="last-name">Last name</label>
+            <input id="last-name" type="text" name="lastName" class="form-control" [ngClass]="{ 'is-invalid': f.LastName.touched && f.LastName.errors }" placeholder="Your last name" formControlName="LastName" autocomplete="off">
+            @if (f.LastName.touched && f.LastName.errors) {
+            <div class="invalid-feedback">
+              @if (f.LastName.errors.required) {
+              <div>Last name is required</div>
+              }
+            </div>
+            }
+          </div>
+
+          <div class="field-group">
+            <label for="email">E-mail</label>
+            <input id="email" type="text" name="email" class="form-control" [ngClass]="{ 'is-invalid': f.Email.touched && f.Email.errors }" placeholder="E-mail" formControlName="Email" [attr.disabled]="true">
+            @if (f.Email.touched && f.Email.errors) {
+            <div class="invalid-feedback">
+              @if (f.Email.errors.required) {
+              <div>E-mail is required</div>
+              }
+              @if (f.Email.errors.email) {
+              <div>E-mail is invalid</div>
+              }
+            </div>
+            }
+          </div>
+        </div>
+
+        <div class="account-actions">
+          <button type="submit" class="btn btn-primary" [disabled]="isRequesting || formHasChanged === false" (click)="update(profileForm)">Update</button>
+          @if (errors) {
+          <div class="account-alert-error" role="alert">
+            <strong>Oops!</strong> {{errors}}
+          </div>
+          }
+        </div>
+      </form>
+    </div>
+
+    <div class="account-card settings-card">
+      <div class="account-card-header small-header">
+        <p class="account-kicker">Preferences</p>
+        <h2>Account settings</h2>
+      </div>
+
+      <div class="settings-list">
+        <div class="setting-row">
+          <label class="setting-label" for="preferredLanguage">Language</label>
+          <select class="form-select modern-select" name="preferredLanguage" [(ngModel)]="settings.preferredLanguage" (ngModelChange)="updateSettings()" #select>
+            @for (language of languages; track language) {
+            <option class="select-items" [ngValue]="language">{{language}}</option>
+            }
+          </select>
+        </div>
+
+        <div class="setting-row switch-row">
+          <label class="setting-label" for="flexSwitchCheckDefault">Dark mode</label>
+          <div class="toggle-wrap">
             <input class="form-check-input cursor-pointer" type="checkbox" id="flexSwitchCheckDefault" [checked]="settings.theme === 'Dark'" (change)="updateTheme()">
-            <label class="form-check-label" for="flexSwitchCheckDefault">Dark mode</label>
           </div>
         </div>
       </div>
     </div>
   </div>
+</div>
 }

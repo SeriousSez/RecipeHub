@@ -1,15 +1,33 @@
-@media only screen and (max-device-width : 1350px) {
-    .vertical-center{
-        position: inherit;
-        top: auto;
-        transform: translateY(0);
+:host {
+    display: block;
+    min-height: calc(100vh - 92px);
+}
+
+.auth-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 92px);
+    padding: 2.5rem 1rem;
+}
+
+.auth-card {
+    width: min(100%, 560px);
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 1.2rem;
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+    backdrop-filter: blur(10px);
+    padding: 2rem;
+}
+
+@media only screen and (max-device-width: 1350px) {
+    .auth-page {
+        min-height: auto;
+        padding: 1.5rem 1rem 2rem;
     }
 
-    .horizontal-center{
-        width: 100vh;
+    .auth-card {
+        width: min(100%, 560px);
     }
-
-    .card{
-        width: 100%;
-    }
- }
+}

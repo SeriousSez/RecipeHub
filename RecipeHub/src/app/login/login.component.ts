@@ -55,7 +55,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.isRequesting = true;
       this.userService.login(value)
         .subscribe(result => {
-          this.router.navigate(['/recipes/overview'], { queryParams: { brandNew: true, email: value.identity } });
+          this.router.navigate(['/recipes'], { queryParams: { brandNew: true, email: value.identity } });
           this.isRequesting = false;
         }, errors => {
           this.isRequesting = false;

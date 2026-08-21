@@ -1,22 +1,48 @@
-<section class="text-center">
-  <div class="vertical-center">
-    <h1 class="jumbotron-heading brand" style="margin-left: -2%;">
-      <app-recipe-hub style="width: 5%;"></app-recipe-hub>
-      RecipeHub
-    </h1>
+<section class="hero-section">
+  <div class="container-fluid hero-shell">
+    <div class="hero-copy">
+      <div class="eyebrow">Better meals, less guesswork</div>
 
-    @if (status) {
-    <div>
-      <p class="lead text-muted">Welcome, feel free to click around!</p>
-    </div>
-    }
+      <div class="title-row">
+        <span class="brand-mark-inline">
+          <app-recipe-hub></app-recipe-hub>
+        </span>
+        <h1 class="hero-title">RecipeHub</h1>
+      </div>
 
-    @if (!status) {
-    <div>
-      <p class="lead text-muted">Welcome, please sign up or log in to your account below.</p>
-      <button type="button" class="btn btn-outline-primary btn-lg" style="margin-right: 1vh;" (click)="goToRegister()">Sign Up</button>
-      <button type="button" class="btn btn-outline-secondary btn-lg" (click)="goToLogin()">Log In</button>
+      @if (status) {
+      <p class="hero-text">Welcome back — your kitchen, pantry, and favorite recipes are ready to go.</p>
+      <div class="hero-actions">
+        <button type="button" class="btn btn-primary btn-lg" routerLink="/recipes">Browse recipes</button>
+        <button type="button" class="btn btn-outline-secondary btn-lg" routerLink="/grocery">My grocery list</button>
+      </div>
+      }
+
+      @if (!status) {
+      <p class="hero-text">Welcome back — your kitchen, pantry, and favorite recipes are ready to go.</p>
+      <div class="hero-actions">
+        <button type="button" class="btn btn-primary btn-lg" (click)="goToRegister()">Sign up</button>
+        <button type="button" class="btn btn-outline-secondary btn-lg" (click)="goToLogin()">Log in</button>
+      </div>
+      }
+
+      <div class="mini-feature-grid">
+        <div class="mini-feature-card">
+          <span class="mini-feature-label">Smart pantry</span>
+          <strong>{{ pantryCardTitle }}</strong>
+          <small>{{ pantryCardSubtitle }}</small>
+        </div>
+        <div class="mini-feature-card">
+          <span class="mini-feature-label">Popular picks</span>
+          <strong>Quick wins</strong>
+          <small>healthy, budget-friendly, and family favorites</small>
+        </div>
+        <div class="mini-feature-card">
+          <span class="mini-feature-label">Saved favorites</span>
+          <strong>Keep your go-tos</strong>
+          <small>organized and easy to revisit</small>
+        </div>
+      </div>
     </div>
-    }
   </div>
 </section>

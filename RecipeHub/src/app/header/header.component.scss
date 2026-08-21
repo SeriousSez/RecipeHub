@@ -1,93 +1,183 @@
-.nav-item{
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.04);
+}
+
+.topbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: none;
+  min-height: 74px;
+  gap: 1.5rem;
+}
+
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  color: #0f172a;
+  text-decoration: none;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+}
+
+.brand-mark:hover {
+  color: #0f172a;
+  text-decoration: none;
+}
+
+.brand-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+}
+
+.brand-icon ::ng-deep svg {
+  width: 100%;
+  height: 100%;
+}
+
+.brand-text {
+  font-size: 1.35rem;
+}
+
+.main-nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.main-nav a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  color: #475569;
+  text-decoration: none;
+  font-size: 0.92rem;
+  font-weight: 600;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.main-nav a:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  text-decoration: none;
+}
+
+.main-nav a.active {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+}
+
+.auth-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.btn-login {
+  color: #334155;
+  text-decoration: none;
+  padding: 0.5rem 0.8rem;
+  border-radius: 999px;
+}
+
+.btn-login:hover {
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+.btn-signup {
+  border: none;
+  border-radius: 999px;
+  padding: 0.6rem 1.1rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  box-shadow: 0 10px 18px rgba(37, 99, 235, 0.18);
+}
+
+.user-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.5rem 0.8rem;
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  border-radius: 999px;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.user-name {
+  font-weight: 700;
+}
+
+.user-email {
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+.dropdown-menu {
+  margin-top: 0.75rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.12);
+}
+
+.dropdown-item {
+  padding: 0.65rem 1rem;
+}
+
+.dropdown-item:active,
+.dropdown-item.active {
+  background-color: #1d4ed8;
+  color: #fff;
+}
+
+.nav-item {
   cursor: pointer;
 }
 
-a, .btn-link {
-  outline: none;
-  box-shadow: none; 
+.text-header {
+  color: #475569;
 }
 
-a.active, .btn-link.active {
-  color: #f25d9c !important;
-  outline: none;
-  box-shadow: none; 
+.head {
+  font-size: 1.2rem;
 }
 
-.dropdown-item.active{
-  background-color: #f25d9c;
-  color: white !important;
-}
+@media screen and (max-device-width: 991px) {
+  .topbar {
+    position: sticky;
+  }
 
-.text-header{
-    color: #ffffff8c;
-}
+  .topbar-inner {
+    min-height: 64px;
+  }
 
-.head{
-    font-size: 1.2rem;
-}
-
-@media screen and (max-device-width : 991px) {
-  .nav-toggle-label {
+  .main-nav {
     display: none;
   }
 
-  header {
-    display: none !important;
-    display: grid;
-    grid-template-columns: 1fr auto minmax(600px, 3fr) 1fr;
-  }
-  
-  .logo {
-    grid-column: 2 / 3;
-  }
-  
-  nav {
-    // all: unset; /* this causes issues with Edge, since it's unsupported */
-    
-    /* the following lines are not from my video, but add Edge support */
-    position: relative;
-    text-align: left;
-    transition: none;
-    transform: scale(1,1);
-    background: none;
-    top: initial;
-    left: initial;
-    /* end Edge support stuff */
-    
-    grid-column: 3 / 4;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-  }
-  
-  nav ul {
-    display: flex;
-  }
-  
-  nav li {
-    margin-left: 3em;
-    margin-bottom: 0;
-  }
-  
-  nav a {
-    opacity: 1;
-    position: relative;
-  }
-  
-  nav a::before {
-    content: '';
-    display: block;
-    height: 5px;
-    background: black;
-    position: absolute;
-    top: -.75em;
-    left: 0;
-    right: 0;
-    transform: scale(0, 1);
-    transition: transform ease-in-out 250ms;
-  }
-  
-  nav a:hover::before {
-    transform: scale(1,1);
+  .nav-toggle-label {
+    display: none;
   }
 }

@@ -9,7 +9,6 @@ import { RecipeService } from './services/recipe.service';
 
 import { AuthGuard } from '../shared/guards/auth.guard';
 import { CreateComponent } from './create/create.component';
-import { RootComponent } from './root/root.component';
 import { ImageCropperComponent } from 'ngx-image-cropper';
 import { IngredientService } from './services/ingredient.service';
 import { RecipeComponent } from './recipe/recipe.component';
@@ -35,7 +34,6 @@ import { UtilityService } from '../shared/utils/utility.service';
     OverviewComponent,
     PrettyComponent,
     CreateComponent,
-    RootComponent,
     RecipeComponent
   ],
   exports: [],

@@ -1,108 +1,83 @@
 <app-spinner *ngIf="!recipe" [centered]="true"></app-spinner>
 
-<div *ngIf="recipe">
-    <div *ngIf="edit == false" class="horizontal-center card">
-        <article class="m-3">
-            <header class="mb-2">
-                <div *ngIf="status" class="float-end">
-                    <i [ngClass]="inGroceries ? 'fas fa-file-alt' : 'far fa-file-alt'" class="cursor-pointer brand-secondary" (click)="toggleGroceries()" recipe-hub-title="Groceries"></i>
-                    <i [ngClass]="favored ? 'fas fa-star' : 'far fa-star'" class="cursor-pointer ms-2" style="color: gold;" (click)="toggleFavorite()" recipe-hub-title="Favorite"></i>
-                    <i *ngIf="canEdit" class="fas fa-pen cursor-pointer ms-1" (click)="edit = true" recipe-hub-title="Edit"></i>
-                </div>
-
-                <h2>{{recipe.title}}</h2>
-
-                <div>
-                    <span class="post-meta-author">
-                        <span>By </span>
-                        <a class="tw-text-strong hover_tw-no-underline" href="">{{recipe.creator}}</a>
-                    </span>
-                    <time class="post-meta-date"> - <i>{{displayDateOnly(recipe.created)}}</i></time>
-                </div>
-            </header>
-
-            <figure *ngIf="recipe.image" class="figure w-100">
-                <img [src]="recipe.image.url" class="figure-img img-fluid rounded w-100" [alt]="recipe.image.caption">
-                <figcaption class="figure-caption">{{recipe.image.caption}}</figcaption>
-            </figure>
-            <div>
-                <div>
-                    <header>
-                        <h3>
-                            Instructions
-                            <small class="text-muted float-end">{{formatPortions(recipe.portions)}}</small>
-                        </h3>
-                    </header>
-                    <div class="list-group list-group-flush instructions" [innerHTML]="utilityService.transformToSafeHtml(recipe.instructions)"></div>
-                </div>
-                <div *ngIf="(recipe.categories ?? []).length > 0 || (recipe.tags ?? []).length > 0" class="mt-3">
-                    <div *ngIf="(recipe.categories ?? []).length > 0" class="recipe-category-list">
-                        <span *ngFor="let category of recipe.categories ?? []" class="recipe-category">{{ category }}</span>
-                    </div>
-                    <div *ngIf="(recipe.tags ?? []).length > 0" class="recipe-tag-list mt-2">
-                        <span *ngFor="let tag of recipe.tags ?? []" class="recipe-tag">{{ tag }}</span>
-                    </div>
-                </div>
-                <!-- POSSIBLE TAG PLACEMENT -->
-                <!-- <div class="post-tags tw-flex tw-flex-wrap tw-mt-6 tw--mb-2"><a
-                        href="https://stein.rifki.net/stein/tag/creativity/" rel="tag">Creativity</a><a
-                        href="https://stein.rifki.net/stein/tag/health/" rel="tag">Health</a><a
-                        href="https://stein.rifki.net/stein/tag/world/" rel="tag">World</a></div> -->
+<div *ngIf="recipe" class="recipe-detail-shell">
+    <article *ngIf="edit == false" class="recipe-detail-page">
+        <header class="recipe-detail-header">
+            <div class="recipe-detail-heading-group">
+                <p class="recipe-detail-kicker">Recipe instructions</p>
+                <h1 class="recipe-detail-title">{{recipe.title}}</h1>
             </div>
 
-            <!-- POSSIBLE FOOTER -->
-            <footer>
-                <!-- <div class="tw-flex-1"> <a class="comments-count tw-text-strong hover_tw-no-underline"
-                        href="https://stein.rifki.net/stein/2019/04/29/few-facts-about-streaming-and-music-creation/#comments"><i
-                            class="comments-count-icon si si-comment tw-mr-1"></i><span
-                            class="comments-count-number">2</span> <span
-                            class="comments-count-label tw-hidden md_tw-inline">comments</span></a> <span
-                        class="views-count tw-text-strong tw-ml-3"><i
-                            class="views-count-icon si si-stats tw-mr-1"></i><span
-                            class="views-count-number">6.9K</span> <span
-                            class="views-count-label tw-hidden md_tw-inline">views</span></span></div>
-                <ul class="post-share tw-list-reset tw-flex tw-items-center tw--mx-3 md_tw--mx-3">
-                    <li class="tw-px-3 md_tw-px-3 tw-hidden md_tw-block"> Share:</li>
-                    <li class="tw-px-3 md_tw-px-3"> <a class="tw-text-base tw-text-strong hover_tw-no-underline"
-                            href="https://www.facebook.com/sharer/sharer.php?u=https://stein.rifki.net/stein/2019/04/29/few-facts-about-streaming-and-music-creation/&amp;t=Few Facts About Streaming and Music Creation"
-                            target="_blank" title="Facebook"><i class="si si-facebook"></i></a></li>
-                    <li class="tw-px-3 md_tw-px-3"> <a class="tw-text-base tw-text-strong hover_tw-no-underline"
-                            href="https://twitter.com/intent/tweet?url=https://stein.rifki.net/stein/2019/04/29/few-facts-about-streaming-and-music-creation/&amp;text=Few Facts About Streaming and Music Creation"
-                            target="_blank" title="Twitter"><i class="si si-twitter"></i></a></li>
-                    <li class="tw-px-3 md_tw-px-3"> <a class="tw-text-base tw-text-strong hover_tw-no-underline"
-                            href="https://www.linkedin.com/shareArticle?mini=1&amp;url=https://stein.rifki.net/stein/2019/04/29/few-facts-about-streaming-and-music-creation/&amp;title=Few Facts About Streaming and Music Creation"
-                            target="_blank" title="Linkedin"><i class="si si-linkedin"></i></a></li>
-                    <li class="tw-px-3 md_tw-px-3"> <a class="tw-text-base tw-text-strong hover_tw-no-underline"
-                            href="mailto:?subject=Few Facts About Streaming and Music Creation&amp;body=Check out this article: https://stein.rifki.net/stein/2019/04/29/few-facts-about-streaming-and-music-creation/"
-                            target="_blank" title="Email"><i class="si si-envelope"></i></a></li>
-                </ul> -->
-            </footer>
-        </article>
-    </div>
+            <div *ngIf="status" class="recipe-detail-actions">
+                <button type="button" class="recipe-detail-icon-button" (click)="toggleGroceries()" [attr.aria-label]="inGroceries ? 'Remove from groceries' : 'Add to groceries'">
+                    <i [ngClass]="inGroceries ? 'fas fa-file-alt' : 'far fa-file-alt'" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="recipe-detail-icon-button" (click)="toggleFavorite()" [attr.aria-label]="favored ? 'Remove favorite' : 'Add favorite'">
+                    <i [ngClass]="favored ? 'fas fa-star' : 'far fa-star'" aria-hidden="true"></i>
+                </button>
+                <button *ngIf="canEdit" type="button" class="recipe-detail-icon-button" (click)="edit = true" aria-label="Edit recipe">
+                    <i class="fas fa-pen" aria-hidden="true"></i>
+                </button>
+            </div>
+        </header>
 
-    <div class="pb-1">
-        <div *ngIf="edit == false" class="ingredients card text-white bg-brand my-3">
-            <div class="card-header text-uppercase">
-                Ingredients
-                <i *ngIf="currentIngredients.length > 0" class="fas fa-eye cursor-pointer float-end ms-1" (click)="toggleIngredients()"></i>
+        <div class="recipe-detail-meta">
+            <span class="recipe-detail-author">
+                <span>By </span>
+                <a href="">{{recipe.creator}}</a>
+            </span>
+            <span class="recipe-detail-date">{{displayDateOnly(recipe.created)}}</span>
+        </div>
+
+        <figure *ngIf="recipe.image" class="recipe-detail-figure">
+            <img [src]="recipe.image.url" [alt]="recipe.image.caption">
+            <figcaption>{{recipe.image.caption}}</figcaption>
+        </figure>
+
+        <div class="recipe-detail-content">
+            <main class="recipe-detail-main-panel">
+                <div class="recipe-detail-section-header">
+                    <h2>Instructions</h2>
+                    <span>{{formatPortions(recipe.portions)}}</span>
+                </div>
+                <div class="recipe-detail-instructions" [innerHTML]="utilityService.transformToSafeHtml(recipe.instructions)"></div>
+            </main>
+
+            <aside class="recipe-detail-side-panel" *ngIf="edit == false">
+                <div class="recipe-detail-side-header">
+                    <span>Ingredients</span>
+                    <button *ngIf="currentIngredients.length > 0" type="button" class="recipe-detail-side-toggle" (click)="toggleIngredients()" aria-label="Toggle ingredient list">
+                        <i class="fas" [ngClass]="showIngredients ? 'fa-eye-slash' : 'fa-eye'"></i>
+                    </button>
+                </div>
+
+                <div *ngIf="showIngredients && currentIngredients.length > 0" class="recipe-ingredient-list">
+                    <p *ngFor="let ingredient of currentIngredients" class="recipe-ingredient-item">
+                        {{ingredient.name}} <span *ngIf="ingredient.amount">- <i>{{ingredient.amount}} {{getMeasurementAbbreviation(ingredient.amountType)}}</i></span>
+                    </p>
+                </div>
+
+                <div *ngIf="!showIngredients && currentIngredients.length > 0" class="recipe-ingredient-list is-collapsed">
+                    <p class="recipe-ingredient-item recipe-ingredient-empty">. . .</p>
+                </div>
+
+                <div *ngIf="showIngredients && currentIngredients.length == 0" class="recipe-ingredient-list">
+                    <p class="recipe-ingredient-item recipe-ingredient-empty">
+                        <i>This recipe does not contain any ingredients!</i>
+                    </p>
+                </div>
+            </aside>
+        </div>
+
+        <div *ngIf="(recipe.categories ?? []).length > 0 || (recipe.tags ?? []).length > 0" class="recipe-detail-badges-wrap">
+            <div *ngIf="(recipe.categories ?? []).length > 0" class="recipe-category-list">
+                <span *ngFor="let category of recipe.categories ?? []" class="recipe-category">{{ category }}</span>
             </div>
-            <div *ngIf="showIngredients && currentIngredients.length > 0" class="card-body list-group-flush side bg-white text-dark" style="border: solid #f25d9c;">
-                <p *ngFor="let ingredient of currentIngredients" class="list-group-item">
-                    {{ingredient.name}} <span *ngIf="ingredient.amount">- <i>{{ingredient.amount}} {{getMeasurementAbbreviation(ingredient.amountType)}}</i></span>
-                </p>
-            </div>
-            <div *ngIf="!showIngredients && currentIngredients.length > 0" class="card-body list-group-flush side bg-white text-dark" style="border: solid #f25d9c;">
-                <p class="list-group-item">
-                    . . .
-                </p>
-            </div>
-            <div *ngIf="showIngredients && currentIngredients.length == 0" class="card-body list-group-flush side bg-white text-dark" style="border: solid #f25d9c;">
-                <p class="list-group-item">
-                    <i>This recipe does not contain any ingredients!</i>
-                </p>
+            <div *ngIf="(recipe.tags ?? []).length > 0" class="recipe-tag-list mt-2">
+                <span *ngFor="let tag of recipe.tags ?? []" class="recipe-tag">{{ tag }}</span>
             </div>
         </div>
-    </div>
+    </article>
 
     <div *ngIf="edit == true" class="horizontal-center card">
         <article class="m-3">

@@ -1,135 +1,241 @@
-@if (isAuthenticated) {
-@if (groceryFeedbackMessage) {
-<div class="alert alert-{{ groceryFeedbackType }} mb-3" role="alert">
-  {{ groceryFeedbackMessage }}
-</div>
-}
-<div class="recipe-actions mb-3">
-  <div class="recipe-actions-left">
-    <button class="btn" [ngClass]="showFavorites ? 'btn-outline-brand' : 'btn-brand'" type="button" (click)="toggleDisplay()">{{ showFavorites ? 'Show All Recipes' : 'Show Favorites' }} <i [ngClass]="showFavorites ? '' : 'fas fa-heart'"></i></button>
-    <button class="btn btn-brand-alt mobile-hide ms-3" type="button" [disabled]="selectedRecipes.length == 0" (click)="addSelectedRecipesToGroceryList()">Add to Groceries</button>
-    <button class="btn btn-outline-brand mobile-hide ms-3" type="button" [disabled]="selectedRecipes.length == 0" (click)="clearSelectedRecipes()">Clear selection</button>
-  </div>
-  <div class="recipe-actions-right mobile-hide">
-    <span class="selection-pill">{{ selectedRecipes.length }} selected</span>
-    <button class="btn btn-brand-secondary btn-mobile ms-3" type="button" routerLink="/account/recipes">My Recipes <i class="fas fa-user"></i></button>
-  </div>
-</div>
-}
-@if (!isAuthenticated) {
-<div class="mobile-hide mb-3">
-  <button class="btn btn-brand-alt" type="button" [disabled]="selectedRecipes.length == 0" (click)="addSelectedRecipesToGroceryList()">Add to Groceries</button>
-  <!-- <button class="btn btn-brand-secondary ms-3" type="button" [disabled]="recipeList.length == 0" routerLink="/account/plan">Recipe Groceries</button> -->
-</div>
-}
+<div class="recipe-page-shell">
+  <aside class="recipe-page-sidebar" role="navigation" aria-label="Recipe navigation">
+    <div class="recipe-sidebar-header">Recipe explorer</div>
 
-@if (loading) {
-<app-spinner [centered]="true"></app-spinner>
-}
+    <div class="recipe-side-group recipe-mobile-hidden">
+      <button class="recipe-side-link" type="button" (click)="showCreateMode = false;" [class.active]="!showCreateMode">
+        <i class="fa fa-list" aria-hidden="true"></i>
+        <span>Overview</span>
+      </button>
+      <button class="recipe-side-link" type="button" (click)="openCreateRecipe()" [class.active]="showCreateMode">
+        <i class="far fa-file-alt" aria-hidden="true"></i>
+        <span>Add Recipe</span>
+      </button>
+    </div>
 
-@if (loading === false && loadError) {
-<p class="text-center">
-  Unable to load recipes right now. Please refresh the page.
-</p>
-}
+    <div class="recipe-side-panel">
+      <div class="recipe-side-section recipe-mobile-hidden">
+        <div class="recipe-side-panel-header">Selection</div>
 
-@if (loading === false && !loadError) {
-<div class="recipe-toolbar">
-  <div class="recipe-filter-group">
-    <label for="recipe-search" class="recipe-filter-label">Filter</label>
-    <input id="recipe-search" class="form-control recipe-filter-input" type="search" placeholder="Search by title, creator, tags, or text" [value]="searchTerm" (input)="searchTerm = $any($event.target).value; applyFiltersAndSort()">
-  </div>
-  <div class="recipe-filter-group">
-    <label for="recipe-ingredients" class="recipe-filter-label">Ingredients I have</label>
-    <input id="recipe-ingredients" class="form-control recipe-filter-input" type="text" placeholder="eggs, spinach, tomatoes" [value]="pantryIngredients" (input)="updatePantryIngredients($any($event.target).value)">
-  </div>
-  <div class="recipe-filter-group recipe-sort-group">
-    <label for="recipe-category" class="recipe-filter-label">Category</label>
-    <select id="recipe-category" class="form-select recipe-filter-select" [value]="categoryFilter" (change)="categoryFilter = $any($event.target).value; applyFiltersAndSort()">
-      <option value="all">All categories</option>
-      @for (category of availableCategories; track category) {
-      <option [value]="category">{{ category }}</option>
+        <div class="recipe-side-actions">
+          <button class="recipe-side-action-button recipe-action-button-success" type="button" [disabled]="selectedRecipes.length == 0" (click)="addSelectedRecipesToGroceryList()">Add to Groceries</button>
+          <button class="recipe-side-action-button recipe-action-button-muted" type="button" [disabled]="selectedRecipes.length == 0" (click)="clearSelectedRecipes()">Clear selection</button>
+          <span class="selection-pill">{{ selectedRecipes.length }} selected</span>
+        </div>
+      </div>
+
+      @if (isAuthenticated) {
+      <div class="recipe-side-section recipe-side-personal">
+        <div class="recipe-side-panel-header">Personal</div>
+
+        <div class="recipe-side-actions">
+          <button class="recipe-side-action-button recipe-action-button-primary" [ngClass]="showFavorites ? 'recipe-action-button-ghost' : ''" type="button" (click)="toggleDisplay()">
+            {{ showFavorites ? 'Show All Recipes' : 'Show Favorites' }}
+            <i [ngClass]="showFavorites ? '' : 'fas fa-heart'"></i>
+          </button>
+          <button class="recipe-side-action-button recipe-action-button-secondary" type="button" (click)="toggleMyRecipes()">
+            {{ showMyRecipes ? 'All Recipes' : 'My Recipes' }} <i class="fas fa-user"></i>
+          </button>
+        </div>
+      </div>
       }
-    </select>
-  </div>
-  <div class="recipe-filter-group recipe-sort-group">
-    <label for="recipe-tag" class="recipe-filter-label">Tag</label>
-    <select id="recipe-tag" class="form-select recipe-filter-select" [value]="tagFilter" (change)="tagFilter = $any($event.target).value; applyFiltersAndSort()">
-      <option value="all">All tags</option>
-      @for (tag of availableTags; track tag) {
-      <option [value]="tag">{{ tag }}</option>
-      }
-    </select>
-  </div>
-  <div class="recipe-filter-group recipe-sort-group">
-    <label for="recipe-sort" class="recipe-filter-label">Sort by</label>
-    <select id="recipe-sort" class="form-select recipe-filter-select" [value]="sortSetting" (change)="sort($any($event.target).value)">
-      <option value="created">Created</option>
-      <option value="title">Title</option>
-      <option value="creator">Creator</option>
-      <option value="instructions">Instructions</option>
-    </select>
-  </div>
-  <button class="btn btn-outline-brand recipe-direction-toggle" type="button" (click)="toggleSortDirection()">
-    {{ ascending ? 'Ascending' : 'Descending' }}
-  </button>
-</div>
+    </div>
+  </aside>
 
-<table class="table table-hover caption-top">
-  <caption>{{ showFavorites ? 'Favorite recipes' : 'All recipes' }}</caption>
-  @if (settings.recipesTheme === 'Pretty') {
-  <app-pretty [recipes]="shownRecipes" [favoredRecipes]="favoredRecipes" [selectedRecipes]="selectedRecipes" [pantryIngredients]="getPantryIngredientList()" [bestMatchScore]="bestMatchScore" (selectRecipe)="toggleRecipeSelected($event)"></app-pretty>
-  }
-  @if (settings.recipesTheme === 'List') {
-  <thead>
-    <tr class="cursor-pointer">
-      <th scope="col">#</th>
-      <th scope="col" (click)="sort('title')">Title @if (sortSetting == 'title') {
-        <i class="fas fa-sort"></i>
-        }
-      </th>
-      <th scope="col" class="creator" (click)="sort('creator')">Creator @if (sortSetting == 'creator') {
-        <i class="fas fa-sort"></i>
-        }
-      </th>
-      <th scope="col" (click)="sort('created')">Created @if (sortSetting == 'created') {
-        <i class="fas fa-sort"></i>
-        }
-      </th>
-    </tr>
-  </thead>
-  }
-  @if (settings.recipesTheme === 'List') {
-  <tbody>
-    @for (recipe of shownRecipes; track recipe) {
-    <tr>
-      <th scope="row">
-        <input class="form-check-input me-1 cursor-pointer" type="checkbox" (click)="toggleRecipeSelected(recipe)">
-      </th>
-      <td class="cursor-pointer" (click)="openRecipe(recipe)">
-        {{recipe.title}}
-      </td>
-      <td class="cursor-pointer creator" (click)="openRecipe(recipe)">
-        {{recipe.creator}}
-      </td>
-      <td class="cursor-pointer" (click)="openRecipe(recipe)">
-        {{displayDateOnly(recipe.created)}}
-      </td>
-    </tr>
+  <div class="recipe-page">
+    <header class="recipe-page-header">
+      <div class="recipe-page-heading">
+        <p class="recipe-page-kicker">Recipe explorer</p>
+        <h2 class="recipe-page-title">{{ showCreateMode ? 'Create recipe' : 'Discover recipes' }}</h2>
+      </div>
+    </header>
+
+    @if (showCreateMode) {
+    <div class="recipe-create-panel">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="mb-0">Create recipe</h3>
+        <button class="btn btn-outline-secondary btn-sm" type="button" (click)="closeCreateRecipe()">Back to overview</button>
+      </div>
+      <app-create></app-create>
+    </div>
     }
-    @if (shownRecipes.length == 0) {
-    <tr>
-      <td colspan="12" class="text-center">
-        There are no recipes to be shown..
-      </td>
-    </tr>
+
+    @if (!showCreateMode) {
+    @if (groceryFeedbackMessage) {
+    <div class="alert alert-{{ groceryFeedbackType }} mb-3" role="alert">
+      {{ groceryFeedbackMessage }}
+    </div>
     }
-  </tbody>
-  }
-  @if (loading === false && shownRecipes.length == 0) {
-  <p class="text-center">
-    There are no recipes to be shown..
-  </p>
-  }
-</table>
-}
+
+    @if (loading) {
+    <app-spinner [centered]="true"></app-spinner>
+    }
+
+    @if (loading === false && loadError) {
+    <p class="text-center">
+      Unable to load recipes right now. Please refresh the page.
+    </p>
+    }
+
+    @if (loading === false && !loadError) {
+    <section class="recipe-panel">
+      <div class="recipe-toolbar recipe-toolbar-desktop">
+        <div class="recipe-filter-group">
+          <label for="recipe-search" class="recipe-filter-label">Filter</label>
+          <input id="recipe-search" class="form-control recipe-filter-input" type="search" placeholder="Search by title, creator, tags, or text" [value]="searchTerm" (input)="searchTerm = $any($event.target).value; applyFiltersAndSort()">
+        </div>
+        <div class="recipe-filter-group">
+          <label for="recipe-ingredients" class="recipe-filter-label">Ingredients I have</label>
+          <input id="recipe-ingredients" class="form-control recipe-filter-input" type="text" placeholder="eggs, spinach, tomatoes" [value]="pantryIngredients" (input)="updatePantryIngredients($any($event.target).value)">
+        </div>
+        <div class="recipe-filter-group recipe-sort-group">
+          <label for="recipe-category" class="recipe-filter-label">Category</label>
+          <select id="recipe-category" class="form-select recipe-filter-select" [value]="categoryFilter" (change)="categoryFilter = $any($event.target).value; applyFiltersAndSort()">
+            <option value="all">All categories</option>
+            @for (category of availableCategories; track category) {
+            <option [value]="category">{{ category }}</option>
+            }
+          </select>
+        </div>
+        <div class="recipe-filter-group recipe-sort-group">
+          <label for="recipe-tag" class="recipe-filter-label">Tag</label>
+          <select id="recipe-tag" class="form-select recipe-filter-select" [value]="tagFilter" (change)="tagFilter = $any($event.target).value; applyFiltersAndSort()">
+            <option value="all">All tags</option>
+            @for (tag of availableTags; track tag) {
+            <option [value]="tag">{{ tag }}</option>
+            }
+          </select>
+        </div>
+        <div class="recipe-filter-group recipe-sort-group">
+          <label for="recipe-sort" class="recipe-filter-label">Sort by</label>
+          <select id="recipe-sort" class="form-select recipe-filter-select" [value]="sortSetting" (change)="sort($any($event.target).value)">
+            <option value="created">Created</option>
+            <option value="title">Title</option>
+            <option value="creator">Creator</option>
+            <option value="instructions">Instructions</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="recipe-toolbar-mobile">
+        <button class="recipe-mobile-filter-toggle" type="button" (click)="toggleMobileFilters()">
+          <i class="fas fa-filter" aria-hidden="true"></i>
+          <span>Filters</span>
+          <span class="recipe-mobile-filter-count">{{ searchTerm || categoryFilter !== 'all' || tagFilter !== 'all' || pantryIngredients ? 'On' : 'Off' }}</span>
+        </button>
+      </div>
+
+      @if (showMobileFilters || isClosingMobileFilters) {
+      <div class="recipe-mobile-filter-backdrop" [class.is-closing]="isClosingMobileFilters" (click)="closeMobileFilters()"></div>
+      <aside class="recipe-mobile-filter-drawer" [class.is-closing]="isClosingMobileFilters" role="dialog" aria-modal="true" aria-label="Recipe filters">
+        <div class="recipe-mobile-filter-header">
+          <h3>Filters</h3>
+          <button type="button" class="recipe-mobile-filter-close" (click)="closeMobileFilters()" aria-label="Close filters">
+            <i class="fas fa-times" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <div class="recipe-mobile-filter-body">
+          <div class="recipe-filter-group">
+            <label for="recipe-search-mobile" class="recipe-filter-label">Filter</label>
+            <input id="recipe-search-mobile" class="form-control recipe-filter-input" type="search" placeholder="Search by title, creator, tags, or text" [value]="searchTerm" (input)="searchTerm = $any($event.target).value; applyFiltersAndSort()">
+          </div>
+          <div class="recipe-filter-group">
+            <label for="recipe-ingredients-mobile" class="recipe-filter-label">Ingredients I have</label>
+            <input id="recipe-ingredients-mobile" class="form-control recipe-filter-input" type="text" placeholder="eggs, spinach, tomatoes" [value]="pantryIngredients" (input)="updatePantryIngredients($any($event.target).value)">
+          </div>
+          <div class="recipe-filter-group recipe-sort-group">
+            <label for="recipe-category-mobile" class="recipe-filter-label">Category</label>
+            <select id="recipe-category-mobile" class="form-select recipe-filter-select" [value]="categoryFilter" (change)="categoryFilter = $any($event.target).value; applyFiltersAndSort()">
+              <option value="all">All categories</option>
+              @for (category of availableCategories; track category) {
+              <option [value]="category">{{ category }}</option>
+              }
+            </select>
+          </div>
+          <div class="recipe-filter-group recipe-sort-group">
+            <label for="recipe-tag-mobile" class="recipe-filter-label">Tag</label>
+            <select id="recipe-tag-mobile" class="form-select recipe-filter-select" [value]="tagFilter" (change)="tagFilter = $any($event.target).value; applyFiltersAndSort()">
+              <option value="all">All tags</option>
+              @for (tag of availableTags; track tag) {
+              <option [value]="tag">{{ tag }}</option>
+              }
+            </select>
+          </div>
+          <div class="recipe-filter-group recipe-sort-group">
+            <label for="recipe-sort-mobile" class="recipe-filter-label">Sort by</label>
+            <select id="recipe-sort-mobile" class="form-select recipe-filter-select" [value]="sortSetting" (change)="sort($any($event.target).value)">
+              <option value="created">Created</option>
+              <option value="title">Title</option>
+              <option value="creator">Creator</option>
+              <option value="instructions">Instructions</option>
+            </select>
+          </div>
+        </div>
+      </aside>
+      }
+
+      <div class="recipe-table-shell">
+        <table class="table table-hover caption-top">
+          <caption>{{ showMyRecipes ? 'My recipes' : (showFavorites ? 'Favorite recipes' : 'All recipes') }}</caption>
+          @if (settings.recipesTheme === 'Pretty') {
+          <app-pretty [recipes]="shownRecipes" [favoredRecipes]="favoredRecipes" [selectedRecipes]="selectedRecipes" [pantryIngredients]="getPantryIngredientList()" [bestMatchScore]="bestMatchScore" (selectRecipe)="toggleRecipeSelected($event)"></app-pretty>
+          }
+          @if (settings.recipesTheme === 'List') {
+          <thead>
+            <tr class="cursor-pointer">
+              <th scope="col">#</th>
+              <th scope="col" (click)="sort('title')">Title @if (sortSetting == 'title') {
+                <i class="fas fa-sort"></i>
+                }
+              </th>
+              <th scope="col" class="creator" (click)="sort('creator')">Creator @if (sortSetting == 'creator') {
+                <i class="fas fa-sort"></i>
+                }
+              </th>
+              <th scope="col" (click)="sort('created')">Created @if (sortSetting == 'created') {
+                <i class="fas fa-sort"></i>
+                }
+              </th>
+            </tr>
+          </thead>
+          }
+          @if (settings.recipesTheme === 'List') {
+          <tbody>
+            @for (recipe of shownRecipes; track recipe) {
+            <tr>
+              <th scope="row">
+                <input class="form-check-input me-1 cursor-pointer" type="checkbox" (click)="toggleRecipeSelected(recipe)">
+              </th>
+              <td class="cursor-pointer" (click)="openRecipe(recipe)">
+                {{recipe.title}}
+              </td>
+              <td class="cursor-pointer creator" (click)="openRecipe(recipe)">
+                {{recipe.creator}}
+              </td>
+              <td class="cursor-pointer" (click)="openRecipe(recipe)">
+                {{displayDateOnly(recipe.created)}}
+              </td>
+            </tr>
+            }
+            @if (shownRecipes.length == 0) {
+            <tr>
+              <td colspan="12" class="text-center">
+                There are no recipes to be shown..
+              </td>
+            </tr>
+            }
+          </tbody>
+          }
+          @if (loading === false && shownRecipes.length == 0) {
+          <p class="text-center">
+            There are no recipes to be shown..
+          </p>
+          }
+        </table>
+      </div>
+    </section>
+    }
+    }
+  </div>
+</div>

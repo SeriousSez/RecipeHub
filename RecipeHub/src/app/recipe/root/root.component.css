@@ -1,17 +1,71 @@
-i{
-    min-width: 1.3vh;
+.recipe-root {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.25rem;
+    width: 100%;
+    min-height: 100%;
 }
 
-li{
-    min-width: 9.6vh;
+.side-nav {
+    margin-top: 0.2rem;
 }
 
-.side-nav{
-    /* border-right:1px solid #cecece; */
+.side-nav .nav-pills {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    margin: 0;
+}
+
+.side-nav .nav-item {
+    width: 100%;
+}
+
+.sidebar-menu-button {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.7rem 0.9rem;
+    border-radius: 0.7rem;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    background: rgba(255, 255, 255, 0.55);
+    color: #1f2937;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: none;
+    transition: all 0.2s ease;
+}
+
+.sidebar-menu-button i {
+    width: 1rem;
+    text-align: center;
+    font-size: 0.95rem;
+    opacity: 0.9;
+}
+
+.sidebar-menu-button:hover {
+    background: rgba(255, 255, 255, 0.9);
+    color: #111827;
+    text-decoration: none;
+}
+
+.sidebar-menu-button.active,
+.sidebar-menu-button.router-link-active,
+.sidebar-menu-button[aria-current="page"] {
+    background: linear-gradient(135deg, #f25d9c, #ec4899);
+    border-color: #f25d9c;
+    color: #ffffff;
+    box-shadow: 0 8px 18px rgba(242, 93, 156, 0.2);
 }
 
 @media only screen and (max-device-width : 600px) {
-    .side-nav{
-        display: none;
+    .side-nav {
+        margin-bottom: 1rem;
+    }
+
+    .side-nav .nav-pills {
+        display: flex;
+        flex-direction: column;
     }
 }

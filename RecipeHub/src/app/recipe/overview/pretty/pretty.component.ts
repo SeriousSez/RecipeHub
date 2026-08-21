@@ -50,6 +50,10 @@ export class PrettyComponent implements OnInit {
     this.groceryList = this.groceryService.getIngredientList();
   }
 
+  isRecipeSelected(recipe: Recipe): boolean {
+    return this.selectedRecipes.some(selectedRecipe => selectedRecipe.id === recipe.id);
+  }
+
   addSelectedRecipesToGroceryList() {
     this.selectedRecipes.forEach(recipe => {
       this.groceryService.toggleRecipeToList(recipe);
@@ -58,7 +62,8 @@ export class PrettyComponent implements OnInit {
   }
 
   toggleRecipeSelected(recipe: Recipe) {
-    var index = this.selectedRecipes.indexOf(recipe, 0);
+    const index = this.selectedRecipes.findIndex(selectedRecipe => selectedRecipe.id === recipe.id);
+
     if (index > -1) {
       this.selectedRecipes.splice(index, 1);
     } else {
