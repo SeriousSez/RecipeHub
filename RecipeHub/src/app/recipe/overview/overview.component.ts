@@ -90,6 +90,30 @@ export class OverviewComponent implements OnInit {
   public get pantryButtonLabel(): string {
     return this.showPantryMatches ? this.translateService.instant('recipe.showAllRecipesPantry') : this.translateService.instant('recipe.showMatchingRecipes');
   }
+
+  public get hasActiveFilters(): boolean {
+    return !!this.searchTerm
+      || this.categoryFilter !== 'all'
+      || this.tagFilter !== 'all'
+      || this.sortSetting !== 'created'
+      || this.ascending !== false
+      || this.showFavorites
+      || this.showMyRecipes
+      || this.showPantryMatches;
+  }
+
+  clearFilters(): void {
+    this.searchTerm = '';
+    this.categoryFilter = 'all';
+    this.tagFilter = 'all';
+    this.sortSetting = 'created';
+    this.ascending = false;
+    this.showFavorites = false;
+    this.showMyRecipes = false;
+    this.showPantryMatches = false;
+    this.applyFiltersAndSort();
+  }
+
   public searchTerm: string = '';
   public categoryFilter: string = 'all';
   public tagFilter: string = 'all';

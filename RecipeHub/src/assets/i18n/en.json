@@ -218,6 +218,7 @@
         "allTags": "All tags",
         "sortByLabel": "Sort by",
         "sortDirectionAria": "Toggle sort direction",
+        "clearFiltersButton": "Clear filters",
         "sortCreated": "Created",
         "sortTitle": "Title",
         "sortCreator": "Creator",

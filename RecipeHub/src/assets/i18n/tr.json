@@ -218,6 +218,7 @@
         "allTags": "Tüm etiketler",
         "sortByLabel": "Sırala",
         "sortDirectionAria": "Sıralama yönünü değiştir",
+        "clearFiltersButton": "Filtreleri temizle",
         "sortCreated": "Oluşturulma",
         "sortTitle": "Başlık",
         "sortCreator": "Oluşturan",

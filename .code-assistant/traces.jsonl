@@ -16,3 +16,4 @@
 {"ts":1787337553786,"traceId":"tr-1787337553787-jgtgv8","type":"complete","filePath":"RecipeHub/src/app/header/header.component.html","result":{"completionLength":300,"latencyMs":29374,"localHits":3}}
 {"ts":1787337556454,"traceId":"tr-1787337556454-t4tioi","type":"complete","filePath":"RecipeHub/src/app/header/header.component.html","result":{"completionLength":375,"latencyMs":31121,"localHits":3}}
 {"ts":1787337603599,"traceId":"tr-1787337603599-pfi122","type":"complete","filePath":"RecipeHub/src/app/header/header.component.scss","result":{"completionLength":71,"latencyMs":4009,"localHits":3}}
+{"ts":1787346653310,"traceId":"tr-1787346653310-xpvml7","type":"complete","filePath":"RecipeHub/src/app/recipe/overview/overview.component.html","result":{"completionLength":3110,"latencyMs":21486,"localHits":3}}

@@ -644,6 +644,15 @@ button:focus {
     gap: 0.4rem;
 }
 
+.recipe-clear-group {
+    justify-content: flex-end;
+}
+
+.recipe-clear-filters {
+    min-height: 2.2rem;
+    white-space: nowrap;
+}
+
 .recipe-sort-control .recipe-filter-select {
     flex: 1 1 auto;
 }

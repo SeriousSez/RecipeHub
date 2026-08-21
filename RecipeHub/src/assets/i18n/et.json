@@ -218,6 +218,7 @@
         "allTags": "Kõik sildid",
         "sortByLabel": "Sordi",
         "sortDirectionAria": "Muuda sortimise suunda",
+        "clearFiltersButton": "Tühjenda filtrid",
         "sortCreated": "Loodud",
         "sortTitle": "Pealkiri",
         "sortCreator": "Looja",
