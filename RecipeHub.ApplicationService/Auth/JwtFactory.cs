@@ -47,7 +47,7 @@ namespace RecipeHub.ApplicationService.Auth
             return claims;
         }
 
-        public JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredentials, List<Claim> claims, bool rememberMe = true)
+        public JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredentials, List<Claim> claims, bool rememberMe = false)
         {
             var tokenOptions = new JwtSecurityToken(
                 issuer: _jwtSettings.GetSection("validIssuer").Value,

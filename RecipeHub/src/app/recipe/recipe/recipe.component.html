@@ -242,10 +242,12 @@
                                                 {{ingredient.Description}}
                                             </td> -->
                                             <td>
-                                                {{ingredient.amount}}
-                                                {{ingredient.amountType}}
+                                                <input type="number" step="any" class="form-control" [(ngModel)]="ingredient.amount" [name]="'existing-amount-' + ingredient.name" autocomplete="off" data-lpignore="true">
                                             </td>
                                             <td>
+                                                <select class="btn btn-white dropdown-toggle" [(ngModel)]="ingredient.amountType" [name]="'existing-amountType-' + ingredient.name">
+                                                    <option class="select-items" *ngFor="let measurement of measurements" [ngValue]="measurement">{{measurement}}</option>
+                                                </select>
                                                 <button type="submit" class="btn btn-link btn-sm" (click)="removeIngredient(ingredient)">{{ 'recipe.removeButton' | translate }}</button>
                                             </td>
                                         </tr>

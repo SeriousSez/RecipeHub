@@ -28,7 +28,8 @@ export class LoginComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.loginForm = this.formBuilder.group({
       identity: ['', Validators.required],
-      password: ['', Validators.required]
+      password: ['', Validators.required],
+      rememberMe: [true]
     });
 
     // subscribe to router event

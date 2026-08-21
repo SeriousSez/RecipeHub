@@ -47,6 +47,7 @@
         "password": "Password",
         "passwordRequired": "Password is required",
         "loginButton": "Login",
+        "rememberMeLabel": "Stay signed in",
         "forgotPassword": "Forgot password?",
         "oops": "Oops!",
         "createAccount": "Create account",

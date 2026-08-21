@@ -1,4 +1,5 @@
 export interface Credentials {
-    identity: string;  
+    identity: string;
     password: string;
+    rememberMe?: boolean;
 }

@@ -47,6 +47,7 @@
         "password": "Adgangskode",
         "passwordRequired": "Adgangskode er påkrævet",
         "loginButton": "Log ind",
+        "rememberMeLabel": "Forbliv logget ind",
         "forgotPassword": "Glemt adgangskode?",
         "oops": "Ups!",
         "createAccount": "Opret konto",

@@ -62,7 +62,7 @@ namespace RecipeHub.ApplicationService.Services
             var signingCredentials = _jwtFactory.GetSigningCredentials();
             var claims = await _jwtFactory.GetClaims(user);
 
-            var tokenOptions = _jwtFactory.GenerateTokenOptions(signingCredentials, claims);
+            var tokenOptions = _jwtFactory.GenerateTokenOptions(signingCredentials, claims, request.RememberMe);
             var token = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
 
             //var message = new Message(user.Email, "User Logged In", "You have logged in!");

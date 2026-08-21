@@ -60,6 +60,27 @@
     color: #334155;
 }
 
+.field-group-checkbox {
+    flex-direction: row;
+    align-items: center;
+}
+
+.auth-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #334155;
+    cursor: pointer;
+}
+
+.auth-checkbox-label input[type="checkbox"] {
+    width: 1rem;
+    height: 1rem;
+    cursor: pointer;
+}
+
 .form-control {
     min-height: 46px;
     border: 1px solid rgba(148, 163, 184, 0.55);

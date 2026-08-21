@@ -400,6 +400,7 @@ body {
 :root[data-theme='dark'] .auth-alert-success,
 :root[data-theme='dark'] .auth-alert-error,
 :root[data-theme='dark'] .field-group label,
+:root[data-theme='dark'] .auth-checkbox-label,
 :root[data-theme='dark'] .setting-label {
     color: var(--recipehub-text);
 }

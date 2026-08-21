@@ -47,6 +47,7 @@
         "password": "Parool",
         "passwordRequired": "Parool on kohustuslik",
         "loginButton": "Logi sisse",
+        "rememberMeLabel": "Jää sisse logituks",
         "forgotPassword": "Unustasid parooli?",
         "oops": "Oih!",
         "createAccount": "Loo konto",

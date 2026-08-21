@@ -47,6 +47,7 @@
         "password": "Şifre",
         "passwordRequired": "Şifre zorunludur",
         "loginButton": "Giriş yap",
+        "rememberMeLabel": "Oturumu açık tut",
         "forgotPassword": "Şifrenizi mi unuttunuz?",
         "oops": "Hata!",
         "createAccount": "Hesap oluştur",

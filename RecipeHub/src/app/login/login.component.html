@@ -36,6 +36,13 @@
         }
       </div>
 
+      <div class="field-group field-group-checkbox">
+        <label class="auth-checkbox-label" for="rememberMe">
+          <input id="rememberMe" type="checkbox" formControlName="rememberMe">
+          {{ 'auth.rememberMeLabel' | translate }}
+        </label>
+      </div>
+
       <div class="auth-actions">
         <button type="submit" class="btn btn-primary" [disabled]="loginForm.invalid || isRequesting">{{ 'auth.loginButton' | translate }}</button>
         <a class="auth-link" routerLink="/forgot-password">{{ 'auth.forgotPassword' | translate }}</a>
