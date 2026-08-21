@@ -242,6 +242,34 @@ jobs:
             Set-Content -Path $placeholder -Value "keep" -Encoding UTF8
           }
 
+      - name: Put API into maintenance mode
+        shell: pwsh
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          $maintenanceDir = Join-Path $env:GITHUB_WORKSPACE "ftp-maintenance"
+          New-Item -ItemType Directory -Path $maintenanceDir -Force | Out-Null
+          Set-Content -Path (Join-Path $maintenanceDir "app_offline.htm") -Value @"
+          <!doctype html>
+          <html><head><title>RecipeHub maintenance</title></head><body><p>RecipeHub is restarting. Please try again shortly.</p></body></html>
+          "@ -Encoding UTF8
+
+      - name: Upload API maintenance file
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./ftp-maintenance/
+          server-dir: /recipes.api/
+          dangerous-clean-slate: false
+
+      - name: Wait for API process to release files
+        shell: pwsh
+        run: Start-Sleep -Seconds 15
+
       - name: Deploy API using FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -251,6 +279,37 @@ jobs:
           local-dir: ${{ env.PUBLISH_PATH }}/
           server-dir: /recipes.api/
           dangerous-clean-slate: false
+
+      - name: Remove API maintenance file
+        if: always()
+        shell: pwsh
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          $ftpUri = "ftp://$($env:FTP_SERVER)/recipes.api/app_offline.htm"
+          $credential = "$($env:FTP_USERNAME):$($env:FTP_PASSWORD)"
+          $lastError = $null
+
+          for ($attempt = 1; $attempt -le 5; $attempt++) {
+            try {
+              & curl.exe --fail --silent --show-error --user $credential --quote "DELE app_offline.htm" $ftpUri
+              if ($LASTEXITCODE -eq 0) {
+                Write-Host "✅ API maintenance file removed."
+                exit 0
+              }
+              throw "curl exited with code $LASTEXITCODE"
+            } catch {
+              $lastError = $_
+              Write-Host "Maintenance file removal attempt $attempt failed: $($_.Exception.Message)"
+              if ($attempt -lt 5) {
+                Start-Sleep -Seconds 5
+              }
+            }
+          }
+
+          throw "Could not remove app_offline.htm from Simply FTP: $lastError"
 
       - name: Wait for app to restart
         shell: pwsh
