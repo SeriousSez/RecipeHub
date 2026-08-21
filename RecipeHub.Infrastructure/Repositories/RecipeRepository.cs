@@ -115,11 +115,8 @@ namespace RecipeHub.Infrastructure.Repositories
         {
             var recipes = await _context.Recipes
                 .AsNoTracking()
-                .AsSplitQuery()
                 .Include(r => r.Creator)
                 .Include(r => r.Image)
-                .Include(r => r.RecipeIngredients)
-                    .ThenInclude(recipeIngredient => recipeIngredient.Ingredient)
                 .ToListAsync();
             return recipes;
         }
