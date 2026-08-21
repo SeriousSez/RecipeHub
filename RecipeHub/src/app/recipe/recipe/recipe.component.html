@@ -1,4 +1,38 @@
-<app-spinner *ngIf="!recipe" [centered]="true"></app-spinner>
+<section *ngIf="!recipe" class="recipe-detail-loading" aria-label="Loading recipe" aria-busy="true">
+    <div class="recipe-detail-skeleton-header">
+        <div class="recipe-detail-skeleton-heading">
+            <span class="recipe-detail-skeleton-line kicker"></span>
+            <span class="recipe-detail-skeleton-line title"></span>
+        </div>
+        <div class="recipe-detail-skeleton-actions">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+    <div class="recipe-detail-skeleton-meta">
+        <span></span>
+        <span></span>
+    </div>
+    <div class="recipe-detail-skeleton-figure"></div>
+    <div class="recipe-detail-skeleton-content">
+        <main class="recipe-detail-skeleton-panel instructions">
+            <span class="recipe-detail-skeleton-line section-title"></span>
+            <span class="recipe-detail-skeleton-line text long"></span>
+            <span class="recipe-detail-skeleton-line text"></span>
+            <span class="recipe-detail-skeleton-line text long"></span>
+            <span class="recipe-detail-skeleton-line text short"></span>
+            <span class="recipe-detail-skeleton-line text"></span>
+        </main>
+        <aside class="recipe-detail-skeleton-panel ingredients">
+            <span class="recipe-detail-skeleton-line section-title"></span>
+            <span class="recipe-detail-skeleton-ingredient"></span>
+            <span class="recipe-detail-skeleton-ingredient"></span>
+            <span class="recipe-detail-skeleton-ingredient short"></span>
+            <span class="recipe-detail-skeleton-ingredient"></span>
+        </aside>
+    </div>
+</section>
 
 <div *ngIf="recipe" class="recipe-detail-shell">
     <article *ngIf="edit == false" class="recipe-detail-page">

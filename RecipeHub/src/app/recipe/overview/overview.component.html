@@ -68,7 +68,31 @@
     }
 
     @if (loading) {
-    <app-spinner [centered]="true"></app-spinner>
+    <section class="recipe-loading-skeleton" aria-label="Loading recipes" aria-busy="true">
+      <div class="recipe-skeleton-toolbar">
+        <span class="recipe-skeleton-control recipe-skeleton-search"></span>
+        <span class="recipe-skeleton-control"></span>
+        <span class="recipe-skeleton-control"></span>
+        <span class="recipe-skeleton-control"></span>
+        <span class="recipe-skeleton-control"></span>
+      </div>
+
+      <div class="recipe-skeleton-grid">
+        @for (placeholder of [1, 2, 3, 4, 5, 6]; track placeholder) {
+        <article class="recipe-skeleton-card">
+          <div class="recipe-skeleton-image"></div>
+          <div class="recipe-skeleton-body">
+            <span class="recipe-skeleton-line recipe-skeleton-title"></span>
+            <span class="recipe-skeleton-line recipe-skeleton-subtitle"></span>
+            <div class="recipe-skeleton-tags">
+              <span class="recipe-skeleton-tag"></span>
+              <span class="recipe-skeleton-tag short"></span>
+            </div>
+          </div>
+        </article>
+        }
+      </div>
+    </section>
     }
 
     @if (loading === false && loadError) {

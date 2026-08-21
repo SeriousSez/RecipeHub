@@ -119,6 +119,125 @@ button:focus {
     min-width: 0;
 }
 
+.recipe-loading-skeleton {
+    width: 100%;
+}
+
+.recipe-skeleton-toolbar {
+    display: grid;
+    grid-template-columns: minmax(180px, 1.4fr) repeat(4, minmax(120px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.recipe-skeleton-control,
+.recipe-skeleton-image,
+.recipe-skeleton-line,
+.recipe-skeleton-tag {
+    display: block;
+    background: linear-gradient(100deg, #e5e7eb 20%, #f8fafc 40%, #e5e7eb 60%);
+    background-size: 220% 100%;
+    animation: recipeSkeletonShimmer 1.35s ease-in-out infinite;
+}
+
+.recipe-skeleton-control {
+    height: 2.2rem;
+    border-radius: .7rem;
+}
+
+.recipe-skeleton-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+}
+
+.recipe-skeleton-card {
+    overflow: hidden;
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    border-radius: 1.1rem;
+    background: #ffffff;
+    box-shadow: 0 12px 26px rgba(15, 23, 42, 0.04);
+}
+
+.recipe-skeleton-image {
+    height: 220px;
+}
+
+.recipe-skeleton-body {
+    padding: .9rem .9rem 1rem;
+}
+
+.recipe-skeleton-line {
+    height: .8rem;
+    border-radius: .35rem;
+}
+
+.recipe-skeleton-title {
+    width: 72%;
+    height: 1.1rem;
+}
+
+.recipe-skeleton-subtitle {
+    width: 88%;
+    margin-top: .7rem;
+}
+
+.recipe-skeleton-tags {
+    display: flex;
+    gap: .4rem;
+    margin-top: .85rem;
+}
+
+.recipe-skeleton-tag {
+    width: 4rem;
+    height: 1.35rem;
+    border-radius: .4rem;
+}
+
+.recipe-skeleton-tag.short {
+    width: 3rem;
+}
+
+@media (max-width: 1024px) {
+    .recipe-skeleton-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .recipe-skeleton-toolbar {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .recipe-skeleton-search {
+        grid-column: 1 / -1;
+    }
+
+    .recipe-skeleton-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@keyframes recipeSkeletonShimmer {
+    from {
+        background-position: 100% 0;
+    }
+
+    to {
+        background-position: -100% 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .recipe-skeleton-control,
+    .recipe-skeleton-image,
+    .recipe-skeleton-line,
+    .recipe-skeleton-tag {
+        animation: none;
+    }
+}
+
 .recipe-page-header {
     display: flex;
     align-items: center;
