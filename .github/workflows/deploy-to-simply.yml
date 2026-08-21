@@ -287,25 +287,25 @@ jobs:
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         run: |
-          $ftpUri = "ftp://$($env:FTP_SERVER)/recipes.api/"
-          $credential = "$($env:FTP_USERNAME):$($env:FTP_PASSWORD)"
+          $ftpUri = "ftp://$($env:FTP_SERVER)/recipes.api/app_offline.htm"
           $lastError = $null
 
           for ($attempt = 1; $attempt -le 5; $attempt++) {
             try {
-              & curl.exe --fail --silent --show-error --user $credential --quote "DELE app_offline.htm" $ftpUri
-              if ($LASTEXITCODE -eq 0) {
-                Write-Host "✅ API maintenance file removed."
-                exit 0
-              }
-
-              if ($LASTEXITCODE -eq 21) {
-                Write-Warning "Simply FTP returned 550 while deleting app_offline.htm. The hosting platform may have already removed it during restart."
-                exit 0
-              }
-
-              throw "curl exited with code $LASTEXITCODE"
+              $request = [System.Net.FtpWebRequest]::Create($ftpUri)
+              $request.Method = [System.Net.WebRequestMethods+Ftp]::DeleteFile
+              $request.Credentials = [System.Net.NetworkCredential]::new($env:FTP_USERNAME, $env:FTP_PASSWORD)
+              $request.UsePassive = $true
+              $request.UseBinary = $true
+              $response = $request.GetResponse()
+              $response.Dispose()
+              Write-Host "✅ API maintenance file removed."
+              exit 0
             } catch {
+              if ($_.Exception.Message -match '550|not found|does not exist|No such file') {
+                Write-Warning "The maintenance file is already absent from Simply FTP."
+                exit 0
+              }
               $lastError = $_
               Write-Host "Maintenance file removal attempt $attempt failed: $($_.Exception.Message)"
               if ($attempt -lt 5) {
