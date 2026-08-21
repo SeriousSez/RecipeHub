@@ -219,7 +219,7 @@ body {
 :root[data-theme='dark'] .recipe-detail-section-header span,
 :root[data-theme='dark'] .recipe-side-panel-header,
 :root[data-theme='dark'] .recipe-sidebar-header {
-    color: var(--recipehub-text);
+    color: var(--recipehub-text) !important;
 }
 
 :root[data-theme='dark'] .grocery-page .grocery-lead,

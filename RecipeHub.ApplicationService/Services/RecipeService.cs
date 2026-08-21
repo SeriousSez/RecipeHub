@@ -138,7 +138,9 @@ namespace RecipeHub.ApplicationService.Services
             recipeResponse.Ingredients = new List<IngredientResponse>();
             foreach (var recipeIngredient in recipe.RecipeIngredients)
             {
-                recipeResponse.Ingredients.Add(CreateIngredientResponeModel(recipeIngredient));
+                var ingredientResponse = CreateIngredientResponeModel(recipeIngredient);
+                if (ingredientResponse != null)
+                    recipeResponse.Ingredients.Add(ingredientResponse);
             }
 
             return recipeResponse;
@@ -155,7 +157,9 @@ namespace RecipeHub.ApplicationService.Services
             recipeResponse.Ingredients = new List<IngredientResponse>();
             foreach (var recipeIngredient in recipe.RecipeIngredients)
             {
-                recipeResponse.Ingredients.Add(CreateIngredientResponeModel(recipeIngredient));
+                var ingredientResponse = CreateIngredientResponeModel(recipeIngredient);
+                if (ingredientResponse != null)
+                    recipeResponse.Ingredients.Add(ingredientResponse);
             }
 
             _logger.LogTrace("Recipe created! Recipe: {@Recipe}", recipeResponse);
@@ -173,7 +177,7 @@ namespace RecipeHub.ApplicationService.Services
                 var recipeResponse = _mapper.Map<RecipeResponse>(recipe);
                 recipeResponse.Ingredients = recipe.RecipeIngredients == null
                     ? new List<IngredientResponse>()
-                    : recipe.RecipeIngredients.Select(CreateIngredientResponeModel).ToList();
+                    : recipe.RecipeIngredients.Select(CreateIngredientResponeModel).Where(i => i != null).ToList();
 
                 recipeList.Add(recipeResponse);
             }
@@ -191,7 +195,7 @@ namespace RecipeHub.ApplicationService.Services
                 var recipeResponse = _mapper.Map<RecipeResponse>(recipe);
                 recipeResponse.Ingredients = recipe.RecipeIngredients == null
                     ? new List<IngredientResponse>()
-                    : recipe.RecipeIngredients.Select(CreateIngredientResponeModel).ToList();
+                    : recipe.RecipeIngredients.Select(CreateIngredientResponeModel).Where(i => i != null).ToList();
 
                 recipeList.Add(recipeResponse);
             }
@@ -228,7 +232,7 @@ namespace RecipeHub.ApplicationService.Services
                     Image = _mapper.Map<ImageResponse>(recipe.Image),
                     Ingredients = recipe.RecipeIngredients == null
                         ? new List<IngredientResponse>()
-                        : recipe.RecipeIngredients.Select(CreateIngredientResponeModel).ToList()
+                        : recipe.RecipeIngredients.Select(CreateIngredientResponeModel).Where(i => i != null).ToList()
                 };
 
                 recipeList.Add(recipeResponse);
@@ -308,7 +312,9 @@ namespace RecipeHub.ApplicationService.Services
             response.Ingredients = new List<IngredientResponse>();
             foreach (var recipeIngredient in recipe.RecipeIngredients)
             {
-                response.Ingredients.Add(CreateIngredientResponeModel(recipeIngredient));
+                var ingredientResponse = CreateIngredientResponeModel(recipeIngredient);
+                if (ingredientResponse != null)
+                    response.Ingredients.Add(ingredientResponse);
             }
 
             return response;
@@ -352,6 +358,12 @@ namespace RecipeHub.ApplicationService.Services
         private IngredientResponse CreateIngredientResponeModel(RecipeIngredient recipeIngredient)
         {
             var ingredient = recipeIngredient.Ingredient;
+            if (ingredient == null)
+            {
+                _logger.LogWarning("RecipeIngredient {RecipeIngredientId} has no linked Ingredient; skipping.", recipeIngredient.Id);
+                return null;
+            }
+
             var response = new IngredientResponse
             {
                 Name = ingredient.Name,

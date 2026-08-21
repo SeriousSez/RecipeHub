@@ -144,7 +144,7 @@ export class CreateComponent implements OnInit {
     if (valid) {
       this.recipeService.create(value)
         .subscribe(result => {
-          this.router.navigate([`/recipe/${result.title}/${result.creator}`]);
+          this.router.navigate([`/recipe/${result.id}/${this.utilityService.toSlug(result.title)}`]);
         }, errors => {
           this.isRequesting = false;
           this.errors = errors.error;
