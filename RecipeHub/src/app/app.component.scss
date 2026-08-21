@@ -112,6 +112,47 @@ body {
     filter: invert(1) brightness(1.6);
 }
 
+:root[data-theme='dark'] .angular-editor-wrapper,
+:root[data-theme='dark'] .angular-editor-textarea {
+    background-color: rgba(15, 23, 42, 0.85) !important;
+    color: var(--recipehub-text) !important;
+    border-color: rgba(148, 163, 184, 0.24) !important;
+}
+
+:root[data-theme='dark'] .angular-editor-toolbar {
+    background-color: rgba(15, 23, 42, 0.92) !important;
+    border-color: rgba(148, 163, 184, 0.24) !important;
+}
+
+:root[data-theme='dark'] .angular-editor-toolbar-set,
+:root[data-theme='dark'] .angular-editor-button {
+    background-color: transparent !important;
+    color: var(--recipehub-text) !important;
+    border-color: rgba(148, 163, 184, 0.24) !important;
+}
+
+:root[data-theme='dark'] .angular-editor-button:hover {
+    background-color: rgba(96, 165, 250, 0.14) !important;
+}
+
+:root[data-theme='dark'] .ae-font.ae-picker,
+:root[data-theme='dark'] .ae-picker-label,
+:root[data-theme='dark'] .ae-picker-options,
+:root[data-theme='dark'] .ae-picker-item {
+    background-color: rgba(15, 23, 42, 0.92) !important;
+    color: var(--recipehub-text) !important;
+    border-color: rgba(148, 163, 184, 0.24) !important;
+}
+
+:root[data-theme='dark'] .ae-picker-label:before {
+    background: linear-gradient(to right, rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.92)) !important;
+}
+
+:root[data-theme='dark'] .ae-picker-item:hover,
+:root[data-theme='dark'] .ae-picker-label:hover {
+    background-color: rgba(96, 165, 250, 0.14) !important;
+}
+
 :root[data-theme='dark'] .topbar {
     background: rgba(15, 23, 42, 0.78);
     border-bottom-color: rgba(148, 163, 184, 0.18);
@@ -282,8 +323,8 @@ body {
 
 :root[data-theme='dark'] .recipe-detail-section-header span,
 :root[data-theme='dark'] .selection-pill {
-    background: rgba(96, 165, 250, 0.12);
-    border-color: rgba(96, 165, 250, 0.2);
+    background: rgba(96, 165, 250, 0.12) !important;
+    border-color: rgba(96, 165, 250, 0.2) !important;
 }
 
 :root[data-theme='dark'] .main-nav a {
