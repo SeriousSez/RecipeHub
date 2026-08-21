@@ -230,6 +230,8 @@
         "favoriteRecipesCaption": "Lemmikretseptid",
         "allRecipesCaption": "Kõik retseptid",
         "noRecipes": "Näidatavaid retsepte pole..",
+        "loadMoreButton": "Laadi rohkem",
+        "showingCount": "Näitan {{shown}} / {{total}} retsepti",
         "creatorColumn": "Looja",
         "titleColumn": "Pealkiri",
         "createdColumn": "Loodud",

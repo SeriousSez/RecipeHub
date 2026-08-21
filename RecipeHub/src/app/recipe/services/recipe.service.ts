@@ -12,6 +12,7 @@ import { RecipeCreation } from 'src/app/shared/models/recipe.creation.interface'
 import { Ingredient } from '../models/ingredient.interface';
 import { ingredientModal } from 'src/app/shared/modals/ingredient/ingredient.modal';
 import { RecipeUpdate } from '../models/recipe-update.interface';
+import { RecipePagedQuery, RecipePagedResult } from '../models/recipe-paged.interface';
 
 @Injectable()
 
@@ -56,6 +57,25 @@ export class RecipeService extends BaseService {
 
   getRecipesWithIngredients(): Observable<Recipe[]> {
     return this.http.get<Recipe[]>(this.baseUrl + "/recipe/getallwithingredients", this.httpOptions)
+      .pipe(map(details => {
+        return details;
+      }, (error: any) => console.log(error, "fails")
+      ));
+  }
+
+  getRecipesPaged(query: RecipePagedQuery): Observable<RecipePagedResult> {
+    const params = new URLSearchParams();
+    params.set('page', String(query.page));
+    params.set('pageSize', String(query.pageSize));
+    if (query.search) params.set('search', query.search);
+    if (query.category) params.set('category', query.category);
+    if (query.tag) params.set('tag', query.tag);
+    if (query.sortBy) params.set('sortBy', query.sortBy);
+    if (query.ascending !== undefined) params.set('ascending', String(query.ascending));
+    if (query.creator) params.set('creator', query.creator);
+    if (query.favoriteIds) params.set('favoriteIds', query.favoriteIds);
+
+    return this.http.get<RecipePagedResult>(this.baseUrl + `/recipe/paged?${params.toString()}`, this.httpOptions)
       .pipe(map(details => {
         return details;
       }, (error: any) => console.log(error, "fails")

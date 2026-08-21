@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { DatePipe } from '@angular/common'
 import { Recipe } from '../models/recipe.interface';
 import { RecipeService } from '../services/recipe.service';
@@ -27,7 +27,6 @@ export class OverviewComponent implements OnInit {
   public groceryList: Ingredient[] = [];
 
   public shownRecipes: Recipe[] = [];
-  public recipes: Recipe[];
   public matchingRecipes: Recipe[] | null = null;
   public favoredRecipes: Recipe[];
   public selectedRecipeIds: string[] = [];
@@ -38,8 +37,50 @@ export class OverviewComponent implements OnInit {
   public isClosingMobileFilters: boolean = false;
   public showPantryMatches: boolean = false;
 
+  public readonly pageSize: number = 9;
+  public visibleCount: number = this.pageSize;
+  public currentPage: number = 1;
+  public totalCount: number = 0;
+  private searchDebounceTimer?: ReturnType<typeof setTimeout>;
+
+  public get visibleRecipes(): Recipe[] {
+    return this.showPantryMatches ? this.shownRecipes.slice(0, this.visibleCount) : this.shownRecipes;
+  }
+
+  public get hasMoreRecipes(): boolean {
+    return this.showPantryMatches ? this.visibleCount < this.shownRecipes.length : this.shownRecipes.length < this.totalCount;
+  }
+
+  public get displayTotalCount(): number {
+    return this.showPantryMatches ? this.shownRecipes.length : this.totalCount;
+  }
+
+  loadMore(): void {
+    if (this.showPantryMatches) {
+      this.visibleCount = Math.min(this.visibleCount + this.pageSize, this.shownRecipes.length);
+      return;
+    }
+
+    this.currentPage++;
+    this.fetchPage(false);
+  }
+
+  @HostListener('window:scroll')
+  onWindowScroll(): void {
+    if (!this.hasMoreRecipes) {
+      return;
+    }
+
+    const scrollPosition = window.innerHeight + window.scrollY;
+    const documentHeight = document.documentElement.scrollHeight;
+
+    if (scrollPosition >= documentHeight - 400) {
+      this.loadMore();
+    }
+  }
+
   public get selectedRecipes(): Recipe[] {
-    return (this.recipes ?? []).filter(recipe => this.selectedRecipeIds.includes(recipe.id));
+    return (this.shownRecipes ?? []).filter(recipe => this.selectedRecipeIds.includes(recipe.id));
   }
 
   public set selectedRecipes(value: Recipe[]) {
@@ -157,24 +198,60 @@ export class OverviewComponent implements OnInit {
   }
 
   getRecipes() {
-    this.loading = true;
+    this.matchingRecipes = null;
+    this.fetchPage(true);
+  }
+
+  private fetchPage(reset: boolean): void {
+    if (reset) {
+      this.currentPage = 1;
+      this.loading = true;
+    }
     this.loadError = false;
 
-    this.recipeService.getRecipes().subscribe((recipes: Recipe[]) => {
-      const normalizedRecipes = Array.isArray(recipes) ? recipes : [];
-      this.recipes = normalizedRecipes;
-      this.matchingRecipes = null;
-      this.syncFilterOptions();
-      this.applyFiltersAndSort();
-      this.loading = false;
-      this.loadMatchingRecipes();
-    },
-      error => {
-        this.recipes = [];
-        this.shownRecipes = [];
+    const favoriteIdsParam = this.showFavorites
+      ? (this.favoredRecipes ?? []).map(recipe => recipe.id).join(',')
+      : undefined;
+    const creatorParam = this.showMyRecipes ? this.userService.getUserName() : undefined;
+
+    this.recipeService.getRecipesPaged({
+      page: this.currentPage,
+      pageSize: this.pageSize,
+      search: this.searchTerm || undefined,
+      category: this.categoryFilter !== 'all' ? this.categoryFilter : undefined,
+      tag: this.tagFilter !== 'all' ? this.tagFilter : undefined,
+      sortBy: this.sortSetting,
+      ascending: this.ascending,
+      creator: creatorParam,
+      favoriteIds: favoriteIdsParam
+    }).subscribe({
+      next: result => {
+        const items = Array.isArray(result?.items) ? result.items : [];
+        this.shownRecipes = reset ? items : [...this.shownRecipes, ...items];
+        this.totalCount = result?.totalCount ?? this.shownRecipes.length;
+        this.availableCategories = result?.availableCategories ?? [];
+        this.availableTags = result?.availableTags ?? [];
+
+        if (this.categoryFilter !== 'all' && !this.availableCategories.includes(this.categoryFilter)) {
+          this.categoryFilter = 'all';
+        }
+
+        if (this.tagFilter !== 'all' && !this.availableTags.includes(this.tagFilter)) {
+          this.tagFilter = 'all';
+        }
+
+        this.loading = false;
+        this.persistFilterState();
+      },
+      error: () => {
+        if (reset) {
+          this.shownRecipes = [];
+          this.totalCount = 0;
+        }
         this.loadError = true;
         this.loading = false;
-      });
+      }
+    });
   }
 
   getFavorites() {
@@ -297,35 +374,6 @@ export class OverviewComponent implements OnInit {
 
   displayDateOnly(created: string) {
     return this.datepipe.transform(created, 'dd-MM-yyyy');
-  }
-
-  syncFilterOptions() {
-    const allRecipes = this.recipes ?? [];
-    const categories = new Set<string>();
-    const tags = new Set<string>();
-
-    allRecipes.forEach(recipe => {
-      (recipe.categories ?? []).forEach(category => {
-        const normalized = this.normalizeText(category);
-        if (normalized) categories.add(normalized);
-      });
-
-      (recipe.tags ?? []).forEach(tag => {
-        const normalized = this.normalizeText(tag);
-        if (normalized) tags.add(normalized);
-      });
-    });
-
-    this.availableCategories = [...categories].sort((a, b) => a.localeCompare(b));
-    this.availableTags = [...tags].sort((a, b) => a.localeCompare(b));
-
-    if (this.categoryFilter !== 'all' && !this.availableCategories.includes(this.categoryFilter)) {
-      this.categoryFilter = 'all';
-    }
-
-    if (this.tagFilter !== 'all' && !this.availableTags.includes(this.tagFilter)) {
-      this.tagFilter = 'all';
-    }
   }
 
   private normalizeText(value: string | null | undefined): string {
@@ -492,28 +540,37 @@ export class OverviewComponent implements OnInit {
   }
 
   applyFiltersAndSort() {
-    let source = this.showPantryMatches
-      ? (this.matchingRecipes ?? [])
-      : (this.recipes ?? []);
+    if (!this.showPantryMatches) {
+      if (this.searchDebounceTimer) {
+        clearTimeout(this.searchDebounceTimer);
+      }
+
+      this.searchDebounceTimer = setTimeout(() => this.fetchPage(true), 300);
+      return;
+    }
+
+    const source = this.matchingRecipes ?? [];
+
+    let filteredSource = source;
 
     if (this.showFavorites) {
       const favoredIds = new Set((this.favoredRecipes ?? []).map(recipe => recipe.id));
-      source = source.filter(recipe => favoredIds.has(recipe.id));
+      filteredSource = filteredSource.filter(recipe => favoredIds.has(recipe.id));
     }
 
     if (this.showMyRecipes) {
       const username = this.userService.getUserName();
-      source = source.filter(recipe => recipe.creator?.toLowerCase() === username?.toLowerCase());
+      filteredSource = filteredSource.filter(recipe => recipe.creator?.toLowerCase() === username?.toLowerCase());
     }
 
-    const filtered = source.filter(recipe =>
+    const filtered = filteredSource.filter(recipe =>
       this.recipeMatchesFilters(recipe) &&
-      (!this.showPantryMatches || this.getIngredientMatchScore(recipe) > 0)
+      this.getIngredientMatchScore(recipe) > 0
     );
 
     this.shownRecipes = [...filtered].sort((a, b) => {
       const pantryItems = this.parsePantryIngredients();
-      const pantryComparison = pantryItems.length > 0 && this.showPantryMatches
+      const pantryComparison = pantryItems.length > 0
         ? this.getIngredientMatchScore(b) - this.getIngredientMatchScore(a)
         : 0;
 
@@ -542,10 +599,8 @@ export class OverviewComponent implements OnInit {
       return this.ascending ? comparison : -comparison;
     });
 
-    this.bestMatchScore = this.showPantryMatches
-      ? this.shownRecipes.reduce((max, recipe) => Math.max(max, this.getIngredientMatchScore(recipe)), 0)
-      : 0;
-
+    this.bestMatchScore = this.shownRecipes.reduce((max, recipe) => Math.max(max, this.getIngredientMatchScore(recipe)), 0);
+    this.visibleCount = Math.min(this.pageSize, this.shownRecipes.length) || this.pageSize;
     this.persistFilterState();
   }
 

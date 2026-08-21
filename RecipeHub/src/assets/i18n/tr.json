@@ -230,6 +230,8 @@
         "favoriteRecipesCaption": "Favori tarifler",
         "allRecipesCaption": "Tüm tarifler",
         "noRecipes": "Gösterilecek tarif yok..",
+        "loadMoreButton": "Daha fazla yükle",
+        "showingCount": "{{total}} tarifin {{shown}} tanesi gösteriliyor",
         "creatorColumn": "Oluşturan",
         "titleColumn": "Başlık",
         "createdColumn": "Oluşturulma",

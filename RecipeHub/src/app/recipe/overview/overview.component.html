@@ -217,7 +217,7 @@
         <table class="table table-hover caption-top">
           <caption>{{ showMyRecipes ? ('recipe.myRecipesCaption' | translate) : (showFavorites ? ('recipe.favoriteRecipesCaption' | translate) : ('recipe.allRecipesCaption' | translate)) }}</caption>
           @if (settings.recipesTheme === 'Pretty') {
-          <app-pretty [recipes]="shownRecipes" [favoredRecipes]="favoredRecipes" [selectedRecipes]="selectedRecipes" [pantryIngredients]="showPantryMatches ? getPantryIngredientList() : []" [bestMatchScore]="bestMatchScore" (selectRecipe)="toggleRecipeSelected($event)"></app-pretty>
+          <app-pretty [recipes]="visibleRecipes" [favoredRecipes]="favoredRecipes" [selectedRecipes]="selectedRecipes" [pantryIngredients]="showPantryMatches ? getPantryIngredientList() : []" [bestMatchScore]="bestMatchScore" (selectRecipe)="toggleRecipeSelected($event)"></app-pretty>
           }
           @if (settings.recipesTheme === 'List') {
           <thead>
@@ -240,7 +240,7 @@
           }
           @if (settings.recipesTheme === 'List') {
           <tbody>
-            @for (recipe of shownRecipes; track recipe) {
+            @for (recipe of visibleRecipes; track recipe) {
             <tr>
               <th scope="row">
                 <input class="form-check-input me-1 cursor-pointer" type="checkbox" (click)="toggleRecipeSelected(recipe)">
@@ -271,6 +271,15 @@
           </p>
           }
         </table>
+
+        @if (shownRecipes.length > 0) {
+        <div class="recipe-load-more">
+          <p class="recipe-load-more-count">{{ 'recipe.showingCount' | translate: { shown: visibleRecipes.length, total: displayTotalCount } }}</p>
+          @if (hasMoreRecipes) {
+          <button type="button" class="btn btn-outline-primary" (click)="loadMore()">{{ 'recipe.loadMoreButton' | translate }}</button>
+          }
+        </div>
+        }
       </div>
     </section>
     }

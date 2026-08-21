@@ -230,6 +230,8 @@
         "favoriteRecipesCaption": "Favoritopskrifter",
         "allRecipesCaption": "Alle opskrifter",
         "noRecipes": "Der er ingen opskrifter at vise..",
+        "loadMoreButton": "Indlæs flere",
+        "showingCount": "Viser {{shown}} af {{total}} opskrifter",
         "creatorColumn": "Ophavsmand",
         "titleColumn": "Titel",
         "createdColumn": "Oprettet",

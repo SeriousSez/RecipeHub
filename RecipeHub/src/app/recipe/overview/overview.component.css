@@ -667,6 +667,20 @@ button:focus {
     color: #1d4ed8;
 }
 
+.recipe-load-more {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 1.5rem 0;
+}
+
+.recipe-load-more-count {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
 .recipe-direction-toggle {
     min-width: 120px;
 }

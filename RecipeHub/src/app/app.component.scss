@@ -509,6 +509,10 @@ body {
     color: #93c5fd !important;
 }
 
+:root[data-theme='dark'] .recipe-load-more-count {
+    color: var(--recipehub-muted) !important;
+}
+
 :root[data-theme='dark'] .recipe-card .recipe-title,
 :root[data-theme='dark'] .recipe-card .recipe-subtitle,
 :root[data-theme='dark'] .recipe-page-title,

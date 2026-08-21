@@ -230,6 +230,8 @@
         "favoriteRecipesCaption": "Favorite recipes",
         "allRecipesCaption": "All recipes",
         "noRecipes": "There are no recipes to be shown..",
+        "loadMoreButton": "Load more",
+        "showingCount": "Showing {{shown}} of {{total}} recipes",
         "creatorColumn": "Creator",
         "titleColumn": "Title",
         "createdColumn": "Created",
