@@ -73,6 +73,14 @@ jobs:
             throw "Missing required secrets: $($missing.Name -join ', ')"
           }
 
+          $databaseName = [regex]::Match($env:MYSQL_CONNECTION_STRING, '(?i)(?:^|;)Database\s*=\s*([^;]+)').Groups[1].Value.Trim()
+          $serverName = [regex]::Match($env:MYSQL_CONNECTION_STRING, '(?i)(?:^|;)Server\s*=\s*([^;]+)').Groups[1].Value.Trim()
+          if ([string]::IsNullOrWhiteSpace($databaseName) -or [string]::IsNullOrWhiteSpace($serverName)) {
+            throw "MYSQL_CONNECTION_STRING must include Server and Database values."
+          }
+
+          Write-Host "Production database target: Server=$serverName; Database=$databaseName"
+
           $aiProvider = if ([string]::IsNullOrWhiteSpace($env:OPENAI_API_KEY)) { "Wikipedia" } else { "OpenAI" }
 
           $config = @{
