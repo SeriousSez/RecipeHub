@@ -244,27 +244,26 @@ jobs:
 
       - name: Put API into maintenance mode
         shell: pwsh
+        run: |
+          $maintenanceFile = Join-Path $env:RUNNER_TEMP "app_offline.htm"
+          Set-Content -Path $maintenanceFile -Value @"
+          <!doctype html>
+          <html><head><title>RecipeHub maintenance</title></head><body><p>RecipeHub is restarting. Please try again shortly.</p></body></html>
+          "@ -Encoding UTF8
+
+      - name: Upload API maintenance file without syncing directory
+        shell: pwsh
         env:
           FTP_SERVER: ${{ secrets.FTP_SERVER }}
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         run: |
-          $maintenanceDir = Join-Path $env:GITHUB_WORKSPACE "ftp-maintenance"
-          New-Item -ItemType Directory -Path $maintenanceDir -Force | Out-Null
-          Set-Content -Path (Join-Path $maintenanceDir "app_offline.htm") -Value @"
-          <!doctype html>
-          <html><head><title>RecipeHub maintenance</title></head><body><p>RecipeHub is restarting. Please try again shortly.</p></body></html>
-          "@ -Encoding UTF8
-
-      - name: Upload API maintenance file
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./ftp-maintenance/
-          server-dir: /recipes.api/
-          dangerous-clean-slate: false
+          $ftpUri = "ftp://$($env:FTP_SERVER)/recipes.api/app_offline.htm"
+          $credential = "$($env:FTP_USERNAME):$($env:FTP_PASSWORD)"
+          & curl.exe --fail --silent --show-error --user $credential --upload-file (Join-Path $env:RUNNER_TEMP "app_offline.htm") $ftpUri
+          if ($LASTEXITCODE -ne 0) {
+            throw "Could not upload app_offline.htm to Simply FTP. curl exited with code $LASTEXITCODE"
+          }
 
       - name: Wait for API process to release files
         shell: pwsh
