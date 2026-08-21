@@ -6,6 +6,8 @@ using Microsoft.Extensions.Logging;
 using RecipeHub.ApplicationService.Services;
 using RecipeHub.Domain.Models;
 using RecipeHub.Domain.Responses;
+using RecipeHub.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -29,14 +31,16 @@ namespace RecipeHub.Api.Controllers
         private readonly IMemoryCache _memoryCache;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly IHostEnvironment _hostEnvironment;
+        private readonly RecipeHubContext _context;
 
-        public RecipeController(ILogger<RecipeController> logger, IRecipeService recipeService, IMemoryCache memoryCache, IServiceScopeFactory scopeFactory, IHostEnvironment hostEnvironment)
+        public RecipeController(ILogger<RecipeController> logger, IRecipeService recipeService, IMemoryCache memoryCache, IServiceScopeFactory scopeFactory, IHostEnvironment hostEnvironment, RecipeHubContext context)
         {
             _logger = logger;
             _recipeService = recipeService;
             _memoryCache = memoryCache;
             _scopeFactory = scopeFactory;
             _hostEnvironment = hostEnvironment;
+            _context = context;
         }
 
         [HttpPost("create")]
@@ -284,6 +288,14 @@ namespace RecipeHub.Api.Controllers
             }
 
             _logger.LogInformation("Recipe query returned {RecipeCount} recipes in {EnvironmentName}. Connection target is logged by the startup configuration.", recipes.Count, _hostEnvironment.EnvironmentName);
+
+            var rawRecipeCount = await _context.Recipes.AsNoTracking().CountAsync();
+            var includedRecipeCount = await _context.Recipes
+                .AsNoTracking()
+                .Include(recipe => recipe.Creator)
+                .Include(recipe => recipe.Image)
+                .CountAsync();
+            _logger.LogInformation("Recipe diagnostics: raw table count={RawRecipeCount}; included query count={IncludedRecipeCount}.", rawRecipeCount, includedRecipeCount);
 
             _memoryCache.Set(cacheKey, new RecipeCacheEntry(recipes, DateTimeOffset.UtcNow), new MemoryCacheEntryOptions
             {
