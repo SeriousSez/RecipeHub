@@ -287,7 +287,7 @@ jobs:
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         run: |
-          $ftpUri = "ftp://$($env:FTP_SERVER)/recipes.api/app_offline.htm"
+          $ftpUri = "ftp://$($env:FTP_SERVER)/recipes.api/"
           $credential = "$($env:FTP_USERNAME):$($env:FTP_PASSWORD)"
           $lastError = $null
 
