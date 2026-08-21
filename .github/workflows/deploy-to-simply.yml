@@ -11,7 +11,7 @@ env:
   PROJECT_PATH: "RecipeHub.Api/RecipeHub.Api.csproj"
   PUBLISH_PATH: "./publish"
   RUNTIME_IDENTIFIER: "win-x86"
-  NODE_VERSION: "20.x"
+  NODE_VERSION: "24.x"
   ANGULAR_WORKING_DIR: "./RecipeHub"
   ANGULAR_DIST_PATH: "./RecipeHub/dist/RecipeHub/browser"
   API_HEALTH_URL: "https://recipes.api.sezginsahin.dk/api/health/ping"
