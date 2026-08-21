@@ -217,6 +217,7 @@
         "tagLabel": "Silt",
         "allTags": "Kõik sildid",
         "sortByLabel": "Sordi",
+        "sortDirectionAria": "Muuda sortimise suunda",
         "sortCreated": "Loodud",
         "sortTitle": "Pealkiri",
         "sortCreator": "Looja",

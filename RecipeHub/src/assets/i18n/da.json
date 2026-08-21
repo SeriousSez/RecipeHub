@@ -217,6 +217,7 @@
         "tagLabel": "Tag",
         "allTags": "Alle tags",
         "sortByLabel": "Sorter efter",
+        "sortDirectionAria": "Skift sorteringsretning",
         "sortCreated": "Oprettet",
         "sortTitle": "Titel",
         "sortCreator": "Ophavsmand",

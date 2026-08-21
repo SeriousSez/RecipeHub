@@ -21,6 +21,7 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class OverviewComponent implements OnInit {
   private readonly pantryStorageKey = 'recipehub-pantry-ingredients';
+  private readonly filterStorageKey = 'recipehub-overview-filters';
 
   public recipeList: Recipe[] = [];
   public groceryList: Ingredient[] = [];
@@ -57,7 +58,7 @@ export class OverviewComponent implements OnInit {
   public bestMatchScore: number = 0;
 
   public sortSetting: string = 'created';
-  public ascending: boolean = true;
+  public ascending: boolean = false;
 
   public loading: boolean = true;
   public matchingLoading: boolean = false;
@@ -74,6 +75,7 @@ export class OverviewComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadPantryIngredients();
+    this.restoreFilterState();
     this.getRecipes();
     this.getGroceryLists();
     this.subscription = this.userService.authStatus$.subscribe(status => this.isAuthenticated = status);
@@ -89,6 +91,44 @@ export class OverviewComponent implements OnInit {
 
     const savedIngredients = localStorage.getItem(this.pantryStorageKey);
     this.pantryIngredients = savedIngredients ?? '';
+  }
+
+  private restoreFilterState(): void {
+    if (typeof localStorage === 'undefined') {
+      return;
+    }
+
+    const saved = localStorage.getItem(this.filterStorageKey);
+    if (!saved) {
+      return;
+    }
+
+    try {
+      const state = JSON.parse(saved);
+      this.searchTerm = state.searchTerm ?? this.searchTerm;
+      this.categoryFilter = state.categoryFilter ?? this.categoryFilter;
+      this.tagFilter = state.tagFilter ?? this.tagFilter;
+      this.sortSetting = state.sortSetting ?? this.sortSetting;
+      this.ascending = state.ascending ?? this.ascending;
+    } catch {
+      // ignore malformed saved state and fall back to defaults
+    }
+  }
+
+  private persistFilterState(): void {
+    if (typeof localStorage === 'undefined') {
+      return;
+    }
+
+    const state = {
+      searchTerm: this.searchTerm,
+      categoryFilter: this.categoryFilter,
+      tagFilter: this.tagFilter,
+      sortSetting: this.sortSetting,
+      ascending: this.ascending
+    };
+
+    localStorage.setItem(this.filterStorageKey, JSON.stringify(state));
   }
 
   public updatePantryIngredients(value: string): void {
@@ -505,6 +545,8 @@ export class OverviewComponent implements OnInit {
     this.bestMatchScore = this.showPantryMatches
       ? this.shownRecipes.reduce((max, recipe) => Math.max(max, this.getIngredientMatchScore(recipe)), 0)
       : 0;
+
+    this.persistFilterState();
   }
 
   sort(sortSetting: string) {

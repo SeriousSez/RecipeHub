@@ -217,6 +217,7 @@
         "tagLabel": "Etiket",
         "allTags": "Tüm etiketler",
         "sortByLabel": "Sırala",
+        "sortDirectionAria": "Sıralama yönünü değiştir",
         "sortCreated": "Oluşturulma",
         "sortTitle": "Başlık",
         "sortCreator": "Oluşturan",

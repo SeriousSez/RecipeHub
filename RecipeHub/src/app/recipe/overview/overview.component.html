@@ -134,12 +134,17 @@
         </div>
         <div class="recipe-filter-group recipe-sort-group">
           <label for="recipe-sort" class="recipe-filter-label">{{ 'recipe.sortByLabel' | translate }}</label>
-          <select id="recipe-sort" class="form-select recipe-filter-select" [value]="sortSetting" (change)="sort($any($event.target).value)">
-            <option value="created">{{ 'recipe.sortCreated' | translate }}</option>
-            <option value="title">{{ 'recipe.sortTitle' | translate }}</option>
-            <option value="creator">{{ 'recipe.sortCreator' | translate }}</option>
-            <option value="instructions">{{ 'recipe.sortInstructions' | translate }}</option>
-          </select>
+          <div class="recipe-sort-control">
+            <select id="recipe-sort" class="form-select recipe-filter-select" [value]="sortSetting" (change)="sort($any($event.target).value)">
+              <option value="created">{{ 'recipe.sortCreated' | translate }}</option>
+              <option value="title">{{ 'recipe.sortTitle' | translate }}</option>
+              <option value="creator">{{ 'recipe.sortCreator' | translate }}</option>
+              <option value="instructions">{{ 'recipe.sortInstructions' | translate }}</option>
+            </select>
+            <button type="button" class="recipe-sort-direction" (click)="sort(sortSetting)" [attr.aria-label]="'recipe.sortDirectionAria' | translate" [attr.aria-pressed]="ascending">
+              <i class="fas" [ngClass]="ascending ? 'fa-sort-up' : 'fa-sort-down'" aria-hidden="true"></i>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -192,12 +197,17 @@
           </div>
           <div class="recipe-filter-group recipe-sort-group">
             <label for="recipe-sort-mobile" class="recipe-filter-label">{{ 'recipe.sortByLabel' | translate }}</label>
-            <select id="recipe-sort-mobile" class="form-select recipe-filter-select" [value]="sortSetting" (change)="sort($any($event.target).value)">
-              <option value="created">{{ 'recipe.sortCreated' | translate }}</option>
-              <option value="title">{{ 'recipe.sortTitle' | translate }}</option>
-              <option value="creator">{{ 'recipe.sortCreator' | translate }}</option>
-              <option value="instructions">{{ 'recipe.sortInstructions' | translate }}</option>
-            </select>
+            <div class="recipe-sort-control">
+              <select id="recipe-sort-mobile" class="form-select recipe-filter-select" [value]="sortSetting" (change)="sort($any($event.target).value)">
+                <option value="created">{{ 'recipe.sortCreated' | translate }}</option>
+                <option value="title">{{ 'recipe.sortTitle' | translate }}</option>
+                <option value="creator">{{ 'recipe.sortCreator' | translate }}</option>
+                <option value="instructions">{{ 'recipe.sortInstructions' | translate }}</option>
+              </select>
+              <button type="button" class="recipe-sort-direction" (click)="sort(sortSetting)" [attr.aria-label]="'recipe.sortDirectionAria' | translate" [attr.aria-pressed]="ascending">
+                <i class="fas" [ngClass]="ascending ? 'fa-sort-up' : 'fa-sort-down'" aria-hidden="true"></i>
+              </button>
+            </div>
           </div>
         </div>
       </aside>

@@ -497,6 +497,18 @@ body {
     color: var(--recipehub-text);
 }
 
+:root[data-theme='dark'] .recipe-sort-direction {
+    background: rgba(15, 23, 42, 0.8) !important;
+    border-color: rgba(148, 163, 184, 0.16) !important;
+    color: var(--recipehub-text) !important;
+}
+
+:root[data-theme='dark'] .recipe-sort-direction:hover {
+    background: rgba(96, 165, 250, 0.14) !important;
+    border-color: #60a5fa !important;
+    color: #93c5fd !important;
+}
+
 :root[data-theme='dark'] .recipe-card .recipe-title,
 :root[data-theme='dark'] .recipe-card .recipe-subtitle,
 :root[data-theme='dark'] .recipe-page-title,

@@ -638,6 +638,35 @@ button:focus {
     padding-bottom: 0.45rem;
 }
 
+.recipe-sort-control {
+    display: flex;
+    align-items: stretch;
+    gap: 0.4rem;
+}
+
+.recipe-sort-control .recipe-filter-select {
+    flex: 1 1 auto;
+}
+
+.recipe-sort-direction {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 2.2rem;
+    min-height: 2.2rem;
+    border-radius: .7rem;
+    border: 1px solid rgba(23, 50, 77, 0.15);
+    background: #fff;
+    color: #17324d;
+}
+
+.recipe-sort-direction:hover {
+    border-color: #2563eb;
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
 .recipe-direction-toggle {
     min-width: 120px;
 }
