@@ -273,6 +273,60 @@ jobs:
           }
 
       - name: Deploy API using FTP
+        id: deploy_api_primary
+        continue-on-error: true
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ${{ env.PUBLISH_PATH }}/
+          server-dir: /recipes.api/
+          dangerous-clean-slate: false
+          exclude: |
+            **/logs/**
+            **/*.db
+            **/*.db-shm
+            **/*.db-wal
+
+      - name: Create API maintenance fallback
+        if: steps.deploy_api_primary.outcome == 'failure'
+        shell: pwsh
+        run: |
+          $content = @"
+          <!DOCTYPE html>
+          <html>
+          <head><title>RecipeHub maintenance</title></head>
+          <body><h1>RecipeHub is restarting</h1><p>Please try again shortly.</p></body>
+          </html>
+          "@
+          Set-Content -Path "${{ env.PUBLISH_PATH }}/app_offline.htm" -Value $content -Encoding UTF8
+
+          $payloadDir = "./api-offline-payload"
+          if (Test-Path $payloadDir) {
+            Remove-Item -Path $payloadDir -Recurse -Force
+          }
+          New-Item -ItemType Directory -Path $payloadDir | Out-Null
+          Copy-Item -Path "${{ env.PUBLISH_PATH }}/app_offline.htm" -Destination "$payloadDir/app_offline.htm" -Force
+
+      - name: Deploy API maintenance fallback
+        if: steps.deploy_api_primary.outcome == 'failure'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./api-offline-payload/
+          server-dir: /recipes.api/
+          dangerous-clean-slate: false
+
+      - name: Wait for API process to stop
+        if: steps.deploy_api_primary.outcome == 'failure'
+        shell: pwsh
+        run: Start-Sleep -Seconds 5
+
+      - name: Retry API deployment after maintenance fallback
+        if: steps.deploy_api_primary.outcome == 'failure'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
