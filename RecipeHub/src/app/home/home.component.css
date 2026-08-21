@@ -145,7 +145,7 @@
 :root[data-theme='dark'] .mini-feature-card strong,
 :root[data-theme='dark'] .mini-feature-card>strong,
 :root[data-theme='dark'] .mini-feature-card strong:first-child,
-:host ::ng-deep .mini-feature-card strong {
+:host ::ng-deep :root[data-theme='dark'] .mini-feature-card strong {
     color: #f8fafc !important;
 }
 
