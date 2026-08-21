@@ -136,6 +136,23 @@ jobs:
             --output ${{ env.PUBLISH_PATH }}
           echo "publish_path=${{ env.PUBLISH_PATH }}" >> $env:GITHUB_OUTPUT
 
+      - name: Ensure production settings are in publish output
+        shell: pwsh
+        run: |
+          $source = Join-Path $env:GITHUB_WORKSPACE "RecipeHub.Api\appsettings.Production.json"
+          $destination = Join-Path $env:GITHUB_WORKSPACE "${{ env.PUBLISH_PATH }}\appsettings.Production.json"
+
+          if (-not (Test-Path $source)) {
+            throw "Generated appsettings.Production.json was not found at $source"
+          }
+
+          Copy-Item $source $destination -Force
+          if (-not (Test-Path $destination)) {
+            throw "Could not place appsettings.Production.json in the publish output."
+          }
+
+          Write-Host "✅ Production settings included in publish output."
+
       - name: Upload API artifact
         uses: actions/upload-artifact@v4
         with:
