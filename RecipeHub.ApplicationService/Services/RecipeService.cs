@@ -279,6 +279,7 @@ namespace RecipeHub.ApplicationService.Services
 
                     var ingredientEntity = await _recipeIngredientRepository.GetFull(matchingRecipeIngredient.Id);
                     ingredientEntity.Amount = ingredient.Amount;
+                    ingredientEntity.AmountType = ingredient.AmountType;
 
                     await _recipeIngredientRepository.Update(ingredientEntity);
                 }
