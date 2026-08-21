@@ -119,6 +119,10 @@
                 <h2>
                     <input id="title" type="text" name="title" value="{{recipe.title}}" class="form-control" [placeholder]="'recipe.recipeTitlePlaceholder' | translate" autocomplete="off" data-lpignore="true" [(ngModel)]="recipe.title">
                 </h2>
+                <div class="form-group mt-2">
+                    <label for="portions">{{ 'recipe.portionsLabel' | translate }}</label>
+                    <input id="portions" type="text" name="portions" class="form-control" [placeholder]="'recipe.portionsPlaceholder' | translate" autocomplete="off" data-lpignore="true" [(ngModel)]="recipe.portions">
+                </div>
                 <div>
                     <span class="post-meta-author">
                         <span>{{ 'recipe.byAuthor' | translate }} </span>
