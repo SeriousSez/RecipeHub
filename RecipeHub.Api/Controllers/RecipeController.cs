@@ -11,6 +11,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
 
 namespace RecipeHub.Api.Controllers
 {
@@ -27,13 +28,15 @@ namespace RecipeHub.Api.Controllers
         private readonly IRecipeService _recipeService;
         private readonly IMemoryCache _memoryCache;
         private readonly IServiceScopeFactory _scopeFactory;
+        private readonly IHostEnvironment _hostEnvironment;
 
-        public RecipeController(ILogger<RecipeController> logger, IRecipeService recipeService, IMemoryCache memoryCache, IServiceScopeFactory scopeFactory)
+        public RecipeController(ILogger<RecipeController> logger, IRecipeService recipeService, IMemoryCache memoryCache, IServiceScopeFactory scopeFactory, IHostEnvironment hostEnvironment)
         {
             _logger = logger;
             _recipeService = recipeService;
             _memoryCache = memoryCache;
             _scopeFactory = scopeFactory;
+            _hostEnvironment = hostEnvironment;
         }
 
         [HttpPost("create")]
@@ -279,6 +282,8 @@ namespace RecipeHub.Api.Controllers
                 _logger.LogError("Failed to fetch recipes!");
                 return new NotFoundObjectResult("Failed to fetch recipes!");
             }
+
+            _logger.LogInformation("Recipe query returned {RecipeCount} recipes in {EnvironmentName}. Connection target is logged by the startup configuration.", recipes.Count, _hostEnvironment.EnvironmentName);
 
             _memoryCache.Set(cacheKey, new RecipeCacheEntry(recipes, DateTimeOffset.UtcNow), new MemoryCacheEntryOptions
             {

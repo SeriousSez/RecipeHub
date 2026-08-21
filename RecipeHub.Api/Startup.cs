@@ -22,6 +22,7 @@ using RecipeHub.Infrastructure.Repositories;
 using RecipeHub.Infrastructure.Repositories.Fridge;
 using RecipeHub.Infrastructure.Repositories.Grocery;
 using System;
+using System.Data.Common;
 using System.Text;
 using RecipeHub.Api.Services;
 using RecipeHub.Api.Converters;
@@ -187,6 +188,24 @@ namespace RecipeHub
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
+            var connectionString = Configuration.GetConnectionString("MySql");
+            var connectionBuilder = new DbConnectionStringBuilder();
+            var server = "<unknown>";
+            var database = "<unknown>";
+
+            try
+            {
+                connectionBuilder.ConnectionString = connectionString ?? string.Empty;
+                server = connectionBuilder.TryGetValue("Server", out var serverValue) ? serverValue?.ToString() : server;
+                database = connectionBuilder.TryGetValue("Database", out var databaseValue) ? databaseValue?.ToString() : database;
+            }
+            catch
+            {
+                // Keep startup logging safe even when the configured connection string is malformed.
+            }
+
+            logger.LogInformation("RecipeHub runtime environment: {EnvironmentName}; database target: Server={Server}; Database={Database}", env.EnvironmentName, server, database);
+
             // Add exception handling first to catch errors
             if (env.IsDevelopment())
             {
