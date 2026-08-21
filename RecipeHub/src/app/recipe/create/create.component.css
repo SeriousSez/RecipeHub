@@ -2,6 +2,14 @@
     position: relative;
 }
 
+.btn-create {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 140px;
+    min-height: 2.4rem;
+}
+
 .suggestion-pills {
     display: flex;
     flex-wrap: wrap;

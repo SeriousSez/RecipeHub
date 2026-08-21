@@ -221,7 +221,7 @@
 
     <div class="mt-3">
       <div class="form-group d-inline-block">
-        <button type="submit" class="btn btn-primary" [disabled]="recipeForm.invalid || isRequesting" (click)="create(recipeForm)">
+        <button type="submit" class="btn btn-primary btn-create" [disabled]="recipeForm.invalid || isRequesting" (click)="create(recipeForm)">
           @if (isRequesting) {
           <app-spinner [color]="'#fff'" [small]="true"></app-spinner>
           }
