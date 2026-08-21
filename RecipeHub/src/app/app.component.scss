@@ -473,12 +473,17 @@ body {
 }
 
 :root[data-theme='dark'] .recipe-card .recipe-category,
-:root[data-theme='dark'] .recipe-card .recipe-tag,
 :root[data-theme='dark'] .recipe-category,
-:root[data-theme='dark'] .recipe-tag,
 :root[data-theme='dark'] .suggestion-pill.is-active {
     background: linear-gradient(135deg, rgba(59, 130, 246, 0.85), rgba(29, 78, 216, 0.9));
     border-color: rgba(147, 197, 253, 0.28);
+    color: #f8fafc;
+}
+
+:root[data-theme='dark'] .recipe-card .recipe-tag,
+:root[data-theme='dark'] .recipe-tag {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.85), rgba(5, 150, 105, 0.9));
+    border-color: rgba(110, 231, 183, 0.28);
     color: #f8fafc;
 }
 
