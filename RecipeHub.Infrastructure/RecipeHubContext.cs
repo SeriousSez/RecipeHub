@@ -62,7 +62,7 @@ namespace RecipeHub.Infrastructure
             modelBuilder.Entity<Recipe>()
                 .HasOne(recipe => recipe.Image)
                 .WithMany()
-                .HasForeignKey("ImageId")
+                .HasForeignKey(recipe => recipe.ImageId)
                 .IsRequired(false);
 
             var stringListComparer = new ValueComparer<List<string>>(

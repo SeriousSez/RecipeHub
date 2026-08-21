@@ -246,42 +246,70 @@ namespace RecipeHub.ApplicationService.Services
 
         public async Task<UserSettingsResponse> UpdateSettings(UserSettingsUpdateViewModel model)
         {
-            var user = await _userRepository.GetByUserId(model.UserId);
-            if (user == null)
-                return null;
+            try
+            {
+                var user = await _userRepository.GetByUserId(model.UserId);
+                if (user == null)
+                    return null;
 
-            var settings = await EnsureSettingsExists(user);
-            if (settings == null)
-                return null;
+                var settings = await EnsureSettingsExists(user);
+                if (settings == null)
+                    return null;
 
-            settings.PreferredLanguage = model.PreferredLanguage;
-            settings.Theme = model.Theme;
-            settings.RecipesTheme = model.RecipesTheme;
-            settings.MyRecipesTheme = string.IsNullOrWhiteSpace(model.MyRecipesTheme) ? model.RecipesTheme : model.MyRecipesTheme;
+                settings.PreferredLanguage = model.PreferredLanguage ?? settings.PreferredLanguage ?? "English";
+                settings.Theme = string.IsNullOrWhiteSpace(model.Theme) ? settings.Theme ?? "Light" : model.Theme;
+                settings.RecipesTheme = string.IsNullOrWhiteSpace(model.RecipesTheme) ? settings.RecipesTheme ?? "Pretty" : model.RecipesTheme;
+                settings.MyRecipesTheme = string.IsNullOrWhiteSpace(model.MyRecipesTheme) ? settings.MyRecipesTheme ?? settings.RecipesTheme ?? "Pretty" : model.MyRecipesTheme;
 
-            await _userRepository.UpdateSettings(settings);
-            _logger.LogTrace("User created! User: {@User}", user);
+                await _userRepository.UpdateSettings(settings);
+                _logger.LogTrace("User created! User: {@User}", user);
 
-            var response = _mapper.Map<UserSettingsResponse>(settings);
-            response.MyRecipesTheme = settings.MyRecipesTheme ?? settings.RecipesTheme;
-            return response;
+                var response = _mapper.Map<UserSettingsResponse>(settings);
+                response.MyRecipesTheme = settings.MyRecipesTheme ?? settings.RecipesTheme ?? "Pretty";
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Falling back to default user settings because the settings table schema is out of sync for user {UserId}", model?.UserId);
+                return new UserSettingsResponse
+                {
+                    PreferredLanguage = "English",
+                    Theme = "Light",
+                    RecipesTheme = "Pretty",
+                    MyRecipesTheme = "Pretty"
+                };
+            }
         }
 
         public async Task<UserSettingsResponse> GetSettings(Guid id)
         {
-            var user = await _userRepository.GetByUserId(id);
-            if (user == null)
-                return null;
+            try
+            {
+                var user = await _userRepository.GetByUserId(id);
+                if (user == null)
+                    return null;
 
-            var settings = await EnsureSettingsExists(user);
-            if (settings == null)
-                return null;
+                var settings = await EnsureSettingsExists(user);
+                if (settings == null)
+                    return null;
 
-            settings.MyRecipesTheme = settings.MyRecipesTheme ?? settings.RecipesTheme;
-            var settingsResponse = _mapper.Map<UserSettingsResponse>(settings);
-            settingsResponse.MyRecipesTheme = settings.MyRecipesTheme;
+                settings.MyRecipesTheme = settings.MyRecipesTheme ?? settings.RecipesTheme ?? "Pretty";
+                var settingsResponse = _mapper.Map<UserSettingsResponse>(settings);
+                settingsResponse.MyRecipesTheme = settings.MyRecipesTheme ?? "Pretty";
 
-            return settingsResponse;
+                return settingsResponse;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Falling back to default user settings because the settings table schema is out of sync for user {UserId}", id);
+                return new UserSettingsResponse
+                {
+                    PreferredLanguage = "English",
+                    Theme = "Light",
+                    RecipesTheme = "Pretty",
+                    MyRecipesTheme = "Pretty"
+                };
+            }
         }
 
         private async Task DeleteUserForeignEntities(User user)

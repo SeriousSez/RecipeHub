@@ -32,11 +32,14 @@ namespace RecipeHub.Infrastructure
 
 		private static void SeedUserSettings(RecipeHubContext context)
 		{
-			var userSettings = context.UserSettings.Where(r => string.IsNullOrWhiteSpace(r.PreferredLanguage)).ToList();
+			var userSettings = context.UserSettings.ToList();
 
 			foreach (var settings in userSettings)
 			{
-				settings.PreferredLanguage = "English";
+				if (string.IsNullOrWhiteSpace(settings.PreferredLanguage))
+				{
+					settings.PreferredLanguage = "English";
+				}
 			}
 
 			context.UpdateRange(userSettings);

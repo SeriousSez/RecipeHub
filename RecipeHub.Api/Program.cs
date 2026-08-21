@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -23,7 +24,7 @@ namespace RecipeHub
                 var environment = host.Services.GetRequiredService<IHostEnvironment>();
                 if (environment.IsDevelopment())
                 {
-                    CreateDbIfNotExists(host);
+                    MigrateDatabase(host);
                 }
 
                 host.Run();
@@ -71,7 +72,7 @@ namespace RecipeHub
             }
         }
 
-        private static void CreateDbIfNotExists(IHost host)
+        private static void MigrateDatabase(IHost host)
         {
             using (var scope = host.Services.CreateScope())
             {
@@ -79,13 +80,12 @@ namespace RecipeHub
                 try
                 {
                     var context = services.GetRequiredService<RecipeHubContext>();
-                    context.Database.EnsureCreated();
-                    // DbInitializer.Initialize(context);
+                    context.Database.Migrate();
                 }
                 catch (Exception ex)
                 {
                     var logger = services.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex, "An error occurred creating the DB.");
+                    logger.LogError(ex, "An error occurred applying database migrations.");
                 }
             }
         }

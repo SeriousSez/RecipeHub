@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -14,7 +15,9 @@ namespace RecipeHub.Domain.Entities.Recipe
         public List<string> Categories { get; set; } = new List<string>();
         public List<string> Tags { get; set; } = new List<string>();
 
-        [ForeignKey("ImageId")]
+        public Guid? ImageId { get; set; }
+
+        [ForeignKey(nameof(ImageId))]
         public Image Image { get; set; }
         public List<RecipeIngredient> RecipeIngredients { get; set; }
     }
