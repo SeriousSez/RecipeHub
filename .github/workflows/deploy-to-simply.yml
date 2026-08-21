@@ -285,7 +285,7 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ${{ env.PUBLISH_PATH }}/
           server-dir: /recipes.api/
-          dangerous-clean-slate: false
+          dangerous-clean-slate: true
 
       - name: Remove API maintenance file
         if: always()
