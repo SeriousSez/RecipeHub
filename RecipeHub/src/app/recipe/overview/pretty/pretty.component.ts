@@ -4,9 +4,9 @@ import { Router } from '@angular/router';
 import { UserService } from 'src/app/shared/services/user.service';
 import { FavoriteService } from 'src/app/shared/services/favorite.service';
 import { GroceryService } from 'src/app/shared/services/grocery.service';
-import { Recipe } from '../../models/recipe.interface';
-import { Ingredient } from '../../models/ingredient.interface';
-import { RecipeService } from '../../services/recipe.service';
+import { Recipe } from 'src/app/recipe/models/recipe.interface';
+import { Ingredient } from 'src/app/recipe/models/ingredient.interface';
+import { RecipeService } from 'src/app/recipe/services/recipe.service';
 import { UtilityService } from 'src/app/shared/utils/utility.service';
 
 @Component({
@@ -117,7 +117,7 @@ export class PrettyComponent implements OnInit {
 
   getIngredientMatchSummary(recipe: Recipe) {
     if (!this.pantryIngredients || this.pantryIngredients.length === 0) {
-      return { matched: 0, missing: 0, isBestMatch: false };
+      return { matched: 0, missing: 0, isBestMatch: false, label: 'No pantry match' };
     }
 
     const pantrySet = this.pantryIngredients.map(value => value.trim().toLowerCase()).filter(Boolean);
@@ -133,10 +133,14 @@ export class PrettyComponent implements OnInit {
     const totalIngredients = (recipe.ingredients ?? []).length;
     const missingCount = Math.max(totalIngredients - recipeMatchCount, 0);
 
+    const pct = totalIngredients > 0 ? Math.round((recipeMatchCount / totalIngredients) * 100) : 0;
+    const label = pct >= 80 ? 'Excellent match' : pct >= 60 ? 'Great match' : pct >= 40 ? 'Good match' : pct > 0 ? 'Some overlap' : 'No pantry match';
+
     return {
       matched: recipeMatchCount,
       missing: missingCount,
-      isBestMatch: this.bestMatchScore > 0 && recipeMatchCount === this.bestMatchScore
+      isBestMatch: this.bestMatchScore > 0 && recipeMatchCount === this.bestMatchScore,
+      label
     };
   }
 

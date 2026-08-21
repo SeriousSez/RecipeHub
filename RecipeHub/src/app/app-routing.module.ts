@@ -9,6 +9,7 @@ import { AdminGuard } from './shared/guards/admin.guard';
 import { FridgesComponent } from './fridges/fridges.component';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
+import { PantryComponent } from './pantry/pantry.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -16,6 +17,7 @@ const routes: Routes = [
   { path: 'dashboard', loadChildren: () => import('./dashboard/dashboard.module').then(m => m.DashboardModule), canActivate: [AuthGuard, AdminGuard] },
   { path: 'recipes', loadChildren: () => import('./recipe/recipe.module').then(m => m.RecipeModule) },
   { path: 'grocery', loadChildren: () => import('./grocery/grocery.module').then(m => m.GroceryModule) },
+  { path: 'pantry', component: PantryComponent },
   { path: 'fridges', component: FridgesComponent },
   { path: 'register', component: RegistrationComponent },
   { path: 'login', component: LoginComponent },

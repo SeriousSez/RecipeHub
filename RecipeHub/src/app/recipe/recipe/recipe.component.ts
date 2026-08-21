@@ -24,6 +24,8 @@ import { AngularEditorConfig } from '@kolkov/angular-editor';
   standalone: false
 })
 export class RecipeComponent implements OnInit {
+  private readonly pantryStorageKey = 'recipehub-pantry-ingredients';
+
   @ViewChildren("select") select: any;
   @ViewChildren("name") name: any;
   @ViewChildren("description") description: any;
@@ -39,6 +41,7 @@ export class RecipeComponent implements OnInit {
   public ingredientsToDelete: Ingredient[] = [];
   public ingredients: Ingredient[] = [];
   public currentIngredients: Ingredient[] = [];
+  public pantryIngredients: string[] = [];
   public newIngredients: Ingredient[] = [];
   public newIngredient: Ingredient = { name: "", description: "", amount: 0, amountType: 'Pinch or dash', image: null, created: '' };
   public categoriesInput: string = '';
@@ -102,10 +105,12 @@ export class RecipeComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadPantryIngredients();
+    this.status = this.userService.isAuthenticated();
     this.getRecipe();
     this.handlePresetSearch('category');
     this.handlePresetSearch('tag');
-    this.subscription = this.userService.authStatus$.subscribe(status => this.status = status);
+    this.subscription = this.userService.authStatus$.subscribe(status => this.status = status || this.userService.isAuthenticated());
   }
 
   ngOnDestroy() {
@@ -115,6 +120,11 @@ export class RecipeComponent implements OnInit {
 
   //#region favored
   isFavored(recipe: Recipe) {
+    if (!this.userService.isAuthenticated()) {
+      this.favored = false;
+      return;
+    }
+
     var username = this.userService.getUserName();
     if (username.length == 0 || username == '' || username == null) return;
 
@@ -124,6 +134,10 @@ export class RecipeComponent implements OnInit {
   }
 
   toggleFavorite() {
+    if (!this.userService.isAuthenticated()) {
+      return;
+    }
+
     var model: FavoriteRecipe = {
       username: this.userService.getUserName(),
       recipe: {
@@ -144,6 +158,10 @@ export class RecipeComponent implements OnInit {
   }
 
   toggleGroceries() {
+    if (!this.userService.isAuthenticated()) {
+      return;
+    }
+
     this.groceryService.toggleRecipeToList(this.recipe);
     this.inGroceries = !this.inGroceries;
   }
@@ -224,6 +242,53 @@ export class RecipeComponent implements OnInit {
         this.currentIngredients.push(this.createIngredientModel(ingredient));
       });
     }
+  }
+
+  private loadPantryIngredients(): void {
+    if (typeof localStorage === 'undefined') {
+      return;
+    }
+
+    this.pantryIngredients = (localStorage.getItem(this.pantryStorageKey) ?? '')
+      .split(',')
+      .map(item => this.normalizeIngredientText(item))
+      .filter(Boolean);
+  }
+
+  public isPantryIngredient(name: string): boolean {
+    const normalizedName = this.normalizeIngredientText(name);
+    return normalizedName.length > 0 && this.pantryIngredients.some(item =>
+      item === normalizedName || item.includes(normalizedName) || normalizedName.includes(item)
+    );
+  }
+
+  private normalizeIngredientText(value: string | null | undefined): string {
+    const normalized = (value ?? '')
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    return normalized.split(' ').map(word => {
+      if (word.length <= 3) {
+        return word;
+      }
+
+      if (word.endsWith('ies') && word.length > 4) {
+        return word.slice(0, -3) + 'y';
+      }
+
+      if ((word.endsWith('sses') || word.endsWith('shes') || word.endsWith('ches') || word.endsWith('xes') || word.endsWith('zes')) && word.length > 4) {
+        return word.slice(0, -2);
+      }
+
+      if (word.endsWith('s') && !word.endsWith('ss')) {
+        return word.slice(0, -1);
+      }
+
+      return word;
+    }).join(' ');
   }
   //#endregion
 

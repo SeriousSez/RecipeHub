@@ -20,6 +20,7 @@ namespace RecipeHub.Infrastructure.Repositories
         Task<IEnumerable<Recipe>> GetAll();
         Task<IEnumerable<Recipe>> GetAllByCreatorFull(string creator);
         Task<IEnumerable<Recipe>> GetAllFull();
+        Task<IEnumerable<Recipe>> GetAllWithIngredients();
         Task<IEnumerable<Recipe>> GetAllByIngredient(Guid recipeId);
         Task Update(Recipe recipe);
         Task Delete(Recipe recipe);

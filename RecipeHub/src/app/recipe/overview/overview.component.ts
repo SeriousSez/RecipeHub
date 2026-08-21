@@ -26,6 +26,7 @@ export class OverviewComponent implements OnInit {
 
   public shownRecipes: Recipe[] = [];
   public recipes: Recipe[];
+  public matchingRecipes: Recipe[] | null = null;
   public favoredRecipes: Recipe[];
   public selectedRecipeIds: string[] = [];
   public showFavorites: boolean = false;
@@ -33,6 +34,7 @@ export class OverviewComponent implements OnInit {
   public showCreateMode: boolean = false;
   public showMobileFilters: boolean = false;
   public isClosingMobileFilters: boolean = false;
+  public showPantryMatches: boolean = false;
 
   public get selectedRecipes(): Recipe[] {
     return (this.recipes ?? []).filter(recipe => this.selectedRecipeIds.includes(recipe.id));
@@ -40,6 +42,10 @@ export class OverviewComponent implements OnInit {
 
   public set selectedRecipes(value: Recipe[]) {
     this.selectedRecipeIds = value.map(recipe => recipe.id);
+  }
+
+  public get pantryButtonLabel(): string {
+    return this.showPantryMatches ? 'Show all recipes' : 'Show matching recipes';
   }
   public searchTerm: string = '';
   public categoryFilter: string = 'all';
@@ -53,6 +59,7 @@ export class OverviewComponent implements OnInit {
   public ascending: boolean = true;
 
   public loading: boolean = true;
+  public matchingLoading: boolean = false;
   public loadError: boolean = false;
   public groceryFeedbackMessage: string = '';
   public groceryFeedbackType: 'success' | 'danger' = 'success';
@@ -115,9 +122,11 @@ export class OverviewComponent implements OnInit {
     this.recipeService.getRecipes().subscribe((recipes: Recipe[]) => {
       const normalizedRecipes = Array.isArray(recipes) ? recipes : [];
       this.recipes = normalizedRecipes;
+      this.matchingRecipes = null;
       this.syncFilterOptions();
       this.applyFiltersAndSort();
       this.loading = false;
+      this.loadMatchingRecipes();
     },
       error => {
         this.recipes = [];
@@ -335,6 +344,47 @@ export class OverviewComponent implements OnInit {
       .filter(item => item.length > 0);
   }
 
+  public togglePantryMatches(): void {
+    if (this.showPantryMatches) {
+      this.showPantryMatches = false;
+      this.applyFiltersAndSort();
+      return;
+    }
+
+    if (this.matchingRecipes) {
+      this.showPantryMatches = true;
+      this.applyFiltersAndSort();
+      return;
+    }
+
+    this.loadMatchingRecipes(true);
+  }
+
+  private loadMatchingRecipes(activateWhenReady: boolean = false): void {
+    if (this.matchingRecipes || this.matchingLoading) {
+      return;
+    }
+
+    this.matchingLoading = true;
+
+    this.recipeService.getRecipesWithIngredients().subscribe({
+      next: recipes => {
+        this.matchingRecipes = Array.isArray(recipes) ? recipes : [];
+        this.matchingLoading = false;
+        this.showPantryMatches = this.showPantryMatches || activateWhenReady;
+
+        if (this.showPantryMatches) {
+          this.applyFiltersAndSort();
+        }
+      },
+      error: () => {
+        this.matchingLoading = false;
+        this.showPantryMatches = false;
+        this.applyFiltersAndSort();
+      }
+    });
+  }
+
   public getIngredientMatchScore(recipe: Recipe): number {
     const pantryItems = this.parsePantryIngredients();
     if (pantryItems.length === 0) {
@@ -380,14 +430,6 @@ export class OverviewComponent implements OnInit {
       return false;
     }
 
-    const pantryItems = this.parsePantryIngredients();
-    if (pantryItems.length > 0) {
-      const score = this.getIngredientMatchScore(recipe);
-      if (score === 0) {
-        return false;
-      }
-    }
-
     if (!term) {
       return true;
     }
@@ -406,10 +448,13 @@ export class OverviewComponent implements OnInit {
   }
 
   applyFiltersAndSort() {
-    let source = this.recipes ?? [];
+    let source = this.showPantryMatches
+      ? (this.matchingRecipes ?? [])
+      : (this.recipes ?? []);
 
     if (this.showFavorites) {
-      source = this.favoredRecipes ?? [];
+      const favoredIds = new Set((this.favoredRecipes ?? []).map(recipe => recipe.id));
+      source = source.filter(recipe => favoredIds.has(recipe.id));
     }
 
     if (this.showMyRecipes) {
@@ -417,18 +462,19 @@ export class OverviewComponent implements OnInit {
       source = source.filter(recipe => recipe.creator?.toLowerCase() === username?.toLowerCase());
     }
 
-    const filtered = source.filter(recipe => this.recipeMatchesFilters(recipe));
+    const filtered = source.filter(recipe =>
+      this.recipeMatchesFilters(recipe) &&
+      (!this.showPantryMatches || this.getIngredientMatchScore(recipe) > 0)
+    );
 
     this.shownRecipes = [...filtered].sort((a, b) => {
       const pantryItems = this.parsePantryIngredients();
-      const ingredientScoreA = this.getIngredientMatchScore(a);
-      const ingredientScoreB = this.getIngredientMatchScore(b);
+      const pantryComparison = pantryItems.length > 0 && this.showPantryMatches
+        ? this.getIngredientMatchScore(b) - this.getIngredientMatchScore(a)
+        : 0;
 
-      if (pantryItems.length > 0) {
-        const scoreComparison = ingredientScoreB - ingredientScoreA;
-        if (scoreComparison !== 0) {
-          return scoreComparison;
-        }
+      if (pantryComparison !== 0) {
+        return pantryComparison;
       }
 
       let comparison = 0;
@@ -452,9 +498,9 @@ export class OverviewComponent implements OnInit {
       return this.ascending ? comparison : -comparison;
     });
 
-    this.bestMatchScore = this.shownRecipes.reduce((max, recipe) => {
-      return Math.max(max, this.getIngredientMatchScore(recipe));
-    }, 0);
+    this.bestMatchScore = this.showPantryMatches
+      ? this.shownRecipes.reduce((max, recipe) => Math.max(max, this.getIngredientMatchScore(recipe)), 0)
+      : 0;
   }
 
   sort(sortSetting: string) {

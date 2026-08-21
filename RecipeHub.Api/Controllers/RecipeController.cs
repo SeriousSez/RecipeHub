@@ -320,6 +320,25 @@ namespace RecipeHub.Api.Controllers
             return new OkObjectResult(users);
         }
 
+        [HttpGet("getallwithingredients")]
+        public async Task<IActionResult> GetAllWithIngredients()
+        {
+            var cacheVersion = GetRecipeCacheVersion();
+            var cacheKey = $"recipes:getallwithingredients:v{cacheVersion}";
+            if (_memoryCache.TryGetValue(cacheKey, out RecipeCacheEntry cachedRecipes))
+            {
+                return new OkObjectResult(cachedRecipes.Data);
+            }
+
+            var recipes = (await _recipeService.GetAllWithIngredients()).ToList();
+            _memoryCache.Set(cacheKey, new RecipeCacheEntry(recipes, DateTimeOffset.UtcNow), new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = CacheTtl
+            });
+
+            return new OkObjectResult(recipes);
+        }
+
         private int GetRecipeCacheVersion()
         {
             if (_memoryCache.TryGetValue(RecipeCacheVersionKey, out int version))

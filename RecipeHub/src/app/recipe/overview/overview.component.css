@@ -435,6 +435,34 @@ button:focus {
     min-width: 0;
 }
 
+.pantry-match-button {
+    border: 1px solid rgba(23, 50, 77, 0.15);
+    background: #ffffff;
+    color: #17324d;
+    font-weight: 600;
+    opacity: 1;
+}
+
+.pantry-match-button:hover:not(:disabled),
+.pantry-match-button:focus-visible {
+    border-color: #2563eb;
+    background: #eff6ff;
+    color: #17324d;
+}
+
+.pantry-match-button.active {
+    border-color: #2563eb;
+    background: #dbeafe;
+    color: #1e3a8a;
+}
+
+.pantry-match-button:disabled {
+    border-color: rgba(23, 50, 77, 0.15);
+    background: #f8fafc;
+    color: #17324d;
+    opacity: 0.7;
+}
+
 .recipe-sort-group {
     max-width: 190px;
 }

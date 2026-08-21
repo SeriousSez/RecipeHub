@@ -8,7 +8,9 @@
 
     <div class="recipe-hero">
       <img [src]="recipe.image?.url || '../assets/images/food.png'" [alt]="recipe.title">
-      <div class="recipe-badge" *ngIf="pantryIngredients.length > 0 && getIngredientMatchSummary(recipe).isBestMatch">Best match</div>
+      <div class="recipe-badge" *ngIf="pantryIngredients.length > 0">
+        {{ getIngredientMatchSummary(recipe).label }}
+      </div>
     </div>
 
     <div class="recipe-body">

@@ -26,6 +26,7 @@ import { FridgesComponent } from './fridges/fridges.component';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { FridgeService } from './fridges/fridge.service';
+import { PantryComponent } from './pantry/pantry.component';
 
 export function tokenGetter() {
   return localStorage.getItem("token");
@@ -44,7 +45,8 @@ export function tokenGetter() {
     MobileFooterComponent,
     FridgesComponent,
     ForgotPasswordComponent,
-    ResetPasswordComponent
+    ResetPasswordComponent,
+    PantryComponent
   ],
   bootstrap: [AppComponent], imports: [BrowserModule,
     FormsModule,

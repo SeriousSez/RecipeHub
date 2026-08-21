@@ -19,6 +19,7 @@
         @if (isAdmin) {
         <a class="dropdown-item text-light" routerLinkActive="active" routerLink="dashboard/users" (click)="toggleNavbar()">Dashboard</a>
         }
+        <a class="dropdown-item text-light" routerLinkActive="active" routerLink="/pantry" (click)="toggleNavbar()">Pantry</a>
         <a class="dropdown-item text-light" routerLinkActive="active" routerLink="account/profile" (click)="toggleNavbar()">Profile</a>
         <hr class="dropdown-divider">
         <a class="dropdown-item text-light" (click)="logout()">Sign out</a>

@@ -54,6 +54,14 @@ export class RecipeService extends BaseService {
       ));
   }
 
+  getRecipesWithIngredients(): Observable<Recipe[]> {
+    return this.http.get<Recipe[]>(this.baseUrl + "/recipe/getallwithingredients", this.httpOptions)
+      .pipe(map(details => {
+        return details;
+      }, (error: any) => console.log(error, "fails")
+      ));
+  }
+
   getRecipesByCreator(creator: string): Observable<Recipe[]> {
     return this.http.get<Recipe[]>(this.baseUrl + "/recipe/getallbycreator?creator=" + creator, this.httpOptions)
       .pipe(map(details => {

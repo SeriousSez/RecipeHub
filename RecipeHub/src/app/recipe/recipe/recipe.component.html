@@ -52,7 +52,7 @@
                 </div>
 
                 <div *ngIf="showIngredients && currentIngredients.length > 0" class="recipe-ingredient-list">
-                    <p *ngFor="let ingredient of currentIngredients" class="recipe-ingredient-item">
+                    <p *ngFor="let ingredient of currentIngredients" class="recipe-ingredient-item" [class.is-in-pantry]="isPantryIngredient(ingredient.name)">
                         {{ingredient.name}} <span *ngIf="ingredient.amount">- <i>{{ingredient.amount}} {{getMeasurementAbbreviation(ingredient.amountType)}}</i></span>
                     </p>
                 </div>

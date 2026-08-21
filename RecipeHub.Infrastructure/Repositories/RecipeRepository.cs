@@ -121,6 +121,18 @@ namespace RecipeHub.Infrastructure.Repositories
             return recipes;
         }
 
+        public async Task<IEnumerable<Recipe>> GetAllWithIngredients()
+        {
+            var recipes = await _context.Recipes
+                .AsNoTracking()
+                .Include(r => r.RecipeIngredients)
+                    .ThenInclude(ri => ri.Ingredient)
+                .Include(r => r.Creator)
+                .Include(r => r.Image)
+                .ToListAsync();
+            return recipes;
+        }
+
         public async Task<IEnumerable<Recipe>> GetAllByIngredient(Guid recipeId)
         {
             var recipes = await _context.Recipes.Include(r => r.RecipeIngredients.Where(rI => rI.Ingredient.Id == recipeId)).Include(r => r.Creator).ToListAsync();

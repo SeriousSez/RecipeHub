@@ -85,8 +85,10 @@
           <input id="recipe-search" class="form-control recipe-filter-input" type="search" placeholder="Search by title, creator, tags, or text" [value]="searchTerm" (input)="searchTerm = $any($event.target).value; applyFiltersAndSort()">
         </div>
         <div class="recipe-filter-group">
-          <label for="recipe-ingredients" class="recipe-filter-label">Ingredients I have</label>
-          <input id="recipe-ingredients" class="form-control recipe-filter-input" type="text" placeholder="eggs, spinach, tomatoes" [value]="pantryIngredients" (input)="updatePantryIngredients($any($event.target).value)">
+          <label class="recipe-filter-label">Pantry</label>
+          <button type="button" class="btn recipe-filter-input text-start pantry-match-button" [class.active]="showPantryMatches" (click)="togglePantryMatches()" [disabled]="matchingLoading" [attr.aria-pressed]="showPantryMatches">
+            {{ matchingLoading ? 'Finding matches...' : pantryButtonLabel }}
+          </button>
         </div>
         <div class="recipe-filter-group recipe-sort-group">
           <label for="recipe-category" class="recipe-filter-label">Category</label>
@@ -141,8 +143,10 @@
             <input id="recipe-search-mobile" class="form-control recipe-filter-input" type="search" placeholder="Search by title, creator, tags, or text" [value]="searchTerm" (input)="searchTerm = $any($event.target).value; applyFiltersAndSort()">
           </div>
           <div class="recipe-filter-group">
-            <label for="recipe-ingredients-mobile" class="recipe-filter-label">Ingredients I have</label>
-            <input id="recipe-ingredients-mobile" class="form-control recipe-filter-input" type="text" placeholder="eggs, spinach, tomatoes" [value]="pantryIngredients" (input)="updatePantryIngredients($any($event.target).value)">
+            <label class="recipe-filter-label">Pantry</label>
+            <button type="button" class="btn recipe-filter-input text-start pantry-match-button" [class.active]="showPantryMatches" (click)="togglePantryMatches()" [disabled]="matchingLoading" [attr.aria-pressed]="showPantryMatches">
+              {{ matchingLoading ? 'Finding matches...' : pantryButtonLabel }}
+            </button>
           </div>
           <div class="recipe-filter-group recipe-sort-group">
             <label for="recipe-category-mobile" class="recipe-filter-label">Category</label>
@@ -179,7 +183,7 @@
         <table class="table table-hover caption-top">
           <caption>{{ showMyRecipes ? 'My recipes' : (showFavorites ? 'Favorite recipes' : 'All recipes') }}</caption>
           @if (settings.recipesTheme === 'Pretty') {
-          <app-pretty [recipes]="shownRecipes" [favoredRecipes]="favoredRecipes" [selectedRecipes]="selectedRecipes" [pantryIngredients]="getPantryIngredientList()" [bestMatchScore]="bestMatchScore" (selectRecipe)="toggleRecipeSelected($event)"></app-pretty>
+          <app-pretty [recipes]="shownRecipes" [favoredRecipes]="favoredRecipes" [selectedRecipes]="selectedRecipes" [pantryIngredients]="showPantryMatches ? getPantryIngredientList() : []" [bestMatchScore]="bestMatchScore" (selectRecipe)="toggleRecipeSelected($event)"></app-pretty>
           }
           @if (settings.recipesTheme === 'List') {
           <thead>

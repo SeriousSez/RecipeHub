@@ -15,6 +15,7 @@ namespace RecipeHub.ApplicationService.Services
         Task<RecipeResponse> Get(Guid id);
         Task<RecipeResponse> Get(string title, string creator);
         Task<IEnumerable<RecipeResponse>> GetAll();
+        Task<IEnumerable<RecipeResponse>> GetAllWithIngredients();
         Task<IEnumerable<RecipeResponse>> GetAll(string creator);
         Task<List<RecipeResponse>> GetAllByIngredient(IngredientResponse model);
         Task<RecipeResponse> Update(RecipeUpdateViewModel model);

@@ -180,6 +180,24 @@ namespace RecipeHub.ApplicationService.Services
             return recipeList;
         }
 
+        public async Task<IEnumerable<RecipeResponse>> GetAllWithIngredients()
+        {
+            var recipes = await _recipeRepository.GetAllWithIngredients();
+
+            var recipeList = new List<RecipeResponse>();
+            foreach (var recipe in recipes)
+            {
+                var recipeResponse = _mapper.Map<RecipeResponse>(recipe);
+                recipeResponse.Ingredients = recipe.RecipeIngredients == null
+                    ? new List<IngredientResponse>()
+                    : recipe.RecipeIngredients.Select(CreateIngredientResponeModel).ToList();
+
+                recipeList.Add(recipeResponse);
+            }
+
+            return recipeList;
+        }
+
         public async Task<IEnumerable<RecipeResponse>> GetAll(string creator)
         {
             var user = await _userRepository.GetByUserName(creator);

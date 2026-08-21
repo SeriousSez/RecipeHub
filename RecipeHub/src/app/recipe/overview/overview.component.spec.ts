@@ -121,10 +121,57 @@ describe('OverviewComponent', () => {
     ];
 
     component.pantryIngredients = 'eggs, cheese';
+    component.showPantryMatches = true;
+    component.matchingRecipes = component.recipes;
     component.applyFiltersAndSort();
 
     expect(component.shownRecipes.length).toBe(1);
     expect(component.shownRecipes[0].title).toBe('Veggie Omelette');
     expect(component.getIngredientMatchScore(component.recipes[0])).toBe(1);
+  });
+
+  it('shows only pantry matches when enabled and restores all recipes when disabled', () => {
+    component.pantryIngredients = 'eggs, spinach';
+    component.recipes = [
+      {
+        id: '1',
+        title: 'Egg Omelette',
+        creator: 'Sam',
+        description: '',
+        instructions: '',
+        portions: '1',
+        created: '2024-01-01T00:00:00Z',
+        image: null,
+        ingredients: [{ name: 'Eggs', description: '', amount: 1, amountType: 'Piece', created: '', image: null }],
+        categories: [],
+        tags: []
+      },
+      {
+        id: '2',
+        title: 'Tomato Soup',
+        creator: 'Alex',
+        description: '',
+        instructions: '',
+        portions: '1',
+        created: '2024-01-02T00:00:00Z',
+        image: null,
+        ingredients: [{ name: 'Tomatoes', description: '', amount: 1, amountType: 'Piece', created: '', image: null }],
+        categories: [],
+        tags: []
+      }
+    ];
+
+    component.togglePantryMatches();
+
+    expect(component.showPantryMatches).toBeTrue();
+    expect(component.shownRecipes.length).toBe(1);
+    expect(component.shownRecipes[0].title).toBe('Egg Omelette');
+    expect(component.pantryButtonLabel).toBe('Show all recipes');
+
+    component.togglePantryMatches();
+
+    expect(component.showPantryMatches).toBeFalse();
+    expect(component.shownRecipes.length).toBe(2);
+    expect(component.pantryButtonLabel).toBe('Show matching recipes');
   });
 });
