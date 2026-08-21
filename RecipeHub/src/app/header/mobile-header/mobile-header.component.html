@@ -14,23 +14,37 @@
       </a>
     </div>
     <div fxFlex class="top-navbar bg-dark">
+      <div class="mb-2 d-flex align-items-center justify-content-between">
+        <label class="dropdown-item text-light mb-0" for="mobile-theme-toggle">{{ 'nav.toggleTheme' | translate }}</label>
+        <button id="mobile-theme-toggle" type="button" class="btn btn-outline-light btn-sm me-3" (click)="toggleTheme()" [attr.aria-pressed]="isDarkTheme">
+          <i class="fas" [ngClass]="isDarkTheme ? 'fa-sun' : 'fa-moon'"></i>
+        </button>
+      </div>
+      <div class="mb-2">
+        <label class="dropdown-item text-light mb-0" for="mobile-language-select">{{ 'nav.language' | translate }}</label>
+        <select id="mobile-language-select" class="form-select form-select-sm w-auto ms-3" [ngModel]="currentLanguage" (ngModelChange)="changeLanguage($event)">
+          @for (language of languages; track language.code) {
+          <option [value]="language.code">{{ language.label }}</option>
+          }
+        </select>
+      </div>
       @if (isAuthenticated) {
       <div class="mb-2">
         @if (isAdmin) {
-        <a class="dropdown-item text-light" routerLinkActive="active" routerLink="dashboard/users" (click)="toggleNavbar()">Dashboard</a>
+        <a class="dropdown-item text-light" routerLinkActive="active" routerLink="dashboard/users" (click)="toggleNavbar()">{{ 'nav.dashboard' | translate }}</a>
         }
-        <a class="dropdown-item text-light" routerLinkActive="active" routerLink="/pantry" (click)="toggleNavbar()">Pantry</a>
-        <a class="dropdown-item text-light" routerLinkActive="active" routerLink="account/profile" (click)="toggleNavbar()">Profile</a>
+        <a class="dropdown-item text-light" routerLinkActive="active" routerLink="/pantry" (click)="toggleNavbar()">{{ 'nav.pantry' | translate }}</a>
+        <a class="dropdown-item text-light" routerLinkActive="active" routerLink="account/profile" (click)="toggleNavbar()">{{ 'nav.profile' | translate }}</a>
         <hr class="dropdown-divider">
-        <a class="dropdown-item text-light" (click)="logout()">Sign out</a>
+        <a class="dropdown-item text-light" (click)="logout()">{{ 'nav.signOut' | translate }}</a>
       </div>
       }
 
       @if (!isAuthenticated) {
       <div class="mb-2">
         <hr class="dropdown-divider">
-        <a class="dropdown-item text-light" routerLinkActive="active" routerLink="/login" (click)="toggleNavbar()">Login</a>
-        <a class="dropdown-item text-light" routerLinkActive="active" routerLink="/register" (click)="toggleNavbar()">Sign Up</a>
+        <a class="dropdown-item text-light" routerLinkActive="active" routerLink="/login" (click)="toggleNavbar()">{{ 'nav.login' | translate }}</a>
+        <a class="dropdown-item text-light" routerLinkActive="active" routerLink="/register" (click)="toggleNavbar()">{{ 'nav.signUp' | translate }}</a>
       </div>
       }
     </div>

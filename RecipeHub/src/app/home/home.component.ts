@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { UserService } from '../shared/services/user.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-home',
@@ -15,7 +16,7 @@ export class HomeComponent implements OnInit {
   pantryIngredientCount: number = 0;
   subscription?: Subscription;
 
-  constructor(private userService: UserService, private router: Router) { }
+  constructor(private userService: UserService, private router: Router, private translateService: TranslateService) { }
 
   ngOnInit(): void {
     this.subscription = this.userService.authStatus$.subscribe(status => {
@@ -45,15 +46,17 @@ export class HomeComponent implements OnInit {
       return `${this.pantryIngredientCount}`;
     }
 
-    return 'Add pantry';
+    return this.translateService.instant('home.addPantry');
   }
 
   get pantryCardSubtitle(): string {
     if (this.status) {
-      return this.pantryIngredientCount === 1 ? 'ingredient ready to match' : 'ingredients ready to match';
+      return this.pantryIngredientCount === 1
+        ? this.translateService.instant('home.ingredientReadyToMatch')
+        : this.translateService.instant('home.ingredientsReadyToMatch');
     }
 
-    return 'start with what you have';
+    return this.translateService.instant('home.startWithWhatYouHave');
   }
 
   goToRegister(): void {

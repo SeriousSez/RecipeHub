@@ -1,49 +1,49 @@
 <div class="auth-page">
   <div class="auth-card">
     <div class="auth-card-header">
-      <p class="auth-kicker">Welcome back</p>
-      <h1>Login</h1>
+      <p class="auth-kicker">{{ 'auth.kickerWelcomeBack' | translate }}</p>
+      <h1>{{ 'auth.loginHeading' | translate }}</h1>
     </div>
 
     @if (brandNew) {
     <div class="auth-alert-success" role="alert">
-      <strong>All set!</strong> Please login with your account
+      <strong>{{ 'auth.allSet' | translate }}</strong> {{ 'auth.pleaseLoginMessage' | translate }}
     </div>
     }
 
     <form (ngSubmit)="login()" [formGroup]="loginForm" novalidate class="auth-form">
       <div class="field-group">
-        <label for="identity">Username or E-mail</label>
-        <input id="identity" type="text" class="form-control" [ngClass]="{ 'is-invalid': f.identity.touched && f.identity.errors }" name="identity" placeholder="Username or E-mail" formControlName="identity" tmFocus validateEmail required>
+        <label for="identity">{{ 'auth.identityLabel' | translate }}</label>
+        <input id="identity" type="text" class="form-control" [ngClass]="{ 'is-invalid': f.identity.touched && f.identity.errors }" name="identity" placeholder="{{ 'auth.identityLabel' | translate }}" formControlName="identity" tmFocus validateEmail required>
         @if (f.identity.touched && f.identity.errors) {
         <div class="invalid-feedback">
           @if (f.identity.errors.required) {
-          <div>Identity is required</div>
+          <div>{{ 'auth.identityRequired' | translate }}</div>
           }
         </div>
         }
       </div>
 
       <div class="field-group">
-        <label for="password">Password</label>
-        <input id="password" type="password" name="password" class="form-control" [ngClass]="{ 'is-invalid': f.password.touched && f.password.errors }" placeholder="Password" formControlName="password" required>
+        <label for="password">{{ 'auth.password' | translate }}</label>
+        <input id="password" type="password" name="password" class="form-control" [ngClass]="{ 'is-invalid': f.password.touched && f.password.errors }" placeholder="{{ 'auth.password' | translate }}" formControlName="password" required>
         @if (f.password.touched && f.password.errors) {
         <div class="invalid-feedback">
           @if (f.password.errors.required) {
-          <div>Password is required</div>
+          <div>{{ 'auth.passwordRequired' | translate }}</div>
           }
         </div>
         }
       </div>
 
       <div class="auth-actions">
-        <button type="submit" class="btn btn-primary" [disabled]="loginForm.invalid || isRequesting">Login</button>
-        <a class="auth-link" routerLink="/forgot-password">Forgot password?</a>
+        <button type="submit" class="btn btn-primary" [disabled]="loginForm.invalid || isRequesting">{{ 'auth.loginButton' | translate }}</button>
+        <a class="auth-link" routerLink="/forgot-password">{{ 'auth.forgotPassword' | translate }}</a>
       </div>
 
       @if (errors) {
       <div class="auth-alert-error" role="alert">
-        <strong>Oops!</strong> {{errors}}
+        <strong>{{ 'auth.oops' | translate }}</strong> {{errors}}
       </div>
       }
     </form>

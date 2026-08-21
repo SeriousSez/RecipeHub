@@ -1,56 +1,56 @@
 <div class="auth-header">
-  <p class="auth-kicker">Create account</p>
+  <p class="auth-kicker">{{ 'auth.createAccount' | translate }}</p>
   <h1>{{title}}</h1>
 </div>
 
 <form (ngSubmit)="register()" [formGroup]="registerForm" novalidate class="auth-form">
   <div class="field-grid">
     <div class="field-group">
-      <label for="user-name">Username</label>
-      <input id="user-name" type="text" name="user-name" class="form-control" [ngClass]="{ 'is-invalid': f.username.touched && f.username.errors }" placeholder="Your display name" formControlName="username">
+      <label for="user-name">{{ 'auth.usernameLabel' | translate }}</label>
+      <input id="user-name" type="text" name="user-name" class="form-control" [ngClass]="{ 'is-invalid': f.username.touched && f.username.errors }" placeholder="{{ 'auth.usernamePlaceholder' | translate }}" formControlName="username">
       @if (f.username.touched && f.username.errors) {
       <div class="invalid-feedback">
         @if (f.username.errors.required) {
-        <div>Username is required</div>
+        <div>{{ 'auth.usernameRequired' | translate }}</div>
         }
       </div>
       }
     </div>
 
     <div class="field-group">
-      <label for="first-name">First name</label>
-      <input id="first-name" type="text" name="firstName" class="form-control" [ngClass]="{ 'is-invalid': f.firstName.touched && f.firstName.errors }" placeholder="Your first name" formControlName="firstName">
+      <label for="first-name">{{ 'auth.firstNameLabel' | translate }}</label>
+      <input id="first-name" type="text" name="firstName" class="form-control" [ngClass]="{ 'is-invalid': f.firstName.touched && f.firstName.errors }" placeholder="{{ 'auth.firstNamePlaceholder' | translate }}" formControlName="firstName">
       @if (f.firstName.touched && f.firstName.errors) {
       <div class="invalid-feedback">
         @if (f.firstName.errors.required) {
-        <div>First name is required</div>
+        <div>{{ 'auth.firstNameRequired' | translate }}</div>
         }
       </div>
       }
     </div>
 
     <div class="field-group">
-      <label for="last-name">Last name</label>
-      <input id="last-name" type="text" name="lastName" class="form-control" [ngClass]="{ 'is-invalid': f.lastName.touched && f.lastName.errors }" placeholder="Your last name" formControlName="lastName">
+      <label for="last-name">{{ 'auth.lastNameLabel' | translate }}</label>
+      <input id="last-name" type="text" name="lastName" class="form-control" [ngClass]="{ 'is-invalid': f.lastName.touched && f.lastName.errors }" placeholder="{{ 'auth.lastNamePlaceholder' | translate }}" formControlName="lastName">
       @if (f.lastName.touched && f.lastName.errors) {
       <div class="invalid-feedback">
         @if (f.lastName.errors.required) {
-        <div>Last name is required</div>
+        <div>{{ 'auth.lastNameRequired' | translate }}</div>
         }
       </div>
       }
     </div>
 
     <div class="field-group">
-      <label for="email">E-mail</label>
-      <input id="email" type="text" name="email" class="form-control" [ngClass]="{ 'is-invalid': f.email.touched && f.email.errors }" placeholder="E-mail" formControlName="email">
+      <label for="email">{{ 'auth.emailLabel' | translate }}</label>
+      <input id="email" type="text" name="email" class="form-control" [ngClass]="{ 'is-invalid': f.email.touched && f.email.errors }" placeholder="{{ 'auth.emailLabel' | translate }}" formControlName="email">
       @if (f.email.touched && f.email.errors) {
       <div class="invalid-feedback">
         @if (f.email.errors.required) {
-        <div>E-mail is required</div>
+        <div>{{ 'auth.emailRequired' | translate }}</div>
         }
         @if (f.email.errors.email) {
-        <div>E-mail is invalid</div>
+        <div>{{ 'auth.emailInvalid' | translate }}</div>
         }
       </div>
       }
@@ -58,12 +58,12 @@
   </div>
 
   <div class="field-group">
-    <label for="password">Password</label>
-    <input id="password" type="password" name="password" class="form-control" [ngClass]="{ 'is-invalid': f.password.touched && f.password.errors }" placeholder="Password" formControlName="password">
+    <label for="password">{{ 'auth.password' | translate }}</label>
+    <input id="password" type="password" name="password" class="form-control" [ngClass]="{ 'is-invalid': f.password.touched && f.password.errors }" placeholder="{{ 'auth.password' | translate }}" formControlName="password">
     @if (f.password.touched && f.password.errors) {
     <div class="invalid-feedback">
       @if (f.password.errors.required) {
-      <div>Password is required</div>
+      <div>{{ 'auth.passwordRequired' | translate }}</div>
       }
     </div>
     }
@@ -71,7 +71,7 @@
 
   @if (roles) {
   <div class="field-group">
-    <label for="role">Role</label>
+    <label for="role">{{ 'auth.roleLabel' | translate }}</label>
     <select class="form-control" formControlName="role">
       @for (role of roles; track role) {
       <option class="select-items" [ngValue]="role">{{role}}</option>
@@ -86,7 +86,7 @@
 
   @if (errors) {
   <div class="auth-alert-error" role="alert">
-    <strong>Oops!</strong> {{errors}}
+    <strong>{{ 'auth.oops' | translate }}</strong> {{errors}}
   </div>
   }
 </form>

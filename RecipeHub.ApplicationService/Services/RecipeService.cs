@@ -59,6 +59,7 @@ namespace RecipeHub.ApplicationService.Services
                 var exists = await _ingredientRepository.Exists(ingredient.Name);
                 if (exists == false)
                 {
+                    ingredientEntity.Language = string.IsNullOrWhiteSpace(ingredient.Language) ? model.Language : ingredient.Language;
                     ingredientEntity = await _ingredientRepository.Create(ingredientEntity);
                 }
                 else

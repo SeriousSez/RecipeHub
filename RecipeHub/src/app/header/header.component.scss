@@ -86,6 +86,25 @@
 .topbar-actions {
   display: flex;
   align-items: center;
+  gap: .5rem;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  border-radius: 999px;
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 0.95rem;
+}
+
+.theme-toggle:hover {
+  background: #eff6ff;
+  color: #1d4ed8;
 }
 
 .auth-actions {

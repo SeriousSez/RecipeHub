@@ -38,18 +38,18 @@
     <article *ngIf="edit == false" class="recipe-detail-page">
         <header class="recipe-detail-header">
             <div class="recipe-detail-heading-group">
-                <p class="recipe-detail-kicker">Recipe instructions</p>
+                <p class="recipe-detail-kicker">{{ 'recipe.instructionsKicker' | translate }}</p>
                 <h1 class="recipe-detail-title">{{recipe.title}}</h1>
             </div>
 
             <div *ngIf="status" class="recipe-detail-actions">
-                <button type="button" class="recipe-detail-icon-button" (click)="toggleGroceries()" [attr.aria-label]="inGroceries ? 'Remove from groceries' : 'Add to groceries'">
+                <button type="button" class="recipe-detail-icon-button" (click)="toggleGroceries()" [attr.aria-label]="inGroceries ? ('recipe.removeFromGroceriesAria' | translate) : ('recipe.addToGroceriesAria' | translate)">
                     <i [ngClass]="inGroceries ? 'fas fa-file-alt' : 'far fa-file-alt'" aria-hidden="true"></i>
                 </button>
-                <button type="button" class="recipe-detail-icon-button" (click)="toggleFavorite()" [attr.aria-label]="favored ? 'Remove favorite' : 'Add favorite'">
+                <button type="button" class="recipe-detail-icon-button" (click)="toggleFavorite()" [attr.aria-label]="favored ? ('recipe.removeFavoriteAria' | translate) : ('recipe.addFavoriteAria' | translate)">
                     <i [ngClass]="favored ? 'fas fa-star' : 'far fa-star'" aria-hidden="true"></i>
                 </button>
-                <button *ngIf="canEdit" type="button" class="recipe-detail-icon-button" (click)="edit = true" aria-label="Edit recipe">
+                <button *ngIf="canEdit" type="button" class="recipe-detail-icon-button" (click)="edit = true" [attr.aria-label]="'recipe.editRecipeAria' | translate">
                     <i class="fas fa-pen" aria-hidden="true"></i>
                 </button>
             </div>
@@ -57,7 +57,7 @@
 
         <div class="recipe-detail-meta">
             <span class="recipe-detail-author">
-                <span>By </span>
+                <span>{{ 'recipe.byAuthor' | translate }} </span>
                 <a href="">{{recipe.creator}}</a>
             </span>
             <span class="recipe-detail-date">{{displayDateOnly(recipe.created)}}</span>
@@ -71,7 +71,7 @@
         <div class="recipe-detail-content">
             <main class="recipe-detail-main-panel">
                 <div class="recipe-detail-section-header">
-                    <h2>Instructions</h2>
+                    <h2>{{ 'recipe.instructionsHeading' | translate }}</h2>
                     <span>{{formatPortions(recipe.portions)}}</span>
                 </div>
                 <div class="recipe-detail-instructions" [innerHTML]="utilityService.transformToSafeHtml(recipe.instructions)"></div>
@@ -79,8 +79,8 @@
 
             <aside class="recipe-detail-side-panel" *ngIf="edit == false">
                 <div class="recipe-detail-side-header">
-                    <span>Ingredients</span>
-                    <button *ngIf="currentIngredients.length > 0" type="button" class="recipe-detail-side-toggle" (click)="toggleIngredients()" aria-label="Toggle ingredient list">
+                    <span>{{ 'recipe.ingredientsHeading' | translate }}</span>
+                    <button *ngIf="currentIngredients.length > 0" type="button" class="recipe-detail-side-toggle" (click)="toggleIngredients()" [attr.aria-label]="'recipe.toggleIngredientListAria' | translate">
                         <i class="fas" [ngClass]="showIngredients ? 'fa-eye-slash' : 'fa-eye'"></i>
                     </button>
                 </div>
@@ -97,7 +97,7 @@
 
                 <div *ngIf="showIngredients && currentIngredients.length == 0" class="recipe-ingredient-list">
                     <p class="recipe-ingredient-item recipe-ingredient-empty">
-                        <i>This recipe does not contain any ingredients!</i>
+                        <i>{{ 'recipe.noIngredientsMessage' | translate }}</i>
                     </p>
                 </div>
             </aside>
@@ -117,11 +117,11 @@
         <article class="m-3">
             <header class="mb-2">
                 <h2>
-                    <input id="title" type="text" name="title" value="{{recipe.title}}" class="form-control" placeholder="Recipe title" autocomplete="off" data-lpignore="true" [(ngModel)]="recipe.title">
+                    <input id="title" type="text" name="title" value="{{recipe.title}}" class="form-control" [placeholder]="'recipe.recipeTitlePlaceholder' | translate" autocomplete="off" data-lpignore="true" [(ngModel)]="recipe.title">
                 </h2>
                 <div>
                     <span class="post-meta-author">
-                        <span>By </span>
+                        <span>{{ 'recipe.byAuthor' | translate }} </span>
                         <a class="tw-text-strong hover_tw-no-underline" href="">{{recipe.creator}}</a>
                     </span>
                     <time class="post-meta-date"> - <i>{{displayDateOnly(recipe.created)}}</i></time>
@@ -134,19 +134,19 @@
                     (loadImageFailed)="loadImageFailed()">
                 </image-cropper>
                 <input type="file" accept="image/*" class="my-2" (change)="handleFileInput($event)" #image>
-                <input id="image-caption" type="text" name="imageCaption" value="{{recipe.image.caption}}" class="form-control mt-2" placeholder="Image Caption" autocomplete="off" data-lpignore="true" [(ngModel)]="recipe.image.caption">
+                <input id="image-caption" type="text" name="imageCaption" value="{{recipe.image.caption}}" class="form-control mt-2" [placeholder]="'recipe.imageCaptionPlaceholder' | translate" autocomplete="off" data-lpignore="true" [(ngModel)]="recipe.image.caption">
             </figure>
             <div *ngIf="!recipe.image" class="my-3">
                 <image-cropper *ngIf="showCropOverlay" [imageChangedEvent]="imageChangedEvent" [maintainAspectRatio]="false" [aspectRatio]="10 / 10" format="png" output="base64" (imageCropped)="imageCropped($event)" (imageLoaded)="imageLoaded()" (cropperReady)="cropperReady()"
                     (loadImageFailed)="loadImageFailed()">
                 </image-cropper>
                 <input type="file" accept="image/*" class="form-control" (change)="handleFileInput($event)" #image>
-                <input id="image-caption" type="text" name="imageCaption" class="form-control mt-2" placeholder="Image Caption" autocomplete="off" data-lpignore="true" [ngModel]="''" (ngModelChange)="setImageCaption($event)">
+                <input id="image-caption" type="text" name="imageCaption" class="form-control mt-2" [placeholder]="'recipe.imageCaptionPlaceholder' | translate" autocomplete="off" data-lpignore="true" [ngModel]="''" (ngModelChange)="setImageCaption($event)">
             </div>
             <div>
                 <div>
                     <header>
-                        <h3>Instructions</h3>
+                        <h3>{{ 'recipe.instructionsHeading' | translate }}</h3>
                     </header>
                     <angular-editor [config]="editorConfig" [(ngModel)]="recipe.instructions"></angular-editor>
                 </div>
@@ -155,30 +155,31 @@
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="headingDetails">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDetails" aria-expanded="false" aria-controls="collapseDetails">
-                                Categories & Tags
+                                {{ 'recipe.categoriesTagsHeader' | translate }}
                             </button>
                         </h2>
                         <div id="collapseDetails" class="accordion-collapse collapse" aria-labelledby="headingDetails" data-bs-parent="#accordion">
                             <div class="accordion-body">
                                 <div class="form-group suggestion-field-wrap">
-                                    <label for="recipe-categories">Categories</label>
-                                    <input id="recipe-categories" type="text" class="form-control" placeholder="breakfast, lunch, healthy" [(ngModel)]="categoriesInput" (input)="handlePresetSearch('category')" (focus)="showCategorySuggestions = true; handlePresetSearch('category')">
+                                    <label for="recipe-categories">{{ 'recipe.categoriesLabel' | translate }}</label>
+                                    <input id="recipe-categories" type="text" class="form-control" [placeholder]="'recipe.categoriesPlaceholder' | translate" [(ngModel)]="categoriesInput" (input)="handlePresetSearch('category')"
+                                        (focus)="showCategorySuggestions = true; handlePresetSearch('category')">
                                     <div class="suggestion-pills" *ngIf="filteredPresetCategories.length > 0">
                                         <button type="button" class="suggestion-pill" [class.is-active]="isPresetSelected('category', category)" *ngFor="let category of filteredPresetCategories" (mousedown)="$event.preventDefault(); addPresetValue('category', category)">
                                             {{ category }}
                                         </button>
                                     </div>
-                                    <small class="text-muted">Type a custom value or choose from the suggestions.</small>
+                                    <small class="text-muted">{{ 'recipe.suggestionHint' | translate }}</small>
                                 </div>
                                 <div class="form-group mt-3 suggestion-field-wrap">
-                                    <label for="recipe-tags">Tags</label>
-                                    <input id="recipe-tags" type="text" class="form-control" placeholder="quick, vegetarian, budget" [(ngModel)]="tagsInput" (input)="handlePresetSearch('tag')" (focus)="showTagSuggestions = true; handlePresetSearch('tag')">
+                                    <label for="recipe-tags">{{ 'recipe.tagsLabel' | translate }}</label>
+                                    <input id="recipe-tags" type="text" class="form-control" [placeholder]="'recipe.tagsPlaceholder' | translate" [(ngModel)]="tagsInput" (input)="handlePresetSearch('tag')" (focus)="showTagSuggestions = true; handlePresetSearch('tag')">
                                     <div class="suggestion-pills" *ngIf="filteredPresetTags.length > 0">
                                         <button type="button" class="suggestion-pill" [class.is-active]="isPresetSelected('tag', tag)" *ngFor="let tag of filteredPresetTags" (mousedown)="$event.preventDefault(); addPresetValue('tag', tag)">
                                             {{ tag }}
                                         </button>
                                     </div>
-                                    <small class="text-muted">Type a custom value or choose from the suggestions.</small>
+                                    <small class="text-muted">{{ 'recipe.suggestionHint' | translate }}</small>
                                 </div>
                             </div>
                         </div>
@@ -187,19 +188,20 @@
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="headingIngredients">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseIngredients" aria-expanded="false" aria-controls="collapseIngredients">
-                                Ingredients
+                                {{ 'recipe.ingredientsAccordionHeader' | translate }}
                             </button>
                         </h2>
                         <div id="collapseIngredients" class="accordion-collapse collapse" aria-labelledby="headingIngredients" data-bs-parent="#accordion">
                             <div class="accordion-body">
                                 <table class="table table-hover caption-top">
                                     <caption>
-                                        Ingredients
+                                        {{ 'recipe.ingredientsHeading' | translate }}
                                         <div class="form-group d-inline-block float-end ms-3 mobile-float">
-                                            <button type="submit" class="btn btn-outline-primary btn-sm" [disabled]="!newIngredient.name || !newIngredient.amount || !newIngredient.amountType || isRequesting" (click)="addIngredient(newIngredient)">Add ingredient</button>
+                                            <button type="submit" class="btn btn-outline-primary btn-sm" [disabled]="!newIngredient.name || !newIngredient.amount || !newIngredient.amountType || isRequesting" (click)="addIngredient(newIngredient)">{{ 'recipe.addIngredientButton' | translate
+                                                }}</button>
                                         </div>
                                         <div class="form-group d-inline-block float-end mobile-float">
-                                            <th scope="col" class="d-inline">Pick existing - </th>
+                                            <th scope="col" class="d-inline">{{ 'recipe.pickExistingLabel' | translate }} </th>
                                             <select class="btn btn-white btn-sm dropdown-toggle" name="ingredient" (change)="addToNewIngredient($event)" id="select" #select>
                                                 <option class="select-items" *ngFor="let ingredient of ingredients" [ngValue]="ingredient">{{ingredient.name}}</option>
                                             </select>
@@ -207,22 +209,22 @@
                                     </caption>
                                     <thead>
                                         <tr>
-                                            <th scope="col">Ingredient</th>
+                                            <th scope="col">{{ 'recipe.ingredientsAccordionHeader' | translate }}</th>
                                             <!-- <th scope="col" class="description">Description</th> -->
-                                            <th scope="col" class="amount">Amount</th>
-                                            <th scope="col">Measurement</th>
+                                            <th scope="col" class="amount">{{ 'recipe.amountColumn' | translate }}</th>
+                                            <th scope="col">{{ 'recipe.measurementColumn' | translate }}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
                                             <td>
-                                                <input type="text" class="form-control" placeholder="Name" [(ngModel)]="newIngredient.name" autocomplete="off" data-lpignore="true" required="required" id="name" #name>
+                                                <input type="text" class="form-control" [placeholder]="'recipe.namePlaceholder' | translate" [(ngModel)]="newIngredient.name" autocomplete="off" data-lpignore="true" required="required" id="name" #name>
                                             </td>
                                             <!-- <td class="description">
                                                 <input type="text" class="form-control" placeholder="Description" [(ngModel)]="newIngredient.Description" autocomplete="off" data-lpignore="true" required="required" id="description" #description>
                                             </td> -->
                                             <td>
-                                                <input type="number" step="any" class="form-control" placeholder="Amount" [(ngModel)]="newIngredient.amount" autocomplete="off" data-lpignore="true" required="required" id="amount" #amount>
+                                                <input type="number" step="any" class="form-control" [placeholder]="'recipe.amountPlaceholder' | translate" [(ngModel)]="newIngredient.amount" autocomplete="off" data-lpignore="true" required="required" id="amount" #amount>
                                             </td>
                                             <td>
                                                 <select class="btn btn-white dropdown-toggle" name="measurement" [(ngModel)]="newIngredient.amountType">
@@ -244,7 +246,7 @@
                                                 {{ingredient.amountType}}
                                             </td>
                                             <td>
-                                                <button type="submit" class="btn btn-link btn-sm" (click)="removeIngredient(ingredient)">Remove</button>
+                                                <button type="submit" class="btn btn-link btn-sm" (click)="removeIngredient(ingredient)">{{ 'recipe.removeButton' | translate }}</button>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -256,15 +258,15 @@
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="headingCosmetics">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCosmetics" aria-expanded="false" aria-controls="collapseCosmetics">
-                                Cosmetics
+                                {{ 'recipe.cosmeticsHeader' | translate }}
                                 <!-- <i *ngIf="f.instructions.errors" class="fas fa-exclamation-circle ms-2 text-warning"></i> -->
                             </button>
                         </h2>
                         <div id="collapseCosmetics" class="accordion-collapse collapse" aria-labelledby="headingBody" data-bs-parent="#accordion">
                             <div class="accordion-body">
                                 <div class="form-group">
-                                    <label for="image-caption">Card Description</label>
-                                    <textarea id="image-caption" type="text" name="description" [(ngModel)]="recipe.description" class="form-control description" placeholder="Card Description" autocomplete="off" data-lpignore="true" required="required"></textarea>
+                                    <label for="image-caption">{{ 'recipe.cardDescriptionLabel' | translate }}</label>
+                                    <textarea id="image-caption" type="text" name="description" [(ngModel)]="recipe.description" class="form-control description" [placeholder]="'recipe.cardDescriptionPlaceholder' | translate" autocomplete="off" data-lpignore="true" required="required"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -310,11 +312,11 @@
 
 <div *ngIf="edit == true" class="horizontal-center buttons mt-3">
     <div class="form-group d-inline-block w-100">
-        <button *ngIf="recipe" type="submit" class="btn btn-primary ms-2" (click)="update()">Update</button>
-        <button type="submit" class="btn btn-outline-link float-end me-2" (click)="edit = false">Cancel</button>
+        <button *ngIf="recipe" type="submit" class="btn btn-primary ms-2" (click)="update()">{{ 'recipe.updateButton' | translate }}</button>
+        <button type="submit" class="btn btn-outline-link float-end me-2" (click)="edit = false">{{ 'recipe.cancelButton' | translate }}</button>
     </div>
 
     <div *ngIf="errors" class="alert alert-danger d-inline-block float-end" role="alert">
-        <strong>Oops!</strong> {{errors}}
+        <strong>{{ 'recipe.oops' | translate }}</strong> {{errors}}
     </div>
 </div>

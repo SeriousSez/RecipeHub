@@ -18,6 +18,8 @@ export class ingredientModal implements OnInit {
 
     @Output() finish = new EventEmitter();
 
+    public languages: string[] = ['Danish', 'English', 'Estonian', 'Turkish']
+
     public ingredientForm: UntypedFormGroup;
 
     public errors: string = '';
@@ -40,6 +42,7 @@ export class ingredientModal implements OnInit {
         this.ingredientForm = this.formBuilder.group({
             name: ['', Validators.required],
             description: ['', Validators.required],
+            language: [this.userService.getUserLanguage(), Validators.required],
             imageCaption: ['']
         });
     }
@@ -78,6 +81,7 @@ export class ingredientModal implements OnInit {
         var model: Ingredient = {
             name: this.ingredientForm.controls['name'].value,
             description: this.ingredientForm.controls['description'].value,
+            language: this.ingredientForm.controls['language'].value,
             image: { id: '', url: this.imageUrl || this.defaultImageUrl, caption: this.ingredientForm.controls['imageCaption'].value },
             amount: 0,
             amountType: '',

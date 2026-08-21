@@ -11,6 +11,7 @@ import { Ingredient } from '../models/ingredient.interface';
 import { GroceryService } from 'src/app/shared/services/grocery.service';
 import { UserSettings } from 'src/app/account/models/user-settings.interface';
 import { UtilityService } from 'src/app/shared/utils/utility.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-overview',
@@ -45,7 +46,7 @@ export class OverviewComponent implements OnInit {
   }
 
   public get pantryButtonLabel(): string {
-    return this.showPantryMatches ? 'Show all recipes' : 'Show matching recipes';
+    return this.showPantryMatches ? this.translateService.instant('recipe.showAllRecipesPantry') : this.translateService.instant('recipe.showMatchingRecipes');
   }
   public searchTerm: string = '';
   public categoryFilter: string = 'all';
@@ -69,7 +70,7 @@ export class OverviewComponent implements OnInit {
   settingsSubscription?: Subscription;
   private groceryFeedbackTimer?: ReturnType<typeof setTimeout>;
 
-  constructor(private recipeService: RecipeService, private userService: UserService, private favoriteService: FavoriteService, private groceryService: GroceryService, private datepipe: DatePipe, private router: Router, private utilityService: UtilityService) { }
+  constructor(private recipeService: RecipeService, private userService: UserService, private favoriteService: FavoriteService, private groceryService: GroceryService, private datepipe: DatePipe, private router: Router, private utilityService: UtilityService, private translateService: TranslateService) { }
 
   ngOnInit(): void {
     this.loadPantryIngredients();
@@ -156,11 +157,14 @@ export class OverviewComponent implements OnInit {
     forkJoin(selectedRecipeRequests).subscribe((fullRecipes: Recipe[]) => {
       fullRecipes.forEach(recipe => this.groceryService.toggleRecipeToList(recipe));
       this.recipeList = this.groceryService.getRecipeList();
-      this.showGroceryFeedback(`Added ${fullRecipes.length} recipe${fullRecipes.length === 1 ? '' : 's'} to groceries.`, 'success');
+      const message = fullRecipes.length === 1
+        ? this.translateService.instant('recipe.addedToGroceriesOne')
+        : this.translateService.instant('recipe.addedToGroceriesMany', { count: fullRecipes.length });
+      this.showGroceryFeedback(message, 'success');
       this.clearSelectedRecipes();
     },
       error => {
-        this.showGroceryFeedback('Unable to add recipes to groceries right now.', 'danger');
+        this.showGroceryFeedback(this.translateService.instant('recipe.addToGroceriesError'), 'danger');
       });
   }
 

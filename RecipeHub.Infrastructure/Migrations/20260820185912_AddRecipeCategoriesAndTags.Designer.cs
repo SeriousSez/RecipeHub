@@ -380,6 +380,9 @@ namespace RecipeHub.Infrastructure.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<string>("Categories")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("CreatorId")
                         .HasColumnType("varchar(255)");
 
@@ -402,6 +405,9 @@ namespace RecipeHub.Infrastructure.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<string>("Portions")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Tags")
                         .HasColumnType("longtext");
 
                     b.Property<string>("Title")
@@ -548,6 +554,12 @@ namespace RecipeHub.Infrastructure.Migrations
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<string>("MyRecipesTheme")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("PreferredLanguage")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("RecipesTheme")
                         .HasColumnType("longtext");

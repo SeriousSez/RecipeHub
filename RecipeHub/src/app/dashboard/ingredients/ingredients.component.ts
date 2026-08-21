@@ -5,6 +5,7 @@ import { Ingredient } from 'src/app/recipe/models/ingredient.interface';
 import { IngredientService } from 'src/app/recipe/services/ingredient.service';
 import { GroceryService } from 'src/app/shared/services/grocery.service';
 import { finalize } from 'rxjs/operators';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-ingredients',
@@ -30,7 +31,11 @@ export class IngredientsComponent implements OnInit {
   public sortSetting: string = 'name';
   public ascending: boolean = true;
 
-  constructor(private ingredientService: IngredientService, private groceryService: GroceryService, private datepipe: DatePipe, private router: Router) { }
+  constructor(private ingredientService: IngredientService, private groceryService: GroceryService, private datepipe: DatePipe, private router: Router, private translateService: TranslateService) { }
+
+  public get defaultLanguage(): string {
+    return this.translateService.instant('dashboard.defaultLanguage');
+  }
 
   ngOnInit() {
     this.getIngredients();

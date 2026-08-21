@@ -16,6 +16,7 @@ import { Recipe } from '../models/recipe.interface';
 import { IngredientService } from '../services/ingredient.service';
 import { RecipeService } from '../services/recipe.service';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-recipe',
@@ -98,7 +99,7 @@ export class RecipeComponent implements OnInit {
     toolbarPosition: 'top'
   };
 
-  constructor(private activatedRoute: ActivatedRoute, private datepipe: DatePipe, private router: Router, public utilityService: UtilityService, private recipeService: RecipeService, private groceryService: GroceryService, private ingredientService: IngredientService, private userService: UserService, private safeService: SafeService, private favoriteService: FavoriteService) {
+  constructor(private activatedRoute: ActivatedRoute, private datepipe: DatePipe, private router: Router, public utilityService: UtilityService, private recipeService: RecipeService, private groceryService: GroceryService, private ingredientService: IngredientService, private userService: UserService, private safeService: SafeService, private favoriteService: FavoriteService, private translateService: TranslateService) {
     this.recipeId = activatedRoute.snapshot.params['id'] || null;
     this.title = this.utilityService.fromSlug(activatedRoute.snapshot.params['title']);
     this.creator = decodeURIComponent(activatedRoute.snapshot.params['creator'] || '');
@@ -350,17 +351,17 @@ export class RecipeComponent implements OnInit {
 
   formatPortions(portions: string | null | undefined): string {
     if (!portions || portions.trim() === '') {
-      return 'Serves 1';
+      return this.translateService.instant('recipe.servesLabel', { portions: 1 });
     }
 
     const trimmed = portions.trim();
     const matches = trimmed.match(/^\d+(?:\s*-\s*\d+)?$/);
 
     if (!matches) {
-      return `Serves ${trimmed}`;
+      return this.translateService.instant('recipe.servesLabel', { portions: trimmed });
     }
 
-    return `Serves ${trimmed}`;
+    return this.translateService.instant('recipe.servesLabel', { portions: trimmed });
   }
 
   getMeasurementAbbreviation(measurement: string) {

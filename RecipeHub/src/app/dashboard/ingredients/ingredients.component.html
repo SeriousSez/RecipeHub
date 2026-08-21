@@ -1,19 +1,20 @@
 <div class="button-group mb-3">
-  <button class="btn btn-danger" type="button" data-bs-toggle="offcanvas" data-bs-target="#deleteModal" aria-controls="deleteModal" [disabled]="selectedIngredients.length == 0" #deleteButton>Delete</button>
+  <button class="btn btn-danger" type="button" data-bs-toggle="offcanvas" data-bs-target="#deleteModal" aria-controls="deleteModal" [disabled]="selectedIngredients.length == 0" #deleteButton>{{ 'dashboard.deleteButton' | translate }}</button>
 
-  <button class="btn btn-outline-dark ms-3" type="button" data-bs-toggle="modal" data-bs-target="#ingredientModal">Create an Ingredient</button>
+  <button class="btn btn-outline-dark ms-3" type="button" data-bs-toggle="modal" data-bs-target="#ingredientModal">{{ 'dashboard.createIngredientButton' | translate }}</button>
 </div>
 
 <table class="table table-hover caption-top">
-  <caption>List of ingredients</caption>
+  <caption>{{ 'dashboard.tableCaptionIngredients' | translate }}</caption>
   <thead>
     <tr>
       <th scope="col">#</th>
-      <th scope="col" class="cursor-pointer" (click)="sort('name')">Ingredient @if (sortSetting == 'name') {
+      <th scope="col" class="cursor-pointer" (click)="sort('name')">{{ 'dashboard.ingredientColumn' | translate }} @if (sortSetting == 'name') {
         <i class="fas fa-sort"></i>
         }
       </th>
-      <th scope="col" class="cursor-pointer" (click)="sort('created')">Created @if (sortSetting == 'created') {
+      <th scope="col">{{ 'dashboard.languageColumn' | translate }}</th>
+      <th scope="col" class="cursor-pointer" (click)="sort('created')">{{ 'dashboard.createdColumn' | translate }} @if (sortSetting == 'created') {
         <i class="fas fa-sort"></i>
         }
       </th>
@@ -29,6 +30,9 @@
         {{ingredient.name}}
       </td>
       <td class="cursor-pointer" (click)="toggleAccordionIfAvailable(ingredient, 'accordion' + i, 'table-row' + i)">
+        {{ingredient.language || defaultLanguage}}
+      </td>
+      <td class="cursor-pointer" (click)="toggleAccordionIfAvailable(ingredient, 'accordion' + i, 'table-row' + i)">
         {{displayDateOnly(ingredient.created)}}
       </td>
     </tr>
@@ -42,12 +46,12 @@
         }
         <div class="col-9 list-group list-group-flush float-end ps-3">
           <h5>
-            Description
+            {{ 'dashboard.descriptionHeading' | translate }}
             <button class="btn btn-outline-dark btn-sm float-end" type="button" [disabled]="isIngredientBusy(ingredient)" (click)="regenerateIngredientImage(ingredient)">
               @if (isIngredientBusy(ingredient)) {
-              Regenerating...
+              {{ 'dashboard.regeneratingButton' | translate }}
               } @else {
-              Regenerate image
+              {{ 'dashboard.regenerateImageButton' | translate }}
               }
             </button>
           </h5>
@@ -62,7 +66,7 @@
 <div class="offcanvas offcanvas-bottom" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="deleteModal" aria-labelledby="deleteModalLabel" #deleteModal>
   <div class="offcanvas-header">
     <h5 class="offcanvas-title" id="deleteModalLabel">
-      Delete -
+      {{ 'dashboard.deletePrefix' | translate }}
       @for (ingredient of selectedIngredients; track ingredient; let isLast = $last) {
       <small>
         {{ingredient.name}}
@@ -72,14 +76,14 @@
       </small>
       }
       @if (selectedIngredients.length == 0) {
-      <small>No ingredients selected</small>
+      <small>{{ 'dashboard.noIngredientsSelected' | translate }}</small>
       }
     </h5>
     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
-    <button class="btn btn-danger me-1" type="button" (click)="deleteIngredients()" [disabled]="selectedIngredients.length == 0">Confirm</button>
-    <button class="btn btn-link text-reset" type="button" data-bs-dismiss="offcanvas" aria-label="Close">Cancel</button>
+    <button class="btn btn-danger me-1" type="button" (click)="deleteIngredients()" [disabled]="selectedIngredients.length == 0">{{ 'dashboard.confirmButton' | translate }}</button>
+    <button class="btn btn-link text-reset" type="button" data-bs-dismiss="offcanvas" aria-label="Close">{{ 'dashboard.cancelButton' | translate }}</button>
   </div>
 </div>
 

@@ -3,58 +3,58 @@
   <div class="account-panel">
     <div class="account-card">
       <div class="account-card-header">
-        <p class="account-kicker">Profile</p>
-        <h1>Account information</h1>
+        <p class="account-kicker">{{ 'account.kicker' | translate }}</p>
+        <h1>{{ 'account.accountInformation' | translate }}</h1>
       </div>
 
       <form (ngSubmit)="update(profileForm)" [formGroup]="profileForm" (change)="formCheck(profileForm)" class="account-form">
         <div class="field-grid">
           <div class="field-group">
-            <label for="user-name">Username</label>
-            <input id="user-name" type="text" name="user-name" class="form-control" [ngClass]="{ 'is-invalid': f.UserName.touched && f.UserName.errors }" placeholder="Your display name" formControlName="UserName" autocomplete="off">
+            <label for="user-name">{{ 'account.usernameLabel' | translate }}</label>
+            <input id="user-name" type="text" name="user-name" class="form-control" [ngClass]="{ 'is-invalid': f.UserName.touched && f.UserName.errors }" placeholder="{{ 'account.usernamePlaceholder' | translate }}" formControlName="UserName" autocomplete="off">
             @if (f.UserName.touched && f.UserName.errors) {
             <div class="invalid-feedback">
               @if (f.UserName.errors.required) {
-              <div>Username is required</div>
+              <div>{{ 'account.usernameRequired' | translate }}</div>
               }
             </div>
             }
           </div>
 
           <div class="field-group">
-            <label for="first-name">First name</label>
-            <input id="first-name" type="text" name="firstName" class="form-control" [ngClass]="{ 'is-invalid': f.FirstName.touched && f.FirstName.errors }" placeholder="Your first name" formControlName="FirstName" autocomplete="off">
+            <label for="first-name">{{ 'account.firstNameLabel' | translate }}</label>
+            <input id="first-name" type="text" name="firstName" class="form-control" [ngClass]="{ 'is-invalid': f.FirstName.touched && f.FirstName.errors }" placeholder="{{ 'account.firstNamePlaceholder' | translate }}" formControlName="FirstName" autocomplete="off">
             @if (f.FirstName.touched && f.FirstName.errors) {
             <div class="invalid-feedback">
               @if (f.FirstName.errors.required) {
-              <div>First name is required</div>
+              <div>{{ 'account.firstNameRequired' | translate }}</div>
               }
             </div>
             }
           </div>
 
           <div class="field-group">
-            <label for="last-name">Last name</label>
-            <input id="last-name" type="text" name="lastName" class="form-control" [ngClass]="{ 'is-invalid': f.LastName.touched && f.LastName.errors }" placeholder="Your last name" formControlName="LastName" autocomplete="off">
+            <label for="last-name">{{ 'account.lastNameLabel' | translate }}</label>
+            <input id="last-name" type="text" name="lastName" class="form-control" [ngClass]="{ 'is-invalid': f.LastName.touched && f.LastName.errors }" placeholder="{{ 'account.lastNamePlaceholder' | translate }}" formControlName="LastName" autocomplete="off">
             @if (f.LastName.touched && f.LastName.errors) {
             <div class="invalid-feedback">
               @if (f.LastName.errors.required) {
-              <div>Last name is required</div>
+              <div>{{ 'account.lastNameRequired' | translate }}</div>
               }
             </div>
             }
           </div>
 
           <div class="field-group">
-            <label for="email">E-mail</label>
-            <input id="email" type="text" name="email" class="form-control" [ngClass]="{ 'is-invalid': f.Email.touched && f.Email.errors }" placeholder="E-mail" formControlName="Email" [attr.disabled]="true">
+            <label for="email">{{ 'account.emailLabel' | translate }}</label>
+            <input id="email" type="text" name="email" class="form-control" [ngClass]="{ 'is-invalid': f.Email.touched && f.Email.errors }" placeholder="{{ 'account.emailLabel' | translate }}" formControlName="Email" [attr.disabled]="true">
             @if (f.Email.touched && f.Email.errors) {
             <div class="invalid-feedback">
               @if (f.Email.errors.required) {
-              <div>E-mail is required</div>
+              <div>{{ 'account.emailRequired' | translate }}</div>
               }
               @if (f.Email.errors.email) {
-              <div>E-mail is invalid</div>
+              <div>{{ 'account.emailInvalid' | translate }}</div>
               }
             </div>
             }
@@ -62,39 +62,14 @@
         </div>
 
         <div class="account-actions">
-          <button type="submit" class="btn btn-primary" [disabled]="isRequesting || formHasChanged === false" (click)="update(profileForm)">Update</button>
+          <button type="submit" class="btn btn-primary" [disabled]="isRequesting || formHasChanged === false" (click)="update(profileForm)">{{ 'account.updateButton' | translate }}</button>
           @if (errors) {
           <div class="account-alert-error" role="alert">
-            <strong>Oops!</strong> {{errors}}
+            <strong>{{ 'auth.oops' | translate }}</strong> {{errors}}
           </div>
           }
         </div>
       </form>
-    </div>
-
-    <div class="account-card settings-card">
-      <div class="account-card-header small-header">
-        <p class="account-kicker">Preferences</p>
-        <h2>Account settings</h2>
-      </div>
-
-      <div class="settings-list">
-        <div class="setting-row">
-          <label class="setting-label" for="preferredLanguage">Language</label>
-          <select class="form-select modern-select" name="preferredLanguage" [(ngModel)]="settings.preferredLanguage" (ngModelChange)="updateSettings()" #select>
-            @for (language of languages; track language) {
-            <option class="select-items" [ngValue]="language">{{language}}</option>
-            }
-          </select>
-        </div>
-
-        <div class="setting-row switch-row">
-          <label class="setting-label" for="flexSwitchCheckDefault">Dark mode</label>
-          <div class="toggle-wrap">
-            <input class="form-check-input cursor-pointer" type="checkbox" id="flexSwitchCheckDefault" [checked]="settings.theme === 'Dark'" (change)="updateTheme()">
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </div>

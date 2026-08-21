@@ -1,40 +1,40 @@
 <div class="recipe-page-shell">
   <aside class="recipe-page-sidebar" role="navigation" aria-label="Recipe navigation">
-    <div class="recipe-sidebar-header">Recipe explorer</div>
+    <div class="recipe-sidebar-header">{{ 'recipe.explorerKicker' | translate }}</div>
 
     <div class="recipe-side-group recipe-mobile-hidden">
       <button class="recipe-side-link" type="button" (click)="showCreateMode = false;" [class.active]="!showCreateMode">
         <i class="fa fa-list" aria-hidden="true"></i>
-        <span>Overview</span>
+        <span>{{ 'recipe.overviewNav' | translate }}</span>
       </button>
       <button class="recipe-side-link" type="button" (click)="openCreateRecipe()" [class.active]="showCreateMode">
         <i class="far fa-file-alt" aria-hidden="true"></i>
-        <span>Add Recipe</span>
+        <span>{{ 'recipe.addRecipeNav' | translate }}</span>
       </button>
     </div>
 
     <div class="recipe-side-panel">
       <div class="recipe-side-section recipe-mobile-hidden">
-        <div class="recipe-side-panel-header">Selection</div>
+        <div class="recipe-side-panel-header">{{ 'recipe.selectionHeader' | translate }}</div>
 
         <div class="recipe-side-actions">
-          <button class="recipe-side-action-button recipe-action-button-success" type="button" [disabled]="selectedRecipes.length == 0" (click)="addSelectedRecipesToGroceryList()">Add to Groceries</button>
-          <button class="recipe-side-action-button recipe-action-button-muted" type="button" [disabled]="selectedRecipes.length == 0" (click)="clearSelectedRecipes()">Clear selection</button>
-          <span class="selection-pill">{{ selectedRecipes.length }} selected</span>
+          <button class="recipe-side-action-button recipe-action-button-success" type="button" [disabled]="selectedRecipes.length == 0" (click)="addSelectedRecipesToGroceryList()">{{ 'recipe.addToGroceries' | translate }}</button>
+          <button class="recipe-side-action-button recipe-action-button-muted" type="button" [disabled]="selectedRecipes.length == 0" (click)="clearSelectedRecipes()">{{ 'recipe.clearSelection' | translate }}</button>
+          <span class="selection-pill">{{ selectedRecipes.length }} {{ 'recipe.selectedSuffix' | translate }}</span>
         </div>
       </div>
 
       @if (isAuthenticated) {
       <div class="recipe-side-section recipe-side-personal">
-        <div class="recipe-side-panel-header">Personal</div>
+        <div class="recipe-side-panel-header">{{ 'recipe.personalHeader' | translate }}</div>
 
         <div class="recipe-side-actions">
           <button class="recipe-side-action-button recipe-action-button-primary" [ngClass]="showFavorites ? 'recipe-action-button-ghost' : ''" type="button" (click)="toggleDisplay()">
-            {{ showFavorites ? 'Show All Recipes' : 'Show Favorites' }}
+            {{ showFavorites ? ('recipe.showAllRecipesToggle' | translate) : ('recipe.showFavoritesToggle' | translate) }}
             <i [ngClass]="showFavorites ? '' : 'fas fa-heart'"></i>
           </button>
           <button class="recipe-side-action-button recipe-action-button-secondary" type="button" (click)="toggleMyRecipes()">
-            {{ showMyRecipes ? 'All Recipes' : 'My Recipes' }} <i class="fas fa-user"></i>
+            {{ showMyRecipes ? ('recipe.allRecipesToggle' | translate) : ('recipe.myRecipesToggle' | translate) }} <i class="fas fa-user"></i>
           </button>
         </div>
       </div>
@@ -45,16 +45,16 @@
   <div class="recipe-page">
     <header class="recipe-page-header">
       <div class="recipe-page-heading">
-        <p class="recipe-page-kicker">Recipe explorer</p>
-        <h2 class="recipe-page-title">{{ showCreateMode ? 'Create recipe' : 'Discover recipes' }}</h2>
+        <p class="recipe-page-kicker">{{ 'recipe.explorerKicker' | translate }}</p>
+        <h2 class="recipe-page-title">{{ showCreateMode ? ('recipe.createRecipeTitle' | translate) : ('recipe.discoverRecipesTitle' | translate) }}</h2>
       </div>
     </header>
 
     @if (showCreateMode) {
     <div class="recipe-create-panel">
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="mb-0">Create recipe</h3>
-        <button class="btn btn-outline-secondary btn-sm" type="button" (click)="closeCreateRecipe()">Back to overview</button>
+        <h3 class="mb-0">{{ 'recipe.createRecipeTitle' | translate }}</h3>
+        <button class="btn btn-outline-secondary btn-sm" type="button" (click)="closeCreateRecipe()">{{ 'recipe.backToOverview' | translate }}</button>
       </div>
       <app-create></app-create>
     </div>
@@ -97,7 +97,7 @@
 
     @if (loading === false && loadError) {
     <p class="text-center">
-      Unable to load recipes right now. Please refresh the page.
+      {{ 'recipe.unableToLoad' | translate }}
     </p>
     }
 
@@ -105,40 +105,40 @@
     <section class="recipe-panel">
       <div class="recipe-toolbar recipe-toolbar-desktop">
         <div class="recipe-filter-group">
-          <label for="recipe-search" class="recipe-filter-label">Filter</label>
-          <input id="recipe-search" class="form-control recipe-filter-input" type="search" placeholder="Search by title, creator, tags, or text" [value]="searchTerm" (input)="searchTerm = $any($event.target).value; applyFiltersAndSort()">
+          <label for="recipe-search" class="recipe-filter-label">{{ 'recipe.filterLabel' | translate }}</label>
+          <input id="recipe-search" class="form-control recipe-filter-input" type="search" [placeholder]="'recipe.searchPlaceholder' | translate" [value]="searchTerm" (input)="searchTerm = $any($event.target).value; applyFiltersAndSort()">
         </div>
         <div class="recipe-filter-group">
-          <label class="recipe-filter-label">Pantry</label>
+          <label class="recipe-filter-label">{{ 'recipe.pantryLabel' | translate }}</label>
           <button type="button" class="btn recipe-filter-input text-start pantry-match-button" [class.active]="showPantryMatches" (click)="togglePantryMatches()" [disabled]="matchingLoading" [attr.aria-pressed]="showPantryMatches">
-            {{ matchingLoading ? 'Finding matches...' : pantryButtonLabel }}
+            {{ matchingLoading ? ('recipe.findingMatches' | translate) : pantryButtonLabel }}
           </button>
         </div>
         <div class="recipe-filter-group recipe-sort-group">
-          <label for="recipe-category" class="recipe-filter-label">Category</label>
+          <label for="recipe-category" class="recipe-filter-label">{{ 'recipe.categoryLabel' | translate }}</label>
           <select id="recipe-category" class="form-select recipe-filter-select" [value]="categoryFilter" (change)="categoryFilter = $any($event.target).value; applyFiltersAndSort()">
-            <option value="all">All categories</option>
+            <option value="all">{{ 'recipe.allCategories' | translate }}</option>
             @for (category of availableCategories; track category) {
             <option [value]="category">{{ category }}</option>
             }
           </select>
         </div>
         <div class="recipe-filter-group recipe-sort-group">
-          <label for="recipe-tag" class="recipe-filter-label">Tag</label>
+          <label for="recipe-tag" class="recipe-filter-label">{{ 'recipe.tagLabel' | translate }}</label>
           <select id="recipe-tag" class="form-select recipe-filter-select" [value]="tagFilter" (change)="tagFilter = $any($event.target).value; applyFiltersAndSort()">
-            <option value="all">All tags</option>
+            <option value="all">{{ 'recipe.allTags' | translate }}</option>
             @for (tag of availableTags; track tag) {
             <option [value]="tag">{{ tag }}</option>
             }
           </select>
         </div>
         <div class="recipe-filter-group recipe-sort-group">
-          <label for="recipe-sort" class="recipe-filter-label">Sort by</label>
+          <label for="recipe-sort" class="recipe-filter-label">{{ 'recipe.sortByLabel' | translate }}</label>
           <select id="recipe-sort" class="form-select recipe-filter-select" [value]="sortSetting" (change)="sort($any($event.target).value)">
-            <option value="created">Created</option>
-            <option value="title">Title</option>
-            <option value="creator">Creator</option>
-            <option value="instructions">Instructions</option>
+            <option value="created">{{ 'recipe.sortCreated' | translate }}</option>
+            <option value="title">{{ 'recipe.sortTitle' | translate }}</option>
+            <option value="creator">{{ 'recipe.sortCreator' | translate }}</option>
+            <option value="instructions">{{ 'recipe.sortInstructions' | translate }}</option>
           </select>
         </div>
       </div>
@@ -146,8 +146,8 @@
       <div class="recipe-toolbar-mobile">
         <button class="recipe-mobile-filter-toggle" type="button" (click)="toggleMobileFilters()">
           <i class="fas fa-filter" aria-hidden="true"></i>
-          <span>Filters</span>
-          <span class="recipe-mobile-filter-count">{{ searchTerm || categoryFilter !== 'all' || tagFilter !== 'all' || pantryIngredients ? 'On' : 'Off' }}</span>
+          <span>{{ 'recipe.filtersToggle' | translate }}</span>
+          <span class="recipe-mobile-filter-count">{{ searchTerm || categoryFilter !== 'all' || tagFilter !== 'all' || pantryIngredients ? ('recipe.filtersOn' | translate) : ('recipe.filtersOff' | translate) }}</span>
         </button>
       </div>
 
@@ -155,48 +155,48 @@
       <div class="recipe-mobile-filter-backdrop" [class.is-closing]="isClosingMobileFilters" (click)="closeMobileFilters()"></div>
       <aside class="recipe-mobile-filter-drawer" [class.is-closing]="isClosingMobileFilters" role="dialog" aria-modal="true" aria-label="Recipe filters">
         <div class="recipe-mobile-filter-header">
-          <h3>Filters</h3>
-          <button type="button" class="recipe-mobile-filter-close" (click)="closeMobileFilters()" aria-label="Close filters">
+          <h3>{{ 'recipe.filtersToggle' | translate }}</h3>
+          <button type="button" class="recipe-mobile-filter-close" (click)="closeMobileFilters()" [attr.aria-label]="'recipe.closeFiltersAria' | translate">
             <i class="fas fa-times" aria-hidden="true"></i>
           </button>
         </div>
 
         <div class="recipe-mobile-filter-body">
           <div class="recipe-filter-group">
-            <label for="recipe-search-mobile" class="recipe-filter-label">Filter</label>
-            <input id="recipe-search-mobile" class="form-control recipe-filter-input" type="search" placeholder="Search by title, creator, tags, or text" [value]="searchTerm" (input)="searchTerm = $any($event.target).value; applyFiltersAndSort()">
+            <label for="recipe-search-mobile" class="recipe-filter-label">{{ 'recipe.filterLabel' | translate }}</label>
+            <input id="recipe-search-mobile" class="form-control recipe-filter-input" type="search" [placeholder]="'recipe.searchPlaceholder' | translate" [value]="searchTerm" (input)="searchTerm = $any($event.target).value; applyFiltersAndSort()">
           </div>
           <div class="recipe-filter-group">
-            <label class="recipe-filter-label">Pantry</label>
+            <label class="recipe-filter-label">{{ 'recipe.pantryLabel' | translate }}</label>
             <button type="button" class="btn recipe-filter-input text-start pantry-match-button" [class.active]="showPantryMatches" (click)="togglePantryMatches()" [disabled]="matchingLoading" [attr.aria-pressed]="showPantryMatches">
-              {{ matchingLoading ? 'Finding matches...' : pantryButtonLabel }}
+              {{ matchingLoading ? ('recipe.findingMatches' | translate) : pantryButtonLabel }}
             </button>
           </div>
           <div class="recipe-filter-group recipe-sort-group">
-            <label for="recipe-category-mobile" class="recipe-filter-label">Category</label>
+            <label for="recipe-category-mobile" class="recipe-filter-label">{{ 'recipe.categoryLabel' | translate }}</label>
             <select id="recipe-category-mobile" class="form-select recipe-filter-select" [value]="categoryFilter" (change)="categoryFilter = $any($event.target).value; applyFiltersAndSort()">
-              <option value="all">All categories</option>
+              <option value="all">{{ 'recipe.allCategories' | translate }}</option>
               @for (category of availableCategories; track category) {
               <option [value]="category">{{ category }}</option>
               }
             </select>
           </div>
           <div class="recipe-filter-group recipe-sort-group">
-            <label for="recipe-tag-mobile" class="recipe-filter-label">Tag</label>
+            <label for="recipe-tag-mobile" class="recipe-filter-label">{{ 'recipe.tagLabel' | translate }}</label>
             <select id="recipe-tag-mobile" class="form-select recipe-filter-select" [value]="tagFilter" (change)="tagFilter = $any($event.target).value; applyFiltersAndSort()">
-              <option value="all">All tags</option>
+              <option value="all">{{ 'recipe.allTags' | translate }}</option>
               @for (tag of availableTags; track tag) {
               <option [value]="tag">{{ tag }}</option>
               }
             </select>
           </div>
           <div class="recipe-filter-group recipe-sort-group">
-            <label for="recipe-sort-mobile" class="recipe-filter-label">Sort by</label>
+            <label for="recipe-sort-mobile" class="recipe-filter-label">{{ 'recipe.sortByLabel' | translate }}</label>
             <select id="recipe-sort-mobile" class="form-select recipe-filter-select" [value]="sortSetting" (change)="sort($any($event.target).value)">
-              <option value="created">Created</option>
-              <option value="title">Title</option>
-              <option value="creator">Creator</option>
-              <option value="instructions">Instructions</option>
+              <option value="created">{{ 'recipe.sortCreated' | translate }}</option>
+              <option value="title">{{ 'recipe.sortTitle' | translate }}</option>
+              <option value="creator">{{ 'recipe.sortCreator' | translate }}</option>
+              <option value="instructions">{{ 'recipe.sortInstructions' | translate }}</option>
             </select>
           </div>
         </div>
@@ -205,7 +205,7 @@
 
       <div class="recipe-table-shell">
         <table class="table table-hover caption-top">
-          <caption>{{ showMyRecipes ? 'My recipes' : (showFavorites ? 'Favorite recipes' : 'All recipes') }}</caption>
+          <caption>{{ showMyRecipes ? ('recipe.myRecipesCaption' | translate) : (showFavorites ? ('recipe.favoriteRecipesCaption' | translate) : ('recipe.allRecipesCaption' | translate)) }}</caption>
           @if (settings.recipesTheme === 'Pretty') {
           <app-pretty [recipes]="shownRecipes" [favoredRecipes]="favoredRecipes" [selectedRecipes]="selectedRecipes" [pantryIngredients]="showPantryMatches ? getPantryIngredientList() : []" [bestMatchScore]="bestMatchScore" (selectRecipe)="toggleRecipeSelected($event)"></app-pretty>
           }
@@ -213,15 +213,15 @@
           <thead>
             <tr class="cursor-pointer">
               <th scope="col">#</th>
-              <th scope="col" (click)="sort('title')">Title @if (sortSetting == 'title') {
+              <th scope="col" (click)="sort('title')">{{ 'recipe.titleColumn' | translate }} @if (sortSetting == 'title') {
                 <i class="fas fa-sort"></i>
                 }
               </th>
-              <th scope="col" class="creator" (click)="sort('creator')">Creator @if (sortSetting == 'creator') {
+              <th scope="col" class="creator" (click)="sort('creator')">{{ 'recipe.creatorColumn' | translate }} @if (sortSetting == 'creator') {
                 <i class="fas fa-sort"></i>
                 }
               </th>
-              <th scope="col" (click)="sort('created')">Created @if (sortSetting == 'created') {
+              <th scope="col" (click)="sort('created')">{{ 'recipe.createdColumn' | translate }} @if (sortSetting == 'created') {
                 <i class="fas fa-sort"></i>
                 }
               </th>
@@ -249,7 +249,7 @@
             @if (shownRecipes.length == 0) {
             <tr>
               <td colspan="12" class="text-center">
-                There are no recipes to be shown..
+                {{ 'recipe.noRecipes' | translate }}
               </td>
             </tr>
             }
@@ -257,7 +257,7 @@
           }
           @if (loading === false && shownRecipes.length == 0) {
           <p class="text-center">
-            There are no recipes to be shown..
+            {{ 'recipe.noRecipes' | translate }}
           </p>
           }
         </table>

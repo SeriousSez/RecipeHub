@@ -5,6 +5,7 @@ import { Ingredient } from 'src/app/recipe/models/ingredient.interface';
 import { IngredientService } from 'src/app/recipe/services/ingredient.service';
 import { GroceryService } from 'src/app/shared/services/grocery.service';
 import { finalize } from 'rxjs/operators';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-grocery',
@@ -29,7 +30,7 @@ export class GroceryComponent implements OnInit {
   public sortSetting: string = 'name';
   public ascending: boolean = true;
 
-  constructor(private groceryService: GroceryService, private ingredientService: IngredientService, private datepipe: DatePipe, private router: Router) { }
+  constructor(private groceryService: GroceryService, private ingredientService: IngredientService, private datepipe: DatePipe, private router: Router, private translateService: TranslateService) { }
 
   ngOnInit() {
     this.getIngredients();
@@ -54,12 +55,16 @@ export class GroceryComponent implements OnInit {
   get sortLabel() {
     switch (this.sortSetting) {
       case 'amount':
-        return 'Amount';
+        return this.translateService.instant('grocery.amountColumn');
       case 'created':
-        return 'Created';
+        return this.translateService.instant('grocery.createdColumn');
       default:
-        return 'Ingredient';
+        return this.translateService.instant('grocery.ingredientColumn');
     }
+  }
+
+  get groceryListOverlayTitle() {
+    return this.translateService.instant('grocery.addToGroceryListTitle');
   }
 
   save() {

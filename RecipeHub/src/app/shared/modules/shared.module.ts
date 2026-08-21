@@ -15,6 +15,7 @@ import { ingredientModal } from '../modals/ingredient/ingredient.modal';
 import { ImageCropperComponent } from 'ngx-image-cropper';
 import { CKEditorModule } from 'ckeditor4-angular';
 import { ListOverlay } from '../overlays/list-overlay/list.overlay';
+import { TranslateModule } from '@ngx-translate/core';
 
 
 @NgModule({
@@ -31,7 +32,8 @@ import { ListOverlay } from '../overlays/list-overlay/list.overlay';
     FormsModule,
     ReactiveFormsModule,
     ImageCropperComponent,
-    CKEditorModule
+    CKEditorModule,
+    TranslateModule
   ],
   exports: [
     Focus,
@@ -40,7 +42,8 @@ import { ListOverlay } from '../overlays/list-overlay/list.overlay';
     RegistrationModal,
     ingredientModal,
     ListOverlay,
-    ImageCropperComponent
+    ImageCropperComponent,
+    TranslateModule
   ],
   providers: []
 })

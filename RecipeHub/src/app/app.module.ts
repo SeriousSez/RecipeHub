@@ -27,6 +27,8 @@ import { ForgotPasswordComponent } from './forgot-password/forgot-password.compo
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { FridgeService } from './fridges/fridge.service';
 import { PantryComponent } from './pantry/pantry.component';
+import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
 export function tokenGetter() {
   return localStorage.getItem("token");
@@ -64,6 +66,9 @@ export function tokenGetter() {
     RecipeModule,
     GroceryModule,
     SharedModule,
-    AngularEditorModule], providers: [HttpClient, ConfigService, UserService, FridgeService, provideHttpClient(withInterceptorsFromDi())]
+    AngularEditorModule,
+    TranslateModule.forRoot({
+      fallbackLang: 'en'
+    })], providers: [HttpClient, ConfigService, UserService, FridgeService, provideHttpClient(withInterceptorsFromDi()), provideTranslateHttpLoader({ prefix: './assets/i18n/', suffix: '.json' })]
 })
 export class AppModule { }

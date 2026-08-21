@@ -8,19 +8,34 @@
     </a>
 
     <nav class="main-nav" aria-label="Main navigation">
-      <a routerLink="/recipes" routerLinkActive="active">Recipes</a>
+      <a routerLink="/recipes" routerLinkActive="active">{{ 'nav.recipes' | translate }}</a>
       @if (isAuthenticated && isAdmin) {
-      <a routerLink="dashboard/users" routerLinkActive="active">Dashboard</a>
+      <a routerLink="dashboard/users" routerLinkActive="active">{{ 'nav.dashboard' | translate }}</a>
       }
-      <a routerLink="/pantry" routerLinkActive="active">Pantry</a>
-      <a routerLink="/grocery" routerLinkActive="active">Grocery</a>
+      <a routerLink="/pantry" routerLinkActive="active">{{ 'nav.pantry' | translate }}</a>
+      <a routerLink="/grocery" routerLinkActive="active">{{ 'nav.grocery' | translate }}</a>
     </nav>
 
     <div class="topbar-actions">
+      <button type="button" class="theme-toggle" (click)="toggleTheme()" [attr.aria-label]="'nav.toggleTheme' | translate" [attr.aria-pressed]="isDarkTheme">
+        <i class="fas" [ngClass]="isDarkTheme ? 'fa-sun' : 'fa-moon'"></i>
+      </button>
+
+      <div class="user-menu dropdown language-switcher">
+        <button class="user-pill dropdown-toggle" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false" type="button" [attr.aria-label]="'nav.language' | translate">
+          {{ currentLanguageLabel }}
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end text-small" aria-labelledby="languageDropdown">
+          @for (language of languages; track language.code) {
+          <li><button type="button" class="dropdown-item" [class.active]="language.code === currentLanguage" (click)="changeLanguage(language.code)">{{ language.label }}</button></li>
+          }
+        </ul>
+      </div>
+
       @if (!isAuthenticated) {
       <div class="auth-actions">
-        <button type="button" class="btn btn-link btn-login" routerLink="/login">Login</button>
-        <button type="button" class="btn btn-primary btn-signup" routerLink="/register">Sign up</button>
+        <button type="button" class="btn btn-link btn-login" routerLink="/login">{{ 'nav.login' | translate }}</button>
+        <button type="button" class="btn btn-primary btn-signup" routerLink="/register">{{ 'nav.signUp' | translate }}</button>
       </div>
       }
 
@@ -31,12 +46,12 @@
           <span class="user-email">{{ email }}</span>
         </button>
         <ul class="dropdown-menu dropdown-menu-end text-small" aria-labelledby="profileDropdown">
-          <li><a class="dropdown-item" routerLink="account/profile">Profile</a></li>
-          <li><a class="dropdown-item" routerLink="account/recipes">My Recipes</a></li>
+          <li><a class="dropdown-item" routerLink="account/profile">{{ 'nav.profile' | translate }}</a></li>
+          <li><a class="dropdown-item" routerLink="account/recipes">{{ 'nav.myRecipes' | translate }}</a></li>
           <li>
             <hr class="dropdown-divider">
           </li>
-          <li><button type="button" class="dropdown-item" (click)="logout()">Sign out</button></li>
+          <li><button type="button" class="dropdown-item" (click)="logout()">{{ 'nav.signOut' | translate }}</button></li>
         </ul>
       </div>
       }

@@ -1,9 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
-import { Subscription } from 'rxjs';
 import { UserService } from 'src/app/shared/services/user.service';
-import { UserSettingsUpdate } from '../models/user-settings-update.interface';
-import { UserSettings } from '../models/user-settings.interface';
 import { UserUpdate } from '../models/user-update.interface';
 import { User } from '../models/user.interface';
 
@@ -14,7 +11,6 @@ import { User } from '../models/user.interface';
   standalone: false
 })
 export class ProfileComponent implements OnInit {
-  public languages: string[] = ['Danish', 'English', 'Estonian', 'Turkish']
 
   public username: string;
   public email: string;
@@ -27,14 +23,9 @@ export class ProfileComponent implements OnInit {
   public errors: string = '';
   public isRequesting: boolean = false;
 
-  settings: UserSettings;
-  settingsSubscription?: Subscription;
-
   constructor(private userService: UserService, private formBuilder: UntypedFormBuilder) {
     this.username = this.userService.getUserName();
     this.email = this.userService.getEmail();
-
-    this.settingsSubscription = this.userService.settings$.subscribe(settings => this.settings = settings);
   }
 
   ngOnInit(): void {
@@ -66,22 +57,6 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-  updateTheme() {
-    const nextTheme = this.settings.theme === 'Light' ? 'Dark' : 'Light';
-    this.settings.theme = nextTheme;
-    localStorage.setItem('recipehub-theme', nextTheme.toLowerCase());
-    document.documentElement.setAttribute('data-theme', nextTheme.toLowerCase());
-  }
-
-  updateSettings() {
-    this.userService.updateSettings(this.createUserSettingsUpdateModel()).subscribe(result => {
-
-    }, error => {
-      this.isRequesting = false;
-      this.errors = error;
-    });
-  }
-
   createUserUpdateModel() {
     var model: UserUpdate = {
       oldUserName: this.username,
@@ -91,18 +66,6 @@ export class ProfileComponent implements OnInit {
       firstName: this.profileForm.controls['FirstName'].value,
       lastName: this.profileForm.controls['LastName'].value,
       role: this.user.role
-    };
-
-    return model;
-  }
-
-  createUserSettingsUpdateModel() {
-    var model: UserSettingsUpdate = {
-      userId: this.user.id,
-      preferredLanguage: this.settings.preferredLanguage,
-      theme: 'Light',
-      recipesTheme: this.settings.recipesTheme,
-      myRecipesTheme: this.settings.myRecipesTheme,
     };
 
     return model;

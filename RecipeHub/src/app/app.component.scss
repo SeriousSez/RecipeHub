@@ -154,7 +154,7 @@ body {
 :root[data-theme='dark'] .recipe-detail-section-header span,
 :root[data-theme='dark'] .recipe-side-panel-header,
 :root[data-theme='dark'] .recipe-sidebar-header {
-    color: #cbd5e1;
+    color: #cbd5e1 !important;
 }
 
 :root[data-theme='dark'] .grocery-page .grocery-table thead th,
@@ -168,7 +168,7 @@ body {
 :root[data-theme='dark'] .grocery-page .stat-card,
 :root[data-theme='dark'] .suggestion-pill,
 :root[data-theme='dark'] .selection-pill {
-    background: rgba(15, 23, 42, 0.92);
+    background: rgba(15, 23, 42, 0.92) !important;
 }
 
 :root[data-theme='dark'] .recipe-detail-side-panel,
@@ -195,6 +195,50 @@ body {
 :root[data-theme='dark'] .recipe-detail-figure {
     background: rgba(15, 23, 42, 0.7);
     border-color: rgba(148, 163, 184, 0.16);
+}
+
+:root[data-theme='dark'] .recipe-skeleton-card,
+:root[data-theme='dark'] .recipe-detail-loading {
+    background: rgba(15, 23, 42, 0.8) !important;
+    border-color: rgba(148, 163, 184, 0.16) !important;
+}
+
+:root[data-theme='dark'] .recipe-skeleton-control,
+:root[data-theme='dark'] .recipe-skeleton-image,
+:root[data-theme='dark'] .recipe-skeleton-line,
+:root[data-theme='dark'] .recipe-skeleton-tag,
+:root[data-theme='dark'] .recipe-detail-skeleton-line,
+:root[data-theme='dark'] .recipe-detail-skeleton-figure,
+:root[data-theme='dark'] .recipe-detail-skeleton-ingredient,
+:root[data-theme='dark'] .recipe-detail-skeleton-actions span,
+:root[data-theme='dark'] .recipe-detail-skeleton-meta span {
+    background: linear-gradient(100deg, rgba(148, 163, 184, 0.16) 20%, rgba(148, 163, 184, 0.3) 40%, rgba(148, 163, 184, 0.16) 60%) !important;
+    background-size: 220% 100% !important;
+}
+
+:root[data-theme='dark'] .pantry-match-button {
+    background: rgba(15, 23, 42, 0.8) !important;
+    border-color: rgba(148, 163, 184, 0.18) !important;
+    color: var(--recipehub-text) !important;
+}
+
+:root[data-theme='dark'] .pantry-match-button:hover:not(:disabled),
+:root[data-theme='dark'] .pantry-match-button:focus-visible {
+    background: rgba(96, 165, 250, 0.14) !important;
+    border-color: #60a5fa !important;
+    color: #f8fafc !important;
+}
+
+:root[data-theme='dark'] .pantry-match-button.active {
+    background: rgba(96, 165, 250, 0.22) !important;
+    border-color: #60a5fa !important;
+    color: #93c5fd !important;
+}
+
+:root[data-theme='dark'] .pantry-match-button:disabled {
+    background: rgba(15, 23, 42, 0.6) !important;
+    border-color: rgba(148, 163, 184, 0.16) !important;
+    color: var(--recipehub-muted) !important;
 }
 
 :root[data-theme='dark'] .recipe-detail-section-header span,
@@ -225,6 +269,17 @@ body {
 :root[data-theme='dark'] .user-pill {
     background: rgba(15, 23, 42, 0.8);
     border-color: rgba(148, 163, 184, 0.2);
+}
+
+:root[data-theme='dark'] .theme-toggle {
+    background: rgba(15, 23, 42, 0.8);
+    border-color: rgba(148, 163, 184, 0.2);
+    color: var(--recipehub-text);
+}
+
+:root[data-theme='dark'] .theme-toggle:hover {
+    background: rgba(96, 165, 250, 0.14);
+    color: #93c5fd;
 }
 
 :root[data-theme='dark'] .user-email {

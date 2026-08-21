@@ -1,56 +1,60 @@
 <div class="container">
 
   <div class="mb-3">
-    <button class="btn btn-danger" type="button" data-bs-toggle="offcanvas" data-bs-target="#deleteModal" aria-controls="deleteModal" [disabled]="selectedRecipes.length == 0" #deleteButton>Delete</button>
+    <button class="btn btn-danger" type="button" data-bs-toggle="offcanvas" data-bs-target="#deleteModal" aria-controls="deleteModal" [disabled]="selectedRecipes.length == 0" #deleteButton>{{ 'myRecipes.deleteButton' | translate }}</button>
 
-    <button class="btn btn-outline-dark ms-3" type="button" routerLink="/recipes/create">Create a Recipe</button>
+    <button class="btn btn-outline-dark ms-3" type="button" routerLink="/recipes/create">{{ 'myRecipes.createRecipeButton' | translate }}</button>
   </div>
 
   <table class="table table-hover caption-top">
-    <caption>My recipes</caption>
+    <caption>{{ 'myRecipes.tableCaption' | translate }}</caption>
     <thead>
       <tr class="cursor-pointer">
         <th scope="col">#</th>
-        <th scope="col" (click)="sort('title')">Title @if (sortSetting == 'title') {
+        <th scope="col" (click)="sort('title')">{{ 'myRecipes.titleColumn' | translate }} @if (sortSetting == 'title') {
           <i class="fas fa-sort"></i>
-        }</th>
-        <th scope="col" (click)="sort('description')">Description @if (sortSetting == 'description') {
+          }
+        </th>
+        <th scope="col" (click)="sort('description')">{{ 'myRecipes.descriptionColumn' | translate }} @if (sortSetting == 'description') {
           <i class="fas fa-sort"></i>
-        }</th>
-        <th scope="col" class="creator" (click)="sort('creator')">Creator @if (sortSetting == 'creator') {
+          }
+        </th>
+        <th scope="col" class="creator" (click)="sort('creator')">{{ 'myRecipes.creatorColumn' | translate }} @if (sortSetting == 'creator') {
           <i class="fas fa-sort"></i>
-        }</th>
-        <th scope="col" (click)="sort('created')">Created @if (sortSetting == 'created') {
+          }
+        </th>
+        <th scope="col" (click)="sort('created')">{{ 'myRecipes.createdColumn' | translate }} @if (sortSetting == 'created') {
           <i class="fas fa-sort"></i>
-        }</th>
+          }
+        </th>
       </tr>
     </thead>
     <tbody xyz="fade stagger">
       @for (recipe of recipes; track recipe) {
-        <tr class="xyz-in">
-          <th scope="row">
-            <input class="form-check-input me-1 cursor-pointer" type="checkbox" (click)="toggleRecipeSelected(recipe)">
-          </th>
-          <td class="cursor-pointer" (click)="openRecipe(recipe)">
-            {{recipe.title}}
-          </td>
-          <td class="cursor-pointer instructions" (click)="openRecipe(recipe)">
-            {{recipe.description}}
-          </td>
-          <td class="cursor-pointer creator" (click)="openRecipe(recipe)">
-            {{recipe.creator}}
-          </td>
-          <td class="cursor-pointer" (click)="openRecipe(recipe)">
-            {{displayDateOnly(recipe.created)}}
-          </td>
-        </tr>
+      <tr class="xyz-in">
+        <th scope="row">
+          <input class="form-check-input me-1 cursor-pointer" type="checkbox" (click)="toggleRecipeSelected(recipe)">
+        </th>
+        <td class="cursor-pointer" (click)="openRecipe(recipe)">
+          {{recipe.title}}
+        </td>
+        <td class="cursor-pointer instructions" (click)="openRecipe(recipe)">
+          {{recipe.description}}
+        </td>
+        <td class="cursor-pointer creator" (click)="openRecipe(recipe)">
+          {{recipe.creator}}
+        </td>
+        <td class="cursor-pointer" (click)="openRecipe(recipe)">
+          {{displayDateOnly(recipe.created)}}
+        </td>
+      </tr>
       }
       @if (recipes.length == 0) {
-        <tr>
-          <td colspan="12" class="text-center">
-            There are no recipes to be shown..
-          </td>
-        </tr>
+      <tr>
+        <td colspan="12" class="text-center">
+          {{ 'myRecipes.noRecipes' | translate }}
+        </td>
+      </tr>
       }
     </tbody>
   </table>
@@ -58,24 +62,24 @@
   <div class="offcanvas offcanvas-bottom" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="deleteModal" aria-labelledby="deleteModalLabel" #deleteModal>
     <div class="offcanvas-header">
       <h5 class="offcanvas-title" id="deleteModalLabel">
-        Delete -
+        {{ 'myRecipes.deletePrefix' | translate }}
         @for (id of selectedRecipes; track id; let isLast = $last) {
-          <small>
-            {{toRecipeTitle(id)}}
-            @if (!isLast) {
-              <small>, </small>
-            }
-          </small>
+        <small>
+          {{toRecipeTitle(id)}}
+          @if (!isLast) {
+          <small>, </small>
+          }
+        </small>
         }
         @if (selectedRecipes.length == 0) {
-          <small>No recipes selected</small>
+        <small>{{ 'myRecipes.noRecipesSelected' | translate }}</small>
         }
       </h5>
       <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
-      <button class="btn btn-danger me-1" type="button" (click)="deleteRecipes()" [disabled]="selectedRecipes.length == 0">Confirm</button>
-      <button class="btn btn-link text-reset" type="button" data-bs-dismiss="offcanvas" aria-label="Close">Cancel</button>
+      <button class="btn btn-danger me-1" type="button" (click)="deleteRecipes()" [disabled]="selectedRecipes.length == 0">{{ 'myRecipes.confirmButton' | translate }}</button>
+      <button class="btn btn-link text-reset" type="button" data-bs-dismiss="offcanvas" aria-label="Close">{{ 'myRecipes.cancelButton' | translate }}</button>
     </div>
   </div>
 </div>

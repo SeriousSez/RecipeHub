@@ -10,6 +10,7 @@ import { UtilityService } from 'src/app/shared/utils/utility.service';
 import { Ingredient } from '../models/ingredient.interface';
 import { IngredientService } from '../services/ingredient.service';
 import { RecipeService } from '../services/recipe.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-create',
@@ -81,7 +82,15 @@ export class CreateComponent implements OnInit {
     toolbarPosition: 'top'
   };
 
-  constructor(public utilityService: UtilityService, private recipeService: RecipeService, private ingredientService: IngredientService, public userService: UserService, private router: Router, private formBuilder: UntypedFormBuilder) { }
+  constructor(public utilityService: UtilityService, private recipeService: RecipeService, private ingredientService: IngredientService, public userService: UserService, private router: Router, private formBuilder: UntypedFormBuilder, private translateService: TranslateService) { }
+
+  public get badExampleTitle(): string {
+    return this.translateService.instant('recipe.badExampleTitle');
+  }
+
+  public get previewImageAlt(): string {
+    return this.translateService.instant('recipe.previewImageAlt');
+  }
 
   ngOnInit(): void {
     this.getIngredients();
@@ -221,6 +230,7 @@ export class CreateComponent implements OnInit {
     const ingredient: IngredientCreation = {
       name: this.newIngredient.name,
       description: this.newIngredient.description,
+      language: this.recipeForm.controls['language'].value,
       amount: this.newIngredient.amount,
       amountType: this.newIngredient.amountType,
       imageCaption: '',

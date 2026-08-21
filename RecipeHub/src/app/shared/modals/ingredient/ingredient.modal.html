@@ -32,6 +32,15 @@
       </div>
 
       <div class="form-group">
+        <label for="ingredient-language">Language</label>
+        <select id="ingredient-language" name="language" class="form-select" formControlName="language">
+          @for (language of languages; track language) {
+          <option [value]="language">{{language}}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-group">
         <label for="image-caption">Image Caption</label>
         <input id="image-caption" type="text" name="imageCaption" class="form-control" [ngClass]="{ 'is-invalid': f.imageCaption.touched && f.imageCaption.errors }" placeholder="Image Caption" autocomplete="off" data-lpignore="true" formControlName="imageCaption">
         <!-- <div *ngIf="f.imageCaption.touched && f.imageCaption.errors" class="invalid-feedback">

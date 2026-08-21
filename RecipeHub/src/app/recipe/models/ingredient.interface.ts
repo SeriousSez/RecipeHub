@@ -1,8 +1,9 @@
 import { Image } from "./image.interface";
 
-export interface Ingredient{
+export interface Ingredient {
     name: string;
     description: string;
+    language?: string;
     amount: number;
     amountType: string;
     created: string;

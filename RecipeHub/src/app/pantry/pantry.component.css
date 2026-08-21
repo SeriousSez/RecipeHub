@@ -13,3 +13,13 @@
 .btn-close:hover {
     opacity: 1;
 }
+
+:host-context([data-theme='dark']) .badge.bg-light {
+    background-color: rgba(15, 23, 42, 0.75) !important;
+    color: #f8fafc !important;
+    border-color: rgba(148, 163, 184, 0.24) !important;
+}
+
+:host-context([data-theme='dark']) .badge.bg-light .btn-close {
+    filter: invert(1);
+}

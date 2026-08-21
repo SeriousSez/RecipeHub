@@ -8,6 +8,7 @@ import { Recipe } from 'src/app/recipe/models/recipe.interface';
 import { Ingredient } from 'src/app/recipe/models/ingredient.interface';
 import { RecipeService } from 'src/app/recipe/services/recipe.service';
 import { UtilityService } from 'src/app/shared/utils/utility.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-pretty',
@@ -32,7 +33,7 @@ export class PrettyComponent implements OnInit {
   public sortSetting: string = 'created';
   public ascending: boolean = true;
 
-  constructor(private recipeService: RecipeService, private userService: UserService, private favoriteService: FavoriteService, private groceryService: GroceryService, public utilityService: UtilityService, private datepipe: DatePipe, private router: Router) {
+  constructor(private recipeService: RecipeService, private userService: UserService, private favoriteService: FavoriteService, private groceryService: GroceryService, public utilityService: UtilityService, private datepipe: DatePipe, private router: Router, private translateService: TranslateService) {
 
   }
 
@@ -117,7 +118,7 @@ export class PrettyComponent implements OnInit {
 
   getIngredientMatchSummary(recipe: Recipe) {
     if (!this.pantryIngredients || this.pantryIngredients.length === 0) {
-      return { matched: 0, missing: 0, isBestMatch: false, label: 'No pantry match' };
+      return { matched: 0, missing: 0, isBestMatch: false, label: this.translateService.instant('recipe.noPantryMatch') };
     }
 
     const pantrySet = this.pantryIngredients.map(value => value.trim().toLowerCase()).filter(Boolean);
@@ -134,7 +135,11 @@ export class PrettyComponent implements OnInit {
     const missingCount = Math.max(totalIngredients - recipeMatchCount, 0);
 
     const pct = totalIngredients > 0 ? Math.round((recipeMatchCount / totalIngredients) * 100) : 0;
-    const label = pct >= 80 ? 'Excellent match' : pct >= 60 ? 'Great match' : pct >= 40 ? 'Good match' : pct > 0 ? 'Some overlap' : 'No pantry match';
+    const label = pct >= 80 ? this.translateService.instant('recipe.excellentMatch')
+      : pct >= 60 ? this.translateService.instant('recipe.greatMatch')
+        : pct >= 40 ? this.translateService.instant('recipe.goodMatch')
+          : pct > 0 ? this.translateService.instant('recipe.someOverlap')
+            : this.translateService.instant('recipe.noPantryMatch');
 
     return {
       matched: recipeMatchCount,

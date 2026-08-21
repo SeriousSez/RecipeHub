@@ -1,7 +1,7 @@
 <section class="hero-section">
   <div class="container-fluid hero-shell">
     <div class="hero-copy">
-      <div class="eyebrow">Better meals, less guesswork</div>
+      <div class="eyebrow">{{ 'home.eyebrow' | translate }}</div>
 
       <div class="title-row">
         <span class="brand-mark-inline">
@@ -11,37 +11,37 @@
       </div>
 
       @if (status) {
-      <p class="hero-text">Welcome back - your kitchen, pantry, and favorite recipes are ready to go.</p>
+      <p class="hero-text">{{ 'home.welcomeBack' | translate }}</p>
       <div class="hero-actions">
-        <button type="button" class="btn btn-primary btn-lg" routerLink="/recipes">Browse recipes</button>
-        <button type="button" class="btn btn-outline-secondary btn-lg" routerLink="/pantry">My pantry</button>
-        <button type="button" class="btn btn-outline-secondary btn-lg" routerLink="/grocery">My grocery list</button>
+        <button type="button" class="btn btn-primary btn-lg" routerLink="/recipes">{{ 'home.browseRecipes' | translate }}</button>
+        <button type="button" class="btn btn-outline-secondary btn-lg" routerLink="/pantry">{{ 'home.myPantry' | translate }}</button>
+        <button type="button" class="btn btn-outline-secondary btn-lg" routerLink="/grocery">{{ 'home.myGroceryList' | translate }}</button>
       </div>
       }
 
       @if (!status) {
-      <p class="hero-text">Welcome back - your kitchen, pantry, and favorite recipes are ready to go.</p>
+      <p class="hero-text">{{ 'home.welcomeBack' | translate }}</p>
       <div class="hero-actions">
-        <button type="button" class="btn btn-primary btn-lg" (click)="goToRegister()">Sign up</button>
-        <button type="button" class="btn btn-outline-secondary btn-lg" (click)="goToLogin()">Log in</button>
+        <button type="button" class="btn btn-primary btn-lg" (click)="goToRegister()">{{ 'home.signUp' | translate }}</button>
+        <button type="button" class="btn btn-outline-secondary btn-lg" (click)="goToLogin()">{{ 'home.login' | translate }}</button>
       </div>
       }
 
       <div class="mini-feature-grid">
         <div class="mini-feature-card">
-          <span class="mini-feature-label">Smart pantry</span>
+          <span class="mini-feature-label">{{ 'home.smartPantryLabel' | translate }}</span>
           <strong>{{ pantryCardTitle }}</strong>
           <small>{{ pantryCardSubtitle }}</small>
         </div>
         <div class="mini-feature-card">
-          <span class="mini-feature-label">Popular picks</span>
-          <strong>Quick wins</strong>
-          <small>healthy, budget-friendly, and family favorites</small>
+          <span class="mini-feature-label">{{ 'home.popularPicksLabel' | translate }}</span>
+          <strong>{{ 'home.quickWins' | translate }}</strong>
+          <small>{{ 'home.quickWinsSubtitle' | translate }}</small>
         </div>
         <div class="mini-feature-card">
-          <span class="mini-feature-label">Saved favorites</span>
-          <strong>Keep your go-tos</strong>
-          <small>organized and easy to revisit</small>
+          <span class="mini-feature-label">{{ 'home.savedFavoritesLabel' | translate }}</span>
+          <strong>{{ 'home.keepYourGoTos' | translate }}</strong>
+          <small>{{ 'home.savedFavoritesSubtitle' | translate }}</small>
         </div>
       </div>
     </div>

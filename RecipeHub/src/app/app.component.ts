@@ -1,4 +1,6 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { LanguageService } from './shared/services/language.service';
+import { ThemeService } from './shared/services/theme.service';
 
 @Component({
   selector: 'app-root',
@@ -10,8 +12,10 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 export class AppComponent implements OnInit {
   title = 'Recipe Hub';
 
+  constructor(private languageService: LanguageService, private themeService: ThemeService) { }
+
   ngOnInit(): void {
-    const preferredTheme = localStorage.getItem('recipehub-theme') ?? 'light';
-    document.documentElement.setAttribute('data-theme', preferredTheme);
+    this.themeService.init();
+    this.languageService.init();
   }
 }

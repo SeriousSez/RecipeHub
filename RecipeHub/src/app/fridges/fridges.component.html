@@ -1,27 +1,27 @@
 @if (!loading) {
-  <div class="container">
-    <!-- <caption>Characters</caption> -->
-    <table class="table">
-      <p>
-        List of Fridges ({{fridges.length}})
-        <span>
-          <!-- <button class="main-sm" type="button" (click)="createTestUser()">Create Test User</button> -->
-          <!-- <button class="transparent-sm" type="button" routerLinkActive="active" routerLink="/create">Create Character</button> -->
-        </span>
-      </p>
-      <div class="card-group" id="dropzone">
-        @for (fridge of fridges; track fridge) {
-          <div class="card-body">
-            {{fridge.name}} ({{fridge.groceries.length}})
-            @for (grocery of fridge.groceries; track grocery) {
-              <div>
-                {{grocery.name}} - purchased: {{displayDateOnly(grocery.purchaseDate)}}
-                <p>Expires: {{displayDateOnly(grocery.expirationDate)}}</p>
-              </div>
-            }
-          </div>
+<div class="container">
+  <!-- <caption>Characters</caption> -->
+  <table class="table">
+    <p>
+      {{ 'fridges.listHeading' | translate }} ({{fridges.length}})
+      <span>
+        <!-- <button class="main-sm" type="button" (click)="createTestUser()">Create Test User</button> -->
+        <!-- <button class="transparent-sm" type="button" routerLinkActive="active" routerLink="/create">Create Character</button> -->
+      </span>
+    </p>
+    <div class="card-group" id="dropzone">
+      @for (fridge of fridges; track fridge) {
+      <div class="card-body">
+        {{fridge.name}} ({{fridge.groceries.length}})
+        @for (grocery of fridge.groceries; track grocery) {
+        <div>
+          {{grocery.name}} - {{ 'fridges.purchasedLabel' | translate }} {{displayDateOnly(grocery.purchaseDate)}}
+          <p>{{ 'fridges.expiresLabel' | translate }} {{displayDateOnly(grocery.expirationDate)}}</p>
+        </div>
         }
       </div>
-    </table>
-  </div>
+      }
+    </div>
+  </table>
+</div>
 }

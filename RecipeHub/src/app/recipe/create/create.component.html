@@ -3,7 +3,7 @@
     <div class="card">
 
       <div class="card-header bg-white mb-3">
-        <h4 class="card-title">Create Recipe</h4>
+        <h4 class="card-title">{{ 'recipe.createRecipeHeading' | translate }}</h4>
       </div>
 
       <div class="card-block">
@@ -13,27 +13,28 @@
             <div class="accordion-item">
               <h2 class="accordion-header" id="headingHead">
                 <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseHead" aria-expanded="true" aria-controls="collapseHead">
-                  Head
+                  {{ 'recipe.headSection' | translate }}
                   <!-- <i *ngIf="f.title.errors" class="fas fa-exclamation-circle ms-2 text-warning"></i> -->
                 </button>
               </h2>
               <div id="collapseHead" class="accordion-collapse collapse show" aria-labelledby="headingHead" data-bs-parent="#accordion">
                 <div class="accordion-body">
                   <div class="form-group">
-                    <label for="title">Title</label>
-                    <input id="title" type="text" name="title" class="form-control" [ngClass]="{ 'is-invalid': f.title.touched && f.title.errors }" placeholder="Recipe title" autocomplete="off" data-lpignore="true" formControlName="title">
+                    <label for="title">{{ 'recipe.titleLabel' | translate }}</label>
+                    <input id="title" type="text" name="title" class="form-control" [ngClass]="{ 'is-invalid': f.title.touched && f.title.errors }" [placeholder]="'recipe.recipeTitlePlaceholder' | translate" autocomplete="off" data-lpignore="true" formControlName="title">
                     @if (f.title.touched && f.title.errors) {
                     <div class="invalid-feedback">
                       @if (f.title.errors.required) {
-                      <div>Title is required</div>
+                      <div>{{ 'recipe.titleRequired' | translate }}</div>
                       }
                     </div>
                     }
                   </div>
 
                   <div class="form-group">
-                    <label for="image-caption">Image Caption</label>
-                    <input id="image-caption" type="text" name="imageCaption" class="form-control" [ngClass]="{ 'is-invalid': f.imageCaption.touched && f.imageCaption.errors }" placeholder="Image Caption" autocomplete="off" data-lpignore="true" formControlName="imageCaption">
+                    <label for="image-caption">{{ 'recipe.imageCaptionLabel' | translate }}</label>
+                    <input id="image-caption" type="text" name="imageCaption" class="form-control" [ngClass]="{ 'is-invalid': f.imageCaption.touched && f.imageCaption.errors }" [placeholder]="'recipe.imageCaptionPlaceholder' | translate" autocomplete="off" data-lpignore="true"
+                      formControlName="imageCaption">
                     <!-- <div *ngIf="f.imageCaption.touched && f.imageCaption.errors" class="invalid-feedback">
                     <div *ngIf="f.imageCaption.errors.required">Caption is required</div>
                   </div> -->
@@ -56,21 +57,21 @@
             <div class="accordion-item">
               <h2 class="accordion-header" id="headingBody">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBody" aria-expanded="false" aria-controls="collapseBody">
-                  Body
+                  {{ 'recipe.bodySection' | translate }}
                   <!-- <i *ngIf="f.instructions.errors" class="fas fa-exclamation-circle ms-2 text-warning"></i> -->
                 </button>
               </h2>
               <div id="collapseBody" class="accordion-collapse collapse" aria-labelledby="headingBody" data-bs-parent="#accordion">
                 <div class="accordion-body">
                   <div class="form-group">
-                    <label for="instructions">Instructions</label>
-                    <angular-editor [config]="editorConfig" [placeholder]="'Enter description here...'" formControlName="instructions"></angular-editor>
+                    <label for="instructions">{{ 'recipe.instructionsLabel' | translate }}</label>
+                    <angular-editor [config]="editorConfig" [placeholder]="'recipe.enterDescriptionPlaceholder' | translate" formControlName="instructions"></angular-editor>
                     <!-- <ckeditor #editor id="editor" formControlName="instructions"></ckeditor> -->
                     <!-- <textarea id="instructions" type="text" name="instructions" class="form-control" [ngClass]="{ 'is-invalid': f.instructions.touched && f.instructions.errors }" placeholder="Instructions to the recipe" formControlName="instructions"></textarea> -->
                     @if (f.instructions.touched && f.instructions.errors) {
                     <div class="invalid-feedback">
                       @if (f.instructions.errors.required) {
-                      <div>Instructions are required</div>
+                      <div>{{ 'recipe.instructionsRequired' | translate }}</div>
                       }
                     </div>
                     }
@@ -82,64 +83,65 @@
             <div class="accordion-item cosmetics">
               <h2 class="accordion-header" id="headingCosmetics">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCosmetics" aria-expanded="false" aria-controls="collapseCosmetics">
-                  Settings
+                  {{ 'recipe.settingsSection' | translate }}
                   <!-- <i *ngIf="f.instructions.errors" class="fas fa-exclamation-circle ms-2 text-warning"></i> -->
                 </button>
               </h2>
               <div id="collapseCosmetics" class="accordion-collapse collapse" aria-labelledby="headingBody" data-bs-parent="#accordion">
                 <div class="accordion-body">
                   <div class="form-group">
-                    <label for="card-caption">Card Description</label>
-                    <input id="card-caption" type="text" name="description" class="form-control" [ngClass]="{ 'is-invalid': f.description.touched && f.description.errors }" placeholder="Card Description" autocomplete="off" data-lpignore="true" formControlName="description">
+                    <label for="card-caption">{{ 'recipe.cardDescriptionLabel' | translate }}</label>
+                    <input id="card-caption" type="text" name="description" class="form-control" [ngClass]="{ 'is-invalid': f.description.touched && f.description.errors }" [placeholder]="'recipe.cardDescriptionPlaceholder' | translate" autocomplete="off" data-lpignore="true"
+                      formControlName="description">
                     @if (f.description.touched && f.description.errors) {
                     <div class="invalid-feedback">
                       @if (f.description.errors.required) {
-                      <div>Description is required</div>
+                      <div>{{ 'recipe.descriptionRequired' | translate }}</div>
                       }
                     </div>
                     }
                   </div>
 
                   <div class="form-group">
-                    <label for="language" class="w-50">Language</label>
-                    <label for="language" class="w-50">Portions</label>
+                    <label for="language" class="w-50">{{ 'recipe.languageLabel' | translate }}</label>
+                    <label for="language" class="w-50">{{ 'recipe.portionsLabel' | translate }}</label>
 
                     <select class="btn btn-white btn-sm language" name="language" formControlName="language">
                       @for (language of languages; track language) {
                       <option class="select-items" [ngValue]="language">{{language}}</option>
                       }
                     </select>
-                    <input id="card-caption" type="text" name="portions" class="form-control portions" [ngClass]="{ 'is-invalid': f.portions.touched && f.portions.errors }" placeholder="Recipe Portions" autocomplete="off" data-lpignore="true" formControlName="portions">
+                    <input id="card-caption" type="text" name="portions" class="form-control portions" [ngClass]="{ 'is-invalid': f.portions.touched && f.portions.errors }" [placeholder]="'recipe.portionsPlaceholder' | translate" autocomplete="off" data-lpignore="true" formControlName="portions">
                     @if (f.portions.touched && f.portions.errors) {
                     <div class="invalid-feedback">
                       @if (f.portions.errors.required) {
-                      <div>Description is required</div>
+                      <div>{{ 'recipe.descriptionRequired' | translate }}</div>
                       }
                     </div>
                     }
                   </div>
 
                   <div class="form-group mt-3 suggestion-field-wrap">
-                    <label for="categories">Categories</label>
-                    <input id="categories" type="text" name="categories" class="form-control" placeholder="breakfast, lunch, healthy" autocomplete="off" data-lpignore="true" formControlName="categories" (input)="handlePresetSearch('category')"
+                    <label for="categories">{{ 'recipe.categoriesLabel' | translate }}</label>
+                    <input id="categories" type="text" name="categories" class="form-control" [placeholder]="'recipe.categoriesPlaceholder' | translate" autocomplete="off" data-lpignore="true" formControlName="categories" (input)="handlePresetSearch('category')"
                       (focus)="showCategorySuggestions = true; handlePresetSearch('category')">
                     <div class="suggestion-pills" *ngIf="filteredPresetCategories.length > 0">
                       <button type="button" class="suggestion-pill" [class.is-active]="isPresetSelected('category', category)" *ngFor="let category of filteredPresetCategories" (mousedown)="$event.preventDefault(); addPresetValue('category', category)">
                         {{ category }}
                       </button>
                     </div>
-                    <small class="text-muted">Type a custom value or choose from the suggestions.</small>
+                    <small class="text-muted">{{ 'recipe.suggestionHint' | translate }}</small>
                   </div>
 
                   <div class="form-group mt-3 suggestion-field-wrap">
-                    <label for="tags">Tags</label>
-                    <input id="tags" type="text" name="tags" class="form-control" placeholder="quick, vegetarian, budget" autocomplete="off" data-lpignore="true" formControlName="tags" (input)="handlePresetSearch('tag')" (focus)="showTagSuggestions = true; handlePresetSearch('tag')">
+                    <label for="tags">{{ 'recipe.tagsLabel' | translate }}</label>
+                    <input id="tags" type="text" name="tags" class="form-control" [placeholder]="'recipe.tagsPlaceholder' | translate" autocomplete="off" data-lpignore="true" formControlName="tags" (input)="handlePresetSearch('tag')" (focus)="showTagSuggestions = true; handlePresetSearch('tag')">
                     <div class="suggestion-pills" *ngIf="filteredPresetTags.length > 0">
                       <button type="button" class="suggestion-pill" [class.is-active]="isPresetSelected('tag', tag)" *ngFor="let tag of filteredPresetTags" (mousedown)="$event.preventDefault(); addPresetValue('tag', tag)">
                         {{ tag }}
                       </button>
                     </div>
-                    <small class="text-muted">Type a custom value or choose from the suggestions.</small>
+                    <small class="text-muted">{{ 'recipe.suggestionHint' | translate }}</small>
                   </div>
                 </div>
               </div>
@@ -149,19 +151,19 @@
           <div class="accordion-item ingredients">
             <h2 class="accordion-header" id="headingIngredients">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseIngredients" aria-expanded="false" aria-controls="collapseIngredients">
-                Ingredients
+                {{ 'recipe.ingredientsAccordionHeader' | translate }}
               </button>
             </h2>
             <div id="collapseIngredients" class="accordion-collapse collapse" aria-labelledby="headingIngredients" data-bs-parent="#accordion">
               <div class="accordion-body">
                 <table class="table table-hover caption-top">
                   <caption>
-                    Ingredients
+                    {{ 'recipe.ingredientsHeading' | translate }}
                     <div class="form-group d-inline-block float-end ms-3 mobile-float">
-                      <button type="submit" class="btn btn-outline-primary btn-sm" [disabled]="!newIngredient.name || !newIngredient.amount || !newIngredient.amountType || isRequesting" (click)="addIngredient()">Add ingredient</button>
+                      <button type="submit" class="btn btn-outline-primary btn-sm" [disabled]="!newIngredient.name || !newIngredient.amount || !newIngredient.amountType || isRequesting" (click)="addIngredient()">{{ 'recipe.addIngredientButton' | translate }}</button>
                     </div>
                     <div class="form-group d-inline-block float-end mobile-float">
-                      <th scope="col" class="d-inline">Pick existing - </th>
+                      <th scope="col" class="d-inline">{{ 'recipe.pickExistingLabel' | translate }} </th>
                       <select class="btn btn-white btn-sm dropdown-toggle" name="ingredient" [(ngModel)]="selectedIngredient" (ngModelChange)="addToNewIngredient($event)" #select>
                         @for (ingredient of ingredients; track ingredient) {
                         <option class="select-items" [ngValue]="ingredient">{{ingredient.name}}</option>
@@ -171,18 +173,18 @@
                   </caption>
                   <thead>
                     <tr>
-                      <th scope="col">Ingredient</th>
-                      <th scope="col" class="amount">Amount</th>
-                      <th scope="col">Measurement</th>
+                      <th scope="col">{{ 'recipe.ingredientsAccordionHeader' | translate }}</th>
+                      <th scope="col" class="amount">{{ 'recipe.amountColumn' | translate }}</th>
+                      <th scope="col">{{ 'recipe.measurementColumn' | translate }}</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
                       <td>
-                        <input type="text" class="form-control" placeholder="Name" [(ngModel)]="newIngredient.name" autocomplete="off" data-lpignore="true" required="required">
+                        <input type="text" class="form-control" [placeholder]="'recipe.namePlaceholder' | translate" [(ngModel)]="newIngredient.name" autocomplete="off" data-lpignore="true" required="required">
                       </td>
                       <td>
-                        <input type="number" step="any" class="form-control me-2" placeholder="Amount" [(ngModel)]="newIngredient.amount" autocomplete="off" data-lpignore="true" required="required">
+                        <input type="number" step="any" class="form-control me-2" [placeholder]="'recipe.amountPlaceholder' | translate" [(ngModel)]="newIngredient.amount" autocomplete="off" data-lpignore="true" required="required">
                       </td>
                       <td>
                         <select class="btn btn-white btn-sm dropdown-toggle" name="measurement" [(ngModel)]="newIngredient.amountType" #select>
@@ -204,7 +206,7 @@
                         {{ingredient.amountType}}
                       </td>
                       <td>
-                        <button type="submit" class="btn btn-link btn-sm" (click)="removeIngredient(ingredient)">Remove</button>
+                        <button type="submit" class="btn btn-link btn-sm" (click)="removeIngredient(ingredient)">{{ 'recipe.removeButton' | translate }}</button>
                       </td>
                     </tr>
                     }
@@ -224,14 +226,14 @@
           <app-spinner [color]="'#fff'" [small]="true"></app-spinner>
           }
           @if (isRequesting === false) {
-          <span>Create</span>
+          <span>{{ 'recipe.createButton' | translate }}</span>
           }
         </button>
       </div>
 
       @if (errors) {
       <div class="alert alert-danger d-inline-block float-end" role="alert">
-        <strong>Oops!</strong> {{errors}}
+        <strong>{{ 'recipe.oops' | translate }}</strong> {{errors}}
       </div>
       }
     </div>
@@ -242,8 +244,8 @@
   <div class="w-50 card-preview mobile">
     <div class="card">
       <div class="btn-group float-end" role="group" aria-label="Basic outlined example">
-        <button type="button" [ngClass]="recipePreview ? 'active' : ''" class="btn btn-outline-primary btn-sm" (click)="toRecipePreview()">Recipe Preview</button>
-        <button type="button" [ngClass]="recipePreview ? '' : 'active'" class="btn btn-outline-primary btn-sm" (click)="toCardPreview()">Card Preview</button>
+        <button type="button" [ngClass]="recipePreview ? 'active' : ''" class="btn btn-outline-primary btn-sm" (click)="toRecipePreview()">{{ 'recipe.recipePreviewToggle' | translate }}</button>
+        <button type="button" [ngClass]="recipePreview ? '' : 'active'" class="btn btn-outline-primary btn-sm" (click)="toCardPreview()">{{ 'recipe.cardPreviewToggle' | translate }}</button>
       </div>
 
       <hr />
@@ -251,10 +253,10 @@
       @if (recipePreview === true) {
       <article class="m-3">
         <header class="mb-2">
-          <h2>{{recipeForm.get('title')?.value.length > 0 ? recipeForm.get('title')?.value : 'Bad Example'}}</h2>
+          <h2>{{recipeForm.get('title')?.value.length > 0 ? recipeForm.get('title')?.value : badExampleTitle}}</h2>
           <div>
             <span class="post-meta-author">
-              <span>By </span>
+              <span>{{ 'recipe.byAuthor' | translate }} </span>
               <a class="tw-text-strong hover_tw-no-underline" href="">{{userService.getUserName()}}</a>
             </span>
             <time class="post-meta-date"> - <i>{{utilityService.getCurrentDateAsDateOnly()}}</i></time>
@@ -267,7 +269,7 @@
         <div>
           <div>
             <header>
-              <h3>Instructions</h3>
+              <h3>{{ 'recipe.instructionsHeading' | translate }}</h3>
             </header>
             @if (recipeForm.get('instructions')?.value.length == 0) {
             <div class="list-group list-group-flush instructions" [innerHTML]="utilityService.transformToSafeHtml(fakeInstructions)"></div>
@@ -315,11 +317,11 @@ class="views-count-label tw-hidden md_tw-inline">views</span></span></div>
       @if (recipePreview === false) {
       <article class="create-preview-card">
         <div class="create-preview-hero">
-          <img [src]="imageUrl == defaultImageUrl ? '../../assets/images/spices.jpg' : imageUrl" [alt]="recipeForm.get('title')?.value || 'Recipe preview image'">
+          <img [src]="imageUrl == defaultImageUrl ? '../../assets/images/spices.jpg' : imageUrl" [alt]="recipeForm.get('title')?.value || previewImageAlt">
         </div>
 
         <div class="create-preview-body">
-          <h3 class="create-preview-title">{{ recipeForm.get('title')?.value?.length > 0 ? recipeForm.get('title')?.value : 'Bad Example' }}</h3>
+          <h3 class="create-preview-title">{{ recipeForm.get('title')?.value?.length > 0 ? recipeForm.get('title')?.value : badExampleTitle }}</h3>
 
           <p class="create-preview-subtitle" *ngIf="recipeForm.get('description')?.value?.length > 0; else defaultDescription">
             {{ recipeForm.get('description')?.value.length > 140 ? (recipeForm.get('description')?.value | slice:0:140) + '...' : recipeForm.get('description')?.value }}
