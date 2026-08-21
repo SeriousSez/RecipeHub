@@ -126,8 +126,10 @@ export class OverviewComponent implements OnInit {
   public ascending: boolean = false;
 
   public loading: boolean = true;
+  public refreshing: boolean = false;
   public matchingLoading: boolean = false;
   public loadError: boolean = false;
+  private hasLoadedOnce: boolean = false;
   public groceryFeedbackMessage: string = '';
   public groceryFeedbackType: 'success' | 'danger' = 'success';
   isAuthenticated: boolean = false;
@@ -229,7 +231,11 @@ export class OverviewComponent implements OnInit {
   private fetchPage(reset: boolean): void {
     if (reset) {
       this.currentPage = 1;
-      this.loading = true;
+      if (this.hasLoadedOnce) {
+        this.refreshing = true;
+      } else {
+        this.loading = true;
+      }
     }
     this.loadError = false;
 
@@ -264,7 +270,9 @@ export class OverviewComponent implements OnInit {
           this.tagFilter = 'all';
         }
 
+        this.hasLoadedOnce = true;
         this.loading = false;
+        this.refreshing = false;
         this.persistFilterState();
       },
       error: () => {
@@ -274,6 +282,7 @@ export class OverviewComponent implements OnInit {
         }
         this.loadError = true;
         this.loading = false;
+        this.refreshing = false;
       }
     });
   }

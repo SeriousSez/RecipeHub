@@ -694,6 +694,41 @@ button:focus {
     min-width: 120px;
 }
 
+.recipe-table-shell {
+    position: relative;
+}
+
+.recipe-table-shell.is-refreshing {
+    opacity: 0.55;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+}
+
+.recipe-refresh-overlay {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.recipe-refresh-spinner {
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    border: 3px solid rgba(37, 99, 235, 0.2);
+    border-top-color: #2563eb;
+    animation: recipeRefreshSpin 0.7s linear infinite;
+}
+
+@keyframes recipeRefreshSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 .alert {
     border-radius: 1rem;
     border-width: 1px;

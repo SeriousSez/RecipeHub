@@ -226,7 +226,12 @@
       </aside>
       }
 
-      <div class="recipe-table-shell">
+      <div class="recipe-table-shell" [class.is-refreshing]="refreshing">
+        @if (refreshing) {
+        <div class="recipe-refresh-overlay" aria-hidden="true">
+          <span class="recipe-refresh-spinner"></span>
+        </div>
+        }
         <table class="table table-hover caption-top">
           <caption>{{ showMyRecipes ? ('recipe.myRecipesCaption' | translate) : (showFavorites ? ('recipe.favoriteRecipesCaption' | translate) : ('recipe.allRecipesCaption' | translate)) }}</caption>
           @if (settings.recipesTheme === 'Pretty') {
