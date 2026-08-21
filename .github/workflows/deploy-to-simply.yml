@@ -206,6 +206,7 @@ jobs:
           $publishDir = "${{ env.PUBLISH_PATH }}"
           $exePath = Join-Path $publishDir "RecipeHub.Api.exe"
           $webConfigPath = Join-Path $publishDir "web.config"
+          $productionSettingsPath = Join-Path $publishDir "appsettings.Production.json"
           $identityEfPath = Join-Path $publishDir "Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll"
 
           if (-not (Test-Path $exePath)) {
@@ -214,6 +215,10 @@ jobs:
 
           if (-not (Test-Path $webConfigPath)) {
             throw "Missing web.config in publish output."
+          }
+
+          if (-not (Test-Path $productionSettingsPath)) {
+            throw "Missing appsettings.Production.json in publish output. The production database configuration was not included."
           }
 
           if (-not (Test-Path $identityEfPath)) {
