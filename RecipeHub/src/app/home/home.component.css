@@ -115,6 +115,44 @@
     line-height: 1.5;
 }
 
+:root[data-theme='dark'] .hero-section {
+    background: transparent;
+}
+
+:root[data-theme='dark'] .eyebrow {
+    background: rgba(96, 165, 250, 0.12);
+    color: #93c5fd;
+}
+
+:root[data-theme='dark'] .hero-title {
+    color: #f8fafc;
+}
+
+:root[data-theme='dark'] .hero-text {
+    color: #cbd5e1;
+}
+
+:root[data-theme='dark'] .mini-feature-card {
+    background: rgba(15, 23, 42, 0.75);
+    border-color: rgba(148, 163, 184, 0.16);
+    box-shadow: 0 12px 30px rgba(2, 6, 23, 0.26);
+}
+
+:root[data-theme='dark'] .mini-feature-label {
+    color: #bfdbfe;
+}
+
+:root[data-theme='dark'] .mini-feature-card strong,
+:root[data-theme='dark'] .mini-feature-card>strong,
+:root[data-theme='dark'] .mini-feature-card strong:first-child,
+:host ::ng-deep .mini-feature-card strong {
+    color: #f8fafc !important;
+}
+
+:root[data-theme='dark'] .mini-feature-card small {
+    color: #cbd5e1;
+}
+
 @media (max-width: 991px) {
     .mini-feature-grid {
         grid-template-columns: 1fr;

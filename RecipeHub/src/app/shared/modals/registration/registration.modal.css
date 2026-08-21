@@ -23,6 +23,30 @@
     color: #0f172a;
 }
 
+:root[data-theme='dark'] .auth-header h1 {
+    color: #f8fafc !important;
+}
+
+:root[data-theme='dark'] .auth-kicker {
+    color: #93c5fd;
+}
+
+:root[data-theme='dark'] .field-group label {
+    color: #dfe7f5;
+}
+
+:root[data-theme='dark'] .form-control,
+:root[data-theme='dark'] .form-select {
+    background: rgba(15, 23, 42, 0.88);
+    border-color: rgba(148, 163, 184, 0.22);
+    color: #f8fafc;
+}
+
+:root[data-theme='dark'] .form-control::placeholder,
+:root[data-theme='dark'] .form-select::placeholder {
+    color: #94a3b8;
+}
+
 .auth-form {
     display: flex;
     flex-direction: column;

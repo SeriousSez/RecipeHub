@@ -44,6 +44,11 @@ export class UserService extends BaseService {
 
   private settings = { preferredLanguage: 'English', theme: 'Light', recipesTheme: 'Pretty', myRecipesTheme: 'Pretty' };
 
+  private applySettings(settings: UserSettings): void {
+    this.settings = { ...this.settings, ...settings };
+    this._settings.next(this.settings);
+  }
+
   constructor(private http: HttpClient, private configService: ConfigService, private jwtHelper: JwtHelperService) {
     super();
     this._authStatus.next(!!this.isAuthenticated());
@@ -55,7 +60,7 @@ export class UserService extends BaseService {
     var userId = localStorage.getItem('userId');
     if (userId != null) {
       this.getSettings(userId).subscribe((settings: UserSettings) => {
-        this._settings.next(settings);
+        this.applySettings(settings);
       }, (error: any) => console.log(error));
     }
   }
@@ -96,7 +101,7 @@ export class UserService extends BaseService {
         this._adminStatus.next(this.isAdmin());
 
         this.getSettings(response.id).subscribe((settings: UserSettings) => {
-          this._settings.next(settings);
+          this.applySettings(settings);
         }, (error: any) => console.log(error));
 
         return response;
@@ -131,15 +136,16 @@ export class UserService extends BaseService {
 
   updateSettings(settings: UserSettingsUpdate): Observable<UserSettings> {
     return this.http.post<UserSettings>(this.baseUrl + "/account/updatesettings", settings, this.httpOptions)
-      .pipe(map(user => {
-        return user;
+      .pipe(map(updatedSettings => {
+        this.applySettings(updatedSettings);
+        return updatedSettings;
       }, (error: any) => console.log(error, "fails")
       ));
   }
 
   getSettings(userId: string): Observable<UserSettings> {
     return this.http.get<UserSettings>(this.baseUrl + `/account/getsettings?userId=${userId}`).pipe(map(response => {
-      this._settings.next(response);
+      this.applySettings(response);
       return response;
     }, (error: any) => console.log(error, "fails")
     ));

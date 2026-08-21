@@ -21,6 +21,21 @@
     padding: 2rem;
 }
 
+:root[data-theme='dark'] .auth-card {
+    background: rgba(15, 23, 42, 0.82);
+    border-color: rgba(148, 163, 184, 0.16);
+    box-shadow: 0 20px 40px rgba(2, 6, 23, 0.34);
+}
+
+:root[data-theme='dark'] .auth-kicker,
+:root[data-theme='dark'] .auth-card-header h1 {
+    color: #f8fafc;
+}
+
+:root[data-theme='dark'] .auth-kicker {
+    color: #93c5fd;
+}
+
 @media only screen and (max-device-width: 1350px) {
     .auth-page {
         min-height: auto;

@@ -8,10 +8,10 @@ import { UserUpdate } from '../models/user-update.interface';
 import { User } from '../models/user.interface';
 
 @Component({
-    selector: 'app-profile',
-    templateUrl: './profile.component.html',
-    styleUrls: ['./profile.component.css'],
-    standalone: false
+  selector: 'app-profile',
+  templateUrl: './profile.component.html',
+  styleUrls: ['./profile.component.css'],
+  standalone: false
 })
 export class ProfileComponent implements OnInit {
   public languages: string[] = ['Danish', 'English', 'Estonian', 'Turkish']
@@ -20,20 +20,20 @@ export class ProfileComponent implements OnInit {
   public email: string;
 
   public user: User;
-  
+
   public profileForm: UntypedFormGroup;
   public formHasChanged: boolean = false;
 
   public errors: string = '';
   public isRequesting: boolean = false;
-  
+
   settings: UserSettings;
   settingsSubscription?: Subscription;
 
   constructor(private userService: UserService, private formBuilder: UntypedFormBuilder) {
     this.username = this.userService.getUserName();
     this.email = this.userService.getEmail();
-    
+
     this.settingsSubscription = this.userService.settings$.subscribe(settings => this.settings = settings);
   }
 
@@ -41,7 +41,7 @@ export class ProfileComponent implements OnInit {
     this.getUser();
   }
 
-  getUser(){
+  getUser() {
     this.userService.get(this.username).subscribe(user => {
       this.user = user;
       this.profileForm = this.formBuilder.group({
@@ -53,10 +53,10 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  update({ value, valid }: { value: User, valid: boolean }){
+  update({ value, valid }: { value: User, valid: boolean }) {
     this.isRequesting = true;
 
-    if(valid){
+    if (valid) {
       this.userService.update(this.createUserUpdateModel()).subscribe(result => {
         this.isRequesting = false;
       }, error => {
@@ -66,17 +66,14 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-  updateTheme(){
-    if(this.settings.theme === 'Light'){
-      this.settings.theme = 'Dark';
-    }else{
-      this.settings.theme = 'Light' 
-    }
-
-    this.updateSettings();
+  updateTheme() {
+    const nextTheme = this.settings.theme === 'Light' ? 'Dark' : 'Light';
+    this.settings.theme = nextTheme;
+    localStorage.setItem('recipehub-theme', nextTheme.toLowerCase());
+    document.documentElement.setAttribute('data-theme', nextTheme.toLowerCase());
   }
 
-  updateSettings(){
+  updateSettings() {
     this.userService.updateSettings(this.createUserSettingsUpdateModel()).subscribe(result => {
 
     }, error => {
@@ -85,7 +82,7 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  createUserUpdateModel(){
+  createUserUpdateModel() {
     var model: UserUpdate = {
       oldUserName: this.username,
       userName: this.profileForm.controls['UserName'].value,
@@ -99,11 +96,11 @@ export class ProfileComponent implements OnInit {
     return model;
   }
 
-  createUserSettingsUpdateModel(){
+  createUserSettingsUpdateModel() {
     var model: UserSettingsUpdate = {
       userId: this.user.id,
       preferredLanguage: this.settings.preferredLanguage,
-      theme: this.settings.theme,
+      theme: 'Light',
       recipesTheme: this.settings.recipesTheme,
       myRecipesTheme: this.settings.myRecipesTheme,
     };
@@ -111,14 +108,14 @@ export class ProfileComponent implements OnInit {
     return model;
   }
 
-  formCheck({ value, valid }: { value: User, valid: boolean }){
-    if(value.userName == this.user.userName && value.firstName == this.user.firstName && value.lastName == this.user.lastName && value.email == this.user.email){
+  formCheck({ value, valid }: { value: User, valid: boolean }) {
+    if (value.userName == this.user.userName && value.firstName == this.user.firstName && value.lastName == this.user.lastName && value.email == this.user.email) {
       this.formHasChanged = false;
-    }else{
+    } else {
       this.formHasChanged = true;
     }
   }
-  
+
   get f(): { [key: string]: AbstractControl } {
     return this.profileForm.controls;
   }
