@@ -298,6 +298,12 @@ jobs:
                 Write-Host "✅ API maintenance file removed."
                 exit 0
               }
+
+              if ($LASTEXITCODE -eq 21) {
+                Write-Warning "Simply FTP returned 550 while deleting app_offline.htm. The hosting platform may have already removed it during restart."
+                exit 0
+              }
+
               throw "curl exited with code $LASTEXITCODE"
             } catch {
               $lastError = $_
