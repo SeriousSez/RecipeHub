@@ -47,8 +47,10 @@
                     <img class="file image" [src]="defaultImageUrl">
                     }
                     @if (showCropOverlay) {
-                    <image-cropper class="image" [imageChangedEvent]="imageChangedEvent" [maintainAspectRatio]="false" [aspectRatio]="10 / 10" format="png" (imageCropped)="imageCropped($event)" (imageLoaded)="imageLoaded()" (cropperReady)="cropperReady()" (loadImageFailed)="loadImageFailed()">
-                    </image-cropper>
+                    <div class="editor-cropper-stage">
+                      <image-cropper class="image" [imageChangedEvent]="imageChangedEvent" [maintainAspectRatio]="false" [aspectRatio]="10 / 10" format="png" (imageCropped)="imageCropped($event)" (imageLoaded)="imageLoaded()" (cropperReady)="cropperReady()" (loadImageFailed)="loadImageFailed()">
+                      </image-cropper>
+                    </div>
                     }
                     <input type="file" class="form-control editor-file-input" #image accept="image/*" (change)="handleFileInput($event)">
                   </div>

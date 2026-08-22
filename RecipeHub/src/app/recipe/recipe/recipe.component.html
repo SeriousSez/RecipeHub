@@ -135,16 +135,20 @@
 
             <figure *ngIf="recipe.image" class="figure w-100 recipe-edit-media">
                 <!-- <img class="figure-img img-fluid rounded w-100" [src]="recipe.image.url"> -->
-                <image-cropper [imageURL]="recipe.image.url" [imageChangedEvent]="imageChangedEvent" [maintainAspectRatio]="false" [aspectRatio]="10 / 10" format="png" output="base64" (imageCropped)="imageCropped($event)" (imageLoaded)="imageLoaded()" (cropperReady)="cropperReady()"
-                    (loadImageFailed)="loadImageFailed()">
-                </image-cropper>
+                <div class="editor-cropper-stage">
+                    <image-cropper [imageURL]="recipe.image.url" [imageChangedEvent]="imageChangedEvent" [maintainAspectRatio]="false" [aspectRatio]="10 / 10" format="png" output="base64" (imageCropped)="imageCropped($event)" (imageLoaded)="imageLoaded()" (cropperReady)="cropperReady()"
+                        (loadImageFailed)="loadImageFailed()">
+                    </image-cropper>
+                </div>
                 <input type="file" accept="image/*" class="form-control editor-file-input my-2" (change)="handleFileInput($event)" #image>
                 <input id="image-caption" type="text" name="imageCaption" value="{{recipe.image.caption}}" class="form-control mt-2" [placeholder]="'recipe.imageCaptionPlaceholder' | translate" autocomplete="off" data-lpignore="true" [(ngModel)]="recipe.image.caption">
             </figure>
             <div *ngIf="!recipe.image" class="recipe-edit-media my-3">
-                <image-cropper *ngIf="showCropOverlay" [imageChangedEvent]="imageChangedEvent" [maintainAspectRatio]="false" [aspectRatio]="10 / 10" format="png" output="base64" (imageCropped)="imageCropped($event)" (imageLoaded)="imageLoaded()" (cropperReady)="cropperReady()"
-                    (loadImageFailed)="loadImageFailed()">
-                </image-cropper>
+                <div *ngIf="showCropOverlay" class="editor-cropper-stage">
+                    <image-cropper [imageChangedEvent]="imageChangedEvent" [maintainAspectRatio]="false" [aspectRatio]="10 / 10" format="png" output="base64" (imageCropped)="imageCropped($event)" (imageLoaded)="imageLoaded()" (cropperReady)="cropperReady()"
+                        (loadImageFailed)="loadImageFailed()">
+                    </image-cropper>
+                </div>
                 <input type="file" accept="image/*" class="form-control" (change)="handleFileInput($event)" #image>
                 <input id="image-caption" type="text" name="imageCaption" class="form-control mt-2" [placeholder]="'recipe.imageCaptionPlaceholder' | translate" autocomplete="off" data-lpignore="true" [ngModel]="''" (ngModelChange)="setImageCaption($event)">
             </div>
