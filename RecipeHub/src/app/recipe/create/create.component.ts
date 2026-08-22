@@ -22,7 +22,7 @@ import { TranslateService } from '@ngx-translate/core';
 export class CreateComponent implements OnInit {
   imageAspectRatio = 4 / 3;
   imageCropperWidth = 'min(100%, 853px, 93.33vh)';
-  public measurements: string[] = ['Pinch or dash', 'Piece', 'Milliliter', 'Liter', 'Teaspoon', 'Tablespoon', 'Cup', 'Gram', 'Kilogram', 'Ounce', 'Pound', 'Clove']
+  public measurements: string[] = ['Gram', 'Milliliter', 'Piece', 'Teaspoon', 'Tablespoon', 'Cup', 'Kilogram', 'Liter', 'Pinch or dash', 'Clove', 'To taste', 'Ounce', 'Pound']
   public languages: string[] = ['Danish', 'English', 'Estonian', 'Turkish']
 
   @ViewChild("select", { static: true }) select: ElementRef;
@@ -247,7 +247,7 @@ export class CreateComponent implements OnInit {
       name: this.newIngredient.name,
       description: this.newIngredient.description,
       language: this.recipeForm.controls['language'].value,
-      amount: this.newIngredient.amount,
+      amount: this.newIngredient.amountType === 'To taste' ? 0 : this.newIngredient.amount,
       amountType: this.newIngredient.amountType,
       group: this.activeIngredientGroup || undefined,
       imageCaption: '',

@@ -36,7 +36,7 @@ export class RecipeComponent implements OnInit {
   @ViewChildren("description") description: any;
   @ViewChildren("amount") amount: any;
 
-  public measurements: string[] = ['Pinch or dash', 'Piece', 'Milliliter', 'Liter', 'Teaspoon', 'Tablespoon', 'Cup', 'Gram', 'Kilogram', 'Ounce', 'Pound', 'Clove']
+  public measurements: string[] = ['Gram', 'Milliliter', 'Piece', 'Teaspoon', 'Tablespoon', 'Cup', 'Kilogram', 'Liter', 'Pinch or dash', 'Clove', 'To taste', 'Ounce', 'Pound']
 
   public title: string;
   public creator: string;
@@ -447,6 +447,11 @@ export class RecipeComponent implements OnInit {
       : 1;
     const scaledAmount = Number(amount) * scale;
 
+    const wholeAmount = Math.floor(scaledAmount);
+    if (Math.abs(scaledAmount - wholeAmount - 0.5) < 0.001) {
+      return wholeAmount > 0 ? `${wholeAmount} 1/2` : '1/2';
+    }
+
     return new Intl.NumberFormat(undefined, {
       maximumFractionDigits: 2
     }).format(scaledAmount);
@@ -460,6 +465,8 @@ export class RecipeComponent implements OnInit {
   getMeasurementAbbreviation(measurement: string) {
     // 'Pinch or dash', 'Milliliter', 'Liter', 'Teaspoon', 'Tablespoon', 'Cup', 'Gram', 'Kilogram', 'Ounce', 'Pound'
     switch (measurement) {
+      case 'To taste':
+        return 'to taste'
       case 'Pinch or dash':
         return 'Pinch or dash'
       case 'Piece':
@@ -514,7 +521,8 @@ export class RecipeComponent implements OnInit {
       this.resetIngredientInputs();
     } else {
       var measurement = this.newIngredient.amountType;
-      var ingredient: Ingredient = { name: this.name.first.nativeElement.value, description: '', amount: this.amount.first.nativeElement.value, amountType: measurement, group: this.activeIngredientGroup || undefined, image: null, created: date.toString() }
+      var amount = measurement === 'To taste' ? 0 : this.amount.first.nativeElement.value;
+      var ingredient: Ingredient = { name: this.name.first.nativeElement.value, description: '', amount: amount, amountType: measurement, group: this.activeIngredientGroup || undefined, image: null, created: date.toString() }
       this.newIngredients.push(ingredient);
       this.currentIngredients.push(ingredient);
       this.resetIngredientInputs();

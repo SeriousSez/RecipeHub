@@ -268,7 +268,7 @@
                           <input type="text" class="form-control" [placeholder]="'recipe.namePlaceholder' | translate" [(ngModel)]="newIngredient.name" autocomplete="off" data-lpignore="true" required="required">
                         </td>
                         <td>
-                          <input type="number" step="any" class="form-control" [placeholder]="'recipe.amountPlaceholder' | translate" [(ngModel)]="newIngredient.amount" autocomplete="off" data-lpignore="true" required="required">
+                          <input type="number" step="any" class="form-control" [placeholder]="'recipe.amountPlaceholder' | translate" [(ngModel)]="newIngredient.amount" [disabled]="newIngredient.amountType === 'To taste'" autocomplete="off" data-lpignore="true" required="required">
                         </td>
                         <td>
                           <select class="form-select editor-select" name="measurement" [(ngModel)]="newIngredient.amountType">
@@ -278,7 +278,7 @@
                           </select>
                         </td>
                         <td>
-                          <button type="button" class="editor-add-ingredient" [disabled]="!newIngredient.name || !newIngredient.amount || !newIngredient.amountType || isRequesting" (click)="addIngredient()">
+                          <button type="button" class="editor-add-ingredient" [disabled]="!newIngredient.name || (!newIngredient.amount && newIngredient.amountType !== 'To taste') || !newIngredient.amountType || isRequesting" (click)="addIngredient()">
                             <i class="fas fa-plus" aria-hidden="true"></i>
                             <span>{{ 'recipe.addIngredientButton' | translate }}</span>
                           </button>

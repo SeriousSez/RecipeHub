@@ -129,7 +129,8 @@
                     <section *ngFor="let group of ingredientGroups" class="recipe-ingredient-group">
                         <h3 *ngIf="group.name" class="recipe-ingredient-group-title">{{group.name}}</h3>
                         <p *ngFor="let ingredient of group.ingredients" class="recipe-ingredient-item" [class.is-in-pantry]="isPantryIngredient(ingredient.name)">
-                            {{ingredient.name}} <span *ngIf="ingredient.amount">- <i>{{getScaledIngredientAmount(ingredient.amount)}} {{getMeasurementAbbreviation(ingredient.amountType)}}</i></span>
+                            {{ingredient.name}} <span *ngIf="ingredient.amount || ingredient.amountType === 'To taste'">- <i><ng-container *ngIf="ingredient.amountType !== 'To taste'">{{getScaledIngredientAmount(ingredient.amount)}}
+                                    </ng-container>{{getMeasurementAbbreviation(ingredient.amountType)}}</i></span>
                         </p>
                     </section>
                 </div>
@@ -318,7 +319,8 @@
                                                     <input type="text" class="form-control" [placeholder]="'recipe.namePlaceholder' | translate" [(ngModel)]="newIngredient.name" autocomplete="off" data-lpignore="true" required="required" id="name" #name>
                                                 </td>
                                                 <td>
-                                                    <input type="number" step="any" class="form-control" [placeholder]="'recipe.amountPlaceholder' | translate" [(ngModel)]="newIngredient.amount" autocomplete="off" data-lpignore="true" required="required" id="amount" #amount>
+                                                    <input type="number" step="any" class="form-control" [placeholder]="'recipe.amountPlaceholder' | translate" [(ngModel)]="newIngredient.amount" [disabled]="newIngredient.amountType === 'To taste'" autocomplete="off" data-lpignore="true"
+                                                        required="required" id="amount" #amount>
                                                 </td>
                                                 <td>
                                                     <select class="form-select editor-select" name="measurement" [(ngModel)]="newIngredient.amountType">
@@ -326,7 +328,7 @@
                                                     </select>
                                                 </td>
                                                 <td>
-                                                    <button type="button" class="editor-add-ingredient" [disabled]="!newIngredient.name || !newIngredient.amount || !newIngredient.amountType || isRequesting" (click)="addIngredient(newIngredient)">
+                                                    <button type="button" class="editor-add-ingredient" [disabled]="!newIngredient.name || (!newIngredient.amount && newIngredient.amountType !== 'To taste') || !newIngredient.amountType || isRequesting" (click)="addIngredient(newIngredient)">
                                                         <i class="fas fa-plus" aria-hidden="true"></i>
                                                         <span>{{ 'recipe.addIngredientButton' | translate }}</span>
                                                     </button>
@@ -343,10 +345,10 @@
                                                 {{ingredient.Description}}
                                             </td> -->
                                                 <td>
-                                                    <input type="number" step="any" class="form-control" [(ngModel)]="ingredient.amount" [name]="'existing-amount-' + ingredient.name" autocomplete="off" data-lpignore="true">
+                                                    <input type="number" step="any" class="form-control" [(ngModel)]="ingredient.amount" [disabled]="ingredient.amountType === 'To taste'" [name]="'existing-amount-' + ingredient.name" autocomplete="off" data-lpignore="true">
                                                 </td>
                                                 <td>
-                                                    <select class="form-select editor-select" [(ngModel)]="ingredient.amountType" [name]="'existing-amountType-' + ingredient.name">
+                                                    <select class="form-select editor-select" [(ngModel)]="ingredient.amountType" (change)="ingredient.amount = ingredient.amountType === 'To taste' ? 0 : ingredient.amount" [name]="'existing-amountType-' + ingredient.name">
                                                         <option class="select-items" *ngFor="let measurement of measurements" [ngValue]="measurement">{{measurement}}</option>
                                                     </select>
                                                 </td>
