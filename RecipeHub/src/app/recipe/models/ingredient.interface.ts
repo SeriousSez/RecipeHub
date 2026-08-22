@@ -6,6 +6,7 @@ export interface Ingredient {
     language?: string;
     amount: number;
     amountType: string;
+    group?: string;
     created: string;
     image: Image | null;
 }

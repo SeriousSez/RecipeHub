@@ -67,7 +67,7 @@ namespace RecipeHub.ApplicationService.Services
                     ingredientEntity = await _ingredientRepository.GetByName(ingredient.Name);
                 }
 
-                await CreateRecipeIngredient(ingredient.Amount, ingredient.AmountType, recipe, ingredientEntity);
+                await CreateRecipeIngredient(ingredient.Amount, ingredient.AmountType, ingredient.Group, recipe, ingredientEntity);
             }
 
             _logger.LogTrace("Recipe created! Recipe: {@Recipe}", recipe);
@@ -95,7 +95,7 @@ namespace RecipeHub.ApplicationService.Services
                     ingredientEntity = await _ingredientRepository.GetByNameFull(ingredient.Name);
                 }
 
-                await CreateRecipeIngredient(ingredient.Amount, ingredient.AmountType, recipe, ingredientEntity);
+                await CreateRecipeIngredient(ingredient.Amount, ingredient.AmountType, ingredient.Group, recipe, ingredientEntity);
             }
 
             _logger.LogTrace("Recipe created! Recipe: {@Recipe}", recipe);
@@ -104,12 +104,13 @@ namespace RecipeHub.ApplicationService.Services
             return recipeResponse;
         }
 
-        private async Task<RecipeIngredient> CreateRecipeIngredient(decimal amount, string amountType, Recipe recipe, Ingredient ingredient)
+        private async Task<RecipeIngredient> CreateRecipeIngredient(decimal amount, string amountType, string group, Recipe recipe, Ingredient ingredient)
         {
             var recipeIngredient = new RecipeIngredient
             {
                 Amount = amount,
                 AmountType = amountType,
+                Group = string.IsNullOrWhiteSpace(group) ? null : group.Trim(),
                 Recipe = recipe,
                 Ingredient = ingredient
             };
@@ -283,12 +284,13 @@ namespace RecipeHub.ApplicationService.Services
                             entity = await _ingredientRepository.Create(entity);
                         }
 
-                        matchingRecipeIngredient = await CreateRecipeIngredient(ingredient.Amount, ingredient.AmountType, recipe, entity);
+                        matchingRecipeIngredient = await CreateRecipeIngredient(ingredient.Amount, ingredient.AmountType, ingredient.Group, recipe, entity);
                     }
 
                     var ingredientEntity = await _recipeIngredientRepository.GetFull(matchingRecipeIngredient.Id);
                     ingredientEntity.Amount = ingredient.Amount;
                     ingredientEntity.AmountType = ingredient.AmountType;
+                    ingredientEntity.Group = string.IsNullOrWhiteSpace(ingredient.Group) ? null : ingredient.Group.Trim();
 
                     await _recipeIngredientRepository.Update(ingredientEntity);
                 }
@@ -384,6 +386,7 @@ namespace RecipeHub.ApplicationService.Services
                 Description = ingredient.Description,
                 Amount = recipeIngredient.Amount,
                 AmountType = recipeIngredient.AmountType,
+                Group = recipeIngredient.Group,
                 Image = null,
                 Created = recipeIngredient.Created
             };

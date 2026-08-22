@@ -126,9 +126,12 @@
                 </div>
 
                 <div *ngIf="showIngredients && currentIngredients.length > 0" class="recipe-ingredient-list">
-                    <p *ngFor="let ingredient of currentIngredients" class="recipe-ingredient-item" [class.is-in-pantry]="isPantryIngredient(ingredient.name)">
-                        {{ingredient.name}} <span *ngIf="ingredient.amount">- <i>{{getScaledIngredientAmount(ingredient.amount)}} {{getMeasurementAbbreviation(ingredient.amountType)}}</i></span>
-                    </p>
+                    <section *ngFor="let group of ingredientGroups" class="recipe-ingredient-group">
+                        <h3 *ngIf="group.name" class="recipe-ingredient-group-title">{{group.name}}</h3>
+                        <p *ngFor="let ingredient of group.ingredients" class="recipe-ingredient-item" [class.is-in-pantry]="isPantryIngredient(ingredient.name)">
+                            {{ingredient.name}} <span *ngIf="ingredient.amount">- <i>{{getScaledIngredientAmount(ingredient.amount)}} {{getMeasurementAbbreviation(ingredient.amountType)}}</i></span>
+                        </p>
+                    </section>
                 </div>
 
                 <div *ngIf="!showIngredients && currentIngredients.length > 0" class="recipe-ingredient-list is-collapsed">
@@ -256,6 +259,18 @@
                         <div id="collapseIngredients" class="accordion-collapse collapse" aria-labelledby="headingIngredients" data-bs-parent="#accordion">
                             <div class="accordion-body">
                                 <div class="editor-table-wrap">
+                                    <div class="editor-group-manager">
+                                        <div class="editor-group-create">
+                                            <label for="edit-ingredient-group">{{ 'recipe.addIngredientGroupLabel' | translate }}</label>
+                                            <div class="editor-group-create-controls">
+                                                <input id="edit-ingredient-group" type="text" class="form-control" [(ngModel)]="newIngredientGroupName" [placeholder]="'recipe.ingredientGroupPlaceholder' | translate" (keydown.enter)="$event.preventDefault(); addIngredientGroup()" autocomplete="off" data-lpignore="true">
+                                                <button type="button" class="editor-add-group" [disabled]="!newIngredientGroupName.trim()" (click)="addIngredientGroup()">
+                                                    <i class="fas fa-plus" aria-hidden="true"></i>
+                                                    <span>{{ 'recipe.addGroupButton' | translate }}</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <table class="table table-hover caption-top editor-ingredients-table">
                                         <caption>
                                             <span class="editor-ingredients-caption-title">{{ 'recipe.ingredientsHeading' | translate }}</span>
@@ -265,13 +280,6 @@
                                                     <app-taxonomy-select id="select" name="existingIngredientSearch" [(ngModel)]="ingredientSearch" [options]="ingredientOptions" [multiple]="false" [allowCustom]="false" [placeholder]="'recipe.pickExistingLabel' | translate"
                                                         [ariaLabel]="'recipe.pickExistingLabel' | translate" (ngModelChange)="selectExistingIngredient($event)"></app-taxonomy-select>
                                                 </div>
-                                                <div class="editor-add-ingredient-wrap">
-                                                    <span class="editor-control-spacer" aria-hidden="true">&nbsp;</span>
-                                                    <button type="button" class="editor-add-ingredient" [disabled]="!newIngredient.name || !newIngredient.amount || !newIngredient.amountType || isRequesting" (click)="addIngredient(newIngredient)">
-                                                        <i class="fas fa-plus" aria-hidden="true"></i>
-                                                        <span>{{ 'recipe.addIngredientButton' | translate }}</span>
-                                                    </button>
-                                                </div>
                                             </div>
                                         </caption>
                                         <thead>
@@ -280,16 +288,33 @@
                                                 <!-- <th scope="col" class="description">Description</th> -->
                                                 <th scope="col" class="amount">{{ 'recipe.amountColumn' | translate }}</th>
                                                 <th scope="col">{{ 'recipe.measurementColumn' | translate }}</th>
+                                                <th scope="col">{{ 'recipe.ingredientGroupColumn' | translate }}</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
-                                            <tr>
+                                        <tbody *ngFor="let group of ingredientEditorGroups; trackBy: trackIngredientEditorGroup" class="editor-ingredient-section" [class.is-active]="activeIngredientGroup === group.name">
+                                            <tr class="editor-ingredient-section-header">
+                                                <th colspan="4" scope="rowgroup">
+                                                    <div class="editor-ingredient-section-header-content">
+                                                    <div class="editor-ingredient-section-title">
+                                                        <span>{{ group.name || ('recipe.noIngredientGroupLabel' | translate) }}</span>
+                                                        <span class="editor-ingredient-count">{{group.ingredients.length}}</span>
+                                                    </div>
+                                                    <div class="editor-ingredient-section-actions">
+                                                        <button type="button" class="editor-add-here" (click)="selectIngredientGroup(group.name)">
+                                                            <i class="fas fa-plus" aria-hidden="true"></i>
+                                                            <span>{{ (activeIngredientGroup === group.name ? 'recipe.addingIngredientHereLabel' : 'recipe.addIngredientHereButton') | translate }}</span>
+                                                        </button>
+                                                        <button *ngIf="group.name" type="button" class="editor-group-remove" [attr.aria-label]="('recipe.removeIngredientGroupAria' | translate) + ' ' + group.name" [attr.title]="'recipe.removeIngredientGroupAria' | translate" (click)="removeIngredientGroup(group.name)">
+                                                            <i class="fas fa-times" aria-hidden="true"></i>
+                                                        </button>
+                                                    </div>
+                                                    </div>
+                                                </th>
+                                            </tr>
+                                            <tr *ngIf="activeIngredientGroup === group.name" class="editor-ingredient-composer">
                                                 <td>
                                                     <input type="text" class="form-control" [placeholder]="'recipe.namePlaceholder' | translate" [(ngModel)]="newIngredient.name" autocomplete="off" data-lpignore="true" required="required" id="name" #name>
                                                 </td>
-                                                <!-- <td class="description">
-                                                <input type="text" class="form-control" placeholder="Description" [(ngModel)]="newIngredient.Description" autocomplete="off" data-lpignore="true" required="required" id="description" #description>
-                                            </td> -->
                                                 <td>
                                                     <input type="number" step="any" class="form-control" [placeholder]="'recipe.amountPlaceholder' | translate" [(ngModel)]="newIngredient.amount" autocomplete="off" data-lpignore="true" required="required" id="amount" #amount>
                                                 </td>
@@ -298,10 +323,17 @@
                                                         <option class="select-items" *ngFor="let measurement of measurements" [ngValue]="measurement">{{measurement}}</option>
                                                     </select>
                                                 </td>
+                                                <td>
+                                                    <button type="button" class="editor-add-ingredient" [disabled]="!newIngredient.name || !newIngredient.amount || !newIngredient.amountType || isRequesting" (click)="addIngredient(newIngredient)">
+                                                        <i class="fas fa-plus" aria-hidden="true"></i>
+                                                        <span>{{ 'recipe.addIngredientButton' | translate }}</span>
+                                                    </button>
+                                                </td>
                                             </tr>
-                                        </tbody>
-                                        <tbody>
-                                            <tr *ngFor="let ingredient of currentIngredients">
+                                            <tr *ngIf="group.ingredients.length === 0" class="editor-empty-group">
+                                                <td colspan="4">{{ 'recipe.emptyIngredientGroupMessage' | translate }}</td>
+                                            </tr>
+                                            <tr *ngFor="let ingredient of group.ingredients">
                                                 <td>
                                                     {{ingredient.name}}
                                                 </td>
@@ -315,7 +347,13 @@
                                                     <select class="form-select editor-select" [(ngModel)]="ingredient.amountType" [name]="'existing-amountType-' + ingredient.name">
                                                         <option class="select-items" *ngFor="let measurement of measurements" [ngValue]="measurement">{{measurement}}</option>
                                                     </select>
-                                                    <button type="submit" class="btn btn-link btn-sm" (click)="removeIngredient(ingredient)">{{ 'recipe.removeButton' | translate }}</button>
+                                                </td>
+                                                <td>
+                                                    <select class="form-select editor-select" [(ngModel)]="ingredient.group" [name]="'existing-group-' + ingredient.name">
+                                                        <option [ngValue]="undefined">{{ 'recipe.noIngredientGroupLabel' | translate }}</option>
+                                                        <option *ngFor="let groupName of ingredientGroupNames" [ngValue]="groupName">{{groupName}}</option>
+                                                    </select>
+                                                    <button type="button" class="btn btn-link btn-sm" (click)="removeIngredient(ingredient)">{{ 'recipe.removeButton' | translate }}</button>
                                                 </td>
                                             </tr>
                                         </tbody>

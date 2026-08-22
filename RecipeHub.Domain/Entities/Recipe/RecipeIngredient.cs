@@ -6,5 +6,6 @@ namespace RecipeHub.Domain.Entities.Recipe
         public Ingredient Ingredient { get; set; }
         public decimal Amount { get; set; }
         public string AmountType { get; set; }
+        public string Group { get; set; }
     }
 }

@@ -184,6 +184,9 @@ namespace RecipeHub.Infrastructure.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(65,30)");
 
+                    b.Property<string>("Group")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("AmountType")
                         .HasColumnType("longtext");
 

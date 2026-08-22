@@ -40,11 +40,14 @@ export class CreateComponent implements OnInit {
   public isRequesting: boolean = false;
   public submitted: boolean = false;
 
-  public defaultIngredient: IngredientCreation = { name: "", description: "", amount: 0, amountType: 'Pinch or dash', imageCaption: "", image: null, created: '' };
+  public defaultIngredient: IngredientCreation = { name: "", description: "", amount: 0, amountType: 'Pinch or dash', group: '', imageCaption: "", image: null, created: '' };
   public newIngredient: IngredientCreation;
   public selectedIngredient: Ingredient | null = null;
   public ingredientSearch: string = '';
   public newIngredients: IngredientCreation[] = [];
+  public ingredientGroupNames: string[] = [];
+  public newIngredientGroupName: string = '';
+  public activeIngredientGroup: string = '';
   public ingredients: Ingredient[];
   public categoriesInput: string = '';
   public tagsInput: string = '';
@@ -52,6 +55,20 @@ export class CreateComponent implements OnInit {
   public readonly tagGroups = RECIPE_TAG_GROUPS;
   public activeCategoryGroupId: string = RECIPE_CATEGORY_GROUPS[0].id;
   public activeTagGroupId: string = RECIPE_TAG_GROUPS[0].id;
+
+  get ingredientEditorGroups(): Array<{ name: string; ingredients: IngredientCreation[] }> {
+    const groups = new Map<string, IngredientCreation[]>([['', []]]);
+    this.ingredientGroupNames.forEach(groupName => groups.set(groupName, []));
+
+    for (const ingredient of this.newIngredients) {
+      const groupName = ingredient.group?.trim() ?? '';
+      const groupIngredients = groups.get(groupName) ?? [];
+      groupIngredients.push(ingredient);
+      groups.set(groupName, groupIngredients);
+    }
+
+    return Array.from(groups, ([name, ingredients]) => ({ name, ingredients }));
+  }
 
   public defaultImageUrl: string = "../../assets/images/food.png";
   public imageUrl: string;
@@ -232,6 +249,7 @@ export class CreateComponent implements OnInit {
       language: this.recipeForm.controls['language'].value,
       amount: this.newIngredient.amount,
       amountType: this.newIngredient.amountType,
+      group: this.activeIngredientGroup || undefined,
       imageCaption: '',
       image: null,
       created: ''
@@ -244,7 +262,33 @@ export class CreateComponent implements OnInit {
   }
 
   resetNewIngredient() {
-    this.newIngredient = { ...this.defaultIngredient };
+    this.newIngredient = { ...this.defaultIngredient, group: this.activeIngredientGroup };
+  }
+
+  addIngredientGroup(): void {
+    const groupName = this.newIngredientGroupName.trim();
+    if (!groupName) return;
+
+    const existingGroup = this.ingredientGroupNames.find(group => group.toLowerCase() === groupName.toLowerCase());
+    if (!existingGroup) {
+      this.ingredientGroupNames.push(groupName);
+    }
+
+    this.selectIngredientGroup(existingGroup ?? groupName);
+    this.newIngredientGroupName = '';
+  }
+
+  selectIngredientGroup(groupName: string): void {
+    this.activeIngredientGroup = groupName;
+    this.newIngredient.group = groupName;
+  }
+
+  removeIngredientGroup(groupName: string): void {
+    this.newIngredients.forEach(ingredient => {
+      if (ingredient.group === groupName) ingredient.group = undefined;
+    });
+    this.ingredientGroupNames = this.ingredientGroupNames.filter(group => group !== groupName);
+    if (this.activeIngredientGroup === groupName) this.selectIngredientGroup('');
   }
 
   removeIngredient(ingredient: IngredientCreation) {

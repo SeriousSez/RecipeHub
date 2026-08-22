@@ -6,6 +6,7 @@ export interface IngredientCreation {
     language?: string;
     amount: number;
     amountType: string;
+    group?: string;
     imageCaption: string;
     image: ImageCreation | null;
     created: string;
