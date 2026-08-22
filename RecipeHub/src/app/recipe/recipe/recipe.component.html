@@ -263,7 +263,8 @@
                                         <div class="editor-group-create">
                                             <label for="edit-ingredient-group">{{ 'recipe.addIngredientGroupLabel' | translate }}</label>
                                             <div class="editor-group-create-controls">
-                                                <input id="edit-ingredient-group" type="text" class="form-control" [(ngModel)]="newIngredientGroupName" [placeholder]="'recipe.ingredientGroupPlaceholder' | translate" (keydown.enter)="$event.preventDefault(); addIngredientGroup()" autocomplete="off" data-lpignore="true">
+                                                <input id="edit-ingredient-group" type="text" class="form-control" [(ngModel)]="newIngredientGroupName" [placeholder]="'recipe.ingredientGroupPlaceholder' | translate" (keydown.enter)="$event.preventDefault(); addIngredientGroup()" autocomplete="off"
+                                                    data-lpignore="true">
                                                 <button type="button" class="editor-add-group" [disabled]="!newIngredientGroupName.trim()" (click)="addIngredientGroup()">
                                                     <i class="fas fa-plus" aria-hidden="true"></i>
                                                     <span>{{ 'recipe.addGroupButton' | translate }}</span>
@@ -295,19 +296,20 @@
                                             <tr class="editor-ingredient-section-header">
                                                 <th colspan="4" scope="rowgroup">
                                                     <div class="editor-ingredient-section-header-content">
-                                                    <div class="editor-ingredient-section-title">
-                                                        <span>{{ group.name || ('recipe.noIngredientGroupLabel' | translate) }}</span>
-                                                        <span class="editor-ingredient-count">{{group.ingredients.length}}</span>
-                                                    </div>
-                                                    <div class="editor-ingredient-section-actions">
-                                                        <button type="button" class="editor-add-here" (click)="selectIngredientGroup(group.name)">
-                                                            <i class="fas fa-plus" aria-hidden="true"></i>
-                                                            <span>{{ (activeIngredientGroup === group.name ? 'recipe.addingIngredientHereLabel' : 'recipe.addIngredientHereButton') | translate }}</span>
-                                                        </button>
-                                                        <button *ngIf="group.name" type="button" class="editor-group-remove" [attr.aria-label]="('recipe.removeIngredientGroupAria' | translate) + ' ' + group.name" [attr.title]="'recipe.removeIngredientGroupAria' | translate" (click)="removeIngredientGroup(group.name)">
-                                                            <i class="fas fa-times" aria-hidden="true"></i>
-                                                        </button>
-                                                    </div>
+                                                        <div class="editor-ingredient-section-title">
+                                                            <span>{{ group.name || ('recipe.noIngredientGroupLabel' | translate) }}</span>
+                                                            <span class="editor-ingredient-count">{{group.ingredients.length}}</span>
+                                                        </div>
+                                                        <div class="editor-ingredient-section-actions">
+                                                            <button type="button" class="editor-add-here" (click)="selectIngredientGroup(group.name)">
+                                                                <i class="fas fa-plus" aria-hidden="true"></i>
+                                                                <span>{{ (activeIngredientGroup === group.name ? 'recipe.addingIngredientHereLabel' : 'recipe.addIngredientHereButton') | translate }}</span>
+                                                            </button>
+                                                            <button *ngIf="group.name" type="button" class="editor-group-remove" [attr.aria-label]="('recipe.removeIngredientGroupAria' | translate) + ' ' + group.name" [attr.title]="'recipe.removeIngredientGroupAria' | translate"
+                                                                (click)="removeIngredientGroup(group.name)">
+                                                                <i class="fas fa-times" aria-hidden="true"></i>
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </th>
                                             </tr>

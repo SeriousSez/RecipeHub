@@ -1327,13 +1327,13 @@
     color: #fff;
 }
 
-.editor-ingredient-section > tr:not(.editor-ingredient-section-header) > td {
+.editor-ingredient-section>tr:not(.editor-ingredient-section-header)>td {
     border-right: 1px solid #d9e1e8;
     border-left: 1px solid #d9e1e8;
     background: #fff;
 }
 
-.editor-ingredient-section > tr:last-child > td {
+.editor-ingredient-section>tr:last-child>td {
     border-bottom: 1px solid #cbd7e2;
 }
 
@@ -1642,7 +1642,7 @@
     color: #f1f5f9;
 }
 
-:host-context([data-theme='dark']) .editor-ingredient-section > tr:not(.editor-ingredient-section-header) > td,
+:host-context([data-theme='dark']) .editor-ingredient-section>tr:not(.editor-ingredient-section-header)>td,
 :host-context([data-theme='dark']) .editor-ingredient-composer td {
     border-color: #46505d;
     background: #252a31 !important;
