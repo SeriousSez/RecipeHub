@@ -690,6 +690,14 @@ button:focus {
     color: #64748b;
 }
 
+.recipe-load-more-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-width: 8rem;
+}
+
 .recipe-direction-toggle {
     min-width: 120px;
 }

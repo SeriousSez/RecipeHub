@@ -288,7 +288,12 @@
         <div class="recipe-load-more">
           <p class="recipe-load-more-count">{{ 'recipe.showingCount' | translate: { shown: visibleRecipes.length, total: displayTotalCount } }}</p>
           @if (hasMoreRecipes) {
-          <button type="button" class="btn btn-outline-primary" (click)="loadMore()">{{ 'recipe.loadMoreButton' | translate }}</button>
+          <button type="button" class="btn btn-outline-primary recipe-load-more-button" (click)="loadMore()" [disabled]="loadingMore" [attr.aria-busy]="loadingMore">
+            @if (loadingMore) {
+            <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+            }
+            <span>{{ 'recipe.loadMoreButton' | translate }}</span>
+          </button>
           }
         </div>
         }

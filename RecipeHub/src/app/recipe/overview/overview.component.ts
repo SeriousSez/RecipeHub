@@ -56,6 +56,10 @@ export class OverviewComponent implements OnInit {
   }
 
   loadMore(): void {
+    if (this.loadingMore) {
+      return;
+    }
+
     if (this.showPantryMatches) {
       this.visibleCount = Math.min(this.visibleCount + this.pageSize, this.shownRecipes.length);
       return;
@@ -127,6 +131,7 @@ export class OverviewComponent implements OnInit {
 
   public loading: boolean = true;
   public refreshing: boolean = false;
+  public loadingMore: boolean = false;
   public matchingLoading: boolean = false;
   public loadError: boolean = false;
   private hasLoadedOnce: boolean = false;
@@ -238,6 +243,8 @@ export class OverviewComponent implements OnInit {
       } else {
         this.loading = true;
       }
+    } else {
+      this.loadingMore = true;
     }
     this.loadError = false;
 
@@ -274,6 +281,7 @@ export class OverviewComponent implements OnInit {
 
         this.hasLoadedOnce = true;
         this.refreshing = false;
+        this.loadingMore = false;
         this.persistFilterState();
 
         if (reset && this.pantryIngredients.trim() && !this.matchingRecipes && !this.matchingLoading) {
@@ -291,10 +299,13 @@ export class OverviewComponent implements OnInit {
         if (reset) {
           this.shownRecipes = [];
           this.totalCount = 0;
+        } else {
+          this.currentPage = Math.max(1, this.currentPage - 1);
         }
         this.loadError = true;
         this.loading = false;
         this.refreshing = false;
+        this.loadingMore = false;
       }
     });
   }
