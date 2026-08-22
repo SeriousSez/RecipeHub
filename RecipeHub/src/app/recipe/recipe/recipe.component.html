@@ -145,8 +145,7 @@
             </figure>
             <div *ngIf="!recipe.image" class="recipe-edit-media my-3">
                 <div *ngIf="showCropOverlay" class="editor-cropper-stage">
-                    <image-cropper [imageChangedEvent]="imageChangedEvent" [maintainAspectRatio]="false" [aspectRatio]="10 / 10" format="png" output="base64" (imageCropped)="imageCropped($event)" (imageLoaded)="imageLoaded()" (cropperReady)="cropperReady()"
-                        (loadImageFailed)="loadImageFailed()">
+                    <image-cropper [imageChangedEvent]="imageChangedEvent" [maintainAspectRatio]="false" [aspectRatio]="10 / 10" format="png" output="base64" (imageCropped)="imageCropped($event)" (imageLoaded)="imageLoaded()" (cropperReady)="cropperReady()" (loadImageFailed)="loadImageFailed()">
                     </image-cropper>
                 </div>
                 <input type="file" accept="image/*" class="form-control" (change)="handleFileInput($event)" #image>
