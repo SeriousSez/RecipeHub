@@ -35,8 +35,20 @@
         <h2 class="mb-1">{{ 'grocery.ingredientListHeading' | translate }}</h2>
         <p class="mb-0">{{ 'grocery.helperText' | translate }}</p>
       </div>
-      <button class="btn btn-outline-brand" type="button" [disabled]="selectedIngredientCount === 0" (click)="clearSelection()">{{ 'grocery.clearSelection' | translate }}</button>
+      <div class="grocery-list-actions">
+        <button class="btn btn-outline-brand" type="button" [disabled]="selectedIngredientCount === 0" (click)="removeSelectedFromIngredients()"><i class="fas fa-trash-alt" aria-hidden="true"></i>{{ 'grocery.removeSelected' | translate }}</button>
+        <button class="btn btn-outline-danger" type="button" (click)="confirmClearList = true"><i class="fas fa-trash-alt" aria-hidden="true"></i>{{ 'grocery.clearList' | translate }}</button>
+        <button class="btn btn-outline-secondary" type="button" [disabled]="selectedIngredientCount === 0" (click)="clearSelection()">{{ 'grocery.clearSelection' | translate }}</button>
+      </div>
     </div>
+
+    @if (confirmClearList) {
+    <div class="grocery-clear-confirm" role="alert">
+      <span>{{ 'grocery.clearListConfirm' | translate }}</span>
+      <button class="btn btn-danger btn-sm" type="button" (click)="clearGroceryList()">{{ 'grocery.confirmClear' | translate }}</button>
+      <button class="btn btn-outline-secondary btn-sm" type="button" (click)="confirmClearList = false">{{ 'grocery.cancelClear' | translate }}</button>
+    </div>
+    }
 
     <table class="table table-hover align-middle caption-top grocery-table mb-0">
       <caption>{{ 'grocery.tableCaption' | translate }}</caption>
@@ -55,6 +67,7 @@
             <i [ngClass]="ascending ? 'fas fa-sort-down' : 'fas fa-sort-up'"></i>
             }
           </th>
+          <th scope="col" class="grocery-action-column"><span class="visually-hidden">{{ 'grocery.actionsColumn' | translate }}</span></th>
         </tr>
       </thead>
       @for (ingredient of ingredients; track ingredient; let i = $index) {
@@ -71,6 +84,11 @@
           </td>
           <td class="cursor-pointer" (click)="handleIngredientClick(ingredient, 'accordion' + i, 'table-row' + i)">
             {{displayDateOnly(ingredient.created)}}
+          </td>
+          <td class="grocery-row-action">
+            <button type="button" (click)="$event.stopPropagation(); removeIngredient(ingredient)" [attr.aria-label]="('grocery.removeIngredient' | translate) + ': ' + ingredient.name" [title]="'grocery.removeIngredient' | translate">
+              <i class="fas fa-times" aria-hidden="true"></i>
+            </button>
           </td>
         </tr>
         <tr>

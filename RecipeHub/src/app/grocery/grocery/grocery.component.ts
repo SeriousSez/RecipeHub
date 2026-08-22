@@ -24,6 +24,7 @@ export class GroceryComponent implements OnInit {
   loadedIngredientDetails: Set<string> = new Set<string>();
 
   selectedIngredients: Ingredient[] = [];
+  confirmClearList: boolean = false;
   openedAccordion: string;
   clickedTableRow: string;
 
@@ -76,9 +77,24 @@ export class GroceryComponent implements OnInit {
   }
 
   removeSelectedFromIngredients() {
-    this.ingredients.forEach(ingredient => {
+    [...this.selectedIngredients].forEach(ingredient => {
       this.groceryService.removeIngredientFromList(ingredient);
     });
+    this.selectedIngredients = [];
+    this.getIngredients();
+  }
+
+  removeIngredient(ingredient: Ingredient) {
+    this.groceryService.removeIngredientFromList(ingredient);
+    this.selectedIngredients = this.selectedIngredients.filter(item => item !== ingredient);
+    this.getIngredients();
+  }
+
+  clearGroceryList() {
+    this.groceryService.clearRecipeList();
+    this.selectedIngredients = [];
+    this.confirmClearList = false;
+    this.getIngredients();
   }
 
   toggleIngredientSelected(ingredient: Ingredient) {

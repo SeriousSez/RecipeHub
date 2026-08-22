@@ -211,6 +211,70 @@
     width: 3rem;
 }
 
+.grocery-list-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: .55rem;
+}
+
+.grocery-list-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+}
+
+.grocery-clear-confirm {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .6rem;
+    margin: 0 1.25rem .75rem;
+    padding: .7rem .8rem;
+    border: 1px solid #fecaca;
+    border-radius: 7px;
+    background: #fff5f5;
+    color: #991b1b;
+    font-size: .85rem;
+    font-weight: 700;
+}
+
+.grocery-action-column {
+    width: 3.25rem;
+}
+
+.grocery-row-action {
+    width: 3.25rem;
+    text-align: center;
+}
+
+.grocery-row-action button {
+    width: 2rem;
+    height: 2rem;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: #64748b;
+}
+
+.grocery-row-action button:hover {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+@media (max-width: 640px) {
+
+    .grocery-list-actions,
+    .grocery-clear-confirm {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .grocery-clear-confirm {
+        margin-inline: .75rem;
+    }
+}
+
 .clickable {
     transition: background-color .2s ease, box-shadow .2s ease, transform .2s ease;
 }
