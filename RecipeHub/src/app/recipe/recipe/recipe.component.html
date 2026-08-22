@@ -214,7 +214,8 @@
                                     <input id="recipe-categories" type="text" class="form-control" [placeholder]="'recipe.categoriesPlaceholder' | translate" [(ngModel)]="categoriesInput">
                                     <div class="taxonomy-browser">
                                         <div class="taxonomy-tabs" role="tablist" [attr.aria-label]="'recipe.browseCategoryGroupsAria' | translate">
-                                            <button type="button" class="taxonomy-tab" role="tab" *ngFor="let group of categoryGroups" [class.is-active]="activeCategoryGroupId === group.id" [attr.aria-selected]="activeCategoryGroupId === group.id" (click)="setActiveTaxonomyGroup('category', group.id)">
+                                            <button type="button" class="taxonomy-tab" role="tab" *ngFor="let group of categoryGroups" [class.is-active]="activeCategoryGroupId === group.id" [attr.aria-selected]="activeCategoryGroupId === group.id"
+                                                (click)="setActiveTaxonomyGroup('category', group.id)">
                                                 {{ group.labelKey | translate }}
                                             </button>
                                         </div>
