@@ -63,21 +63,37 @@
             <span class="recipe-detail-date">{{displayDateOnly(recipe.created)}}</span>
         </div>
 
-        <div *ngIf="getTotalRecipeMinutes() != null || recipe.preparationMinutes != null || recipe.cookingMinutes != null || recipe.shelfLifeDays != null || recipe.canBeFrozen != null" class="recipe-detail-facts">
+        <div *ngIf="getTotalRecipeMinutes() != null || recipe.preparationMinutes != null || recipe.cookingMinutes != null || recipe.chillingMinutes != null || recipe.coolingMinutes != null || recipe.restingMinutes != null || recipe.shelfLifeDays != null || recipe.canBeFrozen != null"
+            class="recipe-detail-facts">
             <div *ngIf="getTotalRecipeMinutes() as totalMinutes" class="recipe-detail-fact">
                 <i class="far fa-clock" aria-hidden="true"></i>
                 <span>{{ 'recipe.totalTimeLabel' | translate }}</span>
-                <strong>{{ totalMinutes }} {{ 'recipe.minutesShort' | translate }}</strong>
+                <strong>{{ formatDuration(totalMinutes) }}</strong>
             </div>
             <div *ngIf="recipe.preparationMinutes != null" class="recipe-detail-fact">
                 <i class="fas fa-utensils" aria-hidden="true"></i>
                 <span>{{ 'recipe.preparationTimeLabel' | translate }}</span>
-                <strong>{{ recipe.preparationMinutes }} {{ 'recipe.minutesShort' | translate }}</strong>
+                <strong>{{ formatDuration(recipe.preparationMinutes) }}</strong>
             </div>
             <div *ngIf="recipe.cookingMinutes != null" class="recipe-detail-fact">
                 <i class="fas fa-fire" aria-hidden="true"></i>
                 <span>{{ 'recipe.cookingTimeLabel' | translate }}</span>
-                <strong>{{ recipe.cookingMinutes }} {{ 'recipe.minutesShort' | translate }}</strong>
+                <strong>{{ formatDuration(recipe.cookingMinutes) }}</strong>
+            </div>
+            <div *ngIf="recipe.chillingMinutes != null" class="recipe-detail-fact">
+                <i class="far fa-snowflake" aria-hidden="true"></i>
+                <span>{{ 'recipe.chillingTimeLabel' | translate }}</span>
+                <strong>{{ formatDuration(recipe.chillingMinutes) }}</strong>
+            </div>
+            <div *ngIf="recipe.coolingMinutes != null" class="recipe-detail-fact">
+                <i class="fas fa-temperature-low" aria-hidden="true"></i>
+                <span>{{ 'recipe.coolingTimeLabel' | translate }}</span>
+                <strong>{{ formatDuration(recipe.coolingMinutes) }}</strong>
+            </div>
+            <div *ngIf="recipe.restingMinutes != null" class="recipe-detail-fact">
+                <i class="far fa-hourglass" aria-hidden="true"></i>
+                <span>{{ 'recipe.restingTimeLabel' | translate }}</span>
+                <strong>{{ formatDuration(recipe.restingMinutes) }}</strong>
             </div>
             <div *ngIf="recipe.shelfLifeDays != null" class="recipe-detail-fact">
                 <i class="far fa-calendar-alt" aria-hidden="true"></i>
@@ -393,6 +409,27 @@
                                         <label for="edit-cooking-minutes">{{ 'recipe.cookingTimeLabel' | translate }}</label>
                                         <div class="editor-unit-input">
                                             <input id="edit-cooking-minutes" type="number" min="0" step="1" class="form-control" [(ngModel)]="recipe.cookingMinutes" name="cookingMinutes">
+                                            <span>{{ 'recipe.minutesShort' | translate }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group editor-field">
+                                        <label for="edit-chilling-minutes">{{ 'recipe.chillingTimeLabel' | translate }}</label>
+                                        <div class="editor-unit-input">
+                                            <input id="edit-chilling-minutes" type="number" min="0" step="1" class="form-control" [(ngModel)]="recipe.chillingMinutes" name="chillingMinutes">
+                                            <span>{{ 'recipe.minutesShort' | translate }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group editor-field">
+                                        <label for="edit-cooling-minutes">{{ 'recipe.coolingTimeLabel' | translate }}</label>
+                                        <div class="editor-unit-input">
+                                            <input id="edit-cooling-minutes" type="number" min="0" step="1" class="form-control" [(ngModel)]="recipe.coolingMinutes" name="coolingMinutes">
+                                            <span>{{ 'recipe.minutesShort' | translate }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group editor-field">
+                                        <label for="edit-resting-minutes">{{ 'recipe.restingTimeLabel' | translate }}</label>
+                                        <div class="editor-unit-input">
+                                            <input id="edit-resting-minutes" type="number" min="0" step="1" class="form-control" [(ngModel)]="recipe.restingMinutes" name="restingMinutes">
                                             <span>{{ 'recipe.minutesShort' | translate }}</span>
                                         </div>
                                     </div>

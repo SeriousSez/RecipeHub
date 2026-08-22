@@ -415,8 +415,25 @@ export class RecipeComponent implements OnInit {
   getTotalRecipeMinutes(): number | null {
     const preparationMinutes = this.recipe?.preparationMinutes ?? 0;
     const cookingMinutes = this.recipe?.cookingMinutes ?? 0;
-    const totalMinutes = preparationMinutes + cookingMinutes;
+    const chillingMinutes = this.recipe?.chillingMinutes ?? 0;
+    const coolingMinutes = this.recipe?.coolingMinutes ?? 0;
+    const restingMinutes = this.recipe?.restingMinutes ?? 0;
+    const totalMinutes = preparationMinutes + cookingMinutes + chillingMinutes + coolingMinutes + restingMinutes;
     return totalMinutes > 0 ? totalMinutes : null;
+  }
+
+  formatDuration(totalMinutes: number): string {
+    if (totalMinutes < 60) {
+      return `${totalMinutes} ${this.translateService.instant('recipe.minutesShort')}`;
+    }
+
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    if (minutes === 0) {
+      return `${hours} ${this.translateService.instant('recipe.hoursShort')}`;
+    }
+
+    return this.translateService.instant('recipe.hoursMinutesDuration', { hours, minutes });
   }
 
   adjustPortions(change: number): void {
@@ -660,6 +677,9 @@ export class RecipeComponent implements OnInit {
       portions: recipe.portions,
       preparationMinutes: recipe.preparationMinutes,
       cookingMinutes: recipe.cookingMinutes,
+      chillingMinutes: recipe.chillingMinutes,
+      coolingMinutes: recipe.coolingMinutes,
+      restingMinutes: recipe.restingMinutes,
       shelfLifeDays: recipe.shelfLifeDays,
       canBeFrozen: recipe.canBeFrozen,
       created: recipe.created,

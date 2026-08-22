@@ -229,6 +229,9 @@ namespace RecipeHub.ApplicationService.Services
                     Portions = recipe.Portions,
                     PreparationMinutes = recipe.PreparationMinutes,
                     CookingMinutes = recipe.CookingMinutes,
+                    ChillingMinutes = recipe.ChillingMinutes,
+                    CoolingMinutes = recipe.CoolingMinutes,
+                    RestingMinutes = recipe.RestingMinutes,
                     ShelfLifeDays = recipe.ShelfLifeDays,
                     CanBeFrozen = recipe.CanBeFrozen,
                     Categories = recipe.Categories ?? new List<string>(),
@@ -315,6 +318,9 @@ namespace RecipeHub.ApplicationService.Services
             recipe.Portions = model.Portions;
             recipe.PreparationMinutes = model.PreparationMinutes;
             recipe.CookingMinutes = model.CookingMinutes;
+            recipe.ChillingMinutes = model.ChillingMinutes;
+            recipe.CoolingMinutes = model.CoolingMinutes;
+            recipe.RestingMinutes = model.RestingMinutes;
             recipe.ShelfLifeDays = model.ShelfLifeDays;
             recipe.CanBeFrozen = model.CanBeFrozen;
             recipe.Categories = model.Categories ?? new List<string>();

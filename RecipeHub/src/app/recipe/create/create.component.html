@@ -147,6 +147,27 @@
                       </div>
                     </div>
                     <div class="form-group editor-field">
+                      <label for="chilling-minutes">{{ 'recipe.chillingTimeLabel' | translate }}</label>
+                      <div class="editor-unit-input">
+                        <input id="chilling-minutes" type="number" min="0" step="1" class="form-control" formControlName="chillingMinutes">
+                        <span>{{ 'recipe.minutesShort' | translate }}</span>
+                      </div>
+                    </div>
+                    <div class="form-group editor-field">
+                      <label for="cooling-minutes">{{ 'recipe.coolingTimeLabel' | translate }}</label>
+                      <div class="editor-unit-input">
+                        <input id="cooling-minutes" type="number" min="0" step="1" class="form-control" formControlName="coolingMinutes">
+                        <span>{{ 'recipe.minutesShort' | translate }}</span>
+                      </div>
+                    </div>
+                    <div class="form-group editor-field">
+                      <label for="resting-minutes">{{ 'recipe.restingTimeLabel' | translate }}</label>
+                      <div class="editor-unit-input">
+                        <input id="resting-minutes" type="number" min="0" step="1" class="form-control" formControlName="restingMinutes">
+                        <span>{{ 'recipe.minutesShort' | translate }}</span>
+                      </div>
+                    </div>
+                    <div class="form-group editor-field">
                       <label for="shelf-life-days">{{ 'recipe.shelfLifeLabel' | translate }}</label>
                       <div class="editor-unit-input">
                         <input id="shelf-life-days" type="number" min="0" step="1" class="form-control" formControlName="shelfLifeDays">

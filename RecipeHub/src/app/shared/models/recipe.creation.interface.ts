@@ -10,6 +10,9 @@ export interface RecipeCreation {
     portions: string;
     preparationMinutes?: number | null;
     cookingMinutes?: number | null;
+    chillingMinutes?: number | null;
+    coolingMinutes?: number | null;
+    restingMinutes?: number | null;
     shelfLifeDays?: number | null;
     canBeFrozen?: boolean | null;
     imageCaption: string;
