@@ -387,6 +387,12 @@ namespace RecipeHub.Infrastructure.Migrations
                     b.Property<string>("Categories")
                         .HasColumnType("longtext");
 
+                    b.Property<bool?>("CanBeFrozen")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int?>("CookingMinutes")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime(6)");
 
@@ -413,6 +419,12 @@ namespace RecipeHub.Infrastructure.Migrations
 
                     b.Property<string>("Portions")
                         .HasColumnType("longtext");
+
+                    b.Property<int?>("PreparationMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ShelfLifeDays")
+                        .HasColumnType("int");
 
                     b.Property<string>("Tags")
                         .HasColumnType("longtext");

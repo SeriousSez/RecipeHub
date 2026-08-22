@@ -226,6 +226,10 @@ namespace RecipeHub.ApplicationService.Services
                     Instructions = recipe.Instructions,
                     Language = recipe.Language,
                     Portions = recipe.Portions,
+                    PreparationMinutes = recipe.PreparationMinutes,
+                    CookingMinutes = recipe.CookingMinutes,
+                    ShelfLifeDays = recipe.ShelfLifeDays,
+                    CanBeFrozen = recipe.CanBeFrozen,
                     Categories = recipe.Categories ?? new List<string>(),
                     Tags = recipe.Tags ?? new List<string>(),
                     Created = recipe.Created,
@@ -302,6 +306,10 @@ namespace RecipeHub.ApplicationService.Services
             recipe.Description = model.Description;
             recipe.Instructions = model.Instructions;
             recipe.Portions = model.Portions;
+            recipe.PreparationMinutes = model.PreparationMinutes;
+            recipe.CookingMinutes = model.CookingMinutes;
+            recipe.ShelfLifeDays = model.ShelfLifeDays;
+            recipe.CanBeFrozen = model.CanBeFrozen;
             recipe.Categories = model.Categories ?? new List<string>();
             recipe.Tags = model.Tags ?? new List<string>();
             //recipe.Language = model.Language;

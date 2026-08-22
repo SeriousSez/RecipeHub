@@ -517,6 +517,87 @@ image-cropper {
     gap: 1rem;
 }
 
+.recipe-metadata-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+    gap: .8rem;
+    align-items: end;
+}
+
+.editor-unit-input {
+    position: relative;
+}
+
+.editor-unit-input .form-control {
+    padding-right: 3.2rem;
+}
+
+.editor-unit-input>span {
+    position: absolute;
+    top: 50%;
+    right: .7rem;
+    transform: translateY(-50%);
+    color: #64748b;
+    font-size: .72rem;
+    font-weight: 800;
+    pointer-events: none;
+}
+
+.editor-freezer-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: .55rem;
+    min-height: 44px;
+    margin: 0;
+    color: #374151;
+    font-size: .78rem;
+    font-weight: 800;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.editor-freezer-toggle input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.editor-toggle-track {
+    position: relative;
+    width: 2.3rem;
+    height: 1.3rem;
+    flex: 0 0 auto;
+    border-radius: 999px;
+    background: #cbd5e1;
+    transition: background-color .18s ease;
+}
+
+.editor-toggle-track::after {
+    content: '';
+    position: absolute;
+    top: .18rem;
+    left: .18rem;
+    width: .94rem;
+    height: .94rem;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, .25);
+    transition: transform .18s ease;
+}
+
+.editor-freezer-toggle input:checked+.editor-toggle-track {
+    background: #2169a5;
+}
+
+.editor-freezer-toggle input:checked+.editor-toggle-track::after {
+    transform: translateX(1rem);
+}
+
+.editor-freezer-toggle input:focus-visible+.editor-toggle-track {
+    outline: 3px solid rgba(33, 105, 165, .22);
+    outline-offset: 2px;
+}
+
 .editor-media-field {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -722,8 +803,13 @@ image-cropper {
 :host-context([data-theme='dark']) .editor-field label,
 :host-context([data-theme='dark']) .suggestion-field-wrap>label,
 :host-context([data-theme='dark']) .editor-ingredients-table caption,
-:host-context([data-theme='dark']) .editor-existing-ingredient label {
+:host-context([data-theme='dark']) .editor-existing-ingredient label,
+:host-context([data-theme='dark']) .editor-freezer-toggle {
     color: #e5e7eb;
+}
+
+:host-context([data-theme='dark']) .editor-unit-input>span {
+    color: #aeb9c7;
 }
 
 :host-context([data-theme='dark']) .editor-add-ingredient:disabled {
@@ -790,6 +876,10 @@ image-cropper {
     }
 
     .editor-field-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .recipe-metadata-grid {
         grid-template-columns: 1fr;
     }
 

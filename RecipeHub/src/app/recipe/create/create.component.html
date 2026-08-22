@@ -130,6 +130,35 @@
                     </div>
                   </div>
 
+                  <div class="recipe-metadata-grid">
+                    <div class="form-group editor-field">
+                      <label for="preparation-minutes">{{ 'recipe.preparationTimeLabel' | translate }}</label>
+                      <div class="editor-unit-input">
+                        <input id="preparation-minutes" type="number" min="0" step="1" class="form-control" formControlName="preparationMinutes">
+                        <span>{{ 'recipe.minutesShort' | translate }}</span>
+                      </div>
+                    </div>
+                    <div class="form-group editor-field">
+                      <label for="cooking-minutes">{{ 'recipe.cookingTimeLabel' | translate }}</label>
+                      <div class="editor-unit-input">
+                        <input id="cooking-minutes" type="number" min="0" step="1" class="form-control" formControlName="cookingMinutes">
+                        <span>{{ 'recipe.minutesShort' | translate }}</span>
+                      </div>
+                    </div>
+                    <div class="form-group editor-field">
+                      <label for="shelf-life-days">{{ 'recipe.shelfLifeLabel' | translate }}</label>
+                      <div class="editor-unit-input">
+                        <input id="shelf-life-days" type="number" min="0" step="1" class="form-control" formControlName="shelfLifeDays">
+                        <span>{{ 'recipe.daysShort' | translate }}</span>
+                      </div>
+                    </div>
+                    <label class="editor-freezer-toggle" for="can-be-frozen">
+                      <input id="can-be-frozen" type="checkbox" formControlName="canBeFrozen">
+                      <span class="editor-toggle-track" aria-hidden="true"></span>
+                      <span>{{ 'recipe.canBeFrozenLabel' | translate }}</span>
+                    </label>
+                  </div>
+
                   <div class="form-group mt-3 suggestion-field-wrap">
                     <label for="categories">{{ 'recipe.categoriesLabel' | translate }}</label>
                     <input id="categories" type="text" name="categories" class="form-control" [placeholder]="'recipe.categoriesPlaceholder' | translate" autocomplete="off" data-lpignore="true" formControlName="categories">

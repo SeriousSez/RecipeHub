@@ -63,6 +63,34 @@
             <span class="recipe-detail-date">{{displayDateOnly(recipe.created)}}</span>
         </div>
 
+        <div *ngIf="getTotalRecipeMinutes() != null || recipe.preparationMinutes != null || recipe.cookingMinutes != null || recipe.shelfLifeDays != null || recipe.canBeFrozen != null" class="recipe-detail-facts">
+            <div *ngIf="getTotalRecipeMinutes() as totalMinutes" class="recipe-detail-fact">
+                <i class="far fa-clock" aria-hidden="true"></i>
+                <span>{{ 'recipe.totalTimeLabel' | translate }}</span>
+                <strong>{{ totalMinutes }} {{ 'recipe.minutesShort' | translate }}</strong>
+            </div>
+            <div *ngIf="recipe.preparationMinutes != null" class="recipe-detail-fact">
+                <i class="fas fa-utensils" aria-hidden="true"></i>
+                <span>{{ 'recipe.preparationTimeLabel' | translate }}</span>
+                <strong>{{ recipe.preparationMinutes }} {{ 'recipe.minutesShort' | translate }}</strong>
+            </div>
+            <div *ngIf="recipe.cookingMinutes != null" class="recipe-detail-fact">
+                <i class="fas fa-fire" aria-hidden="true"></i>
+                <span>{{ 'recipe.cookingTimeLabel' | translate }}</span>
+                <strong>{{ recipe.cookingMinutes }} {{ 'recipe.minutesShort' | translate }}</strong>
+            </div>
+            <div *ngIf="recipe.shelfLifeDays != null" class="recipe-detail-fact">
+                <i class="far fa-calendar-alt" aria-hidden="true"></i>
+                <span>{{ 'recipe.shelfLifeLabel' | translate }}</span>
+                <strong>{{ recipe.shelfLifeDays }} {{ 'recipe.daysShort' | translate }}</strong>
+            </div>
+            <div *ngIf="recipe.canBeFrozen != null" class="recipe-detail-fact">
+                <i class="far fa-snowflake" aria-hidden="true"></i>
+                <span>{{ 'recipe.canBeFrozenLabel' | translate }}</span>
+                <strong>{{ (recipe.canBeFrozen ? 'recipe.yesLabel' : 'recipe.noLabel') | translate }}</strong>
+            </div>
+        </div>
+
         <figure *ngIf="recipe.image" class="recipe-detail-figure">
             <img [src]="recipe.image.url" [alt]="recipe.image.caption">
             <figcaption>{{recipe.image.caption}}</figcaption>
@@ -72,7 +100,19 @@
             <main class="recipe-detail-main-panel">
                 <div class="recipe-detail-section-header">
                     <h2>{{ 'recipe.instructionsHeading' | translate }}</h2>
-                    <span>{{formatPortions(recipe.portions)}}</span>
+                    <div *ngIf="selectedPortions != null; else staticPortions" class="recipe-portions-control">
+                        <button type="button" (click)="adjustPortions(-1)" [disabled]="selectedPortions <= 1" [attr.aria-label]="'recipe.decreasePortionsAria' | translate">
+                            <i class="fas fa-minus" aria-hidden="true"></i>
+                        </button>
+                        <label for="reader-portions">{{ 'recipe.servesShortLabel' | translate }}</label>
+                        <input id="reader-portions" type="number" min="1" step="1" [ngModel]="selectedPortions" (ngModelChange)="setSelectedPortions($event)" [attr.aria-label]="'recipe.portionsLabel' | translate">
+                        <button type="button" (click)="adjustPortions(1)" [attr.aria-label]="'recipe.increasePortionsAria' | translate">
+                            <i class="fas fa-plus" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    <ng-template #staticPortions>
+                        <span>{{formatPortions(recipe.portions)}}</span>
+                    </ng-template>
                 </div>
                 <div class="recipe-detail-instructions" [innerHTML]="utilityService.transformToSafeHtml(recipe.instructions)"></div>
             </main>
@@ -87,7 +127,7 @@
 
                 <div *ngIf="showIngredients && currentIngredients.length > 0" class="recipe-ingredient-list">
                     <p *ngFor="let ingredient of currentIngredients" class="recipe-ingredient-item" [class.is-in-pantry]="isPantryIngredient(ingredient.name)">
-                        {{ingredient.name}} <span *ngIf="ingredient.amount">- <i>{{ingredient.amount}} {{getMeasurementAbbreviation(ingredient.amountType)}}</i></span>
+                        {{ingredient.name}} <span *ngIf="ingredient.amount">- <i>{{getScaledIngredientAmount(ingredient.amount)}} {{getMeasurementAbbreviation(ingredient.amountType)}}</i></span>
                     </p>
                 </div>
 
@@ -297,9 +337,37 @@
                         </h2>
                         <div id="collapseCosmetics" class="accordion-collapse collapse" aria-labelledby="headingBody" data-bs-parent="#accordion">
                             <div class="accordion-body">
-                                <div class="form-group">
+                                <div class="form-group editor-field">
                                     <label for="image-caption">{{ 'recipe.cardDescriptionLabel' | translate }}</label>
                                     <textarea id="image-caption" type="text" name="description" [(ngModel)]="recipe.description" class="form-control description" [placeholder]="'recipe.cardDescriptionPlaceholder' | translate" autocomplete="off" data-lpignore="true" required="required"></textarea>
+                                </div>
+                                <div class="recipe-metadata-grid mt-3">
+                                    <div class="form-group editor-field">
+                                        <label for="edit-preparation-minutes">{{ 'recipe.preparationTimeLabel' | translate }}</label>
+                                        <div class="editor-unit-input">
+                                            <input id="edit-preparation-minutes" type="number" min="0" step="1" class="form-control" [(ngModel)]="recipe.preparationMinutes" name="preparationMinutes">
+                                            <span>{{ 'recipe.minutesShort' | translate }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group editor-field">
+                                        <label for="edit-cooking-minutes">{{ 'recipe.cookingTimeLabel' | translate }}</label>
+                                        <div class="editor-unit-input">
+                                            <input id="edit-cooking-minutes" type="number" min="0" step="1" class="form-control" [(ngModel)]="recipe.cookingMinutes" name="cookingMinutes">
+                                            <span>{{ 'recipe.minutesShort' | translate }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group editor-field">
+                                        <label for="edit-shelf-life-days">{{ 'recipe.shelfLifeLabel' | translate }}</label>
+                                        <div class="editor-unit-input">
+                                            <input id="edit-shelf-life-days" type="number" min="0" step="1" class="form-control" [(ngModel)]="recipe.shelfLifeDays" name="shelfLifeDays">
+                                            <span>{{ 'recipe.daysShort' | translate }}</span>
+                                        </div>
+                                    </div>
+                                    <label class="editor-freezer-toggle" for="edit-can-be-frozen">
+                                        <input id="edit-can-be-frozen" type="checkbox" [(ngModel)]="recipe.canBeFrozen" name="canBeFrozen">
+                                        <span class="editor-toggle-track" aria-hidden="true"></span>
+                                        <span>{{ 'recipe.canBeFrozenLabel' | translate }}</span>
+                                    </label>
                                 </div>
                             </div>
                         </div>

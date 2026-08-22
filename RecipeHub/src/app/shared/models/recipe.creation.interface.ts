@@ -8,6 +8,10 @@ export interface RecipeCreation {
     language: string;
     instructions: string;
     portions: string;
+    preparationMinutes?: number | null;
+    cookingMinutes?: number | null;
+    shelfLifeDays?: number | null;
+    canBeFrozen?: boolean | null;
     imageCaption: string;
     imageUrl: string;
     image: ImageCreation;

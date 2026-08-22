@@ -8,6 +8,10 @@ export interface Recipe {
     description: string;
     instructions: string;
     portions: string;
+    preparationMinutes?: number | null;
+    cookingMinutes?: number | null;
+    shelfLifeDays?: number | null;
+    canBeFrozen?: boolean | null;
     created: string;
     image: Image | null;
     ingredients: Ingredient[];

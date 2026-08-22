@@ -40,6 +40,8 @@ export class RecipeComponent implements OnInit {
   public recipeId: string | null = null;
 
   public recipe: Recipe;
+  public basePortions: number | null = null;
+  public selectedPortions: number | null = null;
   public ingredientsToDelete: Ingredient[] = [];
   public ingredients: Ingredient[] = [];
   public currentIngredients: Ingredient[] = [];
@@ -207,6 +209,8 @@ export class RecipeComponent implements OnInit {
 
   setRecipeState(recipe: Recipe) {
     this.recipe = recipe;
+    this.basePortions = this.parseNumericPortions(recipe.portions);
+    this.selectedPortions = this.basePortions;
     this.title = recipe.title;
     this.creator = recipe.creator;
     this.recipeId = recipe.id;
@@ -360,6 +364,51 @@ export class RecipeComponent implements OnInit {
     }
 
     return this.translateService.instant('recipe.servesLabel', { portions: trimmed });
+  }
+
+  getTotalRecipeMinutes(): number | null {
+    const preparationMinutes = this.recipe?.preparationMinutes ?? 0;
+    const cookingMinutes = this.recipe?.cookingMinutes ?? 0;
+    const totalMinutes = preparationMinutes + cookingMinutes;
+    return totalMinutes > 0 ? totalMinutes : null;
+  }
+
+  adjustPortions(change: number): void {
+    if (this.selectedPortions == null) {
+      return;
+    }
+
+    this.selectedPortions = Math.max(1, Math.round((this.selectedPortions + change) * 10) / 10);
+  }
+
+  setSelectedPortions(value: number | string | null): void {
+    const parsedValue = Number(value);
+    if (!Number.isFinite(parsedValue) || parsedValue <= 0) {
+      this.selectedPortions = this.basePortions;
+      return;
+    }
+
+    this.selectedPortions = Math.round(parsedValue * 10) / 10;
+  }
+
+  getScaledIngredientAmount(amount: number | null | undefined): string {
+    if (amount == null || !Number.isFinite(Number(amount))) {
+      return '';
+    }
+
+    const scale = this.basePortions && this.selectedPortions
+      ? this.selectedPortions / this.basePortions
+      : 1;
+    const scaledAmount = Number(amount) * scale;
+
+    return new Intl.NumberFormat(undefined, {
+      maximumFractionDigits: 2
+    }).format(scaledAmount);
+  }
+
+  private parseNumericPortions(portions: string | null | undefined): number | null {
+    const parsedValue = Number((portions ?? '').trim().replace(',', '.'));
+    return Number.isFinite(parsedValue) && parsedValue > 0 ? parsedValue : null;
   }
 
   getMeasurementAbbreviation(measurement: string) {
@@ -547,6 +596,10 @@ export class RecipeComponent implements OnInit {
       description: recipe.description,
       instructions: recipe.instructions,
       portions: recipe.portions,
+      preparationMinutes: recipe.preparationMinutes,
+      cookingMinutes: recipe.cookingMinutes,
+      shelfLifeDays: recipe.shelfLifeDays,
+      canBeFrozen: recipe.canBeFrozen,
       created: recipe.created,
       image: recipe.image,
       ingredients: recipe.ingredients,
