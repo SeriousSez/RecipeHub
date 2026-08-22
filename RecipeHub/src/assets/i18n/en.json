@@ -264,6 +264,16 @@
         "categoriesLabel": "Categories",
         "categoriesPlaceholder": "breakfast, lunch, healthy",
         "suggestionHint": "Type a custom value or choose from the suggestions.",
+        "browseCategoryGroupsAria": "Browse category groups",
+        "browseTagGroupsAria": "Browse tag groups",
+        "taxonomyGroups": {
+            "mealType": "Meal type",
+            "cuisine": "Cuisine",
+            "dietary": "Dietary",
+            "practical": "Practical",
+            "nutrition": "Nutrition",
+            "occasion": "Occasion"
+        },
         "tagsLabel": "Tags",
         "tagsPlaceholder": "quick, vegetarian, budget",
         "ingredientsAccordionHeader": "Ingredients",

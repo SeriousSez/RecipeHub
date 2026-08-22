@@ -13,6 +13,7 @@ import { SafeService } from 'src/app/shared/utils/safe.service';
 import { Ingredient } from '../models/ingredient.interface';
 import { RecipeUpdate } from '../models/recipe-update.interface';
 import { Recipe } from '../models/recipe.interface';
+import { RECIPE_CATEGORY_GROUPS, RECIPE_TAG_GROUPS } from '../models/recipe-taxonomy';
 import { IngredientService } from '../services/ingredient.service';
 import { RecipeService } from '../services/recipe.service';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
@@ -47,12 +48,10 @@ export class RecipeComponent implements OnInit {
   public newIngredient: Ingredient = { name: "", description: "", amount: 0, amountType: 'Pinch or dash', image: null, created: '' };
   public categoriesInput: string = '';
   public tagsInput: string = '';
-  public presetCategories: string[] = ['Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Healthy', 'Quick', 'Vegetarian', 'Vegan', 'High Protein', 'Budget', 'Gluten Free', 'Dairy Free', 'Family Friendly'];
-  public presetTags: string[] = ['Quick', 'Easy', 'Meal Prep', 'Vegetarian', 'Vegan', 'High Protein', 'Budget', 'Comfort Food', 'Family Friendly', 'Low Carb', 'Kid Friendly', 'One Pot'];
-  public filteredPresetCategories: string[] = [];
-  public filteredPresetTags: string[] = [];
-  public showCategorySuggestions: boolean = false;
-  public showTagSuggestions: boolean = false;
+  public readonly categoryGroups = RECIPE_CATEGORY_GROUPS;
+  public readonly tagGroups = RECIPE_TAG_GROUPS;
+  public activeCategoryGroupId: string = RECIPE_CATEGORY_GROUPS[0].id;
+  public activeTagGroupId: string = RECIPE_TAG_GROUPS[0].id;
 
   public edit: boolean = false;
   public canEdit: boolean = false;
@@ -109,8 +108,6 @@ export class RecipeComponent implements OnInit {
     this.loadPantryIngredients();
     this.status = this.userService.isAuthenticated();
     this.getRecipe();
-    this.handlePresetSearch('category');
-    this.handlePresetSearch('tag');
     this.subscription = this.userService.authStatus$.subscribe(status => this.status = status || this.userService.isAuthenticated());
   }
 
@@ -468,15 +465,17 @@ export class RecipeComponent implements OnInit {
     return model;
   }
 
-  handlePresetSearch(type: 'category' | 'tag'): void {
-    const source = type === 'category' ? this.presetCategories : this.presetTags;
+  getActiveTaxonomyValues(type: 'category' | 'tag'): string[] {
+    const groups = type === 'category' ? this.categoryGroups : this.tagGroups;
+    const activeGroupId = type === 'category' ? this.activeCategoryGroupId : this.activeTagGroupId;
+    return groups.find(group => group.id === activeGroupId)?.values ?? [];
+  }
 
+  setActiveTaxonomyGroup(type: 'category' | 'tag', groupId: string): void {
     if (type === 'category') {
-      this.filteredPresetCategories = source.slice(0, 12);
-      this.showCategorySuggestions = this.filteredPresetCategories.length > 0;
+      this.activeCategoryGroupId = groupId;
     } else {
-      this.filteredPresetTags = source.slice(0, 12);
-      this.showTagSuggestions = this.filteredPresetTags.length > 0;
+      this.activeTagGroupId = groupId;
     }
   }
 
@@ -499,7 +498,6 @@ export class RecipeComponent implements OnInit {
         this.tagsInput = formatted;
       }
 
-      this.handlePresetSearch(type);
       return;
     }
 
@@ -508,12 +506,8 @@ export class RecipeComponent implements OnInit {
 
     if (type === 'category') {
       this.categoriesInput = formatted;
-      this.showCategorySuggestions = true;
-      this.handlePresetSearch('category');
     } else {
       this.tagsInput = formatted;
-      this.showTagSuggestions = true;
-      this.handlePresetSearch('tag');
     }
   }
 

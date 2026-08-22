@@ -264,6 +264,16 @@
         "categoriesLabel": "Kategoriler",
         "categoriesPlaceholder": "kahvaltı, öğle yemeği, sağlıklı",
         "suggestionHint": "Özel bir değer girin veya önerilerden seçin.",
+        "browseCategoryGroupsAria": "Kategori gruplarına göz at",
+        "browseTagGroupsAria": "Etiket gruplarına göz at",
+        "taxonomyGroups": {
+            "mealType": "Öğün türü",
+            "cuisine": "Mutfak",
+            "dietary": "Beslenme şekli",
+            "practical": "Pratik",
+            "nutrition": "Beslenme",
+            "occasion": "Özel gün"
+        },
         "tagsLabel": "Etiketler",
         "tagsPlaceholder": "hızlı, vejetaryen, ekonomik",
         "ingredientsAccordionHeader": "Malzemeler",

@@ -123,25 +123,36 @@
 
                   <div class="form-group mt-3 suggestion-field-wrap">
                     <label for="categories">{{ 'recipe.categoriesLabel' | translate }}</label>
-                    <input id="categories" type="text" name="categories" class="form-control" [placeholder]="'recipe.categoriesPlaceholder' | translate" autocomplete="off" data-lpignore="true" formControlName="categories" (input)="handlePresetSearch('category')"
-                      (focus)="showCategorySuggestions = true; handlePresetSearch('category')">
-                    <div class="suggestion-pills" *ngIf="filteredPresetCategories.length > 0">
-                      <button type="button" class="suggestion-pill" [class.is-active]="isPresetSelected('category', category)" *ngFor="let category of filteredPresetCategories" (mousedown)="$event.preventDefault(); addPresetValue('category', category)">
-                        {{ category }}
-                      </button>
+                    <input id="categories" type="text" name="categories" class="form-control" [placeholder]="'recipe.categoriesPlaceholder' | translate" autocomplete="off" data-lpignore="true" formControlName="categories">
+                    <div class="taxonomy-browser">
+                      <div class="taxonomy-tabs" role="tablist" [attr.aria-label]="'recipe.browseCategoryGroupsAria' | translate">
+                        <button type="button" class="taxonomy-tab" role="tab" *ngFor="let group of categoryGroups" [class.is-active]="activeCategoryGroupId === group.id" [attr.aria-selected]="activeCategoryGroupId === group.id" (click)="setActiveTaxonomyGroup('category', group.id)">
+                          {{ group.labelKey | translate }}
+                        </button>
+                      </div>
+                      <div class="suggestion-pills" role="tabpanel">
+                        <button type="button" class="suggestion-pill" [class.is-active]="isPresetSelected('category', category)" *ngFor="let category of getActiveTaxonomyValues('category')" (click)="addPresetValue('category', category)">
+                          {{ category }}
+                        </button>
+                      </div>
                     </div>
-                    <small class="text-muted">{{ 'recipe.suggestionHint' | translate }}</small>
                   </div>
 
                   <div class="form-group mt-3 suggestion-field-wrap">
                     <label for="tags">{{ 'recipe.tagsLabel' | translate }}</label>
-                    <input id="tags" type="text" name="tags" class="form-control" [placeholder]="'recipe.tagsPlaceholder' | translate" autocomplete="off" data-lpignore="true" formControlName="tags" (input)="handlePresetSearch('tag')" (focus)="showTagSuggestions = true; handlePresetSearch('tag')">
-                    <div class="suggestion-pills" *ngIf="filteredPresetTags.length > 0">
-                      <button type="button" class="suggestion-pill" [class.is-active]="isPresetSelected('tag', tag)" *ngFor="let tag of filteredPresetTags" (mousedown)="$event.preventDefault(); addPresetValue('tag', tag)">
-                        {{ tag }}
-                      </button>
+                    <input id="tags" type="text" name="tags" class="form-control" [placeholder]="'recipe.tagsPlaceholder' | translate" autocomplete="off" data-lpignore="true" formControlName="tags">
+                    <div class="taxonomy-browser">
+                      <div class="taxonomy-tabs" role="tablist" [attr.aria-label]="'recipe.browseTagGroupsAria' | translate">
+                        <button type="button" class="taxonomy-tab" role="tab" *ngFor="let group of tagGroups" [class.is-active]="activeTagGroupId === group.id" [attr.aria-selected]="activeTagGroupId === group.id" (click)="setActiveTaxonomyGroup('tag', group.id)">
+                          {{ group.labelKey | translate }}
+                        </button>
+                      </div>
+                      <div class="suggestion-pills" role="tabpanel">
+                        <button type="button" class="suggestion-pill" [class.is-active]="isPresetSelected('tag', tag)" *ngFor="let tag of getActiveTaxonomyValues('tag')" (click)="addPresetValue('tag', tag)">
+                          {{ tag }}
+                        </button>
+                      </div>
                     </div>
-                    <small class="text-muted">{{ 'recipe.suggestionHint' | translate }}</small>
                   </div>
                 </div>
               </div>

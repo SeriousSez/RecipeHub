@@ -264,6 +264,16 @@
         "categoriesLabel": "Kategorier",
         "categoriesPlaceholder": "morgenmad, frokost, sundt",
         "suggestionHint": "Indtast en brugerdefineret værdi, eller vælg blandt forslagene.",
+        "browseCategoryGroupsAria": "Gennemse kategorigrupper",
+        "browseTagGroupsAria": "Gennemse taggrupper",
+        "taxonomyGroups": {
+            "mealType": "Måltidstype",
+            "cuisine": "Køkken",
+            "dietary": "Kosttype",
+            "practical": "Praktisk",
+            "nutrition": "Ernæring",
+            "occasion": "Anledning"
+        },
         "tagsLabel": "Tags",
         "tagsPlaceholder": "hurtigt, vegetarisk, billigt",
         "ingredientsAccordionHeader": "Ingredienser",

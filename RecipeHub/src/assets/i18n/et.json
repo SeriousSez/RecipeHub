@@ -264,6 +264,16 @@
         "categoriesLabel": "Kategooriad",
         "categoriesPlaceholder": "hommikusöök, lõuna, tervislik",
         "suggestionHint": "Sisesta oma väärtus või vali soovitustest.",
+        "browseCategoryGroupsAria": "Sirvi kategooriarühmi",
+        "browseTagGroupsAria": "Sirvi sildirühmi",
+        "taxonomyGroups": {
+            "mealType": "Toidukord",
+            "cuisine": "Köök",
+            "dietary": "Toitumine",
+            "practical": "Praktiline",
+            "nutrition": "Toiteväärtus",
+            "occasion": "Sündmus"
+        },
         "tagsLabel": "Sildid",
         "tagsPlaceholder": "kiire, taimetoit, eelarve",
         "ingredientsAccordionHeader": "Koostisosad",

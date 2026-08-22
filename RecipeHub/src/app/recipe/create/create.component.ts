@@ -8,6 +8,7 @@ import { RecipeCreation } from 'src/app/shared/models/recipe.creation.interface'
 import { UserService } from 'src/app/shared/services/user.service';
 import { UtilityService } from 'src/app/shared/utils/utility.service';
 import { Ingredient } from '../models/ingredient.interface';
+import { RECIPE_CATEGORY_GROUPS, RECIPE_TAG_GROUPS } from '../models/recipe-taxonomy';
 import { IngredientService } from '../services/ingredient.service';
 import { RecipeService } from '../services/recipe.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -43,12 +44,10 @@ export class CreateComponent implements OnInit {
   public ingredients: Ingredient[];
   public categoriesInput: string = '';
   public tagsInput: string = '';
-  public presetCategories: string[] = ['Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Healthy', 'Quick', 'Vegetarian', 'Vegan', 'High Protein', 'Budget', 'Gluten Free', 'Dairy Free', 'Family Friendly'];
-  public presetTags: string[] = ['Quick', 'Easy', 'Meal Prep', 'Vegetarian', 'Vegan', 'High Protein', 'Budget', 'Comfort Food', 'Family Friendly', 'Low Carb', 'Kid Friendly', 'One Pot'];
-  public filteredPresetCategories: string[] = [];
-  public filteredPresetTags: string[] = [];
-  public showCategorySuggestions: boolean = false;
-  public showTagSuggestions: boolean = false;
+  public readonly categoryGroups = RECIPE_CATEGORY_GROUPS;
+  public readonly tagGroups = RECIPE_TAG_GROUPS;
+  public activeCategoryGroupId: string = RECIPE_CATEGORY_GROUPS[0].id;
+  public activeTagGroupId: string = RECIPE_TAG_GROUPS[0].id;
 
   public defaultImageUrl: string = "../../assets/images/food.png";
   public imageUrl: string;
@@ -114,8 +113,6 @@ export class CreateComponent implements OnInit {
       description: ['']
     });
 
-    this.handlePresetSearch('category');
-    this.handlePresetSearch('tag');
   }
 
   getIngredients() {
@@ -175,15 +172,17 @@ export class CreateComponent implements OnInit {
       .map(item => item.charAt(0).toUpperCase() + item.slice(1).toLowerCase());
   }
 
-  handlePresetSearch(type: 'category' | 'tag'): void {
-    const source = type === 'category' ? this.presetCategories : this.presetTags;
+  getActiveTaxonomyValues(type: 'category' | 'tag'): string[] {
+    const groups = type === 'category' ? this.categoryGroups : this.tagGroups;
+    const activeGroupId = type === 'category' ? this.activeCategoryGroupId : this.activeTagGroupId;
+    return groups.find(group => group.id === activeGroupId)?.values ?? [];
+  }
 
+  setActiveTaxonomyGroup(type: 'category' | 'tag', groupId: string): void {
     if (type === 'category') {
-      this.filteredPresetCategories = source.slice(0, 12);
-      this.showCategorySuggestions = this.filteredPresetCategories.length > 0;
+      this.activeCategoryGroupId = groupId;
     } else {
-      this.filteredPresetTags = source.slice(0, 12);
-      this.showTagSuggestions = this.filteredPresetTags.length > 0;
+      this.activeTagGroupId = groupId;
     }
   }
 
@@ -200,7 +199,6 @@ export class CreateComponent implements OnInit {
     if (existingValues.some(item => item.toLowerCase() === normalizedValue.toLowerCase())) {
       const updatedValues = existingValues.filter(item => item.toLowerCase() !== normalizedValue.toLowerCase());
       this.recipeForm.get(fieldName)?.setValue(updatedValues.map(item => item.charAt(0).toUpperCase() + item.slice(1).toLowerCase()).join(', '));
-      this.handlePresetSearch(type);
       return;
     }
 
@@ -208,13 +206,6 @@ export class CreateComponent implements OnInit {
     const formatted = existingValues.map(item => item.charAt(0).toUpperCase() + item.slice(1).toLowerCase()).join(', ');
     this.recipeForm.get(fieldName)?.setValue(formatted);
 
-    if (type === 'category') {
-      this.showCategorySuggestions = true;
-      this.handlePresetSearch('category');
-    } else {
-      this.showTagSuggestions = true;
-      this.handlePresetSearch('tag');
-    }
   }
 
   addToNewIngredient(event: Ingredient | null) {
