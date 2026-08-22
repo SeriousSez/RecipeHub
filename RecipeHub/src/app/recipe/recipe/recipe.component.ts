@@ -1,8 +1,8 @@
 import { DatePipe } from '@angular/common';
-import { Component, OnInit, ViewChildren } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewChildren } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
-import { ImageCroppedEvent } from 'ngx-image-cropper';
+import { ImageCroppedEvent, ImageCropperComponent, LoadedImage } from 'ngx-image-cropper';
 import { Subscription } from 'rxjs';
 import { FavoriteRecipe } from 'src/app/shared/models/favorite-recipe.interface';
 import { FavoriteService } from 'src/app/shared/services/favorite.service';
@@ -26,6 +26,9 @@ import { TranslateService } from '@ngx-translate/core';
   standalone: false
 })
 export class RecipeComponent implements OnInit {
+  imageAspectRatio = 10 / 10;
+  imageCropperWidth = 'min(100%, 853px, 93.33vh)';
+  @ViewChild('imageCropper') imageCropper?: ImageCropperComponent;
   private readonly pantryStorageKey = 'recipehub-pantry-ingredients';
 
   @ViewChildren("select") select: any;
@@ -640,8 +643,15 @@ export class RecipeComponent implements OnInit {
     this.imageUrl = event.base64;
     this.savedOrCanceled = true;
   }
-  imageLoaded() {
-    // show cropper
+  imageLoaded(event: LoadedImage) {
+    const { width, height } = event.transformed.size;
+    this.imageAspectRatio = width > 0 && height > 0 ? width / height : 4 / 3;
+    this.imageCropperWidth = `min(100%, ${this.imageAspectRatio * 640}px, ${this.imageAspectRatio * 70}vh)`;
+    setTimeout(() => {
+      this.imageCropper?.resetCropperPosition();
+      const croppedImage = this.imageCropper?.crop('base64');
+      if (croppedImage) this.imageCropped(croppedImage);
+    });
   }
   cropperReady() {
     // cropper ready

@@ -1,7 +1,7 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { AbstractControl, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ImageCroppedEvent } from 'ngx-image-cropper';
+import { ImageCroppedEvent, ImageCropperComponent, LoadedImage } from 'ngx-image-cropper';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
 import { IngredientCreation } from 'src/app/shared/models/ingredient.creation.interface';
 import { RecipeCreation } from 'src/app/shared/models/recipe.creation.interface';
@@ -20,10 +20,13 @@ import { TranslateService } from '@ngx-translate/core';
   standalone: false
 })
 export class CreateComponent implements OnInit {
+  imageAspectRatio = 4 / 3;
+  imageCropperWidth = 'min(100%, 853px, 93.33vh)';
   public measurements: string[] = ['Pinch or dash', 'Piece', 'Milliliter', 'Liter', 'Teaspoon', 'Tablespoon', 'Cup', 'Gram', 'Kilogram', 'Ounce', 'Pound', 'Clove']
   public languages: string[] = ['Danish', 'English', 'Estonian', 'Turkish']
 
   @ViewChild("select", { static: true }) select: ElementRef;
+  @ViewChild('imageCropper') imageCropper?: ImageCropperComponent;
   //#region preview
   public fakeInstructions: string = "<p><em><strong>Spice</strong></em></p><p><tt>An aromatic or pungent vegetable substance used to flavour food, e.g. cloves, pepper, or cumin.</tt></p><p><img alt='Get to Know Your SPICEs - Zuken US' src='https://www.zuken.com/us/wp-content/uploads/sites/12/2020/06/BL0236-spices-1280x620-1.jpg' style='height:100%; width:100%' /></p><p><q><cite><small>He ordered his regular breakfast. Two eggs sunnyside up, hash browns, and two strips of bacon. He continued to look at the menu wondering if this would be the day he added something new. This was also part of the routine. A few seconds of hesitation to see if something else would be added to the order before demuring and saying that would be all. It was the same exact meal that he had ordered every day for the past two years.</small></cite></q></p>";
   public fakeDescription: string = "A spice is a seed, fruit, root, bark, or other plant substance primarily used for flavoring or coloring food. Spices are distinguished from herbs, which are the leaves, flowers, or stems of plants used for flavoring or as a garnish. Spices are sometimes used in medicine, religious rituals, cosmetics or perfume production.";
@@ -292,8 +295,15 @@ export class CreateComponent implements OnInit {
     this.imageUrl = event.base64;
     this.savedOrCanceled = true;
   }
-  imageLoaded() {
-    // show cropper
+  imageLoaded(event: LoadedImage) {
+    const { width, height } = event.transformed.size;
+    this.imageAspectRatio = width > 0 && height > 0 ? width / height : 4 / 3;
+    this.imageCropperWidth = `min(100%, ${this.imageAspectRatio * 640}px, ${this.imageAspectRatio * 70}vh)`;
+    setTimeout(() => {
+      this.imageCropper?.resetCropperPosition();
+      const croppedImage = this.imageCropper?.crop('base64');
+      if (croppedImage) this.imageCropped(croppedImage);
+    });
   }
   cropperReady() {
     // cropper ready
