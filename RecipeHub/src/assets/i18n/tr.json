@@ -280,11 +280,13 @@
         "browseTagGroupsAria": "Etiket gruplarına göz at",
         "taxonomyGroups": {
             "mealType": "Öğün türü",
+            "seasonal": "Mevsimsel",
             "cuisine": "Mutfak",
             "dietary": "Beslenme şekli",
             "practical": "Pratik",
             "nutrition": "Beslenme",
-            "occasion": "Özel gün"
+            "occasion": "Özel gün",
+            "features": "Özellikler"
         },
         "tagsLabel": "Etiketler",
         "tagsPlaceholder": "hızlı, vejetaryen, ekonomik",

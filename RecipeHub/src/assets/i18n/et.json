@@ -280,11 +280,13 @@
         "browseTagGroupsAria": "Sirvi sildirühmi",
         "taxonomyGroups": {
             "mealType": "Toidukord",
+            "seasonal": "Hooajaline",
             "cuisine": "Köök",
             "dietary": "Toitumine",
             "practical": "Praktiline",
             "nutrition": "Toiteväärtus",
-            "occasion": "Sündmus"
+            "occasion": "Sündmus",
+            "features": "Omadused"
         },
         "tagsLabel": "Sildid",
         "tagsPlaceholder": "kiire, taimetoit, eelarve",

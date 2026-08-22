@@ -280,11 +280,13 @@
         "browseTagGroupsAria": "Browse tag groups",
         "taxonomyGroups": {
             "mealType": "Meal type",
+            "seasonal": "Seasonal",
             "cuisine": "Cuisine",
             "dietary": "Dietary",
             "practical": "Practical",
             "nutrition": "Nutrition",
-            "occasion": "Occasion"
+            "occasion": "Occasion",
+            "features": "Features"
         },
         "tagsLabel": "Tags",
         "tagsPlaceholder": "quick, vegetarian, budget",

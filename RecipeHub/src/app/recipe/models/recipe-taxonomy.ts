@@ -8,34 +8,44 @@ export const RECIPE_CATEGORY_GROUPS: RecipeTaxonomyGroup[] = [
     {
         id: 'mealType',
         labelKey: 'recipe.taxonomyGroups.mealType',
-        values: ['Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Snack']
+        values: ['Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Snack', 'Side Dish', 'Appetizer', 'Soup', 'Salad', 'Beverage']
     },
     {
         id: 'cuisine',
         labelKey: 'recipe.taxonomyGroups.cuisine',
-        values: ['Danish', 'Turkish', 'Italian', 'Asian-inspired', 'Mexican', 'Mediterranean']
+        values: ['Danish', 'Turkish', 'Italian', 'Asian-inspired', 'Mexican', 'Mediterranean', 'American', 'French', 'Greek', 'Indian', 'Middle Eastern']
     },
     {
         id: 'dietary',
         labelKey: 'recipe.taxonomyGroups.dietary',
         values: ['Vegetarian', 'Vegan', 'Gluten Free', 'Dairy Free']
-    }
+    },
+    {
+        id: 'seasonal',
+        labelKey: 'recipe.taxonomyGroups.seasonal',
+        values: ['Winter', 'Spring', 'Summer', 'Autumn']
+    },
 ];
 
 export const RECIPE_TAG_GROUPS: RecipeTaxonomyGroup[] = [
     {
         id: 'practical',
         labelKey: 'recipe.taxonomyGroups.practical',
-        values: ['Quick', 'Easy', 'Meal Prep', 'Budget', 'Family Friendly', 'Kid Friendly', 'One Pot']
+        values: ['Quick', 'Easy', 'Meal Prep', 'Make Ahead', 'Budget', 'Family Friendly', 'Kid Friendly', 'One Pot', 'One Pan', 'No Cook']
     },
     {
         id: 'nutrition',
         labelKey: 'recipe.taxonomyGroups.nutrition',
-        values: ['Healthy', 'High Protein', 'Low Carb']
+        values: ['Healthy', 'High Protein', 'Low Carb', 'High Fiber']
     },
     {
         id: 'occasion',
         labelKey: 'recipe.taxonomyGroups.occasion',
-        values: ['Christmas', 'Traditional', 'Comfort Food', 'Everyday', 'Party']
+        values: ['Christmas', 'Easter', 'Traditional', 'Comfort Food', 'Everyday', 'Party']
+    },
+    {
+        id: 'features',
+        labelKey: 'recipe.taxonomyGroups.features',
+        values: ['Alcohol', 'Caffeine', 'Spicy', 'Sweet', 'Savory', 'Grilled', 'Baked', 'Fried', 'Roasted', 'Steamed']
     }
 ];

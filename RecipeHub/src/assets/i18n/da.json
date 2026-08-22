@@ -280,11 +280,13 @@
         "browseTagGroupsAria": "Gennemse taggrupper",
         "taxonomyGroups": {
             "mealType": "Måltidstype",
+            "seasonal": "Sæson",
             "cuisine": "Køkken",
             "dietary": "Kosttype",
             "practical": "Praktisk",
             "nutrition": "Ernæring",
-            "occasion": "Anledning"
+            "occasion": "Anledning",
+            "features": "Egenskaber"
         },
         "tagsLabel": "Tags",
         "tagsPlaceholder": "hurtigt, vegetarisk, billigt",
