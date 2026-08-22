@@ -528,6 +528,10 @@ image-cropper {
     align-items: end;
 }
 
+.recipe-metadata-grid .form-group {
+    margin-bottom: 0;
+}
+
 .editor-unit-input {
     position: relative;
 }
