@@ -5,8 +5,8 @@ import { ConfigService } from '../../shared/utils/config.service';
 
 import { BaseService } from '../../shared/services/base.service';
 
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, timer } from 'rxjs';
+import { map, retry } from 'rxjs/operators';
 import { Recipe } from '../models/recipe.interface';
 import { RecipeCreation } from 'src/app/shared/models/recipe.creation.interface';
 import { Ingredient } from '../models/ingredient.interface';
@@ -76,10 +76,12 @@ export class RecipeService extends BaseService {
     if (query.favoriteIds) params.set('favoriteIds', query.favoriteIds);
 
     return this.http.get<RecipePagedResult>(this.baseUrl + `/recipe/paged?${params.toString()}`, this.httpOptions)
-      .pipe(map(details => {
-        return details;
-      }, (error: any) => console.log(error, "fails")
-      ));
+      .pipe(
+        retry({ count: 2, delay: (_, attempt) => timer(attempt * 800) }),
+        map(details => {
+          return details;
+        }, (error: any) => console.log(error, "fails")
+        ));
   }
 
   getRecipesByCreator(creator: string): Observable<Recipe[]> {

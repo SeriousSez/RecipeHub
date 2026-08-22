@@ -351,85 +351,96 @@ namespace RecipeHub.Api.Controllers
             string creator = null,
             string favoriteIds = null)
         {
-            page = page < 1 ? 1 : page;
-            pageSize = pageSize < 1 ? 9 : pageSize;
-
-            var allRecipes = await GetAllRecipesCachedAsync();
-
-            var availableCategories = allRecipes
-                .SelectMany(r => r.Categories ?? new List<string>())
-                .Select(c => c.Trim().ToLowerInvariant())
-                .Where(c => !string.IsNullOrEmpty(c))
-                .Distinct()
-                .OrderBy(c => c)
-                .ToList();
-
-            var availableTags = allRecipes
-                .SelectMany(r => r.Tags ?? new List<string>())
-                .Select(t => t.Trim().ToLowerInvariant())
-                .Where(t => !string.IsNullOrEmpty(t))
-                .Distinct()
-                .OrderBy(t => t)
-                .ToList();
-
-            IEnumerable<RecipeResponse> filtered = allRecipes;
-
-            if (!string.IsNullOrWhiteSpace(creator))
+            try
             {
-                filtered = filtered.Where(r => string.Equals(r.Creator, creator, StringComparison.OrdinalIgnoreCase));
+                page = page < 1 ? 1 : page;
+                pageSize = pageSize < 1 ? 9 : pageSize;
+
+                var allRecipes = await GetAllRecipesCachedAsync();
+
+                var availableCategories = allRecipes
+                    .SelectMany(r => r.Categories ?? new List<string>())
+                    .Where(c => !string.IsNullOrWhiteSpace(c))
+                    .Select(c => c.Trim().ToLowerInvariant())
+                    .Distinct()
+                    .OrderBy(c => c)
+                    .ToList();
+
+                var availableTags = allRecipes
+                    .SelectMany(r => r.Tags ?? new List<string>())
+                    .Where(t => !string.IsNullOrWhiteSpace(t))
+                    .Select(t => t.Trim().ToLowerInvariant())
+                    .Distinct()
+                    .OrderBy(t => t)
+                    .ToList();
+
+                IEnumerable<RecipeResponse> filtered = allRecipes;
+
+                if (!string.IsNullOrWhiteSpace(creator))
+                {
+                    filtered = filtered.Where(r => string.Equals(r.Creator, creator, StringComparison.OrdinalIgnoreCase));
+                }
+
+                if (!string.IsNullOrWhiteSpace(favoriteIds))
+                {
+                    var ids = favoriteIds.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToHashSet(StringComparer.OrdinalIgnoreCase);
+                    filtered = filtered.Where(r => ids.Contains(r.Id.ToString()));
+                }
+
+                if (!string.IsNullOrWhiteSpace(category) && !string.Equals(category, "all", StringComparison.OrdinalIgnoreCase))
+                {
+                    filtered = filtered.Where(r => (r.Categories ?? new List<string>()).Any(c => !string.IsNullOrWhiteSpace(c) && string.Equals(c.Trim(), category.Trim(), StringComparison.OrdinalIgnoreCase)));
+                }
+
+                if (!string.IsNullOrWhiteSpace(tag) && !string.Equals(tag, "all", StringComparison.OrdinalIgnoreCase))
+                {
+                    filtered = filtered.Where(r => (r.Tags ?? new List<string>()).Any(t => !string.IsNullOrWhiteSpace(t) && string.Equals(t.Trim(), tag.Trim(), StringComparison.OrdinalIgnoreCase)));
+                }
+
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    var term = search.Trim();
+                    filtered = filtered.Where(r =>
+                        Contains(r.Title, term) ||
+                        Contains(r.Creator, term) ||
+                        Contains(r.Description, term) ||
+                        Contains(r.Instructions, term) ||
+                        (r.Categories ?? new List<string>()).Any(c => Contains(c, term)) ||
+                        (r.Tags ?? new List<string>()).Any(t => Contains(t, term)) ||
+                        (r.Ingredients ?? new List<IngredientResponse>()).Any(i => Contains(i.Name, term)));
+                }
+
+                filtered = sortBy?.ToLowerInvariant() switch
+                {
+                    "title" => ascending ? filtered.OrderBy(r => r.Title, StringComparer.OrdinalIgnoreCase) : filtered.OrderByDescending(r => r.Title, StringComparer.OrdinalIgnoreCase),
+                    "creator" => ascending ? filtered.OrderBy(r => r.Creator, StringComparer.OrdinalIgnoreCase) : filtered.OrderByDescending(r => r.Creator, StringComparer.OrdinalIgnoreCase),
+                    "instructions" => ascending ? filtered.OrderBy(r => r.Instructions, StringComparer.OrdinalIgnoreCase) : filtered.OrderByDescending(r => r.Instructions, StringComparer.OrdinalIgnoreCase),
+                    _ => ascending ? filtered.OrderBy(r => r.Created) : filtered.OrderByDescending(r => r.Created),
+                };
+
+                var filteredList = filtered.ToList();
+                var pageItems = filteredList.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+                var response = new RecipePagedResponse
+                {
+                    Items = pageItems,
+                    TotalCount = filteredList.Count,
+                    Page = page,
+                    PageSize = pageSize,
+                    AvailableCategories = availableCategories,
+                    AvailableTags = availableTags
+                };
+
+                return new OkObjectResult(response);
             }
-
-            if (!string.IsNullOrWhiteSpace(favoriteIds))
+            catch (Exception ex)
             {
-                var ids = favoriteIds.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToHashSet(StringComparer.OrdinalIgnoreCase);
-                filtered = filtered.Where(r => ids.Contains(r.Id.ToString()));
+                _logger.LogError(ex, "Failed to fetch paged recipes. Page: {Page}, PageSize: {PageSize}", page, pageSize);
+                return new ObjectResult("Unable to load recipes right now. Please try again.")
+                {
+                    StatusCode = 500
+                };
             }
-
-            if (!string.IsNullOrWhiteSpace(category) && !string.Equals(category, "all", StringComparison.OrdinalIgnoreCase))
-            {
-                filtered = filtered.Where(r => (r.Categories ?? new List<string>()).Any(c => string.Equals(c.Trim(), category.Trim(), StringComparison.OrdinalIgnoreCase)));
-            }
-
-            if (!string.IsNullOrWhiteSpace(tag) && !string.Equals(tag, "all", StringComparison.OrdinalIgnoreCase))
-            {
-                filtered = filtered.Where(r => (r.Tags ?? new List<string>()).Any(t => string.Equals(t.Trim(), tag.Trim(), StringComparison.OrdinalIgnoreCase)));
-            }
-
-            if (!string.IsNullOrWhiteSpace(search))
-            {
-                var term = search.Trim();
-                filtered = filtered.Where(r =>
-                    Contains(r.Title, term) ||
-                    Contains(r.Creator, term) ||
-                    Contains(r.Description, term) ||
-                    Contains(r.Instructions, term) ||
-                    (r.Categories ?? new List<string>()).Any(c => Contains(c, term)) ||
-                    (r.Tags ?? new List<string>()).Any(t => Contains(t, term)) ||
-                    (r.Ingredients ?? new List<IngredientResponse>()).Any(i => Contains(i.Name, term)));
-            }
-
-            filtered = sortBy?.ToLowerInvariant() switch
-            {
-                "title" => ascending ? filtered.OrderBy(r => r.Title, StringComparer.OrdinalIgnoreCase) : filtered.OrderByDescending(r => r.Title, StringComparer.OrdinalIgnoreCase),
-                "creator" => ascending ? filtered.OrderBy(r => r.Creator, StringComparer.OrdinalIgnoreCase) : filtered.OrderByDescending(r => r.Creator, StringComparer.OrdinalIgnoreCase),
-                "instructions" => ascending ? filtered.OrderBy(r => r.Instructions, StringComparer.OrdinalIgnoreCase) : filtered.OrderByDescending(r => r.Instructions, StringComparer.OrdinalIgnoreCase),
-                _ => ascending ? filtered.OrderBy(r => r.Created) : filtered.OrderByDescending(r => r.Created),
-            };
-
-            var filteredList = filtered.ToList();
-            var pageItems = filteredList.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-
-            var response = new RecipePagedResponse
-            {
-                Items = pageItems,
-                TotalCount = filteredList.Count,
-                Page = page,
-                PageSize = pageSize,
-                AvailableCategories = availableCategories,
-                AvailableTags = availableTags
-            };
-
-            return new OkObjectResult(response);
         }
 
         private static bool Contains(string value, string term)
