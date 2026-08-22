@@ -267,18 +267,23 @@ namespace RecipeHub.ApplicationService.Services
         {
             var recipe = await _recipeRepository.GetByTitleAndCreatorFull(model.OldTitle, model.Creator);
 
-            if (model.Ingredients.Any())
+            if (model.Ingredients?.Any() == true)
             {
                 foreach (var ingredient in model.Ingredients)
                 {
-                    var matchingRecipeIngredient = recipe.RecipeIngredients.FirstOrDefault(r => r.Ingredient.Name == ingredient.Name);
+                    var matchingRecipeIngredient = recipe.RecipeIngredients?
+                        .FirstOrDefault(r => r.Ingredient?.Name == ingredient.Name);
                     if (matchingRecipeIngredient == null)
                     {
                         var entity = await _ingredientRepository.GetByName(ingredient.Name);
-                        matchingRecipeIngredient = await _recipeIngredientRepository.GetFullByIngredient(entity);
+                        if (entity == null)
+                        {
+                            entity = _mapper.Map<Ingredient>(ingredient);
+                            entity.Language = string.IsNullOrWhiteSpace(ingredient.Language) ? model.Language : ingredient.Language;
+                            entity = await _ingredientRepository.Create(entity);
+                        }
 
-                        if (matchingRecipeIngredient == null)
-                            matchingRecipeIngredient = await CreateRecipeIngredient(ingredient.Amount, ingredient.AmountType, recipe, entity);
+                        matchingRecipeIngredient = await CreateRecipeIngredient(ingredient.Amount, ingredient.AmountType, recipe, entity);
                     }
 
                     var ingredientEntity = await _recipeIngredientRepository.GetFull(matchingRecipeIngredient.Id);
