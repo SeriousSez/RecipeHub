@@ -53,6 +53,8 @@ export class RecipeComponent implements OnInit {
   public tagsInput: string = '';
   public readonly categoryGroups = RECIPE_CATEGORY_GROUPS;
   public readonly tagGroups = RECIPE_TAG_GROUPS;
+  public activeCategoryGroupId: string = RECIPE_CATEGORY_GROUPS[0].id;
+  public activeTagGroupId: string = RECIPE_TAG_GROUPS[0].id;
 
   public edit: boolean = false;
   public canEdit: boolean = false;
@@ -518,6 +520,41 @@ export class RecipeComponent implements OnInit {
     }
 
     return model;
+  }
+
+  getActiveTaxonomyValues(type: 'category' | 'tag'): string[] {
+    const groups = type === 'category' ? this.categoryGroups : this.tagGroups;
+    const activeGroupId = type === 'category' ? this.activeCategoryGroupId : this.activeTagGroupId;
+    return groups.find(group => group.id === activeGroupId)?.values ?? [];
+  }
+
+  setActiveTaxonomyGroup(type: 'category' | 'tag', groupId: string): void {
+    if (type === 'category') {
+      this.activeCategoryGroupId = groupId;
+    } else {
+      this.activeTagGroupId = groupId;
+    }
+  }
+
+  addPresetValue(type: 'category' | 'tag', value: string): void {
+    const target = type === 'category' ? this.categoriesInput : this.tagsInput;
+    const existingValues = this.parseCsv(target);
+    const normalizedValue = value.trim();
+    const updatedValues = existingValues.some(item => item.toLowerCase() === normalizedValue.toLowerCase())
+      ? existingValues.filter(item => item.toLowerCase() !== normalizedValue.toLowerCase())
+      : [...existingValues, normalizedValue];
+    const formatted = updatedValues.join(', ');
+
+    if (type === 'category') {
+      this.categoriesInput = formatted;
+    } else {
+      this.tagsInput = formatted;
+    }
+  }
+
+  public isPresetSelected(type: 'category' | 'tag', value: string): boolean {
+    const selectedValues = this.parseCsv(type === 'category' ? this.categoriesInput : this.tagsInput).map(item => item.toLowerCase());
+    return selectedValues.includes(value.trim().toLowerCase());
   }
 
   private parseCsv(rawValue: string | string[] | null | undefined): string[] {

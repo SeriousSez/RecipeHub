@@ -211,11 +211,35 @@
                             <div class="accordion-body">
                                 <div class="form-group suggestion-field-wrap">
                                     <label for="recipe-categories">{{ 'recipe.categoriesLabel' | translate }}</label>
-                                    <app-taxonomy-select id="recipe-categories" name="categories" [(ngModel)]="categoriesInput" [groups]="categoryGroups" [placeholder]="'recipe.categoriesPlaceholder' | translate" [ariaLabel]="'recipe.browseCategoryGroupsAria' | translate"></app-taxonomy-select>
+                                    <input id="recipe-categories" type="text" class="form-control" [placeholder]="'recipe.categoriesPlaceholder' | translate" [(ngModel)]="categoriesInput">
+                                    <div class="taxonomy-browser">
+                                        <div class="taxonomy-tabs" role="tablist" [attr.aria-label]="'recipe.browseCategoryGroupsAria' | translate">
+                                            <button type="button" class="taxonomy-tab" role="tab" *ngFor="let group of categoryGroups" [class.is-active]="activeCategoryGroupId === group.id" [attr.aria-selected]="activeCategoryGroupId === group.id" (click)="setActiveTaxonomyGroup('category', group.id)">
+                                                {{ group.labelKey | translate }}
+                                            </button>
+                                        </div>
+                                        <div class="suggestion-pills" role="tabpanel">
+                                            <button type="button" class="suggestion-pill" [class.is-active]="isPresetSelected('category', category)" *ngFor="let category of getActiveTaxonomyValues('category')" (click)="addPresetValue('category', category)">
+                                                {{ category }}
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="form-group mt-3 suggestion-field-wrap">
                                     <label for="recipe-tags">{{ 'recipe.tagsLabel' | translate }}</label>
-                                    <app-taxonomy-select id="recipe-tags" name="tags" [(ngModel)]="tagsInput" [groups]="tagGroups" [placeholder]="'recipe.tagsPlaceholder' | translate" [ariaLabel]="'recipe.browseTagGroupsAria' | translate"></app-taxonomy-select>
+                                    <input id="recipe-tags" type="text" class="form-control" [placeholder]="'recipe.tagsPlaceholder' | translate" [(ngModel)]="tagsInput">
+                                    <div class="taxonomy-browser">
+                                        <div class="taxonomy-tabs" role="tablist" [attr.aria-label]="'recipe.browseTagGroupsAria' | translate">
+                                            <button type="button" class="taxonomy-tab" role="tab" *ngFor="let group of tagGroups" [class.is-active]="activeTagGroupId === group.id" [attr.aria-selected]="activeTagGroupId === group.id" (click)="setActiveTaxonomyGroup('tag', group.id)">
+                                                {{ group.labelKey | translate }}
+                                            </button>
+                                        </div>
+                                        <div class="suggestion-pills" role="tabpanel">
+                                            <button type="button" class="suggestion-pill" [class.is-active]="isPresetSelected('tag', tag)" *ngFor="let tag of getActiveTaxonomyValues('tag')" (click)="addPresetValue('tag', tag)">
+                                                {{ tag }}
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

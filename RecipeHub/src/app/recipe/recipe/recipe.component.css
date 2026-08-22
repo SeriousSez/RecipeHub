@@ -939,22 +939,37 @@
 }
 
 .editor-unit-input {
-    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    overflow: hidden;
+    border: 1px solid #b9c5d2;
+    border-radius: 7px;
+    background-color: #fbfcfe;
+    transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
 }
 
-.editor-unit-input .form-control {
-    padding-right: 3.2rem;
+.recipe-edit-card .editor-unit-input .form-control {
+    min-width: 0;
+    padding-right: .35rem;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
 }
 
 .editor-unit-input>span {
-    position: absolute;
-    top: 50%;
-    right: .7rem;
-    transform: translateY(-50%);
+    padding: 0 .75rem 0 .35rem;
     color: #64748b;
     font-size: .72rem;
     font-weight: 800;
     pointer-events: none;
+}
+
+.editor-unit-input:focus-within {
+    border-color: #4b8bc4;
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(37, 110, 170, .12);
 }
 
 .editor-freezer-toggle {
