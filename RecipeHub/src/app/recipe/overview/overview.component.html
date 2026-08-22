@@ -116,21 +116,11 @@
         </div>
         <div class="recipe-filter-group recipe-sort-group">
           <label for="recipe-category" class="recipe-filter-label">{{ 'recipe.categoryLabel' | translate }}</label>
-          <select id="recipe-category" class="form-select recipe-filter-select" [value]="categoryFilter" (change)="categoryFilter = $any($event.target).value; applyFiltersAndSort()">
-            <option value="all">{{ 'recipe.allCategories' | translate }}</option>
-            @for (category of availableCategories; track category) {
-            <option [value]="category">{{ category }}</option>
-            }
-          </select>
+          <app-taxonomy-select id="recipe-category" [(ngModel)]="categoryFilter" [options]="availableCategories" [multiple]="false" [allowCustom]="false" emptyValue="all" [emptyLabel]="'recipe.allCategories' | translate" [placeholder]="'recipe.categoryLabel' | translate" [ariaLabel]="'recipe.categoryLabel' | translate" (ngModelChange)="applyFiltersAndSort()"></app-taxonomy-select>
         </div>
         <div class="recipe-filter-group recipe-sort-group">
           <label for="recipe-tag" class="recipe-filter-label">{{ 'recipe.tagLabel' | translate }}</label>
-          <select id="recipe-tag" class="form-select recipe-filter-select" [value]="tagFilter" (change)="tagFilter = $any($event.target).value; applyFiltersAndSort()">
-            <option value="all">{{ 'recipe.allTags' | translate }}</option>
-            @for (tag of availableTags; track tag) {
-            <option [value]="tag">{{ tag }}</option>
-            }
-          </select>
+          <app-taxonomy-select id="recipe-tag" [(ngModel)]="tagFilter" [options]="availableTags" [multiple]="false" [allowCustom]="false" emptyValue="all" [emptyLabel]="'recipe.allTags' | translate" [placeholder]="'recipe.tagLabel' | translate" [ariaLabel]="'recipe.tagLabel' | translate" (ngModelChange)="applyFiltersAndSort()"></app-taxonomy-select>
         </div>
         <div class="recipe-filter-group recipe-sort-group">
           <label for="recipe-sort" class="recipe-filter-label">{{ 'recipe.sortByLabel' | translate }}</label>
@@ -186,21 +176,11 @@
           </div>
           <div class="recipe-filter-group recipe-sort-group">
             <label for="recipe-category-mobile" class="recipe-filter-label">{{ 'recipe.categoryLabel' | translate }}</label>
-            <select id="recipe-category-mobile" class="form-select recipe-filter-select" [value]="categoryFilter" (change)="categoryFilter = $any($event.target).value; applyFiltersAndSort()">
-              <option value="all">{{ 'recipe.allCategories' | translate }}</option>
-              @for (category of availableCategories; track category) {
-              <option [value]="category">{{ category }}</option>
-              }
-            </select>
+            <app-taxonomy-select id="recipe-category-mobile" [(ngModel)]="categoryFilter" [options]="availableCategories" [multiple]="false" [allowCustom]="false" emptyValue="all" [emptyLabel]="'recipe.allCategories' | translate" [placeholder]="'recipe.categoryLabel' | translate" [ariaLabel]="'recipe.categoryLabel' | translate" (ngModelChange)="applyFiltersAndSort()"></app-taxonomy-select>
           </div>
           <div class="recipe-filter-group recipe-sort-group">
             <label for="recipe-tag-mobile" class="recipe-filter-label">{{ 'recipe.tagLabel' | translate }}</label>
-            <select id="recipe-tag-mobile" class="form-select recipe-filter-select" [value]="tagFilter" (change)="tagFilter = $any($event.target).value; applyFiltersAndSort()">
-              <option value="all">{{ 'recipe.allTags' | translate }}</option>
-              @for (tag of availableTags; track tag) {
-              <option [value]="tag">{{ tag }}</option>
-              }
-            </select>
+            <app-taxonomy-select id="recipe-tag-mobile" [(ngModel)]="tagFilter" [options]="availableTags" [multiple]="false" [allowCustom]="false" emptyValue="all" [emptyLabel]="'recipe.allTags' | translate" [placeholder]="'recipe.tagLabel' | translate" [ariaLabel]="'recipe.tagLabel' | translate" (ngModelChange)="applyFiltersAndSort()"></app-taxonomy-select>
           </div>
           <div class="recipe-filter-group recipe-sort-group">
             <label for="recipe-sort-mobile" class="recipe-filter-label">{{ 'recipe.sortByLabel' | translate }}</label>

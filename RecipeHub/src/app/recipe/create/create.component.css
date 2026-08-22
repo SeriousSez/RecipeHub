@@ -416,6 +416,10 @@ image-cropper {
     box-shadow: 0 6px 16px rgba(15, 23, 42, .035);
 }
 
+.recipe-editor-accordion .accordion-item.ingredients {
+    overflow: visible;
+}
+
 .recipe-editor-accordion .accordion-button {
     gap: .7rem;
     min-height: 3.25rem;

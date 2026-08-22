@@ -211,42 +211,17 @@
                             <div class="accordion-body">
                                 <div class="form-group suggestion-field-wrap">
                                     <label for="recipe-categories">{{ 'recipe.categoriesLabel' | translate }}</label>
-                                    <input id="recipe-categories" type="text" class="form-control" [placeholder]="'recipe.categoriesPlaceholder' | translate" [(ngModel)]="categoriesInput">
-                                    <div class="taxonomy-browser">
-                                        <div class="taxonomy-tabs" role="tablist" [attr.aria-label]="'recipe.browseCategoryGroupsAria' | translate">
-                                            <button type="button" class="taxonomy-tab" role="tab" *ngFor="let group of categoryGroups" [class.is-active]="activeCategoryGroupId === group.id" [attr.aria-selected]="activeCategoryGroupId === group.id"
-                                                (click)="setActiveTaxonomyGroup('category', group.id)">
-                                                {{ group.labelKey | translate }}
-                                            </button>
-                                        </div>
-                                        <div class="suggestion-pills" role="tabpanel">
-                                            <button type="button" class="suggestion-pill" [class.is-active]="isPresetSelected('category', category)" *ngFor="let category of getActiveTaxonomyValues('category')" (click)="addPresetValue('category', category)">
-                                                {{ category }}
-                                            </button>
-                                        </div>
-                                    </div>
+                                    <app-taxonomy-select id="recipe-categories" name="categories" [(ngModel)]="categoriesInput" [groups]="categoryGroups" [placeholder]="'recipe.categoriesPlaceholder' | translate" [ariaLabel]="'recipe.browseCategoryGroupsAria' | translate"></app-taxonomy-select>
                                 </div>
                                 <div class="form-group mt-3 suggestion-field-wrap">
                                     <label for="recipe-tags">{{ 'recipe.tagsLabel' | translate }}</label>
-                                    <input id="recipe-tags" type="text" class="form-control" [placeholder]="'recipe.tagsPlaceholder' | translate" [(ngModel)]="tagsInput">
-                                    <div class="taxonomy-browser">
-                                        <div class="taxonomy-tabs" role="tablist" [attr.aria-label]="'recipe.browseTagGroupsAria' | translate">
-                                            <button type="button" class="taxonomy-tab" role="tab" *ngFor="let group of tagGroups" [class.is-active]="activeTagGroupId === group.id" [attr.aria-selected]="activeTagGroupId === group.id" (click)="setActiveTaxonomyGroup('tag', group.id)">
-                                                {{ group.labelKey | translate }}
-                                            </button>
-                                        </div>
-                                        <div class="suggestion-pills" role="tabpanel">
-                                            <button type="button" class="suggestion-pill" [class.is-active]="isPresetSelected('tag', tag)" *ngFor="let tag of getActiveTaxonomyValues('tag')" (click)="addPresetValue('tag', tag)">
-                                                {{ tag }}
-                                            </button>
-                                        </div>
-                                    </div>
+                                    <app-taxonomy-select id="recipe-tags" name="tags" [(ngModel)]="tagsInput" [groups]="tagGroups" [placeholder]="'recipe.tagsPlaceholder' | translate" [ariaLabel]="'recipe.browseTagGroupsAria' | translate"></app-taxonomy-select>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="accordion-item">
+                    <div class="accordion-item ingredients">
                         <h2 class="accordion-header" id="headingIngredients">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseIngredients" aria-expanded="false" aria-controls="collapseIngredients">
                                 <i class="fas fa-list-ul" aria-hidden="true"></i>
@@ -262,10 +237,8 @@
                                             <div class="editor-ingredients-tools">
                                                 <div class="form-group editor-existing-ingredient">
                                                     <label for="select">{{ 'recipe.pickExistingLabel' | translate }}</label>
-                                                    <input id="select" type="search" class="form-control editor-ingredient-search" name="existingIngredientSearch" [(ngModel)]="ingredientSearch" (ngModelChange)="selectExistingIngredient($event)" list="edit-ingredient-options" autocomplete="off">
-                                                    <datalist id="edit-ingredient-options">
-                                                        <option *ngFor="let ingredient of ingredients" [value]="ingredient.name"></option>
-                                                    </datalist>
+                                                    <app-taxonomy-select id="select" name="existingIngredientSearch" [(ngModel)]="ingredientSearch" [options]="ingredientOptions" [multiple]="false" [allowCustom]="false" [placeholder]="'recipe.pickExistingLabel' | translate"
+                                                        [ariaLabel]="'recipe.pickExistingLabel' | translate" (ngModelChange)="selectExistingIngredient($event)"></app-taxonomy-select>
                                                 </div>
                                                 <div class="editor-add-ingredient-wrap">
                                                     <span class="editor-control-spacer" aria-hidden="true">&nbsp;</span>

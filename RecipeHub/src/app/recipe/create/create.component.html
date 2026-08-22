@@ -161,36 +161,12 @@
 
                   <div class="form-group mt-3 suggestion-field-wrap">
                     <label for="categories">{{ 'recipe.categoriesLabel' | translate }}</label>
-                    <input id="categories" type="text" name="categories" class="form-control" [placeholder]="'recipe.categoriesPlaceholder' | translate" autocomplete="off" data-lpignore="true" formControlName="categories">
-                    <div class="taxonomy-browser">
-                      <div class="taxonomy-tabs" role="tablist" [attr.aria-label]="'recipe.browseCategoryGroupsAria' | translate">
-                        <button type="button" class="taxonomy-tab" role="tab" *ngFor="let group of categoryGroups" [class.is-active]="activeCategoryGroupId === group.id" [attr.aria-selected]="activeCategoryGroupId === group.id" (click)="setActiveTaxonomyGroup('category', group.id)">
-                          {{ group.labelKey | translate }}
-                        </button>
-                      </div>
-                      <div class="suggestion-pills" role="tabpanel">
-                        <button type="button" class="suggestion-pill" [class.is-active]="isPresetSelected('category', category)" *ngFor="let category of getActiveTaxonomyValues('category')" (click)="addPresetValue('category', category)">
-                          {{ category }}
-                        </button>
-                      </div>
-                    </div>
+                    <app-taxonomy-select id="categories" formControlName="categories" [groups]="categoryGroups" [placeholder]="'recipe.categoriesPlaceholder' | translate" [ariaLabel]="'recipe.browseCategoryGroupsAria' | translate"></app-taxonomy-select>
                   </div>
 
                   <div class="form-group mt-3 suggestion-field-wrap">
                     <label for="tags">{{ 'recipe.tagsLabel' | translate }}</label>
-                    <input id="tags" type="text" name="tags" class="form-control" [placeholder]="'recipe.tagsPlaceholder' | translate" autocomplete="off" data-lpignore="true" formControlName="tags">
-                    <div class="taxonomy-browser">
-                      <div class="taxonomy-tabs" role="tablist" [attr.aria-label]="'recipe.browseTagGroupsAria' | translate">
-                        <button type="button" class="taxonomy-tab" role="tab" *ngFor="let group of tagGroups" [class.is-active]="activeTagGroupId === group.id" [attr.aria-selected]="activeTagGroupId === group.id" (click)="setActiveTaxonomyGroup('tag', group.id)">
-                          {{ group.labelKey | translate }}
-                        </button>
-                      </div>
-                      <div class="suggestion-pills" role="tabpanel">
-                        <button type="button" class="suggestion-pill" [class.is-active]="isPresetSelected('tag', tag)" *ngFor="let tag of getActiveTaxonomyValues('tag')" (click)="addPresetValue('tag', tag)">
-                          {{ tag }}
-                        </button>
-                      </div>
-                    </div>
+                    <app-taxonomy-select id="tags" formControlName="tags" [groups]="tagGroups" [placeholder]="'recipe.tagsPlaceholder' | translate" [ariaLabel]="'recipe.browseTagGroupsAria' | translate"></app-taxonomy-select>
                   </div>
                 </div>
               </div>
@@ -213,12 +189,8 @@
                       <div class="editor-ingredients-tools">
                         <div class="form-group editor-existing-ingredient">
                           <label for="create-existing-ingredient">{{ 'recipe.pickExistingLabel' | translate }}</label>
-                          <input id="create-existing-ingredient" type="search" class="form-control editor-ingredient-search" name="existingIngredientSearch" [(ngModel)]="ingredientSearch" (ngModelChange)="selectExistingIngredient($event)" list="create-ingredient-options" autocomplete="off">
-                          <datalist id="create-ingredient-options">
-                            @for (ingredient of ingredients; track ingredient) {
-                            <option [value]="ingredient.name"></option>
-                            }
-                          </datalist>
+                          <app-taxonomy-select id="create-existing-ingredient" name="existingIngredientSearch" [(ngModel)]="ingredientSearch" [options]="ingredientOptions" [multiple]="false" [allowCustom]="false" [placeholder]="'recipe.pickExistingLabel' | translate"
+                            [ariaLabel]="'recipe.pickExistingLabel' | translate" (ngModelChange)="selectExistingIngredient($event)"></app-taxonomy-select>
                         </div>
                         <div class="editor-add-ingredient-wrap">
                           <span class="editor-control-spacer" aria-hidden="true">&nbsp;</span>

@@ -53,8 +53,6 @@ export class RecipeComponent implements OnInit {
   public tagsInput: string = '';
   public readonly categoryGroups = RECIPE_CATEGORY_GROUPS;
   public readonly tagGroups = RECIPE_TAG_GROUPS;
-  public activeCategoryGroupId: string = RECIPE_CATEGORY_GROUPS[0].id;
-  public activeTagGroupId: string = RECIPE_TAG_GROUPS[0].id;
 
   public edit: boolean = false;
   public canEdit: boolean = false;
@@ -76,6 +74,10 @@ export class RecipeComponent implements OnInit {
 
   status: boolean = false;
   subscription?: Subscription;
+
+  public get ingredientOptions(): string[] {
+    return this.ingredients?.map(ingredient => ingredient.name) ?? [];
+  }
 
   public editorConfig: AngularEditorConfig = {
     editable: true,
@@ -228,9 +230,10 @@ export class RecipeComponent implements OnInit {
   }
 
   getIngredients() {
-    this.ingredientService.getIngredients()
+    this.ingredientService.getIngredientsLite()
       .subscribe((ingredients: Ingredient[]) => {
         this.ingredients = ingredients;
+        this.ingredients.sort((first, second) => first.name.localeCompare(second.name));
       },
         error => {
           //this.notificationService.printErrorMessage(error);
@@ -517,61 +520,6 @@ export class RecipeComponent implements OnInit {
     return model;
   }
 
-  getActiveTaxonomyValues(type: 'category' | 'tag'): string[] {
-    const groups = type === 'category' ? this.categoryGroups : this.tagGroups;
-    const activeGroupId = type === 'category' ? this.activeCategoryGroupId : this.activeTagGroupId;
-    return groups.find(group => group.id === activeGroupId)?.values ?? [];
-  }
-
-  setActiveTaxonomyGroup(type: 'category' | 'tag', groupId: string): void {
-    if (type === 'category') {
-      this.activeCategoryGroupId = groupId;
-    } else {
-      this.activeTagGroupId = groupId;
-    }
-  }
-
-  addPresetValue(type: 'category' | 'tag', value: string): void {
-    const normalizedValue = (value ?? '').trim();
-    if (!normalizedValue) {
-      return;
-    }
-
-    const target = type === 'category' ? this.categoriesInput : this.tagsInput;
-    const existingValues = this.parseCsv(target);
-
-    if (existingValues.some(item => item.toLowerCase() === normalizedValue.toLowerCase())) {
-      const updatedValues = existingValues.filter(item => item.toLowerCase() !== normalizedValue.toLowerCase());
-      const formatted = updatedValues.map(item => item.charAt(0).toUpperCase() + item.slice(1).toLowerCase()).join(', ');
-
-      if (type === 'category') {
-        this.categoriesInput = formatted;
-      } else {
-        this.tagsInput = formatted;
-      }
-
-      return;
-    }
-
-    existingValues.push(normalizedValue);
-    const formatted = existingValues.map(item => item.charAt(0).toUpperCase() + item.slice(1).toLowerCase()).join(', ');
-
-    if (type === 'category') {
-      this.categoriesInput = formatted;
-    } else {
-      this.tagsInput = formatted;
-    }
-  }
-
-  public getSelectedValues(rawValue: string | string[] | null | undefined): string[] {
-    return this.parseCsv(rawValue);
-  }
-
-  public isPresetSelected(type: 'category' | 'tag', value: string): boolean {
-    const selectedValues = this.getSelectedValues(type === 'category' ? this.categoriesInput : this.tagsInput).map(item => item.toLowerCase());
-    return selectedValues.includes(value.trim().toLowerCase());
-  }
-
   private parseCsv(rawValue: string | string[] | null | undefined): string[] {
     if (!rawValue) {
       return [];
@@ -603,8 +551,8 @@ export class RecipeComponent implements OnInit {
       created: recipe.created,
       image: recipe.image,
       ingredients: recipe.ingredients,
-      categories: categories.length > 0 ? categories : (recipe.categories ?? []),
-      tags: tags.length > 0 ? tags : (recipe.tags ?? []),
+      categories,
+      tags,
     }
 
     return model;

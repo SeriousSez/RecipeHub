@@ -1,0 +1,38 @@
+<div class="taxonomy-select" [class.is-open]="isOpen" [class.is-disabled]="disabled">
+    <div class="taxonomy-select-control" (click)="open()">
+        <div class="taxonomy-selected-values" *ngIf="multiple && selectedValues.length > 0">
+            <span class="taxonomy-chip" *ngFor="let value of selectedValues">
+                {{ value }}
+                <button type="button" (click)="removeValue(value, $event)" [attr.aria-label]="'Remove ' + value">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+            </span>
+        </div>
+        <input type="text" [value]="inputValue" [placeholder]="multiple && selectedValues.length ? '' : placeholder" [attr.aria-label]="ariaLabel" [disabled]="disabled" autocomplete="off" (focus)="open()" (input)="updateSearch($any($event.target).value)" (keydown)="handleKeydown($event)">
+        <button type="button" class="taxonomy-toggle" [disabled]="disabled" (click)="toggleDropdown(); $event.stopPropagation()" [attr.aria-expanded]="isOpen" [attr.aria-label]="ariaLabel">
+            <i class="fas fa-chevron-down" aria-hidden="true"></i>
+        </button>
+    </div>
+
+    <div class="taxonomy-dropdown" *ngIf="isOpen">
+        <button type="button" class="taxonomy-option" *ngIf="!multiple && emptyLabel" (click)="toggleValue(emptyValue)">
+            <span class="taxonomy-checkbox" [class.is-checked]="isSelected(emptyValue)">
+                <i *ngIf="isSelected(emptyValue)" class="fas fa-check" aria-hidden="true"></i>
+            </span>
+            <span>{{ emptyLabel }}</span>
+        </button>
+        <ng-container *ngFor="let group of filteredGroups">
+            <div class="taxonomy-group-label" *ngIf="group.labelKey">{{ group.labelKey | translate }}</div>
+            <button type="button" class="taxonomy-option" *ngFor="let value of group.values" (click)="toggleValue(value)">
+                <span class="taxonomy-checkbox" [class.is-checked]="isSelected(value)">
+                    <i *ngIf="isSelected(value)" class="fas fa-check" aria-hidden="true"></i>
+                </span>
+                <span>{{ value }}</span>
+            </button>
+        </ng-container>
+        <button type="button" class="taxonomy-option taxonomy-add" *ngIf="canAddCustomValue" (click)="addCustomValue()">
+            <i class="fas fa-plus" aria-hidden="true"></i>
+            <span>{{ searchTerm.trim() }}</span>
+        </button>
+    </div>
+</div>

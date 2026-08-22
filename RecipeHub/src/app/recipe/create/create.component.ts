@@ -47,8 +47,6 @@ export class CreateComponent implements OnInit {
   public tagsInput: string = '';
   public readonly categoryGroups = RECIPE_CATEGORY_GROUPS;
   public readonly tagGroups = RECIPE_TAG_GROUPS;
-  public activeCategoryGroupId: string = RECIPE_CATEGORY_GROUPS[0].id;
-  public activeTagGroupId: string = RECIPE_TAG_GROUPS[0].id;
 
   public defaultImageUrl: string = "../../assets/images/food.png";
   public imageUrl: string;
@@ -90,6 +88,10 @@ export class CreateComponent implements OnInit {
 
   public get previewImageAlt(): string {
     return this.translateService.instant('recipe.previewImageAlt');
+  }
+
+  public get ingredientOptions(): string[] {
+    return this.ingredients?.map(ingredient => ingredient.name) ?? [];
   }
 
   ngOnInit(): void {
@@ -158,12 +160,6 @@ export class CreateComponent implements OnInit {
     return this.parseCsv(rawValue);
   }
 
-  public isPresetSelected(type: 'category' | 'tag', value: string): boolean {
-    const fieldName = type === 'category' ? 'categories' : 'tags';
-    const selectedValues = this.getSelectedValues(this.recipeForm.get(fieldName)?.value).map(item => item.toLowerCase());
-    return selectedValues.includes(value.trim().toLowerCase());
-  }
-
   private parseCsv(rawValue: string | string[] | null | undefined): string[] {
     if (!rawValue) {
       return [];
@@ -175,42 +171,6 @@ export class CreateComponent implements OnInit {
       .map(item => item.trim())
       .filter(item => item.length > 0)
       .map(item => item.charAt(0).toUpperCase() + item.slice(1).toLowerCase());
-  }
-
-  getActiveTaxonomyValues(type: 'category' | 'tag'): string[] {
-    const groups = type === 'category' ? this.categoryGroups : this.tagGroups;
-    const activeGroupId = type === 'category' ? this.activeCategoryGroupId : this.activeTagGroupId;
-    return groups.find(group => group.id === activeGroupId)?.values ?? [];
-  }
-
-  setActiveTaxonomyGroup(type: 'category' | 'tag', groupId: string): void {
-    if (type === 'category') {
-      this.activeCategoryGroupId = groupId;
-    } else {
-      this.activeTagGroupId = groupId;
-    }
-  }
-
-  addPresetValue(type: 'category' | 'tag', value: string): void {
-    const normalizedValue = (value ?? '').trim();
-    if (!normalizedValue) {
-      return;
-    }
-
-    const fieldName = type === 'category' ? 'categories' : 'tags';
-    const currentValue = this.recipeForm.get(fieldName)?.value ?? '';
-    const existingValues = this.parseCsv(currentValue);
-
-    if (existingValues.some(item => item.toLowerCase() === normalizedValue.toLowerCase())) {
-      const updatedValues = existingValues.filter(item => item.toLowerCase() !== normalizedValue.toLowerCase());
-      this.recipeForm.get(fieldName)?.setValue(updatedValues.map(item => item.charAt(0).toUpperCase() + item.slice(1).toLowerCase()).join(', '));
-      return;
-    }
-
-    existingValues.push(normalizedValue);
-    const formatted = existingValues.map(item => item.charAt(0).toUpperCase() + item.slice(1).toLowerCase()).join(', ');
-    this.recipeForm.get(fieldName)?.setValue(formatted);
-
   }
 
   addToNewIngredient(event: Ingredient | null) {
