@@ -1,3 +1,87 @@
+.grocery-add-panel {
+    margin-bottom: 1.5rem;
+    padding: 1.2rem;
+    border: 1px solid rgba(15, 23, 42, .08);
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 14px 34px rgba(15, 23, 42, .07);
+}
+
+.grocery-add-heading {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.grocery-add-heading h2 {
+    margin: 0;
+    font-size: 1.15rem;
+}
+
+.grocery-add-heading p {
+    margin: .25rem 0 0;
+    color: #64748b;
+    font-size: .85rem;
+}
+
+.grocery-add-close {
+    width: 2rem;
+    height: 2rem;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: #64748b;
+}
+
+.grocery-add-grid {
+    display: grid;
+    grid-template-columns: minmax(220px, 2fr) minmax(110px, .7fr) minmax(140px, 1fr) auto;
+    gap: .75rem;
+    align-items: end;
+}
+
+.grocery-add-field {
+    display: grid;
+    gap: .35rem;
+    min-width: 0;
+}
+
+.grocery-add-field label {
+    color: #374151;
+    font-size: .75rem;
+    font-weight: 800;
+}
+
+.grocery-add-field .form-control,
+.grocery-add-field .form-select {
+    min-height: 44px;
+    border-radius: 7px;
+}
+
+.grocery-add-submit {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+}
+
+@media (max-width: 760px) {
+    .grocery-add-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .grocery-add-name,
+    .grocery-add-submit {
+        grid-column: 1 / -1;
+    }
+
+    .grocery-add-submit {
+        justify-content: center;
+    }
+}
+
 @media screen and (min-device-width : 601px) {
     .computer {
         display: block;

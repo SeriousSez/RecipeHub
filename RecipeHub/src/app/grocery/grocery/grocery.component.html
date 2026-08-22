@@ -8,7 +8,7 @@
 
     <div class="grocery-hero-actions">
       <button class="btn btn-brand-alt" type="button" routerLink="/recipes">{{ 'grocery.addRecipe' | translate }}</button>
-      <button class="btn btn-brand-secondary" type="button" routerLink="/dashboard/ingredients">{{ 'grocery.addIngredient' | translate }}</button>
+      <button class="btn btn-brand-secondary" type="button" (click)="showAddIngredient = !showAddIngredient">{{ 'grocery.addIngredient' | translate }}</button>
       <button class="btn btn-brand" type="button" [disabled]="!hasIngredients" (click)="save()">{{ 'grocery.createGroceryList' | translate }}</button>
     </div>
 
@@ -27,6 +27,35 @@
       </div>
     </div>
   </section>
+
+  @if (showAddIngredient) {
+  <section class="grocery-add-panel" aria-labelledby="grocery-add-heading">
+    <div class="grocery-add-heading">
+      <div>
+        <h2 id="grocery-add-heading">{{ 'grocery.addIngredientHeading' | translate }}</h2>
+        <p>{{ 'grocery.addIngredientHint' | translate }}</p>
+      </div>
+      <button type="button" class="grocery-add-close" (click)="showAddIngredient = false" [attr.aria-label]="'grocery.cancelAddIngredient' | translate"><i class="fas fa-times" aria-hidden="true"></i></button>
+    </div>
+    <div class="grocery-add-grid">
+      <div class="grocery-add-field grocery-add-name">
+        <label>{{ 'grocery.ingredientColumn' | translate }}</label>
+        <app-taxonomy-select name="groceryIngredientName" [(ngModel)]="draftIngredientName" [options]="ingredientOptions" [multiple]="false" [allowCustom]="true" [placeholder]="'grocery.ingredientPlaceholder' | translate" [ariaLabel]="'grocery.ingredientColumn' | translate"></app-taxonomy-select>
+      </div>
+      <div class="grocery-add-field">
+        <label for="grocery-ingredient-amount">{{ 'grocery.amountColumn' | translate }}</label>
+        <input id="grocery-ingredient-amount" class="form-control" type="number" min="0.01" step="any" [(ngModel)]="draftIngredientAmount" [placeholder]="'grocery.amountPlaceholder' | translate">
+      </div>
+      <div class="grocery-add-field">
+        <label for="grocery-ingredient-unit">{{ 'grocery.unitLabel' | translate }}</label>
+        <select id="grocery-ingredient-unit" class="form-select" [(ngModel)]="draftIngredientUnit">
+          @for (unit of ingredientUnits; track unit) { <option [value]="unit">{{ unit }}</option> }
+        </select>
+      </div>
+      <button class="btn btn-brand grocery-add-submit" type="button" [disabled]="!draftIngredientName.trim() || draftIngredientAmount == null || draftIngredientAmount <= 0" (click)="addIngredientToList()"><i class="fas fa-plus" aria-hidden="true"></i>{{ 'grocery.addToList' | translate }}</button>
+    </div>
+  </section>
+  }
 
   @if (hasIngredients) {
   <section class="grocery-card">
@@ -120,7 +149,7 @@
     <p class="mb-4">{{ 'grocery.emptyDescription' | translate }}</p>
     <div class="grocery-empty-actions">
       <button class="btn btn-brand-alt" type="button" routerLink="/recipes">{{ 'grocery.addRecipe' | translate }}</button>
-      <button class="btn btn-brand-secondary" type="button" routerLink="/dashboard/ingredients">{{ 'grocery.addIngredient' | translate }}</button>
+      <button class="btn btn-brand-secondary" type="button" (click)="showAddIngredient = true">{{ 'grocery.addIngredient' | translate }}</button>
     </div>
   </section>
   }

@@ -8,6 +8,8 @@ import { SharedModule } from '../shared/modules/shared.module';
 import { RecipeService } from '../recipe/services/recipe.service';
 import { HeaderComponent } from '../header/header.component';
 import { GroceryComponent } from './grocery/grocery.component';
+import { RecipeModule } from '../recipe/recipe.module';
+import { IngredientService } from '../recipe/services/ingredient.service';
 
 @NgModule({
   declarations: [
@@ -19,9 +21,10 @@ import { GroceryComponent } from './grocery/grocery.component';
     ReactiveFormsModule,
     
     GroceryRoutingModule,
-    SharedModule
+    SharedModule,
+    RecipeModule
   ],
-  providers: [ UserService, RecipeService, HeaderComponent ],
+  providers: [ UserService, RecipeService, IngredientService, HeaderComponent ],
   bootstrap: []
 })
 export class GroceryModule { }

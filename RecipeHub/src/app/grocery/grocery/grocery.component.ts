@@ -25,6 +25,12 @@ export class GroceryComponent implements OnInit {
 
   selectedIngredients: Ingredient[] = [];
   confirmClearList: boolean = false;
+  showAddIngredient: boolean = false;
+  ingredientOptions: string[] = [];
+  draftIngredientName: string = '';
+  draftIngredientAmount: number | null = null;
+  draftIngredientUnit: string = 'Piece';
+  readonly ingredientUnits: string[] = ['Piece', 'Milliliter', 'Liter', 'Teaspoon', 'Tablespoon', 'Cup', 'Gram', 'Kilogram', 'Ounce', 'Pound', 'Clove'];
   openedAccordion: string;
   clickedTableRow: string;
 
@@ -35,6 +41,10 @@ export class GroceryComponent implements OnInit {
 
   ngOnInit() {
     this.getIngredients();
+    this.ingredientService.getIngredientsLite().subscribe({
+      next: ingredients => this.ingredientOptions = ingredients.map(ingredient => ingredient.name).sort((first, second) => first.localeCompare(second)),
+      error: () => this.ingredientOptions = []
+    });
   }
 
   getIngredients() {
@@ -74,6 +84,27 @@ export class GroceryComponent implements OnInit {
     }, error => {
 
     });
+  }
+
+  addIngredientToList() {
+    const name = this.draftIngredientName.trim().replace(/\s+/g, ' ');
+    if (!name || this.draftIngredientAmount == null || this.draftIngredientAmount <= 0) return;
+
+    const ingredient: Ingredient = {
+      name,
+      description: '',
+      amount: this.draftIngredientAmount,
+      amountType: this.draftIngredientUnit,
+      created: new Date().toISOString(),
+      image: null
+    };
+
+    this.groceryService.addIngredientsToList([ingredient]);
+    this.getIngredients();
+    this.draftIngredientName = '';
+    this.draftIngredientAmount = null;
+    this.draftIngredientUnit = 'Piece';
+    this.showAddIngredient = false;
   }
 
   removeSelectedFromIngredients() {
