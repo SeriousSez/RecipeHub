@@ -19,12 +19,12 @@ import { IngredientService } from '../recipe/services/ingredient.service';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    
+
     GroceryRoutingModule,
     SharedModule,
     RecipeModule
   ],
-  providers: [ UserService, RecipeService, IngredientService, HeaderComponent ],
+  providers: [UserService, RecipeService, IngredientService, HeaderComponent],
   bootstrap: []
 })
 export class GroceryModule { }
