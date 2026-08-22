@@ -46,6 +46,7 @@ export class RecipeComponent implements OnInit {
   public pantryIngredients: string[] = [];
   public newIngredients: Ingredient[] = [];
   public newIngredient: Ingredient = { name: "", description: "", amount: 0, amountType: 'Pinch or dash', image: null, created: '' };
+  public ingredientSearch: string = '';
   public categoriesInput: string = '';
   public tagsInput: string = '';
   public readonly categoryGroups = RECIPE_CATEGORY_GROUPS;
@@ -398,9 +399,10 @@ export class RecipeComponent implements OnInit {
     return result + (result > 0 ? ['th', 'st', 'nd', 'rd'][(result > 3 && result < 21) || result % 10 > 3 ? 0 : result % 10] : '');
   }
 
-  addToNewIngredient(event: any) {
-    var ingredient = this.ingredients.find(i => i.name == this.select.first.nativeElement.value);
-    if (ingredient == null) return;
+  selectExistingIngredient(name: string): void {
+    const normalizedName = (name ?? '').trim().toLowerCase();
+    const ingredient = this.ingredients.find(item => item.name.toLowerCase() === normalizedName);
+    if (!ingredient) return;
 
     this.newIngredient.name = ingredient.name;
     this.newIngredient.description = ingredient.description;
@@ -428,6 +430,7 @@ export class RecipeComponent implements OnInit {
     this.name.first.nativeElement.value = '';
     // this.description.first.nativeElement.value = '';
     this.amount.first.nativeElement.value = '';
+    this.ingredientSearch = '';
   }
 
   removeIngredient(ingredient: Ingredient) {

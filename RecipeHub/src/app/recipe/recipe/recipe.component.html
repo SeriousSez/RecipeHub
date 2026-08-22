@@ -113,17 +113,18 @@
         </div>
     </article>
 
-    <div *ngIf="edit == true" class="horizontal-center card">
-        <article class="m-3">
-            <header class="mb-2">
-                <h2>
+    <div *ngIf="edit == true" class="horizontal-center card recipe-edit-card">
+        <article class="recipe-edit-form">
+            <header class="recipe-edit-header">
+                <div class="form-group editor-field recipe-edit-title-field">
+                    <label for="title">{{ 'recipe.titleLabel' | translate }}</label>
                     <input id="title" type="text" name="title" value="{{recipe.title}}" class="form-control" [placeholder]="'recipe.recipeTitlePlaceholder' | translate" autocomplete="off" data-lpignore="true" [(ngModel)]="recipe.title">
-                </h2>
-                <div class="form-group mt-2">
+                </div>
+                <div class="form-group editor-field recipe-edit-portions">
                     <label for="portions">{{ 'recipe.portionsLabel' | translate }}</label>
                     <input id="portions" type="text" name="portions" class="form-control" [placeholder]="'recipe.portionsPlaceholder' | translate" autocomplete="off" data-lpignore="true" [(ngModel)]="recipe.portions">
                 </div>
-                <div>
+                <div class="recipe-edit-meta">
                     <span class="post-meta-author">
                         <span>{{ 'recipe.byAuthor' | translate }} </span>
                         <a class="tw-text-strong hover_tw-no-underline" href="">{{recipe.creator}}</a>
@@ -132,33 +133,34 @@
                 </div>
             </header>
 
-            <figure *ngIf="recipe.image" class="figure w-100">
+            <figure *ngIf="recipe.image" class="figure w-100 recipe-edit-media">
                 <!-- <img class="figure-img img-fluid rounded w-100" [src]="recipe.image.url"> -->
                 <image-cropper [imageURL]="recipe.image.url" [imageChangedEvent]="imageChangedEvent" [maintainAspectRatio]="false" [aspectRatio]="10 / 10" format="png" output="base64" (imageCropped)="imageCropped($event)" (imageLoaded)="imageLoaded()" (cropperReady)="cropperReady()"
                     (loadImageFailed)="loadImageFailed()">
                 </image-cropper>
-                <input type="file" accept="image/*" class="my-2" (change)="handleFileInput($event)" #image>
+                <input type="file" accept="image/*" class="form-control editor-file-input my-2" (change)="handleFileInput($event)" #image>
                 <input id="image-caption" type="text" name="imageCaption" value="{{recipe.image.caption}}" class="form-control mt-2" [placeholder]="'recipe.imageCaptionPlaceholder' | translate" autocomplete="off" data-lpignore="true" [(ngModel)]="recipe.image.caption">
             </figure>
-            <div *ngIf="!recipe.image" class="my-3">
+            <div *ngIf="!recipe.image" class="recipe-edit-media my-3">
                 <image-cropper *ngIf="showCropOverlay" [imageChangedEvent]="imageChangedEvent" [maintainAspectRatio]="false" [aspectRatio]="10 / 10" format="png" output="base64" (imageCropped)="imageCropped($event)" (imageLoaded)="imageLoaded()" (cropperReady)="cropperReady()"
                     (loadImageFailed)="loadImageFailed()">
                 </image-cropper>
                 <input type="file" accept="image/*" class="form-control" (change)="handleFileInput($event)" #image>
                 <input id="image-caption" type="text" name="imageCaption" class="form-control mt-2" [placeholder]="'recipe.imageCaptionPlaceholder' | translate" autocomplete="off" data-lpignore="true" [ngModel]="''" (ngModelChange)="setImageCaption($event)">
             </div>
-            <div>
-                <div>
-                    <header>
+            <div class="recipe-edit-content">
+                <div class="editor-field recipe-edit-instructions">
+                    <header class="recipe-edit-section-heading">
                         <h3>{{ 'recipe.instructionsHeading' | translate }}</h3>
                     </header>
                     <angular-editor [config]="editorConfig" [(ngModel)]="recipe.instructions"></angular-editor>
                 </div>
 
-                <div class="accordion mt-3" id="accordion">
+                <div class="accordion recipe-editor-accordion mt-3" id="accordion">
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="headingDetails">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDetails" aria-expanded="false" aria-controls="collapseDetails">
+                                <i class="fas fa-tags" aria-hidden="true"></i>
                                 {{ 'recipe.categoriesTagsHeader' | translate }}
                             </button>
                         </h2>
@@ -204,71 +206,80 @@
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="headingIngredients">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseIngredients" aria-expanded="false" aria-controls="collapseIngredients">
+                                <i class="fas fa-list-ul" aria-hidden="true"></i>
                                 {{ 'recipe.ingredientsAccordionHeader' | translate }}
                             </button>
                         </h2>
                         <div id="collapseIngredients" class="accordion-collapse collapse" aria-labelledby="headingIngredients" data-bs-parent="#accordion">
                             <div class="accordion-body">
-                                <table class="table table-hover caption-top">
-                                    <caption>
-                                        {{ 'recipe.ingredientsHeading' | translate }}
-                                        <div class="form-group d-inline-block float-end ms-3 mobile-float">
-                                            <button type="submit" class="btn btn-outline-primary btn-sm" [disabled]="!newIngredient.name || !newIngredient.amount || !newIngredient.amountType || isRequesting" (click)="addIngredient(newIngredient)">{{ 'recipe.addIngredientButton' | translate
-                                                }}</button>
-                                        </div>
-                                        <div class="form-group d-inline-block float-end mobile-float">
-                                            <th scope="col" class="d-inline">{{ 'recipe.pickExistingLabel' | translate }} </th>
-                                            <select class="btn btn-white btn-sm dropdown-toggle" name="ingredient" (change)="addToNewIngredient($event)" id="select" #select>
-                                                <option class="select-items" *ngFor="let ingredient of ingredients" [ngValue]="ingredient">{{ingredient.name}}</option>
-                                            </select>
-                                        </div>
-                                    </caption>
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">{{ 'recipe.ingredientsAccordionHeader' | translate }}</th>
-                                            <!-- <th scope="col" class="description">Description</th> -->
-                                            <th scope="col" class="amount">{{ 'recipe.amountColumn' | translate }}</th>
-                                            <th scope="col">{{ 'recipe.measurementColumn' | translate }}</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>
-                                                <input type="text" class="form-control" [placeholder]="'recipe.namePlaceholder' | translate" [(ngModel)]="newIngredient.name" autocomplete="off" data-lpignore="true" required="required" id="name" #name>
-                                            </td>
-                                            <!-- <td class="description">
+                                <div class="editor-table-wrap">
+                                    <table class="table table-hover caption-top editor-ingredients-table">
+                                        <caption>
+                                            <span class="editor-ingredients-caption-title">{{ 'recipe.ingredientsHeading' | translate }}</span>
+                                            <div class="editor-ingredients-tools">
+                                                <div class="form-group editor-existing-ingredient">
+                                                    <label for="select">{{ 'recipe.pickExistingLabel' | translate }}</label>
+                                                    <input id="select" type="search" class="form-control editor-ingredient-search" name="existingIngredientSearch" [(ngModel)]="ingredientSearch" (ngModelChange)="selectExistingIngredient($event)" list="edit-ingredient-options" autocomplete="off">
+                                                    <datalist id="edit-ingredient-options">
+                                                        <option *ngFor="let ingredient of ingredients" [value]="ingredient.name"></option>
+                                                    </datalist>
+                                                </div>
+                                                <div class="editor-add-ingredient-wrap">
+                                                    <span class="editor-control-spacer" aria-hidden="true">&nbsp;</span>
+                                                    <button type="button" class="editor-add-ingredient" [disabled]="!newIngredient.name || !newIngredient.amount || !newIngredient.amountType || isRequesting" (click)="addIngredient(newIngredient)">
+                                                        <i class="fas fa-plus" aria-hidden="true"></i>
+                                                        <span>{{ 'recipe.addIngredientButton' | translate }}</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </caption>
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">{{ 'recipe.ingredientsAccordionHeader' | translate }}</th>
+                                                <!-- <th scope="col" class="description">Description</th> -->
+                                                <th scope="col" class="amount">{{ 'recipe.amountColumn' | translate }}</th>
+                                                <th scope="col">{{ 'recipe.measurementColumn' | translate }}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    <input type="text" class="form-control" [placeholder]="'recipe.namePlaceholder' | translate" [(ngModel)]="newIngredient.name" autocomplete="off" data-lpignore="true" required="required" id="name" #name>
+                                                </td>
+                                                <!-- <td class="description">
                                                 <input type="text" class="form-control" placeholder="Description" [(ngModel)]="newIngredient.Description" autocomplete="off" data-lpignore="true" required="required" id="description" #description>
                                             </td> -->
-                                            <td>
-                                                <input type="number" step="any" class="form-control" [placeholder]="'recipe.amountPlaceholder' | translate" [(ngModel)]="newIngredient.amount" autocomplete="off" data-lpignore="true" required="required" id="amount" #amount>
-                                            </td>
-                                            <td>
-                                                <select class="btn btn-white dropdown-toggle" name="measurement" [(ngModel)]="newIngredient.amountType">
-                                                    <option class="select-items" *ngFor="let measurement of measurements" [ngValue]="measurement">{{measurement}}</option>
-                                                </select>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                    <tbody>
-                                        <tr *ngFor="let ingredient of currentIngredients">
-                                            <td>
-                                                {{ingredient.name}}
-                                            </td>
-                                            <!-- <td class="description">
+                                                <td>
+                                                    <input type="number" step="any" class="form-control" [placeholder]="'recipe.amountPlaceholder' | translate" [(ngModel)]="newIngredient.amount" autocomplete="off" data-lpignore="true" required="required" id="amount" #amount>
+                                                </td>
+                                                <td>
+                                                    <select class="form-select editor-select" name="measurement" [(ngModel)]="newIngredient.amountType">
+                                                        <option class="select-items" *ngFor="let measurement of measurements" [ngValue]="measurement">{{measurement}}</option>
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                        <tbody>
+                                            <tr *ngFor="let ingredient of currentIngredients">
+                                                <td>
+                                                    {{ingredient.name}}
+                                                </td>
+                                                <!-- <td class="description">
                                                 {{ingredient.Description}}
                                             </td> -->
-                                            <td>
-                                                <input type="number" step="any" class="form-control" [(ngModel)]="ingredient.amount" [name]="'existing-amount-' + ingredient.name" autocomplete="off" data-lpignore="true">
-                                            </td>
-                                            <td>
-                                                <select class="btn btn-white dropdown-toggle" [(ngModel)]="ingredient.amountType" [name]="'existing-amountType-' + ingredient.name">
-                                                    <option class="select-items" *ngFor="let measurement of measurements" [ngValue]="measurement">{{measurement}}</option>
-                                                </select>
-                                                <button type="submit" class="btn btn-link btn-sm" (click)="removeIngredient(ingredient)">{{ 'recipe.removeButton' | translate }}</button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                                <td>
+                                                    <input type="number" step="any" class="form-control" [(ngModel)]="ingredient.amount" [name]="'existing-amount-' + ingredient.name" autocomplete="off" data-lpignore="true">
+                                                </td>
+                                                <td>
+                                                    <select class="form-select editor-select" [(ngModel)]="ingredient.amountType" [name]="'existing-amountType-' + ingredient.name">
+                                                        <option class="select-items" *ngFor="let measurement of measurements" [ngValue]="measurement">{{measurement}}</option>
+                                                    </select>
+                                                    <button type="submit" class="btn btn-link btn-sm" (click)="removeIngredient(ingredient)">{{ 'recipe.removeButton' | translate }}</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -276,6 +287,7 @@
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="headingCosmetics">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCosmetics" aria-expanded="false" aria-controls="collapseCosmetics">
+                                <i class="far fa-id-card" aria-hidden="true"></i>
                                 {{ 'recipe.cosmeticsHeader' | translate }}
                                 <!-- <i *ngIf="f.instructions.errors" class="fas fa-exclamation-circle ms-2 text-warning"></i> -->
                             </button>
@@ -328,10 +340,13 @@
     </div>
 </div>
 
-<div *ngIf="edit == true" class="horizontal-center buttons mt-3">
-    <div class="form-group d-inline-block w-100">
-        <button *ngIf="recipe" type="submit" class="btn btn-primary ms-2" (click)="update()">{{ 'recipe.updateButton' | translate }}</button>
-        <button type="submit" class="btn btn-outline-link float-end me-2" (click)="edit = false">{{ 'recipe.cancelButton' | translate }}</button>
+<div *ngIf="edit == true" class="horizontal-center buttons recipe-edit-actions-wrap">
+    <div class="recipe-editor-actions">
+        <button type="button" class="btn btn-outline-secondary" (click)="edit = false">{{ 'recipe.cancelButton' | translate }}</button>
+        <button *ngIf="recipe" type="submit" class="btn btn-primary" [disabled]="isRequesting" (click)="update()">
+            <app-spinner *ngIf="isRequesting" [color]="'#fff'" [small]="true"></app-spinner>
+            <span *ngIf="!isRequesting">{{ 'recipe.updateButton' | translate }}</span>
+        </button>
     </div>
 
     <div *ngIf="errors" class="alert alert-danger d-inline-block float-end" role="alert">

@@ -40,6 +40,7 @@ export class CreateComponent implements OnInit {
   public defaultIngredient: IngredientCreation = { name: "", description: "", amount: 0, amountType: 'Pinch or dash', imageCaption: "", image: null, created: '' };
   public newIngredient: IngredientCreation;
   public selectedIngredient: Ingredient | null = null;
+  public ingredientSearch: string = '';
   public newIngredients: IngredientCreation[] = [];
   public ingredients: Ingredient[];
   public categoriesInput: string = '';
@@ -217,6 +218,13 @@ export class CreateComponent implements OnInit {
     this.newIngredient.description = event.description;
   }
 
+  selectExistingIngredient(name: string): void {
+    const normalizedName = (name ?? '').trim().toLowerCase();
+    const ingredient = this.ingredients?.find(item => item.name.toLowerCase() === normalizedName) ?? null;
+    this.selectedIngredient = ingredient;
+    this.addToNewIngredient(ingredient);
+  }
+
   addIngredient() {
     const ingredient: IngredientCreation = {
       name: this.newIngredient.name,
@@ -232,7 +240,7 @@ export class CreateComponent implements OnInit {
     this.newIngredients.push(ingredient);
     this.resetNewIngredient();
     this.selectedIngredient = null;
-    this.select.nativeElement.value = null;
+    this.ingredientSearch = '';
   }
 
   resetNewIngredient() {
