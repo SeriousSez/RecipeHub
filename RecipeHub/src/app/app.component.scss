@@ -1,18 +1,18 @@
+/* RECIPEHUB FILES */
+@use '../styling/background';
+@use '../styling/button';
+@use '../styling/cursor';
+@use '../styling/title';
+@use '../styling/navigation';
+@use '../styling/display';
+@use '../styling/hamburger-menu';
+@use '../styling/hover';
+@use '../styling/text';
+
 :host {
     display: block;
     min-height: 100vh;
 }
-
-/* RECIPEHUB FILES */
-@import '../styling/background.scss';
-@import '../styling/button.scss';
-@import '../styling/cursor.scss';
-@import '../styling/title.scss';
-@import '../styling/navigation.scss';
-@import '../styling/display.scss';
-@import '../styling/hamburger-menu.scss';
-@import '../styling/hover.scss';
-@import '../styling/text.scss';
 
 :root {
     --recipehub-bg: #f5f7fb;
