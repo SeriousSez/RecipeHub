@@ -5,6 +5,7 @@ using RecipeHub.ApplicationService.Services;
 using RecipeHub.Domain.Models;
 using RecipeHub.Domain.Responses;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace RecipeHub.Api.Controllers
@@ -102,6 +103,38 @@ namespace RecipeHub.Api.Controllers
             _logger.LogTrace("User settings have been updated! Settings: {@Settings}", settings);
 
             return new OkResult();
+        }
+
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [HttpGet("getpantry")]
+        public async Task<IActionResult> GetPantry(Guid userId)
+        {
+            if (!await CanAccessUser(userId))
+                return Forbid();
+
+            var items = await _userService.GetPantry(userId);
+            return items == null ? NotFound() : Ok(items);
+        }
+
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [HttpPost("updatepantry")]
+        public async Task<IActionResult> UpdatePantry([FromBody] PantryUpdateViewModel model)
+        {
+            if (model == null || !await CanAccessUser(model.UserId))
+                return Forbid();
+
+            var items = await _userService.UpdatePantry(model);
+            return items == null ? NotFound() : Ok(items);
+        }
+
+        private async Task<bool> CanAccessUser(Guid userId)
+        {
+            var email = User?.Identity?.Name;
+            if (string.IsNullOrWhiteSpace(email))
+                return false;
+
+            var currentUser = await _userService.GetByEmail(email);
+            return currentUser != null && currentUser.Id == userId;
         }
 
         [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]

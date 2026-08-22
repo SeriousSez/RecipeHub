@@ -8,6 +8,7 @@ namespace RecipeHub.Domain.Entities
         public string Theme { get; set; }
         public string RecipesTheme { get; set; }
         public string MyRecipesTheme { get; set; }
+        public string PantryItems { get; set; }
         //public string IngredientsTheme { get; set; }
 
         public string UserId { get; set; }

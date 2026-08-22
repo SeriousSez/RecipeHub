@@ -2,7 +2,7 @@ import { Component, HostListener, OnInit } from '@angular/core';
 import { DatePipe } from '@angular/common'
 import { Recipe } from '../models/recipe.interface';
 import { RecipeService } from '../services/recipe.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { UserService } from 'src/app/shared/services/user.service';
 import { FavoriteService } from 'src/app/shared/services/favorite.service';
 import { Favorites } from 'src/app/shared/models/favorites.interface';
@@ -130,6 +130,7 @@ export class OverviewComponent implements OnInit {
   public matchingLoading: boolean = false;
   public loadError: boolean = false;
   private hasLoadedOnce: boolean = false;
+  private activatePantryMatchesWhenReady: boolean = false;
   public groceryFeedbackMessage: string = '';
   public groceryFeedbackType: 'success' | 'danger' = 'success';
   isAuthenticated: boolean = false;
@@ -138,10 +139,11 @@ export class OverviewComponent implements OnInit {
   settingsSubscription?: Subscription;
   private groceryFeedbackTimer?: ReturnType<typeof setTimeout>;
 
-  constructor(private recipeService: RecipeService, private userService: UserService, private favoriteService: FavoriteService, private groceryService: GroceryService, private datepipe: DatePipe, private router: Router, private utilityService: UtilityService, private translateService: TranslateService) { }
+  constructor(private recipeService: RecipeService, private userService: UserService, private favoriteService: FavoriteService, private groceryService: GroceryService, private datepipe: DatePipe, private router: Router, private route: ActivatedRoute, private utilityService: UtilityService, private translateService: TranslateService) { }
 
   ngOnInit(): void {
     this.loadPantryIngredients();
+    this.activatePantryMatchesWhenReady = this.route.snapshot.queryParamMap.get('pantry') === 'true';
     this.restoreFilterState();
     this.getRecipes();
     this.getGroceryLists();
@@ -271,9 +273,19 @@ export class OverviewComponent implements OnInit {
         }
 
         this.hasLoadedOnce = true;
-        this.loading = false;
         this.refreshing = false;
         this.persistFilterState();
+
+        if (reset && this.pantryIngredients.trim() && !this.matchingRecipes && !this.matchingLoading) {
+          const activateWhenReady = this.activatePantryMatchesWhenReady;
+          if (!activateWhenReady) {
+            this.loading = false;
+          }
+          this.loadMatchingRecipes(activateWhenReady);
+          this.activatePantryMatchesWhenReady = false;
+        } else {
+          this.loading = false;
+        }
       },
       error: () => {
         if (reset) {
@@ -497,6 +509,7 @@ export class OverviewComponent implements OnInit {
         this.matchingRecipes = Array.isArray(recipes) ? recipes : [];
         this.matchingLoading = false;
         this.showPantryMatches = this.showPantryMatches || activateWhenReady;
+        this.loading = false;
 
         if (this.showPantryMatches) {
           this.applyFiltersAndSort();
@@ -505,6 +518,7 @@ export class OverviewComponent implements OnInit {
       error: () => {
         this.matchingLoading = false;
         this.showPantryMatches = false;
+        this.loading = false;
         this.applyFiltersAndSort();
       }
     });
@@ -527,6 +541,11 @@ export class OverviewComponent implements OnInit {
 
       return hasMatch ? score + 1 : score;
     }, 0);
+  }
+
+  public getIngredientMatchPercentage(recipe: Recipe): number {
+    const ingredientCount = (recipe.ingredients ?? []).length;
+    return ingredientCount > 0 ? this.getIngredientMatchScore(recipe) / ingredientCount : 0;
   }
 
   public getMissingIngredientCount(recipe: Recipe): number {
@@ -602,10 +621,13 @@ export class OverviewComponent implements OnInit {
     );
 
     this.shownRecipes = [...filtered].sort((a, b) => {
-      const pantryItems = this.parsePantryIngredients();
-      const pantryComparison = pantryItems.length > 0
-        ? this.getIngredientMatchScore(b) - this.getIngredientMatchScore(a)
-        : 0;
+      const coverageComparison = this.getIngredientMatchPercentage(b) - this.getIngredientMatchPercentage(a);
+
+      if (coverageComparison !== 0) {
+        return coverageComparison;
+      }
+
+      const pantryComparison = this.getIngredientMatchScore(b) - this.getIngredientMatchScore(a);
 
       if (pantryComparison !== 0) {
         return pantryComparison;

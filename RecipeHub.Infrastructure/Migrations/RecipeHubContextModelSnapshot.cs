@@ -576,6 +576,9 @@ namespace RecipeHub.Infrastructure.Migrations
                     b.Property<string>("MyRecipesTheme")
                         .HasColumnType("longtext");
 
+                    b.Property<string>("PantryItems")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("PreferredLanguage")
                         .HasColumnType("longtext");
 

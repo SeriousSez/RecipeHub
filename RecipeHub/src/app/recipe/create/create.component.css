@@ -356,7 +356,7 @@ image-cropper {
     gap: 1.5rem;
     width: min(100%, 1240px);
     margin: 0 auto;
-    padding: 1.5rem .75rem 3rem;
+    padding: 0 .75rem 3rem;
     align-items: start;
 }
 

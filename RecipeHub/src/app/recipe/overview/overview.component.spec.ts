@@ -24,7 +24,7 @@ describe('OverviewComponent', () => {
   });
 
   it('filters recipes by category, tag, and search text', () => {
-    component.recipes = [
+    component.recipeList = [
       {
         id: '1',
         title: 'Veggie Omelette',
@@ -85,7 +85,7 @@ describe('OverviewComponent', () => {
   });
 
   it('filters recipes by ingredients the user already has', () => {
-    component.recipes = [
+    component.recipeList = [
       {
         id: '1',
         title: 'Veggie Omelette',
@@ -122,17 +122,17 @@ describe('OverviewComponent', () => {
 
     component.pantryIngredients = 'eggs, cheese';
     component.showPantryMatches = true;
-    component.matchingRecipes = component.recipes;
+    component.matchingRecipes = component.recipeList;
     component.applyFiltersAndSort();
 
     expect(component.shownRecipes.length).toBe(1);
     expect(component.shownRecipes[0].title).toBe('Veggie Omelette');
-    expect(component.getIngredientMatchScore(component.recipes[0])).toBe(1);
+    expect(component.getIngredientMatchScore(component.recipeList[0])).toBe(1);
   });
 
   it('shows only pantry matches when enabled and restores all recipes when disabled', () => {
     component.pantryIngredients = 'eggs, spinach';
-    component.recipes = [
+    component.recipeList = [
       {
         id: '1',
         title: 'Egg Omelette',

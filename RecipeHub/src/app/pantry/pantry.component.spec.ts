@@ -9,20 +9,34 @@ describe('PantryComponent', () => {
         component.ngOnInit();
     });
 
-    it('loads pantry ingredients from local storage', () => {
+    it('migrates pantry ingredient names from local storage', () => {
+        localStorage.removeItem('recipehub-pantry-items');
         localStorage.setItem('recipehub-pantry-ingredients', 'eggs, spinach, tomatoes');
 
         component = new PantryComponent();
         component.ngOnInit();
 
-        expect(component.pantryIngredients.length).toBe(3);
-        expect(component.pantryIngredients[0]).toBe('eggs');
+        expect(component.pantryItems.length).toBe(3);
+        expect(component.pantryItems[0].name).toBe('eggs');
     });
 
     it('filters pantry ingredients by the current search term', () => {
-        component.pantryIngredients = ['eggs', 'spinach', 'tomatoes', 'milk'];
+        component.pantryItems = [
+            { id: '1', name: 'eggs', amount: null, amountType: 'Piece', expirationDate: null },
+            { id: '2', name: 'spinach', amount: null, amountType: 'Gram', expirationDate: null }
+        ];
         component.searchTerm = 'spin';
 
-        expect(component.filteredPantryIngredients).toEqual(['spinach']);
+        expect(component.filteredPantryItems.map(item => item.name)).toEqual(['spinach']);
+    });
+
+    it('adds structured pantry items and keeps recipe matching names in sync', () => {
+        component.draftName = 'Milk';
+        component.draftAmount = 2;
+        component.draftUnit = 'Liter';
+        component.addItem();
+
+        expect(component.pantryItems[0].amount).toBe(2);
+        expect(localStorage.getItem('recipehub-pantry-ingredients')).toBe('Milk');
     });
 });

@@ -21,6 +21,8 @@ namespace RecipeHub.ApplicationService.Services
         Task<IEnumerable<UserResponse>> GetAll();
         Task<UserSettingsResponse> GetSettings(Guid id);
         Task<UserSettingsResponse> UpdateSettings(UserSettingsUpdateViewModel model);
+        Task<List<PantryItemViewModel>> GetPantry(Guid id);
+        Task<List<PantryItemViewModel>> UpdatePantry(PantryUpdateViewModel model);
         Task<(int Created, int Existing)> BackfillMissingSettings();
         List<string> GetRoles();
         Task AddRoleToUser(UserResponse user);

@@ -11,6 +11,7 @@ using RecipeHub.Infrastructure.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace RecipeHub.ApplicationService.Services
 {
@@ -312,6 +313,40 @@ namespace RecipeHub.ApplicationService.Services
             }
         }
 
+        public async Task<List<PantryItemViewModel>> GetPantry(Guid id)
+        {
+            var user = await _userRepository.GetByUserId(id);
+            if (user == null)
+                return null;
+
+            var settings = await EnsureSettingsExists(user);
+            if (string.IsNullOrWhiteSpace(settings.PantryItems))
+                return new List<PantryItemViewModel>();
+
+            try
+            {
+                return JsonSerializer.Deserialize<List<PantryItemViewModel>>(settings.PantryItems) ?? new List<PantryItemViewModel>();
+            }
+            catch (JsonException ex)
+            {
+                _logger.LogWarning(ex, "Ignoring malformed pantry data for user {UserId}", id);
+                return new List<PantryItemViewModel>();
+            }
+        }
+
+        public async Task<List<PantryItemViewModel>> UpdatePantry(PantryUpdateViewModel model)
+        {
+            var user = await _userRepository.GetByUserId(model.UserId);
+            if (user == null)
+                return null;
+
+            var settings = await EnsureSettingsExists(user);
+            var items = model.Items ?? new List<PantryItemViewModel>();
+            settings.PantryItems = JsonSerializer.Serialize(items);
+            await _userRepository.UpdateSettings(settings);
+            return items;
+        }
+
         private async Task DeleteUserForeignEntities(User user)
         {
             var favorites = await _favoriteRepository.GetByUserFull(user);
@@ -354,6 +389,7 @@ namespace RecipeHub.ApplicationService.Services
                 Theme = "Light",
                 RecipesTheme = "Pretty",
                 MyRecipesTheme = "Pretty",
+                PantryItems = "[]",
                 UserId = user.Id,
                 Identity = user
             };

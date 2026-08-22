@@ -1,4 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { IngredientService } from '../recipe/services/ingredient.service';
+import { UserService } from '../shared/services/user.service';
+import { PantryItem } from './pantry-item.interface';
+import { PantryService } from './pantry.service';
 
 @Component({
     selector: 'app-pantry',
@@ -7,92 +12,112 @@ import { Component, OnInit } from '@angular/core';
     standalone: false
 })
 export class PantryComponent implements OnInit {
-    private readonly pantryStorageKey = 'recipehub-pantry-ingredients';
+    private readonly pantryNamesStorageKey = 'recipehub-pantry-ingredients';
+    private readonly pantryItemsStorageKey = 'recipehub-pantry-items';
+    public readonly units = ['Piece', 'Gram', 'Kilogram', 'Milliliter', 'Liter', 'Teaspoon', 'Tablespoon', 'Cup', 'Ounce', 'Pound'];
+    public pantryItems: PantryItem[] = [];
+    public ingredientOptions: string[] = [];
+    public searchTerm = '';
+    public draftName = '';
+    public draftAmount: number | null = null;
+    public draftUnit = 'Piece';
+    public draftExpirationDate = '';
+    public confirmClear = false;
+    public syncing = false;
+    public syncFailed = false;
 
-    public pantryIngredients: string[] = [];
-    public searchTerm: string = '';
-    public pantryInput: string = '';
+    constructor(private pantryService?: PantryService, private ingredientService?: IngredientService, private userService?: UserService, private router?: Router) { }
 
-    ngOnInit(): void {
-        this.loadPantryIngredients();
+    public ngOnInit(): void {
+        this.loadLocalItems();
+        this.loadIngredientOptions();
+        this.loadAccountItems();
     }
 
-    get filteredPantryIngredients(): string[] {
-        const term = this.searchTerm.trim().toLowerCase();
+    public get filteredPantryItems(): PantryItem[] {
+        const query = this.searchTerm.trim().toLowerCase();
+        return this.pantryItems.filter(item => !query || item.name.toLowerCase().includes(query));
+    }
 
-        if (!term) {
-            return this.pantryIngredients;
+    public get isAuthenticated(): boolean { return this.userService?.isAuthenticated() === true; }
+
+    public addItem(): void {
+        const name = this.normalizeName(this.draftName);
+        if (!name) return;
+        const existing = this.pantryItems.find(item => item.name.toLowerCase() === name.toLowerCase());
+        if (existing) {
+            existing.amount = this.draftAmount;
+            existing.amountType = this.draftUnit;
+            existing.expirationDate = this.draftExpirationDate || null;
+        } else {
+            this.pantryItems = [...this.pantryItems, { id: this.createId(), name, amount: this.draftAmount, amountType: this.draftUnit, expirationDate: this.draftExpirationDate || null }];
         }
-
-        return this.pantryIngredients.filter(ingredient =>
-            ingredient.toLowerCase().includes(term)
-        );
+        this.sortItems();
+        this.resetDraft();
+        this.persistItems();
     }
 
-    public loadPantryIngredients(): void {
-        if (typeof localStorage === 'undefined') {
-            return;
+    public updateItem(item: PantryItem): void { item.name = this.normalizeName(item.name); item.expirationDate = item.expirationDate || null; this.persistItems(); }
+    public removeItem(item: PantryItem): void { this.pantryItems = this.pantryItems.filter(candidate => candidate.id !== item.id); this.persistItems(); }
+    public clearAll(): void { this.pantryItems = []; this.confirmClear = false; this.persistItems(); }
+    public findRecipes(): void { this.router?.navigate(['/recipes/overview'], { queryParams: { pantry: 'true' } }); }
+    public isExpired(item: PantryItem): boolean { return !!item.expirationDate && item.expirationDate < this.todayDate(); }
+    public isExpiringSoon(item: PantryItem): boolean {
+        if (!item.expirationDate || this.isExpired(item)) return false;
+        return new Date(`${item.expirationDate}T00:00:00`).getTime() <= Date.now() + (3 * 24 * 60 * 60 * 1000);
+    }
+
+    private loadIngredientOptions(): void {
+        this.ingredientService?.getIngredientsLite().subscribe({ next: items => this.ingredientOptions = items.map(item => item.name).sort((a, b) => a.localeCompare(b)), error: () => this.ingredientOptions = [] });
+    }
+
+    private loadAccountItems(): void {
+        if (!this.isAuthenticated) return;
+        const userId = this.userService?.getUserId() ?? '';
+        if (!userId) return;
+        this.syncing = true;
+        this.pantryService?.getItems(userId).subscribe({
+            next: items => {
+                if (items.length === 0 && this.pantryItems.length > 0) this.persistItems();
+                else { this.pantryItems = items.map(item => ({ ...item, expirationDate: item.expirationDate?.slice(0, 10) ?? null })); this.sortItems(); this.persistLocalItems(); }
+                this.syncing = false;
+            },
+            error: () => { this.syncFailed = true; this.syncing = false; }
+        });
+    }
+
+    private loadLocalItems(): void {
+        if (typeof localStorage === 'undefined') return;
+        const structuredItems = localStorage.getItem(this.pantryItemsStorageKey);
+        if (structuredItems) {
+            try { this.pantryItems = JSON.parse(structuredItems); this.sortItems(); return; }
+            catch { localStorage.removeItem(this.pantryItemsStorageKey); }
         }
-
-        const savedIngredients = localStorage.getItem(this.pantryStorageKey) ?? '';
-        this.pantryIngredients = this.parsePantryIngredients(savedIngredients);
-        this.pantryInput = this.pantryIngredients.join(', ');
+        this.pantryItems = (localStorage.getItem(this.pantryNamesStorageKey) ?? '').split(',').map(name => this.normalizeName(name)).filter(Boolean).map(name => ({ id: this.createId(), name, amount: null, amountType: 'Piece', expirationDate: null }));
+        this.sortItems();
+        this.persistLocalItems();
     }
 
-    public updatePantryInput(value: string): void {
-        this.pantryInput = value ?? '';
-        this.pantryIngredients = this.parsePantryIngredients(this.pantryInput);
-        this.persistPantryIngredients();
+    private persistItems(): void {
+        this.persistLocalItems();
+        if (!this.isAuthenticated) return;
+        const userId = this.userService?.getUserId() ?? '';
+        if (!userId) return;
+        this.syncing = true;
+        this.syncFailed = false;
+        this.pantryService?.updateItems(userId, this.pantryItems).subscribe({ next: () => this.syncing = false, error: () => { this.syncFailed = true; this.syncing = false; } });
     }
 
-    public addIngredient(value: string): void {
-        const ingredient = (value ?? '').trim();
-        if (!ingredient) {
-            return;
-        }
-
-        const normalized = this.normalizeIngredient(ingredient);
-        if (!normalized) {
-            return;
-        }
-
-        if (!this.pantryIngredients.some(item => item.toLowerCase() === normalized.toLowerCase())) {
-            this.pantryIngredients.push(normalized);
-            this.pantryInput = this.pantryIngredients.join(', ');
-            this.persistPantryIngredients();
-        }
+    private persistLocalItems(): void {
+        if (typeof localStorage === 'undefined') return;
+        localStorage.setItem(this.pantryItemsStorageKey, JSON.stringify(this.pantryItems));
+        const names = this.pantryItems.map(item => item.name).join(', ');
+        if (names) localStorage.setItem(this.pantryNamesStorageKey, names); else localStorage.removeItem(this.pantryNamesStorageKey);
     }
 
-    public removeIngredient(ingredient: string): void {
-        this.pantryIngredients = this.pantryIngredients.filter(item => item.toLowerCase() !== ingredient.toLowerCase());
-        this.pantryInput = this.pantryIngredients.join(', ');
-        this.persistPantryIngredients();
-    }
-
-    private parsePantryIngredients(value: string): string[] {
-        return (value ?? '')
-            .split(',')
-            .map(item => this.normalizeIngredient(item))
-            .filter(item => item.length > 0);
-    }
-
-    private normalizeIngredient(value: string): string {
-        return (value ?? '')
-            .trim()
-            .replace(/\s+/g, ' ')
-            .replace(/\s*,\s*/g, ',');
-    }
-
-    private persistPantryIngredients(): void {
-        if (typeof localStorage === 'undefined') {
-            return;
-        }
-
-        if (this.pantryIngredients.length === 0) {
-            localStorage.removeItem(this.pantryStorageKey);
-            return;
-        }
-
-        localStorage.setItem(this.pantryStorageKey, this.pantryIngredients.join(', '));
-    }
+    private resetDraft(): void { this.draftName = ''; this.draftAmount = null; this.draftUnit = 'Piece'; this.draftExpirationDate = ''; }
+    private normalizeName(value: string): string { return (value ?? '').trim().replace(/\s+/g, ' '); }
+    private sortItems(): void { this.pantryItems.sort((first, second) => first.name.localeCompare(second.name)); }
+    private createId(): string { return typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`; }
+    private todayDate(): string { return new Date().toISOString().slice(0, 10); }
 }

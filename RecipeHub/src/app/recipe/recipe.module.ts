@@ -38,7 +38,7 @@ import { TaxonomySelectComponent } from './taxonomy-select/taxonomy-select.compo
     RecipeComponent,
     TaxonomySelectComponent
   ],
-  exports: [],
+  exports: [TaxonomySelectComponent],
   providers: [AuthGuard, RecipeService, IngredientService, DatePipe, SafeService, FavoriteService, UtilityService]
 })
 
