@@ -181,6 +181,8 @@
         "statSortedBy": "Sorted by",
         "ingredientListHeading": "Ingredient list",
         "helperText": "Select items, sort the columns, and click any row to preview the ingredient image and description.",
+        "addSelectedToPantry": "Add selected to pantry",
+        "addingToPantry": "Adding to pantry...",
         "clearSelection": "Clear selection",
         "removeSelected": "Remove selected",
         "clearList": "Clear list",

@@ -181,6 +181,8 @@
         "statSortedBy": "Sorditud",
         "ingredientListHeading": "Koostisosade nimekiri",
         "helperText": "Vali esemeid, sordi veerge ja kliki real, et eelvaadata koostisosa pilti ja kirjeldust.",
+        "addSelectedToPantry": "Lisa valitud sahvrisse",
+        "addingToPantry": "Lisan sahvrisse...",
         "clearSelection": "Tühjenda valik",
         "removeSelected": "Eemalda valitud",
         "clearList": "Tühjenda nimekiri",

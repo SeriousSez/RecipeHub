@@ -181,6 +181,8 @@
         "statSortedBy": "Sorteret efter",
         "ingredientListHeading": "Ingrediensliste",
         "helperText": "Vælg varer, sorter kolonnerne, og klik på en række for at forhåndsvise ingrediensens billede og beskrivelse.",
+        "addSelectedToPantry": "Føj valgte til spisekammer",
+        "addingToPantry": "Føjer til spisekammer...",
         "clearSelection": "Ryd valg",
         "removeSelected": "Fjern valgte",
         "clearList": "Ryd liste",

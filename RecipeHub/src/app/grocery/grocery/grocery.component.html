@@ -65,6 +65,7 @@
         <p class="mb-0">{{ 'grocery.helperText' | translate }}</p>
       </div>
       <div class="grocery-list-actions">
+        <button class="btn btn-outline-brand" type="button" [disabled]="selectedIngredientCount === 0 || addingToPantry" (click)="addSelectedToPantry()"><i class="fas fa-box" aria-hidden="true"></i>{{ (addingToPantry ? 'grocery.addingToPantry' : 'grocery.addSelectedToPantry') | translate }}</button>
         <button class="btn btn-outline-brand" type="button" [disabled]="selectedIngredientCount === 0" (click)="removeSelectedFromIngredients()"><i class="fas fa-trash-alt" aria-hidden="true"></i>{{ 'grocery.removeSelected' | translate }}</button>
         <button class="btn btn-outline-danger" type="button" (click)="confirmClearList = true"><i class="fas fa-trash-alt" aria-hidden="true"></i>{{ 'grocery.clearList' | translate }}</button>
         <button class="btn btn-outline-secondary" type="button" [disabled]="selectedIngredientCount === 0" (click)="clearSelection()">{{ 'grocery.clearSelection' | translate }}</button>

@@ -181,6 +181,8 @@
         "statSortedBy": "Sıralama",
         "ingredientListHeading": "Malzeme listesi",
         "helperText": "Ögeleri seçin, sütunları sıralayın ve malzemenin resmini ve açıklamasını görmek için bir satıra tıklayın.",
+        "addSelectedToPantry": "Seçilenleri kilere ekle",
+        "addingToPantry": "Kilere ekleniyor...",
         "clearSelection": "Seçimi temizle",
         "removeSelected": "Seçilenleri kaldır",
         "clearList": "Listeyi temizle",

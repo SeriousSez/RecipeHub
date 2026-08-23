@@ -6,6 +6,8 @@ import { IngredientService } from 'src/app/recipe/services/ingredient.service';
 import { GroceryService } from 'src/app/shared/services/grocery.service';
 import { finalize } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
+import { PantryService } from 'src/app/pantry/pantry.service';
+import { UserService } from 'src/app/shared/services/user.service';
 
 @Component({
   selector: 'app-grocery',
@@ -24,6 +26,7 @@ export class GroceryComponent implements OnInit {
   loadedIngredientDetails: Set<string> = new Set<string>();
 
   selectedIngredients: Ingredient[] = [];
+  addingToPantry: boolean = false;
   confirmClearList: boolean = false;
   showAddIngredient: boolean = false;
   ingredientOptions: string[] = [];
@@ -37,7 +40,7 @@ export class GroceryComponent implements OnInit {
   public sortSetting: string = 'name';
   public ascending: boolean = true;
 
-  constructor(private groceryService: GroceryService, private ingredientService: IngredientService, private datepipe: DatePipe, private router: Router, private translateService: TranslateService) { }
+  constructor(private groceryService: GroceryService, private ingredientService: IngredientService, private datepipe: DatePipe, private router: Router, private translateService: TranslateService, private pantryService: PantryService, private userService: UserService) { }
 
   ngOnInit() {
     this.getIngredients();
@@ -113,6 +116,20 @@ export class GroceryComponent implements OnInit {
     });
     this.selectedIngredients = [];
     this.getIngredients();
+  }
+
+  addSelectedToPantry() {
+    if (this.selectedIngredients.length === 0 || this.addingToPantry) return;
+
+    const userId = this.userService.isAuthenticated() ? this.userService.getUserId() : undefined;
+    this.addingToPantry = true;
+    this.pantryService.addItems(this.selectedIngredients.map(ingredient => ({
+      name: ingredient.name,
+      amount: ingredient.amount,
+      amountType: ingredient.amountType
+    })), userId || undefined).pipe(finalize(() => this.addingToPantry = false)).subscribe({
+      next: () => this.clearSelection()
+    });
   }
 
   removeIngredient(ingredient: Ingredient) {
