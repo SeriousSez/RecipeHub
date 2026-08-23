@@ -66,8 +66,9 @@
                       </image-cropper>
                     </div>
                     }
-                    <input id="recipe-image" type="file" class="form-control editor-file-input" [class.is-invalid]="f.image.invalid" #image accept="image/*" required aria-required="true" [attr.aria-invalid]="f.image.invalid ? true : null" (change)="handleFileInput($event)">
-                    @if (f.image.errors?.required) {
+                    <input id="recipe-image" type="file" class="form-control editor-file-input" [class.is-invalid]="f.image.invalid && (f.image.touched || submitted)" #image accept="image/*" required aria-required="true"
+                      [attr.aria-invalid]="f.image.invalid && (f.image.touched || submitted) ? true : null" (change)="handleFileInput($event)">
+                    @if (f.image.errors?.required && (f.image.touched || submitted)) {
                     <div class="invalid-feedback">{{ 'recipe.imageRequired' | translate }}</div>
                     }
                   </div>
