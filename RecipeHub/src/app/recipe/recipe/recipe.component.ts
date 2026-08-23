@@ -576,6 +576,13 @@ export class RecipeComponent implements OnInit {
     this.newIngredient.description = ingredient?.description ?? '';
   }
 
+  updateIngredientName(ingredientToUpdate: Ingredient, name: string): void {
+    const normalizedName = (name ?? '').trim().toLowerCase();
+    const ingredient = this.ingredients.find(item => item.name.toLowerCase() === normalizedName) ?? null;
+    ingredientToUpdate.name = name;
+    ingredientToUpdate.description = ingredient?.description ?? '';
+  }
+
   selectMeasurement(measurement: string): void {
     this.newIngredient.amountType = measurement;
     if (measurement === 'To taste') {

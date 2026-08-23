@@ -266,7 +266,7 @@
                         <th scope="col" class="editor-ingredient-action-column"><span class="visually-hidden">{{ 'recipe.removeButton' | translate }}</span></th>
                       </tr>
                     </thead>
-                    @for (group of ingredientEditorGroups; track group.name) {
+                    @for (group of ingredientEditorGroups; track group.name; let groupIndex = $index) {
                     <tbody class="editor-ingredient-section" [class.is-active]="activeIngredientGroup === group.name">
                       <tr class="editor-ingredient-section-header">
                         <th colspan="5" scope="rowgroup">
@@ -290,10 +290,12 @@
                             </div>
                             @if (editingIngredientGroup !== group.name) {
                             <div class="editor-ingredient-section-actions">
+                              @if (activeIngredientGroup !== group.name) {
                               <button type="button" class="editor-add-here" (click)="selectIngredientGroup(group.name)">
                                 <i class="fas fa-plus" aria-hidden="true"></i>
-                                <span>{{ (activeIngredientGroup === group.name ? 'recipe.addingIngredientHereLabel' : 'recipe.addIngredientHereButton') | translate }}</span>
+                                <span>{{ 'recipe.addIngredientHereButton' | translate }}</span>
                               </button>
+                              }
                               @if (group.name) {
                               <button type="button" class="editor-group-remove" [attr.aria-label]="('recipe.renameIngredientGroupAria' | translate) + ' ' + group.name" [attr.title]="'recipe.renameIngredientGroupAria' | translate" (click)="startIngredientGroupRename(group.name)">
                                 <i class="fas fa-pen" aria-hidden="true"></i>
@@ -321,10 +323,15 @@
                             (ngModelChange)="selectMeasurement($event)"></app-taxonomy-select>
                         </td>
                         <td colspan="2" class="editor-ingredient-add-cell">
-                          <button type="button" class="editor-add-ingredient" [disabled]="!newIngredient.name || (!newIngredient.amount && newIngredient.amountType !== 'To taste') || !newIngredient.amountType || isRequesting" (click)="addIngredient()">
-                            <i class="fas fa-plus" aria-hidden="true"></i>
-                            <span>{{ 'recipe.addIngredientButton' | translate }}</span>
-                          </button>
+                          <div class="editor-ingredient-composer-actions">
+                            <button type="button" class="editor-add-ingredient" [disabled]="!newIngredient.name || (!newIngredient.amount && newIngredient.amountType !== 'To taste') || !newIngredient.amountType || isRequesting" (click)="addIngredient()">
+                              <i class="fas fa-plus" aria-hidden="true"></i>
+                              <span>{{ 'recipe.addIngredientButton' | translate }}</span>
+                            </button>
+                            <button type="button" class="editor-close-composer" [attr.aria-label]="'recipe.closeIngredientComposerAria' | translate" [attr.title]="'recipe.closeIngredientComposerAria' | translate" (click)="closeIngredientComposer()">
+                              <i class="fas fa-times" aria-hidden="true"></i>
+                            </button>
+                          </div>
                         </td>
                       </tr>
                       }
@@ -333,21 +340,22 @@
                         <td colspan="5">{{ 'recipe.emptyIngredientGroupMessage' | translate }}</td>
                       </tr>
                       }
-                      @for (ingredient of group.ingredients; track ingredient) {
+                      @for (ingredient of group.ingredients; track ingredient; let ingredientIndex = $index) {
                       <tr class="editor-ingredient-row">
                         <td class="editor-ingredient-name-cell">
-                          {{ingredient.name}}
+                          <app-taxonomy-select [ngModel]="ingredient.name" (ngModelChange)="updateIngredientName(ingredient, $event)" [name]="'new-name-' + groupIndex + '-' + ingredientIndex" [options]="ingredientOptions" [multiple]="false" [allowCustom]="true"
+                            [placeholder]="'recipe.namePlaceholder' | translate" [ariaLabel]="'recipe.namePlaceholder' | translate"></app-taxonomy-select>
                         </td>
                         <td class="editor-ingredient-amount-cell">
-                          <input type="number" min="0" step="any" class="form-control" [(ngModel)]="ingredient.amount" [disabled]="ingredient.amountType === 'To taste'" [name]="'new-amount-' + ingredient.name" [placeholder]="'recipe.amountPlaceholder' | translate"
+                          <input type="number" min="0" step="any" class="form-control" [(ngModel)]="ingredient.amount" [disabled]="ingredient.amountType === 'To taste'" [name]="'new-amount-' + groupIndex + '-' + ingredientIndex" [placeholder]="'recipe.amountPlaceholder' | translate"
                             [attr.aria-label]="'recipe.amountColumn' | translate" autocomplete="off" data-lpignore="true">
                         </td>
                         <td class="editor-ingredient-measurement-cell">
-                          <app-taxonomy-select [(ngModel)]="ingredient.amountType" [name]="'new-amountType-' + ingredient.name" [groups]="measurementGroups" [multiple]="false" [allowCustom]="true" [placeholder]="'recipe.measurementColumn' | translate"
+                          <app-taxonomy-select [(ngModel)]="ingredient.amountType" [name]="'new-amountType-' + groupIndex + '-' + ingredientIndex" [groups]="measurementGroups" [multiple]="false" [allowCustom]="true" [placeholder]="'recipe.measurementColumn' | translate"
                             [ariaLabel]="'recipe.measurementColumn' | translate" (ngModelChange)="ingredient.amount = $event === 'To taste' ? 0 : ingredient.amount"></app-taxonomy-select>
                         </td>
                         <td class="editor-ingredient-group-cell">
-                          <app-taxonomy-select [ngModel]="ingredient.group ?? ''" (ngModelChange)="ingredient.group = $event || undefined" [name]="'new-group-' + ingredient.name" [options]="ingredientGroupNames" [multiple]="false" [allowCustom]="false" emptyValue=""
+                          <app-taxonomy-select [ngModel]="ingredient.group ?? ''" (ngModelChange)="ingredient.group = $event || undefined" [name]="'new-group-' + groupIndex + '-' + ingredientIndex" [options]="ingredientGroupNames" [multiple]="false" [allowCustom]="false" emptyValue=""
                             [emptyLabel]="'recipe.noIngredientGroupLabel' | translate" [placeholder]="'recipe.noIngredientGroupLabel' | translate" [ariaLabel]="'recipe.ingredientGroupColumn' | translate"></app-taxonomy-select>
                         </td>
                         <td class="editor-ingredient-action-column">

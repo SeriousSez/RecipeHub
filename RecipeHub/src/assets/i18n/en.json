@@ -363,6 +363,7 @@
         "removeIngredientGroupAria": "Remove ingredient group",
         "addIngredientHereButton": "Add here",
         "addingIngredientHereLabel": "Adding here",
+        "closeIngredientComposerAria": "Close ingredient form",
         "emptyIngredientGroupMessage": "No ingredients in this group yet",
         "namePlaceholder": "Name",
         "amountPlaceholder": "Amount",

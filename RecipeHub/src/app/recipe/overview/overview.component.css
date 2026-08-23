@@ -554,7 +554,10 @@ button:focus {
     min-width: 0;
 }
 
-.pantry-match-button {
+.recipe-filter-input.pantry-match-button {
+    display: flex;
+    align-items: center;
+    padding: .3rem .65rem;
     border: 1px solid rgba(23, 50, 77, 0.15);
     background: #ffffff;
     color: #17324d;
@@ -658,8 +661,9 @@ button:focus {
     white-space: nowrap;
 }
 
-.recipe-sort-control .recipe-filter-select {
-    flex: 1 1 auto;
+.recipe-sort-control app-taxonomy-select {
+    flex: 1 1 0;
+    min-width: 0;
 }
 
 .recipe-sort-direction {

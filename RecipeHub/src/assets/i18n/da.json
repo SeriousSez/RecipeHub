@@ -363,6 +363,7 @@
         "removeIngredientGroupAria": "Fjern ingrediensgruppe",
         "addIngredientHereButton": "Tilføj her",
         "addingIngredientHereLabel": "Tilføjer her",
+        "closeIngredientComposerAria": "Luk ingrediensformular",
         "emptyIngredientGroupMessage": "Ingen ingredienser i denne gruppe endnu",
         "namePlaceholder": "Navn",
         "amountPlaceholder": "Mængde",

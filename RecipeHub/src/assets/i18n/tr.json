@@ -363,6 +363,7 @@
         "removeIngredientGroupAria": "Malzeme grubunu kaldır",
         "addIngredientHereButton": "Buraya ekle",
         "addingIngredientHereLabel": "Buraya ekleniyor",
+        "closeIngredientComposerAria": "Malzeme formunu kapat",
         "emptyIngredientGroupMessage": "Bu grupta henüz malzeme yok",
         "namePlaceholder": "Ad",
         "amountPlaceholder": "Miktar",

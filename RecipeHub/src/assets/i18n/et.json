@@ -363,6 +363,7 @@
         "removeIngredientGroupAria": "Eemalda koostisosade rühm",
         "addIngredientHereButton": "Lisa siia",
         "addingIngredientHereLabel": "Lisamine siia",
+        "closeIngredientComposerAria": "Sulge koostisosa vorm",
         "emptyIngredientGroupMessage": "Selles rühmas pole veel koostisosi",
         "namePlaceholder": "Nimi",
         "amountPlaceholder": "Kogus",

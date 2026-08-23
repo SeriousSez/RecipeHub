@@ -55,7 +55,7 @@ export class CreateComponent implements OnInit {
   public newIngredients: IngredientCreation[] = [];
   public ingredientGroupNames: string[] = [];
   public newIngredientGroupName: string = '';
-  public activeIngredientGroup: string = '';
+  public activeIngredientGroup: string | null = '';
   public editingIngredientGroup: string | null = null;
   public ingredientGroupRenameValue: string = '';
   public ingredients: Ingredient[];
@@ -348,6 +348,13 @@ export class CreateComponent implements OnInit {
     this.newIngredient.description = ingredient?.description ?? '';
   }
 
+  updateIngredientName(ingredientToUpdate: IngredientCreation, name: string): void {
+    const normalizedName = (name ?? '').trim().toLowerCase();
+    const ingredient = this.ingredients?.find(item => item.name.toLowerCase() === normalizedName) ?? null;
+    ingredientToUpdate.name = name;
+    ingredientToUpdate.description = ingredient?.description ?? '';
+  }
+
   selectMeasurement(measurement: string): void {
     this.newIngredient.amountType = measurement;
     if (measurement === 'To taste') {
@@ -374,7 +381,7 @@ export class CreateComponent implements OnInit {
   }
 
   resetNewIngredient() {
-    this.newIngredient = { ...this.defaultIngredient, group: this.activeIngredientGroup };
+    this.newIngredient = { ...this.defaultIngredient, group: this.activeIngredientGroup || undefined };
   }
 
   addIngredientGroup(): void {
@@ -393,6 +400,11 @@ export class CreateComponent implements OnInit {
   selectIngredientGroup(groupName: string): void {
     this.activeIngredientGroup = groupName;
     this.newIngredient.group = groupName;
+  }
+
+  closeIngredientComposer(): void {
+    this.activeIngredientGroup = null;
+    this.newIngredient.group = undefined;
   }
 
   startIngredientGroupRename(groupName: string): void {
