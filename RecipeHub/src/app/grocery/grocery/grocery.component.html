@@ -13,7 +13,6 @@
         <i class="fas" [ngClass]="searchingNearbyOffers ? 'fa-spinner fa-spin' : 'fa-store'" aria-hidden="true"></i>
         {{ (searchingNearbyOffers ? 'grocery.searchingNearbyOffers' : 'grocery.findNearbyOffers') | translate }}
       </button>
-      <button class="btn btn-brand" type="button" [disabled]="!hasIngredients" (click)="save()">{{ 'grocery.createGroceryList' | translate }}</button>
     </div>
 
     <div class="grocery-stats">

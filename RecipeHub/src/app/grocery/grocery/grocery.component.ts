@@ -122,14 +122,6 @@ export class GroceryComponent implements OnInit {
     return this.translateService.instant('grocery.addToGroceryListTitle');
   }
 
-  save() {
-    this.groceryService.createGroceryList().subscribe(result => {
-
-    }, error => {
-
-    });
-  }
-
   addIngredientToList() {
     const name = this.draftIngredientName.trim().replace(/\s+/g, ' ');
     if (!name || this.draftIngredientAmount == null || this.draftIngredientAmount <= 0) return;
