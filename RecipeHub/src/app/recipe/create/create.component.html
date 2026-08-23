@@ -317,10 +317,14 @@
                           {{ingredient.name}}
                         </td>
                         <td>
-                          {{ingredient.amount}}
+                          <input type="number" min="0" step="any" class="form-control" [(ngModel)]="ingredient.amount" [disabled]="ingredient.amountType === 'To taste'" [name]="'new-amount-' + ingredient.name" autocomplete="off" data-lpignore="true">
                         </td>
                         <td>
-                          {{ingredient.amountType}}
+                          <select class="form-select editor-select" [(ngModel)]="ingredient.amountType" (change)="ingredient.amount = ingredient.amountType === 'To taste' ? 0 : ingredient.amount" [name]="'new-amountType-' + ingredient.name">
+                            @for (measurement of measurements; track measurement) {
+                            <option class="select-items" [ngValue]="measurement">{{measurement}}</option>
+                            }
+                          </select>
                         </td>
                         <td>
                           <select class="form-select editor-select" [(ngModel)]="ingredient.group" [name]="'new-group-' + ingredient.name">
