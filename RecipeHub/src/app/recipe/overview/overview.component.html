@@ -46,7 +46,7 @@
     <header class="recipe-page-header">
       <div class="recipe-page-heading">
         <p class="recipe-page-kicker">{{ 'recipe.explorerKicker' | translate }}</p>
-        <h2 class="recipe-page-title">{{ showCreateMode ? ('recipe.createRecipeTitle' | translate) : ('recipe.discoverRecipesTitle' | translate) }}</h2>
+        <h2 class="recipe-page-title">{{ showCreateMode ? ('recipe.createRecipeTitle' | translate) : (creatorFilter ? ('recipe.creatorRecipesTitle' | translate: { creator: creatorFilter }) : ('recipe.discoverRecipesTitle' | translate)) }}</h2>
       </div>
     </header>
 

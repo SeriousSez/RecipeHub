@@ -361,17 +361,17 @@ namespace RecipeHub.Api.Controllers
                 var availableCategories = allRecipes
                     .SelectMany(r => r.Categories ?? new List<string>())
                     .Where(c => !string.IsNullOrWhiteSpace(c))
-                    .Select(c => c.Trim().ToLowerInvariant())
-                    .Distinct()
-                    .OrderBy(c => c)
+                    .Select(c => c.Trim())
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(c => c, StringComparer.OrdinalIgnoreCase)
                     .ToList();
 
                 var availableTags = allRecipes
                     .SelectMany(r => r.Tags ?? new List<string>())
                     .Where(t => !string.IsNullOrWhiteSpace(t))
-                    .Select(t => t.Trim().ToLowerInvariant())
-                    .Distinct()
-                    .OrderBy(t => t)
+                    .Select(t => t.Trim())
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(t => t, StringComparer.OrdinalIgnoreCase)
                     .ToList();
 
                 IEnumerable<RecipeResponse> filtered = allRecipes;

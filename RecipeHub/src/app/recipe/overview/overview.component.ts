@@ -97,6 +97,7 @@ export class OverviewComponent implements OnInit {
 
   public get hasActiveFilters(): boolean {
     return !!this.searchTerm
+      || !!this.creatorFilter
       || this.categoryFilter !== 'all'
       || this.tagFilter !== 'all'
       || this.sortSetting !== 'created'
@@ -115,10 +116,12 @@ export class OverviewComponent implements OnInit {
     this.showFavorites = false;
     this.showMyRecipes = false;
     this.showPantryMatches = false;
+    this.clearCreatorFilter();
     this.applyFiltersAndSort();
   }
 
   public searchTerm: string = '';
+  public creatorFilter: string = '';
   public categoryFilter: string = 'all';
   public tagFilter: string = 'all';
   public pantryIngredients: string = '';
@@ -150,6 +153,7 @@ export class OverviewComponent implements OnInit {
     this.loadPantryIngredients();
     this.activatePantryMatchesWhenReady = this.route.snapshot.queryParamMap.get('pantry') === 'true';
     this.restoreFilterState();
+    this.creatorFilter = this.route.snapshot.queryParamMap.get('creator')?.trim() ?? '';
     this.getRecipes();
     this.getGroceryLists();
     this.subscription = this.userService.authStatus$.subscribe(status => this.isAuthenticated = status);
@@ -251,7 +255,7 @@ export class OverviewComponent implements OnInit {
     const favoriteIdsParam = this.showFavorites
       ? (this.favoredRecipes ?? []).map(recipe => recipe.id).join(',')
       : undefined;
-    const creatorParam = this.showMyRecipes ? this.userService.getUserName() : undefined;
+    const creatorParam = this.showMyRecipes ? this.userService.getUserName() : (this.creatorFilter || undefined);
 
     this.recipeService.getRecipesPaged({
       page: this.currentPage,
@@ -377,6 +381,7 @@ export class OverviewComponent implements OnInit {
     this.showFavorites = !this.showFavorites;
     if (this.showFavorites) {
       this.showMyRecipes = false;
+      this.clearCreatorFilter();
     }
     this.applyFiltersAndSort();
   }
@@ -420,6 +425,7 @@ export class OverviewComponent implements OnInit {
     this.showMyRecipes = !this.showMyRecipes;
     if (this.showMyRecipes) {
       this.showFavorites = false;
+      this.clearCreatorFilter();
     }
     this.applyFiltersAndSort();
   }
@@ -430,6 +436,20 @@ export class OverviewComponent implements OnInit {
 
   displayDateOnly(created: string) {
     return this.datepipe.transform(created, 'dd-MM-yyyy');
+  }
+
+  private clearCreatorFilter(): void {
+    if (!this.creatorFilter) {
+      return;
+    }
+
+    this.creatorFilter = '';
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { creator: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
   }
 
   private normalizeText(value: string | null | undefined): string {
@@ -624,6 +644,8 @@ export class OverviewComponent implements OnInit {
     if (this.showMyRecipes) {
       const username = this.userService.getUserName();
       filteredSource = filteredSource.filter(recipe => recipe.creator?.toLowerCase() === username?.toLowerCase());
+    } else if (this.creatorFilter) {
+      filteredSource = filteredSource.filter(recipe => recipe.creator?.toLowerCase() === this.creatorFilter.toLowerCase());
     }
 
     const filtered = filteredSource.filter(recipe =>

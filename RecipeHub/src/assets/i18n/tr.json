@@ -245,6 +245,7 @@
         "myRecipesToggle": "Tariflerim",
         "createRecipeTitle": "Tarif oluştur",
         "discoverRecipesTitle": "Tarifleri keşfet",
+        "creatorRecipesTitle": "{{creator}} tarifleri",
         "backToOverview": "Genel bakışa dön",
         "unableToLoad": "Tarifler şu anda yüklenemiyor. Lütfen sayfayı yenileyin.",
         "filterLabel": "Filtrele",

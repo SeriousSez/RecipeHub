@@ -58,7 +58,7 @@
         <div class="recipe-detail-meta">
             <span class="recipe-detail-author">
                 <span>{{ 'recipe.byAuthor' | translate }} </span>
-                <a href="">{{recipe.creator}}</a>
+                <a [routerLink]="['/recipes']" [queryParams]="{ creator: recipe.creator }">{{recipe.creator}}</a>
             </span>
             <span class="recipe-detail-date">{{displayDateOnly(recipe.created)}}</span>
         </div>
@@ -187,7 +187,7 @@
                 <div class="recipe-edit-meta">
                     <span class="post-meta-author">
                         <span>{{ 'recipe.byAuthor' | translate }} </span>
-                        <a class="tw-text-strong hover_tw-no-underline" href="">{{recipe.creator}}</a>
+                        <a class="tw-text-strong hover_tw-no-underline" [routerLink]="['/recipes']" [queryParams]="{ creator: recipe.creator }">{{recipe.creator}}</a>
                     </span>
                     <time class="post-meta-date"> - <i>{{displayDateOnly(recipe.created)}}</i></time>
                 </div>

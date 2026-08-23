@@ -245,6 +245,7 @@
         "myRecipesToggle": "Mine opskrifter",
         "createRecipeTitle": "Opret opskrift",
         "discoverRecipesTitle": "Opdag opskrifter",
+        "creatorRecipesTitle": "Opskrifter af {{creator}}",
         "backToOverview": "Tilbage til oversigt",
         "unableToLoad": "Kan ikke indlæse opskrifter lige nu. Genindlæs siden.",
         "filterLabel": "Filter",

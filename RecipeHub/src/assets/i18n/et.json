@@ -245,6 +245,7 @@
         "myRecipesToggle": "Minu retseptid",
         "createRecipeTitle": "Loo retsept",
         "discoverRecipesTitle": "Avasta retsepte",
+        "creatorRecipesTitle": "Kasutaja {{creator}} retseptid",
         "backToOverview": "Tagasi ülevaate juurde",
         "unableToLoad": "Retsepte ei õnnestu praegu laadida. Palun värskenda lehte.",
         "filterLabel": "Filter",
