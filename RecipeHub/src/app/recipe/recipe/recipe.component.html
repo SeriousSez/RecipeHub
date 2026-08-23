@@ -1,4 +1,4 @@
-<section *ngIf="!recipe" class="recipe-detail-loading" aria-label="Loading recipe" aria-busy="true">
+<section *ngIf="!recipe || translationLoading" class="recipe-detail-loading" aria-label="Loading recipe" aria-busy="true">
     <div class="recipe-detail-skeleton-header">
         <div class="recipe-detail-skeleton-heading">
             <span class="recipe-detail-skeleton-line kicker"></span>
@@ -34,7 +34,7 @@
     </div>
 </section>
 
-<div *ngIf="recipe" class="recipe-detail-shell">
+<div *ngIf="recipe && !translationLoading" class="recipe-detail-shell">
     <article *ngIf="edit == false" class="recipe-detail-page">
         <header class="recipe-detail-header">
             <div class="recipe-detail-heading-group">
@@ -49,7 +49,7 @@
                 <button type="button" class="recipe-detail-icon-button" (click)="toggleFavorite()" [attr.aria-label]="favored ? ('recipe.removeFavoriteAria' | translate) : ('recipe.addFavoriteAria' | translate)">
                     <i [ngClass]="favored ? 'fas fa-star' : 'far fa-star'" aria-hidden="true"></i>
                 </button>
-                <button *ngIf="canEdit" type="button" class="recipe-detail-icon-button" (click)="edit = true" [attr.aria-label]="'recipe.editRecipeAria' | translate">
+                <button *ngIf="canEdit" type="button" class="recipe-detail-icon-button" (click)="startEditing()" [attr.aria-label]="'recipe.editRecipeAria' | translate">
                     <i class="fas fa-pen" aria-hidden="true"></i>
                 </button>
             </div>
@@ -633,7 +633,7 @@
 
 <div *ngIf="edit == true" class="horizontal-center buttons recipe-edit-actions-wrap">
     <div class="recipe-editor-actions">
-        <button type="button" class="btn btn-outline-secondary" (click)="edit = false">{{ 'recipe.cancelButton' | translate }}</button>
+        <button type="button" class="btn btn-outline-secondary" (click)="cancelEditing()">{{ 'recipe.cancelButton' | translate }}</button>
         <button *ngIf="recipe" type="submit" class="btn btn-primary" [disabled]="isRequesting" (click)="update()">
             <app-spinner *ngIf="isRequesting" [color]="'#fff'" [small]="true"></app-spinner>
             <span *ngIf="!isRequesting">{{ 'recipe.updateButton' | translate }}</span>

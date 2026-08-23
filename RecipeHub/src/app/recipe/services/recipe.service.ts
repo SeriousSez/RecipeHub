@@ -49,6 +49,10 @@ export class RecipeService extends BaseService {
       ));
   }
 
+  getRecipeTranslation(id: string, language: string): Observable<Recipe> {
+    return this.http.get<Recipe>(this.baseUrl + `/recipe/getbyid/${encodeURIComponent(id)}/translation?language=${encodeURIComponent(language)}`, this.httpOptions);
+  }
+
   getEngagement(recipeId: string): Observable<RecipeEngagement> {
     return this.http.get<RecipeEngagement>(this.baseUrl + `/recipe/engagement/${encodeURIComponent(recipeId)}`, this.httpOptions);
   }
@@ -84,6 +88,7 @@ export class RecipeService extends BaseService {
     if (query.ascending !== undefined) params.set('ascending', String(query.ascending));
     if (query.creator) params.set('creator', query.creator);
     if (query.favoriteIds) params.set('favoriteIds', query.favoriteIds);
+    if (query.language) params.set('language', query.language);
 
     return this.http.get<RecipePagedResult>(this.baseUrl + `/recipe/paged?${params.toString()}`, this.httpOptions)
       .pipe(

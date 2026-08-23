@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.RateLimiting;
 using RecipeHub.Api.Services;
 
 namespace RecipeHub.Api.Controllers
@@ -34,8 +35,9 @@ namespace RecipeHub.Api.Controllers
         private readonly IHostEnvironment _hostEnvironment;
         private readonly RecipeHubContext _context;
         private readonly IRecipeNutritionEstimator _nutritionEstimator;
+        private readonly IRecipeTranslationService _recipeTranslationService;
 
-        public RecipeController(ILogger<RecipeController> logger, IRecipeService recipeService, IMemoryCache memoryCache, IServiceScopeFactory scopeFactory, IHostEnvironment hostEnvironment, RecipeHubContext context, IRecipeNutritionEstimator nutritionEstimator)
+        public RecipeController(ILogger<RecipeController> logger, IRecipeService recipeService, IMemoryCache memoryCache, IServiceScopeFactory scopeFactory, IHostEnvironment hostEnvironment, RecipeHubContext context, IRecipeNutritionEstimator nutritionEstimator, IRecipeTranslationService recipeTranslationService)
         {
             _logger = logger;
             _recipeService = recipeService;
@@ -44,6 +46,7 @@ namespace RecipeHub.Api.Controllers
             _hostEnvironment = hostEnvironment;
             _context = context;
             _nutritionEstimator = nutritionEstimator;
+            _recipeTranslationService = recipeTranslationService;
         }
 
         [HttpPost("estimate-nutrition")]
@@ -252,6 +255,16 @@ namespace RecipeHub.Api.Controllers
             return new OkObjectResult(recipe);
         }
 
+        [HttpGet("getbyid/{id}/translation")]
+        [EnableRateLimiting("RecipeTranslations")]
+        public async Task<IActionResult> GetTranslation(Guid id, string language)
+        {
+            var recipe = await _recipeService.Get(id);
+            if (recipe == null) return NotFound();
+
+            return Ok(await _recipeTranslationService.TranslateAsync(recipe, language));
+        }
+
         [HttpGet("getallbycreator")]
         public async Task<IActionResult> GetAllByCreator(string creator)
         {
@@ -358,6 +371,7 @@ namespace RecipeHub.Api.Controllers
         }
 
         [HttpGet("paged")]
+        [EnableRateLimiting("RecipeTranslations")]
         public async Task<IActionResult> GetPaged(
             int page = 1,
             int pageSize = 9,
@@ -367,7 +381,8 @@ namespace RecipeHub.Api.Controllers
             string sortBy = "created",
             bool ascending = false,
             string creator = null,
-            string favoriteIds = null)
+            string favoriteIds = null,
+            string language = "English")
         {
             try
             {
@@ -461,6 +476,7 @@ namespace RecipeHub.Api.Controllers
                     .Take(pageSize)
                     .Select(recipe => CreatePagedRecipeResponse(recipe, GetEngagement(recipe.Id, engagementByRecipe)))
                     .ToList();
+                pageItems = await _recipeTranslationService.TranslateSummariesAsync(pageItems, language);
 
                 var response = new RecipePagedResponse
                 {

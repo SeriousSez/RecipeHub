@@ -19,4 +19,5 @@ export interface RecipePagedQuery {
     ascending?: boolean;
     creator?: string;
     favoriteIds?: string;
+    language?: string;
 }

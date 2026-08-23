@@ -19,7 +19,7 @@ import { RecipeService } from '../services/recipe.service';
 import { TaxonomySelectComponent } from '../taxonomy-select/taxonomy-select.component';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
 import { TranslateService } from '@ngx-translate/core';
-import { SafeHtml } from '@angular/platform-browser';
+import { LanguageService } from 'src/app/shared/services/language.service';
 import { finalize } from 'rxjs/operators';
 import { NutritionEstimate } from '../models/nutrition-estimate.interface';
 import { RecipeEngagement } from '../models/recipe-engagement.interface';
@@ -53,7 +53,9 @@ export class RecipeComponent implements OnInit {
   public recipeId: string | null = null;
 
   public recipe: Recipe;
-  public safeInstructions: SafeHtml;
+  public translationLoading: boolean = false;
+  private canonicalRecipe: Recipe | null = null;
+  public safeInstructions: string;
   public basePortions: number | null = null;
   public selectedPortions: number | null = null;
   public ingredientsToDelete: Ingredient[] = [];
@@ -152,6 +154,7 @@ export class RecipeComponent implements OnInit {
 
   status: boolean = false;
   subscription?: Subscription;
+  languageSubscription?: Subscription;
 
   public get ingredientOptions(): string[] {
     return this.ingredients?.map(ingredient => ingredient.name) ?? [];
@@ -181,7 +184,7 @@ export class RecipeComponent implements OnInit {
     toolbarPosition: 'top'
   };
 
-  constructor(private activatedRoute: ActivatedRoute, private datepipe: DatePipe, private router: Router, public utilityService: UtilityService, private recipeService: RecipeService, private groceryService: GroceryService, private ingredientService: IngredientService, private userService: UserService, private safeService: SafeService, private favoriteService: FavoriteService, private translateService: TranslateService) {
+  constructor(private activatedRoute: ActivatedRoute, private datepipe: DatePipe, private router: Router, public utilityService: UtilityService, private recipeService: RecipeService, private groceryService: GroceryService, private ingredientService: IngredientService, private userService: UserService, private safeService: SafeService, private favoriteService: FavoriteService, private translateService: TranslateService, private languageService: LanguageService) {
     this.recipeId = activatedRoute.snapshot.params['id'] || null;
     this.title = this.utilityService.fromSlug(activatedRoute.snapshot.params['title']);
     this.creator = decodeURIComponent(activatedRoute.snapshot.params['creator'] || '');
@@ -192,11 +195,13 @@ export class RecipeComponent implements OnInit {
     this.status = this.userService.isAuthenticated();
     this.getRecipe();
     this.subscription = this.userService.authStatus$.subscribe(status => this.status = status || this.userService.isAuthenticated());
+    this.languageSubscription = this.translateService.onLangChange.subscribe(() => this.loadTranslation());
   }
 
   ngOnDestroy() {
     // prevent memory leak when component is destroyed
     this.subscription?.unsubscribe();
+    this.languageSubscription?.unsubscribe();
   }
 
   //#region favored
@@ -222,8 +227,8 @@ export class RecipeComponent implements OnInit {
     var model: FavoriteRecipe = {
       username: this.userService.getUserName(),
       recipe: {
-        title: this.recipe.title,
-        creator: this.recipe.creator
+        title: (this.canonicalRecipe ?? this.recipe).title,
+        creator: (this.canonicalRecipe ?? this.recipe).creator
       } as Recipe
     };
 
@@ -264,7 +269,7 @@ export class RecipeComponent implements OnInit {
       return;
     }
 
-    this.groceryService.toggleRecipeToList(this.recipe);
+    this.groceryService.toggleRecipeToList(this.canonicalRecipe ?? this.recipe);
     this.inGroceries = !this.inGroceries;
   }
   //#endregion
@@ -309,18 +314,17 @@ export class RecipeComponent implements OnInit {
   }
 
   setRecipeState(recipe: Recipe) {
-    this.recipe = recipe;
-    this.safeInstructions = this.utilityService.transformToSafeHtml(recipe.instructions);
-    this.completedIngredients.clear();
-    this.basePortions = this.parseNumericPortions(recipe.portions);
-    this.selectedPortions = this.basePortions;
-    this.title = recipe.title;
-    this.creator = recipe.creator;
+    this.canonicalRecipe = this.cloneRecipe(recipe);
     this.recipeId = recipe.id;
+    if (this.getRecipeLanguage() === 'English') {
+      this.applyRecipeDisplay(recipe);
+    } else {
+      this.translationLoading = true;
+      this.loadTranslation();
+    }
     this.loadEngagement(recipe.id);
     this.categoriesInput = (recipe.categories ?? []).join(', ');
     this.tagsInput = (recipe.tags ?? []).join(', ');
-    this.setCurrentIngredients();
     this.originalImageUrl = recipe.image != null ? recipe.image.url : "../assets/images/food.png";
     this.isFavored(recipe);
     this.isInGroceries(recipe);
@@ -329,6 +333,63 @@ export class RecipeComponent implements OnInit {
     if (recipe.creator == this.userService.getUserName()) {
       this.canEdit = true;
     }
+  }
+
+  private applyRecipeDisplay(recipe: Recipe) {
+    this.recipe = recipe;
+    this.translationLoading = false;
+    this.safeInstructions = this.utilityService.transformToSafeHtml(recipe.instructions);
+    this.completedIngredients.clear();
+    this.basePortions = this.parseNumericPortions(recipe.portions);
+    this.selectedPortions = this.basePortions;
+    this.title = recipe.title;
+    this.creator = recipe.creator;
+    this.setCurrentIngredients();
+  }
+
+  private loadTranslation(): void {
+    if (!this.canonicalRecipe || !this.recipeId || this.edit) return;
+
+    const language = this.getRecipeLanguage();
+    if (language === 'English') {
+      this.applyRecipeDisplay(this.cloneRecipe(this.canonicalRecipe));
+      return;
+    }
+
+    const recipeId = this.recipeId;
+    const canonicalRecipe = this.cloneRecipe(this.canonicalRecipe);
+    this.translationLoading = true;
+    this.recipeService.getRecipeTranslation(recipeId, language).subscribe({
+      next: recipe => {
+        if (!this.edit && this.recipeId === recipeId && this.getRecipeLanguage() === language) {
+          this.applyRecipeDisplay(recipe);
+        }
+      },
+      error: () => {
+        if (!this.edit && this.recipeId === recipeId && this.getRecipeLanguage() === language) {
+          this.applyRecipeDisplay(canonicalRecipe);
+        }
+      }
+    });
+  }
+
+  startEditing(): void {
+    if (!this.canonicalRecipe) return;
+    this.applyRecipeDisplay(this.cloneRecipe(this.canonicalRecipe));
+    this.edit = true;
+  }
+
+  cancelEditing(): void {
+    this.edit = false;
+    this.loadTranslation();
+  }
+
+  private getRecipeLanguage(): string {
+    return { da: 'Danish', et: 'Estonian', tr: 'Turkish' }[this.languageService.getCurrentLanguage()] ?? 'English';
+  }
+
+  private cloneRecipe(recipe: Recipe): Recipe {
+    return JSON.parse(JSON.stringify(recipe));
   }
 
   private loadEngagement(recipeId: string): void {

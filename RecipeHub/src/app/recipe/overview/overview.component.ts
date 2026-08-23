@@ -13,6 +13,7 @@ import { UserSettings } from 'src/app/account/models/user-settings.interface';
 import { UtilityService } from 'src/app/shared/utils/utility.service';
 import { TranslateService } from '@ngx-translate/core';
 import { getRecipeNutritionHighlights, RecipeNutritionHighlight } from '../models/recipe-taxonomy';
+import { LanguageService } from 'src/app/shared/services/language.service';
 
 @Component({
   selector: 'app-overview',
@@ -187,11 +188,12 @@ export class OverviewComponent implements OnInit {
   settings: UserSettings = { preferredLanguage: 'English', theme: 'Light', recipesTheme: 'Pretty', myRecipesTheme: 'Pretty' };
   subscription?: Subscription;
   settingsSubscription?: Subscription;
+  languageSubscription?: Subscription;
   private groceryFeedbackTimer?: ReturnType<typeof setTimeout>;
   private refreshIndicatorTimer?: ReturnType<typeof setTimeout>;
   private pageRequestSequence: number = 0;
 
-  constructor(private recipeService: RecipeService, private userService: UserService, private favoriteService: FavoriteService, private groceryService: GroceryService, private datepipe: DatePipe, private router: Router, private route: ActivatedRoute, private utilityService: UtilityService, private translateService: TranslateService) { }
+  constructor(private recipeService: RecipeService, private userService: UserService, private favoriteService: FavoriteService, private groceryService: GroceryService, private datepipe: DatePipe, private router: Router, private route: ActivatedRoute, private utilityService: UtilityService, private translateService: TranslateService, private languageService: LanguageService) { }
 
   ngOnInit(): void {
     this.loadPantryIngredients();
@@ -202,6 +204,7 @@ export class OverviewComponent implements OnInit {
     this.getGroceryLists();
     this.subscription = this.userService.authStatus$.subscribe(status => this.isAuthenticated = status);
     this.settingsSubscription = this.userService.settings$.subscribe(settings => this.settings = settings);
+    this.languageSubscription = this.translateService.onLangChange.subscribe(() => this.applyFiltersAndSort());
 
     if (this.isAuthenticated) this.getFavorites();
   }
@@ -276,6 +279,7 @@ export class OverviewComponent implements OnInit {
     // prevent memory leak when component is destroyed
     this.subscription?.unsubscribe();
     this.settingsSubscription?.unsubscribe();
+    this.languageSubscription?.unsubscribe();
     if (this.refreshIndicatorTimer) clearTimeout(this.refreshIndicatorTimer);
   }
 
@@ -313,7 +317,8 @@ export class OverviewComponent implements OnInit {
       sortBy: this.sortSetting,
       ascending: this.ascending,
       creator: creatorParam,
-      favoriteIds: favoriteIdsParam
+      favoriteIds: favoriteIdsParam,
+      language: this.getRecipeLanguage()
     }).subscribe({
       next: result => {
         if (requestSequence !== this.pageRequestSequence) return;
@@ -358,6 +363,10 @@ export class OverviewComponent implements OnInit {
         this.loadingMore = false;
       }
     });
+  }
+
+  private getRecipeLanguage(): string {
+    return { da: 'Danish', et: 'Estonian', tr: 'Turkish' }[this.languageService.getCurrentLanguage()] ?? 'English';
   }
 
   private startRefreshing(): void {
