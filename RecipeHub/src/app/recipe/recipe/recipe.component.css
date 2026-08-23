@@ -394,6 +394,66 @@
     font-size: .78rem;
 }
 
+.recipe-nutrition {
+    margin: 1.5rem 0 0;
+    padding: 1.25rem 0 0;
+    border-top: 1px solid rgba(15, 23, 42, .1);
+}
+
+.recipe-nutrition-heading,
+.nutrition-editor-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: .7rem;
+}
+
+.recipe-nutrition-heading h2,
+.nutrition-editor-heading h3 {
+    margin: 0;
+    color: #0f172a;
+    font-size: .9rem;
+    font-weight: 800;
+}
+
+.recipe-nutrition-heading span,
+.nutrition-editor-heading p {
+    margin: 0;
+    color: #64748b;
+    font-size: .72rem;
+}
+
+.recipe-nutrition-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 1rem;
+    margin: 0;
+}
+
+.recipe-nutrition-grid div {
+    min-width: 0;
+}
+
+.recipe-nutrition-grid dt {
+    color: #64748b;
+    font-size: .68rem;
+    font-weight: 700;
+}
+
+.recipe-nutrition-grid dd {
+    margin: .12rem 0 0;
+    color: #172033;
+    font-size: .95rem;
+    font-weight: 800;
+}
+
+.recipe-nutrition-grid dd span {
+    color: #64748b;
+    font-size: .68rem;
+    font-weight: 700;
+}
+
 .recipe-detail-author a {
     color: #111827;
     font-weight: 700;
@@ -1051,6 +1111,18 @@
 
 .recipe-metadata-grid .form-group {
     margin-bottom: 0;
+}
+
+.nutrition-editor-section {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(15, 23, 42, .08);
+}
+
+.nutrition-input-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: .8rem;
 }
 
 .editor-unit-input {
@@ -1794,6 +1866,10 @@
         grid-template-columns: 1fr;
     }
 
+    .nutrition-input-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .recipe-edit-meta {
         grid-column: auto;
     }
@@ -2121,4 +2197,38 @@
 :host-context([data-theme='dark']) .editor-ingredient-composer td {
     border-color: #46505d;
     background: #252a31 !important;
+}
+
+.nutrition-refresh-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 2.25rem;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border: 1px solid #b9c5d2;
+    border-radius: 7px;
+    background: #fff;
+    color: #2563a7;
+}
+
+.nutrition-refresh-button:hover:not(:disabled) {
+    background: #edf6fc;
+}
+
+.nutrition-refresh-button:focus-visible {
+    outline: 2px solid #4b8bc4;
+    outline-offset: 2px;
+}
+
+.nutrition-refresh-button:disabled {
+    color: #94a3b8;
+    cursor: not-allowed;
+}
+
+.nutrition-estimate-status {
+    margin: -.25rem 0 .75rem;
+    color: #526579;
+    font-size: .74rem;
 }

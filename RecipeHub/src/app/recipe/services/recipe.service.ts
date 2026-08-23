@@ -13,6 +13,7 @@ import { Ingredient } from '../models/ingredient.interface';
 import { ingredientModal } from 'src/app/shared/modals/ingredient/ingredient.modal';
 import { RecipeUpdate } from '../models/recipe-update.interface';
 import { RecipePagedQuery, RecipePagedResult } from '../models/recipe-paged.interface';
+import { NutritionEstimate, NutritionEstimateIngredient } from '../models/nutrition-estimate.interface';
 
 @Injectable()
 
@@ -98,6 +99,10 @@ export class RecipeService extends BaseService {
         return details;
       }, (error: any) => console.log(error, "fails")
       ));
+  }
+
+  estimateNutrition(ingredients: NutritionEstimateIngredient[], portions: number, instructions: string): Observable<NutritionEstimate> {
+    return this.http.post<NutritionEstimate>(this.baseUrl + "/recipe/estimate-nutrition", { ingredients, portions, instructions }, this.httpOptions);
   }
 
   addIngredients(recipe: Recipe, ingredients: Ingredient[]): Observable<Ingredient[]> {

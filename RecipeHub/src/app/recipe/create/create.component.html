@@ -194,6 +194,42 @@
                     </label>
                   </div>
 
+                  <section class="nutrition-editor-section">
+                    <div class="nutrition-editor-heading">
+                      <div>
+                        <h3>{{ 'recipe.nutritionHeading' | translate }}</h3>
+                        <p>{{ 'recipe.nutritionEditorHint' | translate }}</p>
+                      </div>
+                      <button type="button" class="nutrition-refresh-button" [disabled]="newIngredients.length === 0 || estimatingNutrition" (click)="estimateNutrition()" [attr.aria-label]="'recipe.refreshNutritionAria' | translate" [attr.title]="'recipe.refreshNutritionAria' | translate">
+                        <i class="fas fa-sync-alt" [class.fa-spin]="estimatingNutrition" aria-hidden="true"></i>
+                      </button>
+                    </div>
+                    <p *ngIf="nutritionEstimateMessageKey" class="nutrition-estimate-status" role="status">{{ nutritionEstimateMessageKey | translate:{ count: nutritionUnmatchedCount, provider: nutritionEstimateProvider } }}</p>
+                    <div class="nutrition-input-grid">
+                      <div class="form-group editor-field"><label for="calories">{{ 'recipe.caloriesLabel' | translate }}</label>
+                        <div class="editor-unit-input"><input id="calories" type="number" min="0" step="0.01" class="form-control" formControlName="calories"><span>kcal</span></div>
+                      </div>
+                      <div class="form-group editor-field"><label for="protein">{{ 'recipe.proteinLabel' | translate }}</label>
+                        <div class="editor-unit-input"><input id="protein" type="number" min="0" step="0.01" class="form-control" formControlName="proteinGrams"><span>g</span></div>
+                      </div>
+                      <div class="form-group editor-field"><label for="carbohydrates">{{ 'recipe.carbohydratesLabel' | translate }}</label>
+                        <div class="editor-unit-input"><input id="carbohydrates" type="number" min="0" step="0.01" class="form-control" formControlName="carbohydrateGrams"><span>g</span></div>
+                      </div>
+                      <div class="form-group editor-field"><label for="fat">{{ 'recipe.fatLabel' | translate }}</label>
+                        <div class="editor-unit-input"><input id="fat" type="number" min="0" step="0.01" class="form-control" formControlName="fatGrams"><span>g</span></div>
+                      </div>
+                      <div class="form-group editor-field"><label for="fiber">{{ 'recipe.fiberLabel' | translate }}</label>
+                        <div class="editor-unit-input"><input id="fiber" type="number" min="0" step="0.01" class="form-control" formControlName="fiberGrams"><span>g</span></div>
+                      </div>
+                      <div class="form-group editor-field"><label for="sugar">{{ 'recipe.sugarLabel' | translate }}</label>
+                        <div class="editor-unit-input"><input id="sugar" type="number" min="0" step="0.01" class="form-control" formControlName="sugarGrams"><span>g</span></div>
+                      </div>
+                      <div class="form-group editor-field"><label for="sodium">{{ 'recipe.sodiumLabel' | translate }}</label>
+                        <div class="editor-unit-input"><input id="sodium" type="number" min="0" step="0.01" class="form-control" formControlName="sodiumMilligrams"><span>mg</span></div>
+                      </div>
+                    </div>
+                  </section>
+
                   <div class="form-group mt-3 suggestion-field-wrap">
                     <label for="categories">{{ 'recipe.categoriesLabel' | translate }}</label>
                     <input id="categories" type="text" name="categories" class="form-control" [placeholder]="'recipe.categoriesPlaceholder' | translate" autocomplete="off" data-lpignore="true" formControlName="categories">

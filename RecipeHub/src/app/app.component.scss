@@ -214,12 +214,27 @@ body {
 :root[data-theme='dark'] .recipe-detail-kicker,
 :root[data-theme='dark'] .recipe-page-kicker,
 :root[data-theme='dark'] .recipe-detail-instructions,
+:root[data-theme='dark'] .recipe-nutrition-heading h2,
+:root[data-theme='dark'] .nutrition-editor-heading h3,
+:root[data-theme='dark'] .recipe-nutrition-grid dd,
 :root[data-theme='dark'] .recipe-detail-author a,
 :root[data-theme='dark'] .recipe-detail-date,
 :root[data-theme='dark'] .recipe-detail-section-header span,
 :root[data-theme='dark'] .recipe-side-panel-header,
 :root[data-theme='dark'] .recipe-sidebar-header {
     color: var(--recipehub-text) !important;
+}
+
+:root[data-theme='dark'] .recipe-nutrition {
+    border-color: var(--recipehub-border) !important;
+    background: var(--recipehub-surface-muted) !important;
+}
+
+:root[data-theme='dark'] .recipe-nutrition-heading span,
+:root[data-theme='dark'] .nutrition-editor-heading p,
+:root[data-theme='dark'] .recipe-nutrition-grid dt,
+:root[data-theme='dark'] .recipe-nutrition-grid dd span {
+    color: var(--recipehub-text-muted) !important;
 }
 
 :root[data-theme='dark'] .grocery-page .grocery-lead,

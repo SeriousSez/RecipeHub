@@ -19,6 +19,20 @@ namespace RecipeHub.Domain.Entities.Recipe
         public int? RestingMinutes { get; set; }
         public int? ShelfLifeDays { get; set; }
         public bool? CanBeFrozen { get; set; }
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal? Calories { get; set; }
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal? ProteinGrams { get; set; }
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal? CarbohydrateGrams { get; set; }
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal? FatGrams { get; set; }
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal? FiberGrams { get; set; }
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal? SugarGrams { get; set; }
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal? SodiumMilligrams { get; set; }
         public List<string> Categories { get; set; } = new List<string>();
         public List<string> Tags { get; set; } = new List<string>();
 

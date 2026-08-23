@@ -172,6 +172,43 @@
                 <span *ngFor="let tag of sortedTags" [ngClass]="getTagCssClass(tag)" [attr.title]="getTagBadgeLabel(tag)" [attr.aria-label]="getTagBadgeLabel(tag)">{{ tag }}</span>
             </div>
         </div>
+
+        <section *ngIf="hasNutrition()" class="recipe-nutrition" aria-labelledby="recipe-nutrition-heading">
+            <div class="recipe-nutrition-heading">
+                <h2 id="recipe-nutrition-heading">{{ 'recipe.nutritionHeading' | translate }}</h2>
+                <span>{{ 'recipe.nutritionPerServing' | translate }}</span>
+            </div>
+            <dl class="recipe-nutrition-grid">
+                <div *ngIf="recipe.calories != null">
+                    <dt>{{ 'recipe.caloriesLabel' | translate }}</dt>
+                    <dd>{{ recipe.calories | number:'1.0-2' }} <span>kcal</span></dd>
+                </div>
+                <div *ngIf="recipe.proteinGrams != null">
+                    <dt>{{ 'recipe.proteinLabel' | translate }}</dt>
+                    <dd>{{ recipe.proteinGrams | number:'1.0-2' }} <span>g</span></dd>
+                </div>
+                <div *ngIf="recipe.carbohydrateGrams != null">
+                    <dt>{{ 'recipe.carbohydratesLabel' | translate }}</dt>
+                    <dd>{{ recipe.carbohydrateGrams | number:'1.0-2' }} <span>g</span></dd>
+                </div>
+                <div *ngIf="recipe.fatGrams != null">
+                    <dt>{{ 'recipe.fatLabel' | translate }}</dt>
+                    <dd>{{ recipe.fatGrams | number:'1.0-2' }} <span>g</span></dd>
+                </div>
+                <div *ngIf="recipe.fiberGrams != null">
+                    <dt>{{ 'recipe.fiberLabel' | translate }}</dt>
+                    <dd>{{ recipe.fiberGrams | number:'1.0-2' }} <span>g</span></dd>
+                </div>
+                <div *ngIf="recipe.sugarGrams != null">
+                    <dt>{{ 'recipe.sugarLabel' | translate }}</dt>
+                    <dd>{{ recipe.sugarGrams | number:'1.0-2' }} <span>g</span></dd>
+                </div>
+                <div *ngIf="recipe.sodiumMilligrams != null">
+                    <dt>{{ 'recipe.sodiumLabel' | translate }}</dt>
+                    <dd>{{ recipe.sodiumMilligrams | number:'1.0-2' }} <span>mg</span></dd>
+                </div>
+            </dl>
+        </section>
     </article>
 
     <div *ngIf="edit == true" class="horizontal-center card recipe-edit-card" id="recipeEditAccordion">
@@ -494,6 +531,42 @@
                                         <span>{{ 'recipe.canBeFrozenLabel' | translate }}</span>
                                     </label>
                                 </div>
+                                <section class="nutrition-editor-section">
+                                    <div class="nutrition-editor-heading">
+                                        <div>
+                                            <h3>{{ 'recipe.nutritionHeading' | translate }}</h3>
+                                            <p>{{ 'recipe.nutritionEditorHint' | translate }}</p>
+                                        </div>
+                                        <button type="button" class="nutrition-refresh-button" [disabled]="currentIngredients.length === 0 || estimatingNutrition" (click)="estimateNutrition()" [attr.aria-label]="'recipe.refreshNutritionAria' | translate"
+                                            [attr.title]="'recipe.refreshNutritionAria' | translate">
+                                            <i class="fas fa-sync-alt" [class.fa-spin]="estimatingNutrition" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                    <p *ngIf="nutritionEstimateMessageKey" class="nutrition-estimate-status" role="status">{{ nutritionEstimateMessageKey | translate:{ count: nutritionUnmatchedCount, provider: nutritionEstimateProvider } }}</p>
+                                    <div class="nutrition-input-grid">
+                                        <div class="form-group editor-field"><label for="edit-calories">{{ 'recipe.caloriesLabel' | translate }}</label>
+                                            <div class="editor-unit-input"><input id="edit-calories" type="number" min="0" step="0.01" class="form-control" [(ngModel)]="recipe.calories" name="calories"><span>kcal</span></div>
+                                        </div>
+                                        <div class="form-group editor-field"><label for="edit-protein">{{ 'recipe.proteinLabel' | translate }}</label>
+                                            <div class="editor-unit-input"><input id="edit-protein" type="number" min="0" step="0.01" class="form-control" [(ngModel)]="recipe.proteinGrams" name="proteinGrams"><span>g</span></div>
+                                        </div>
+                                        <div class="form-group editor-field"><label for="edit-carbohydrates">{{ 'recipe.carbohydratesLabel' | translate }}</label>
+                                            <div class="editor-unit-input"><input id="edit-carbohydrates" type="number" min="0" step="0.01" class="form-control" [(ngModel)]="recipe.carbohydrateGrams" name="carbohydrateGrams"><span>g</span></div>
+                                        </div>
+                                        <div class="form-group editor-field"><label for="edit-fat">{{ 'recipe.fatLabel' | translate }}</label>
+                                            <div class="editor-unit-input"><input id="edit-fat" type="number" min="0" step="0.01" class="form-control" [(ngModel)]="recipe.fatGrams" name="fatGrams"><span>g</span></div>
+                                        </div>
+                                        <div class="form-group editor-field"><label for="edit-fiber">{{ 'recipe.fiberLabel' | translate }}</label>
+                                            <div class="editor-unit-input"><input id="edit-fiber" type="number" min="0" step="0.01" class="form-control" [(ngModel)]="recipe.fiberGrams" name="fiberGrams"><span>g</span></div>
+                                        </div>
+                                        <div class="form-group editor-field"><label for="edit-sugar">{{ 'recipe.sugarLabel' | translate }}</label>
+                                            <div class="editor-unit-input"><input id="edit-sugar" type="number" min="0" step="0.01" class="form-control" [(ngModel)]="recipe.sugarGrams" name="sugarGrams"><span>g</span></div>
+                                        </div>
+                                        <div class="form-group editor-field"><label for="edit-sodium">{{ 'recipe.sodiumLabel' | translate }}</label>
+                                            <div class="editor-unit-input"><input id="edit-sodium" type="number" min="0" step="0.01" class="form-control" [(ngModel)]="recipe.sodiumMilligrams" name="sodiumMilligrams"><span>mg</span></div>
+                                        </div>
+                                    </div>
+                                </section>
                             </div>
                         </div>
                     </div>

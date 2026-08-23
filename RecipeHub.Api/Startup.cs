@@ -68,6 +68,7 @@ namespace RecipeHub
             services.AddHttpClient<OpenAiIngredientImageGenerator>();
             services.AddHttpClient<LocalStableDiffusionIngredientImageGenerator>();
             services.AddHttpClient<WikipediaIngredientImageGenerator>();
+            services.AddHttpClient<IRecipeNutritionEstimator, RecipeNutritionEstimator>();
             services.AddScoped<IIngredientImageGenerator, IngredientImageGenerator>();
             services.AddScoped<IFavoriteService, FavoriteService>();
             services.AddScoped<IGroceryService, GroceryService>();

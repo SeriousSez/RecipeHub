@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
+using RecipeHub.Api.Services;
 
 namespace RecipeHub.Api.Controllers
 {
@@ -32,8 +33,9 @@ namespace RecipeHub.Api.Controllers
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly IHostEnvironment _hostEnvironment;
         private readonly RecipeHubContext _context;
+        private readonly IRecipeNutritionEstimator _nutritionEstimator;
 
-        public RecipeController(ILogger<RecipeController> logger, IRecipeService recipeService, IMemoryCache memoryCache, IServiceScopeFactory scopeFactory, IHostEnvironment hostEnvironment, RecipeHubContext context)
+        public RecipeController(ILogger<RecipeController> logger, IRecipeService recipeService, IMemoryCache memoryCache, IServiceScopeFactory scopeFactory, IHostEnvironment hostEnvironment, RecipeHubContext context, IRecipeNutritionEstimator nutritionEstimator)
         {
             _logger = logger;
             _recipeService = recipeService;
@@ -41,6 +43,17 @@ namespace RecipeHub.Api.Controllers
             _scopeFactory = scopeFactory;
             _hostEnvironment = hostEnvironment;
             _context = context;
+            _nutritionEstimator = nutritionEstimator;
+        }
+
+        [HttpPost("estimate-nutrition")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> EstimateNutrition([FromBody] NutritionEstimateRequest request)
+        {
+            if (request?.Ingredients == null || request.Ingredients.Count == 0)
+                return BadRequest("At least one ingredient is required.");
+
+            return new OkObjectResult(await _nutritionEstimator.EstimateAsync(request));
         }
 
         [HttpPost("create")]

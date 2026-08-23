@@ -20,6 +20,8 @@ import { TaxonomySelectComponent } from '../taxonomy-select/taxonomy-select.comp
 import { AngularEditorConfig } from '@kolkov/angular-editor';
 import { TranslateService } from '@ngx-translate/core';
 import { SafeHtml } from '@angular/platform-browser';
+import { finalize } from 'rxjs/operators';
+import { NutritionEstimate } from '../models/nutrition-estimate.interface';
 
 @Component({
   selector: 'app-recipe',
@@ -76,6 +78,10 @@ export class RecipeComponent implements OnInit {
   public showIngredients: boolean = true;
   public favored: boolean = false;
   public completedIngredients = new Set<Ingredient>();
+  public estimatingNutrition: boolean = false;
+  public nutritionEstimateMessageKey: string = '';
+  public nutritionUnmatchedCount: number = 0;
+  public nutritionEstimateProvider: string = '';
 
   get ingredientGroups(): Array<{ name: string; ingredients: Ingredient[] }> {
     const groups = new Map<string, Ingredient[]>();
@@ -452,6 +458,48 @@ export class RecipeComponent implements OnInit {
     return totalMinutes > 0 ? totalMinutes : null;
   }
 
+  hasNutrition(): boolean {
+    return [this.recipe?.calories, this.recipe?.proteinGrams, this.recipe?.carbohydrateGrams, this.recipe?.fatGrams, this.recipe?.fiberGrams, this.recipe?.sugarGrams, this.recipe?.sodiumMilligrams]
+      .some(value => value != null);
+  }
+
+  estimateNutrition(): void {
+    if (this.estimatingNutrition || this.currentIngredients.length === 0) return;
+
+    this.estimatingNutrition = true;
+    this.nutritionEstimateMessageKey = '';
+    this.recipeService.estimateNutrition(this.currentIngredients, this.parseNumericPortions(this.recipe.portions) ?? 1, this.recipe.instructions ?? '')
+      .pipe(finalize(() => this.estimatingNutrition = false))
+      .subscribe({
+        next: estimate => this.applyNutritionEstimate(estimate),
+        error: () => this.nutritionEstimateMessageKey = 'recipe.nutritionEstimateFailed'
+      });
+  }
+
+  private applyNutritionEstimate(estimate: NutritionEstimate): void {
+    this.nutritionUnmatchedCount = estimate.unmatchedIngredients?.length ?? 0;
+    this.nutritionEstimateProvider = estimate.provider ?? '';
+    if (estimate.estimatedIngredientCount === 0) {
+      this.nutritionEstimateMessageKey = estimate.errorCode === 'insufficient_quota'
+        ? 'recipe.nutritionEstimateQuotaExceeded'
+        : estimate.errorCode
+          ? 'recipe.nutritionEstimateRateLimited'
+          : 'recipe.nutritionEstimateNoResults';
+      return;
+    }
+
+    this.recipe.calories = estimate.calories;
+    this.recipe.proteinGrams = estimate.proteinGrams;
+    this.recipe.carbohydrateGrams = estimate.carbohydrateGrams;
+    this.recipe.fatGrams = estimate.fatGrams;
+    this.recipe.fiberGrams = estimate.fiberGrams;
+    this.recipe.sugarGrams = estimate.sugarGrams;
+    this.recipe.sodiumMilligrams = estimate.sodiumMilligrams;
+    this.nutritionEstimateMessageKey = this.nutritionUnmatchedCount > 0
+      ? 'recipe.nutritionEstimatePartial'
+      : 'recipe.nutritionEstimateComplete';
+  }
+
   getCategoryCssClass(category: string): string {
     const normalizedCategory = category.trim().toLowerCase();
     const group = RECIPE_CATEGORY_GROUPS.find(item =>
@@ -795,6 +843,13 @@ export class RecipeComponent implements OnInit {
       restingMinutes: recipe.restingMinutes,
       shelfLifeDays: recipe.shelfLifeDays,
       canBeFrozen: recipe.canBeFrozen,
+      calories: recipe.calories,
+      proteinGrams: recipe.proteinGrams,
+      carbohydrateGrams: recipe.carbohydrateGrams,
+      fatGrams: recipe.fatGrams,
+      fiberGrams: recipe.fiberGrams,
+      sugarGrams: recipe.sugarGrams,
+      sodiumMilligrams: recipe.sodiumMilligrams,
       created: recipe.created,
       image: recipe.image,
       ingredients: recipe.ingredients,

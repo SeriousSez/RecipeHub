@@ -635,6 +635,39 @@ image-cropper {
     margin-bottom: 0;
 }
 
+.nutrition-editor-section {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(15, 23, 42, .08);
+}
+
+.nutrition-editor-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: .8rem;
+}
+
+.nutrition-editor-heading h3 {
+    margin: 0;
+    color: #172033;
+    font-size: .9rem;
+    font-weight: 800;
+}
+
+.nutrition-editor-heading p {
+    margin: 0;
+    color: #64748b;
+    font-size: .72rem;
+}
+
+.nutrition-input-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: .8rem;
+}
+
 .editor-unit-input {
     position: relative;
 }
@@ -1523,6 +1556,10 @@ image-cropper {
         grid-template-columns: 1fr;
     }
 
+    .nutrition-input-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .editor-ingredients-tools {
         grid-template-columns: 1fr;
     }
@@ -1862,4 +1899,38 @@ image-cropper {
         background: #20262e !important;
         color: #9eacbb;
     }
+}
+
+.nutrition-refresh-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 2.25rem;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border: 1px solid #b9c5d2;
+    border-radius: 7px;
+    background: #fff;
+    color: #2563a7;
+}
+
+.nutrition-refresh-button:hover:not(:disabled) {
+    background: #edf6fc;
+}
+
+.nutrition-refresh-button:focus-visible {
+    outline: 2px solid #4b8bc4;
+    outline-offset: 2px;
+}
+
+.nutrition-refresh-button:disabled {
+    color: #94a3b8;
+    cursor: not-allowed;
+}
+
+.nutrition-estimate-status {
+    margin: -.25rem 0 .75rem;
+    color: #526579;
+    font-size: .74rem;
 }

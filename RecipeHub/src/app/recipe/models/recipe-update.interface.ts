@@ -15,6 +15,13 @@ export interface RecipeUpdate {
     restingMinutes?: number | null;
     shelfLifeDays?: number | null;
     canBeFrozen?: boolean | null;
+    calories?: number | null;
+    proteinGrams?: number | null;
+    carbohydrateGrams?: number | null;
+    fatGrams?: number | null;
+    fiberGrams?: number | null;
+    sugarGrams?: number | null;
+    sodiumMilligrams?: number | null;
     created: string;
     image: Image | null;
     ingredients: Ingredient[];

@@ -94,7 +94,10 @@ namespace RecipeHub
             Host.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
-                    config.AddJsonFile("appsettings.Development.local.json", optional: true, reloadOnChange: true);
+                    if (hostingContext.HostingEnvironment.IsDevelopment())
+                    {
+                        config.AddJsonFile("appsettings.Development.local.json", optional: true, reloadOnChange: true);
+                    }
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {

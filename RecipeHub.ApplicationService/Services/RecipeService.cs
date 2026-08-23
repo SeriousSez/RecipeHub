@@ -234,6 +234,13 @@ namespace RecipeHub.ApplicationService.Services
                     RestingMinutes = recipe.RestingMinutes,
                     ShelfLifeDays = recipe.ShelfLifeDays,
                     CanBeFrozen = recipe.CanBeFrozen,
+                    Calories = recipe.Calories,
+                    ProteinGrams = recipe.ProteinGrams,
+                    CarbohydrateGrams = recipe.CarbohydrateGrams,
+                    FatGrams = recipe.FatGrams,
+                    FiberGrams = recipe.FiberGrams,
+                    SugarGrams = recipe.SugarGrams,
+                    SodiumMilligrams = recipe.SodiumMilligrams,
                     Categories = recipe.Categories ?? new List<string>(),
                     Tags = recipe.Tags ?? new List<string>(),
                     Created = recipe.Created,
@@ -323,6 +330,13 @@ namespace RecipeHub.ApplicationService.Services
             recipe.RestingMinutes = model.RestingMinutes;
             recipe.ShelfLifeDays = model.ShelfLifeDays;
             recipe.CanBeFrozen = model.CanBeFrozen;
+            recipe.Calories = model.Calories;
+            recipe.ProteinGrams = model.ProteinGrams;
+            recipe.CarbohydrateGrams = model.CarbohydrateGrams;
+            recipe.FatGrams = model.FatGrams;
+            recipe.FiberGrams = model.FiberGrams;
+            recipe.SugarGrams = model.SugarGrams;
+            recipe.SodiumMilligrams = model.SodiumMilligrams;
             recipe.Categories = model.Categories ?? new List<string>();
             recipe.Tags = model.Tags ?? new List<string>();
             //recipe.Language = model.Language;

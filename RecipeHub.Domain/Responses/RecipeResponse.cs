@@ -19,6 +19,13 @@ namespace RecipeHub.Domain.Responses
         public int? RestingMinutes { get; set; }
         public int? ShelfLifeDays { get; set; }
         public bool? CanBeFrozen { get; set; }
+        public decimal? Calories { get; set; }
+        public decimal? ProteinGrams { get; set; }
+        public decimal? CarbohydrateGrams { get; set; }
+        public decimal? FatGrams { get; set; }
+        public decimal? FiberGrams { get; set; }
+        public decimal? SugarGrams { get; set; }
+        public decimal? SodiumMilligrams { get; set; }
         public List<string> Categories { get; set; } = new List<string>();
         public List<string> Tags { get; set; } = new List<string>();
         public DateTime Created { get; set; }
