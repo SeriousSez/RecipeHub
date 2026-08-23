@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { AbstractControl, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ImageCroppedEvent, ImageCropperComponent, LoadedImage } from 'ngx-image-cropper';
@@ -16,6 +16,7 @@ import { TaxonomySelectComponent } from '../taxonomy-select/taxonomy-select.comp
 import { TranslateService } from '@ngx-translate/core';
 import { finalize } from 'rxjs/operators';
 import { NutritionEstimate } from '../models/nutrition-estimate.interface';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-create',
@@ -23,7 +24,7 @@ import { NutritionEstimate } from '../models/nutrition-estimate.interface';
   styleUrls: ['./create.component.css'],
   standalone: false
 })
-export class CreateComponent implements OnInit {
+export class CreateComponent implements OnInit, OnDestroy {
   imageAspectRatio = 4 / 3;
   imageCropperWidth = 'min(100%, 853px, 93.33vh)';
   public measurements: string[] = ['Gram', 'Milliliter', 'Piece', 'Teaspoon', 'Tablespoon', 'Cup', 'Kilogram', 'Liter', 'Pinch or dash', 'Clove', 'To taste', 'Ounce', 'Pound']
@@ -132,8 +133,16 @@ export class CreateComponent implements OnInit {
     return this.ingredients?.map(ingredient => ingredient.name) ?? [];
   }
 
+  public get ingredientOptionLabels(): Record<string, string> {
+    return Object.fromEntries((this.ingredients ?? []).map(ingredient => [ingredient.name, ingredient.displayName ?? ingredient.name]));
+  }
+
+  private languageSubscription?: Subscription;
+  private ingredientRequestId = 0;
+
   ngOnInit(): void {
-    this.getIngredients();
+    this.getIngredients(this.translateService.currentLang || 'en');
+    this.languageSubscription = this.translateService.onLangChange.subscribe(event => this.getIngredients(event.lang));
 
     this.newIngredient = { ...this.defaultIngredient };
     this.imageUrl = this.defaultImageUrl;
@@ -171,11 +180,22 @@ export class CreateComponent implements OnInit {
 
   }
 
-  getIngredients() {
-    this.ingredientService.getIngredientsLite()
+  ngOnDestroy(): void {
+    this.languageSubscription?.unsubscribe();
+  }
+
+  getIngredients(languageCode: string = this.translateService.currentLang || 'en') {
+    const requestId = ++this.ingredientRequestId;
+    const requestedLanguage = this.mapUiLanguage(languageCode);
+    this.ingredientService.getIngredientsLite(requestedLanguage)
       .subscribe((ingredients: Ingredient[]) => {
+        if (requestId !== this.ingredientRequestId) return;
         this.ingredients = ingredients;
-        this.ingredients.sort((a, b) => a.name.localeCompare(b.name));
+        const collator = new Intl.Collator(languageCode, { sensitivity: 'base', numeric: true });
+        this.ingredients.sort((first, second) => collator.compare(
+          first.displayName ?? first.name,
+          second.displayName ?? second.name
+        ));
       },
         error => {
           //this.notificationService.printErrorMessage(error);
@@ -407,6 +427,7 @@ export class CreateComponent implements OnInit {
     const ingredient = this.ingredients?.find(item => item.name.toLowerCase() === normalizedName) ?? null;
     ingredientToUpdate.name = name;
     ingredientToUpdate.description = ingredient?.description ?? '';
+    ingredientToUpdate.language = ingredient ? 'English' : this.getUiLanguage();
   }
 
   selectMeasurement(measurement: string): void {
@@ -417,10 +438,12 @@ export class CreateComponent implements OnInit {
   }
 
   addIngredient() {
+    const originalName = this.newIngredient.name.trim();
+    const existingIngredient = this.ingredients?.find(item => item.name.toLowerCase() === originalName.toLowerCase());
     const ingredient: IngredientCreation = {
-      name: this.newIngredient.name,
+      name: existingIngredient?.name ?? originalName,
       description: this.newIngredient.description,
-      language: this.recipeForm.controls['language'].value,
+      language: existingIngredient ? 'English' : this.getUiLanguage(),
       amount: this.newIngredient.amountType === 'To taste' ? 0 : this.newIngredient.amount,
       amountType: this.newIngredient.amountType,
       group: this.activeIngredientGroup || undefined,
@@ -432,6 +455,14 @@ export class CreateComponent implements OnInit {
     this.newIngredients.push(ingredient);
     this.resetNewIngredient();
     setTimeout(() => this.ingredientNameSelect?.focusInput());
+  }
+
+  private getUiLanguage(): string {
+    return this.mapUiLanguage(this.translateService.currentLang);
+  }
+
+  private mapUiLanguage(languageCode: string): string {
+    return { da: 'Danish', et: 'Estonian', tr: 'Turkish' }[languageCode] ?? 'English';
   }
 
   resetNewIngredient() {

@@ -35,8 +35,8 @@ export class IngredientService extends BaseService {
       ));
   }
 
-  getIngredientsLite(): Observable<Ingredient[]> {
-    return this.http.get<Ingredient[]>(this.baseUrl + "/ingredient/getalllite", this.httpOptions)
+  getIngredientsLite(language: string = 'English'): Observable<Ingredient[]> {
+    return this.http.get<Ingredient[]>(this.baseUrl + `/ingredient/getalllite?language=${encodeURIComponent(language)}`, this.httpOptions)
       .pipe(map(details => {
         return details;
       }, (error: any) => console.log(error, "fails")

@@ -3,7 +3,9 @@ using Microsoft.Extensions.Logging;
 using RecipeHub.ApplicationService.Services;
 using RecipeHub.Domain.Models;
 using RecipeHub.Domain.Responses;
+using RecipeHub.Api.Services;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace RecipeHub.Api.Controllers
@@ -14,12 +16,14 @@ namespace RecipeHub.Api.Controllers
         private readonly ILogger<IngredientController> _logger;
         private readonly IIngredientService _ingredientService;
         private readonly IImageService _imageService;
+        private readonly IRecipeTranslationService _recipeTranslationService;
 
-        public IngredientController(ILogger<IngredientController> logger, IIngredientService ingredientService, IImageService imageService)
+        public IngredientController(ILogger<IngredientController> logger, IIngredientService ingredientService, IImageService imageService, IRecipeTranslationService recipeTranslationService)
         {
             _logger = logger;
             _ingredientService = ingredientService;
             _imageService = imageService;
+            _recipeTranslationService = recipeTranslationService;
         }
 
         [HttpPost("create")]
@@ -55,13 +59,22 @@ namespace RecipeHub.Api.Controllers
         }
 
         [HttpGet("getalllite")]
-        public async Task<IActionResult> GetAllLite()
+        public async Task<IActionResult> GetAllLite(string language = "English")
         {
-            var ingredients = await _ingredientService.GetAllLite();
+            var ingredients = (await _ingredientService.GetAllLite())?.ToList();
             if (ingredients == null)
             {
                 _logger.LogError("Failed to fetch Ingredients (lite)!");
                 return new NotFoundObjectResult("Failed to fetch Ingredients!");
+            }
+
+            var translatedNames = await _recipeTranslationService.TranslateIngredientNamesAsync(
+                ingredients.Select(ingredient => ingredient.Name), language);
+            foreach (var ingredient in ingredients)
+            {
+                ingredient.DisplayName = translatedNames != null && translatedNames.TryGetValue(ingredient.Name, out var displayName)
+                    ? displayName
+                    : ingredient.Name;
             }
 
             _logger.LogTrace("Ingredients fetched (lite)! Ingredients: {@Ingredients}", ingredients);

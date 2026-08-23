@@ -88,7 +88,8 @@ export class TaxonomySelectComponent implements ControlValueAccessor {
 
     public get canAddCustomValue(): boolean {
         const value = this.searchTerm.trim();
-        return this.allowCustom && value.length > 0 && !this.selectableValues.some(item => item.toLowerCase() === value.toLowerCase());
+        return this.allowCustom && value.length > 0 && !this.selectableValues.some(item =>
+            item.toLowerCase() === value.toLowerCase() || this.getOptionLabel(item).toLowerCase() === value.toLowerCase());
     }
 
     public get filteredValues(): string[] {

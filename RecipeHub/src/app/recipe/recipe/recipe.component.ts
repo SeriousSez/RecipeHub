@@ -155,9 +155,14 @@ export class RecipeComponent implements OnInit {
   status: boolean = false;
   subscription?: Subscription;
   languageSubscription?: Subscription;
+  private ingredientRequestId = 0;
 
   public get ingredientOptions(): string[] {
     return this.ingredients?.map(ingredient => ingredient.name) ?? [];
+  }
+
+  public get ingredientOptionLabels(): Record<string, string> {
+    return Object.fromEntries((this.ingredients ?? []).map(ingredient => [ingredient.name, ingredient.displayName ?? ingredient.name]));
   }
 
   public editorConfig: AngularEditorConfig = {
@@ -195,7 +200,10 @@ export class RecipeComponent implements OnInit {
     this.status = this.userService.isAuthenticated();
     this.getRecipe();
     this.subscription = this.userService.authStatus$.subscribe(status => this.status = status || this.userService.isAuthenticated());
-    this.languageSubscription = this.translateService.onLangChange.subscribe(() => this.loadTranslation());
+    this.languageSubscription = this.translateService.onLangChange.subscribe(event => {
+      this.loadTranslation();
+      this.getIngredients(event.lang);
+    });
   }
 
   ngOnDestroy() {
@@ -385,7 +393,11 @@ export class RecipeComponent implements OnInit {
   }
 
   private getRecipeLanguage(): string {
-    return { da: 'Danish', et: 'Estonian', tr: 'Turkish' }[this.languageService.getCurrentLanguage()] ?? 'English';
+    return this.mapUiLanguage(this.languageService.getCurrentLanguage());
+  }
+
+  private mapUiLanguage(languageCode: string): string {
+    return { da: 'Danish', et: 'Estonian', tr: 'Turkish' }[languageCode] ?? 'English';
   }
 
   private cloneRecipe(recipe: Recipe): Recipe {
@@ -399,11 +411,18 @@ export class RecipeComponent implements OnInit {
     });
   }
 
-  getIngredients() {
-    this.ingredientService.getIngredientsLite()
+  getIngredients(languageCode: string = this.languageService.getCurrentLanguage()) {
+    const requestId = ++this.ingredientRequestId;
+    const requestedLanguage = this.mapUiLanguage(languageCode);
+    this.ingredientService.getIngredientsLite(requestedLanguage)
       .subscribe((ingredients: Ingredient[]) => {
+        if (requestId !== this.ingredientRequestId) return;
         this.ingredients = ingredients;
-        this.ingredients.sort((first, second) => first.name.localeCompare(second.name));
+        const collator = new Intl.Collator(languageCode, { sensitivity: 'base', numeric: true });
+        this.ingredients.sort((first, second) => collator.compare(
+          first.displayName ?? first.name,
+          second.displayName ?? second.name
+        ));
       },
         error => {
           //this.notificationService.printErrorMessage(error);
@@ -747,6 +766,7 @@ export class RecipeComponent implements OnInit {
     const ingredient = this.ingredients.find(item => item.name.toLowerCase() === normalizedName) ?? null;
     ingredientToUpdate.name = name;
     ingredientToUpdate.description = ingredient?.description ?? '';
+    ingredientToUpdate.language = ingredient ? 'English' : this.getRecipeLanguage();
   }
 
   selectMeasurement(measurement: string): void {
@@ -759,14 +779,19 @@ export class RecipeComponent implements OnInit {
   addIngredient() {
     var date = this.datepipe.transform(Date.now(), "yyyy-MM-dd");
     if (date == null) return;
+    const created = date.toString();
 
+    const originalName = this.newIngredient.name.trim();
+    const existingIngredient = this.ingredients.find(item => item.name.toLowerCase() === originalName.toLowerCase());
     const measurement = this.newIngredient.amountType;
     const ingredient: Ingredient = {
       ...this.newIngredient,
+      name: existingIngredient?.name ?? originalName,
+      language: existingIngredient ? 'English' : this.getRecipeLanguage(),
       amount: measurement === 'To taste' ? 0 : this.newIngredient.amount,
       group: this.activeIngredientGroup || undefined,
       image: null,
-      created: date.toString()
+      created
     };
     this.newIngredients.push(ingredient);
     this.currentIngredients.push(ingredient);

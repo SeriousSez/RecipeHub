@@ -73,6 +73,13 @@ namespace RecipeHub.Api.Controllers
                 return BadRequest(ModelState);
             }
 
+            if (!await CanonicalizeNewIngredientsAsync(model.Ingredients, model.Language,
+                ingredient => ingredient.Name, (ingredient, name) => ingredient.Name = name,
+                ingredient => ingredient.Language, (ingredient, language) => ingredient.Language = language))
+            {
+                return StatusCode(503, "New ingredient names could not be converted to canonical English. Please try again.");
+            }
+
             var recipe = await _recipeService.Create(model);
             if (recipe == null)
                 return BadRequest("Failed to create recipe!");
@@ -91,6 +98,13 @@ namespace RecipeHub.Api.Controllers
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
+            }
+
+            if (!await CanonicalizeNewIngredientsAsync(recipe.Ingredients, recipe.Language,
+                ingredient => ingredient.Name, (ingredient, name) => ingredient.Name = name,
+                ingredient => ingredient.Language, (ingredient, language) => ingredient.Language = language))
+            {
+                return StatusCode(503, "New ingredient names could not be converted to canonical English. Please try again.");
             }
 
             var result = await _recipeService.Update(recipe);
@@ -130,6 +144,13 @@ namespace RecipeHub.Api.Controllers
         [Authorize(AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> AddIngredients([FromBody] List<IngredientResponse> ingredients, string title, string creator)
         {
+            if (!await CanonicalizeNewIngredientsAsync(ingredients, "English",
+                ingredient => ingredient.Name, (ingredient, name) => ingredient.Name = name,
+                ingredient => ingredient.Language, (ingredient, language) => ingredient.Language = language))
+            {
+                return StatusCode(503, "New ingredient names could not be converted to canonical English. Please try again.");
+            }
+
             var recipe = await _recipeService.AddIngredients(ingredients, title, creator);
             if (recipe == null)
                 return BadRequest("Failed to add new ingredients to recipe!");
@@ -139,6 +160,63 @@ namespace RecipeHub.Api.Controllers
             BumpRecipeCacheVersion();
 
             return new OkObjectResult(recipe);
+        }
+
+        private async Task<bool> CanonicalizeNewIngredientsAsync<T>(
+            IEnumerable<T> ingredients,
+            string fallbackLanguage,
+            Func<T, string> getName,
+            Action<T, string> setName,
+            Func<T, string> getLanguage,
+            Action<T, string> setLanguage)
+        {
+            var submittedIngredients = (ingredients ?? Enumerable.Empty<T>())
+                .Where(ingredient => !string.IsNullOrWhiteSpace(getName(ingredient)))
+                .ToList();
+            if (submittedIngredients.Count == 0) return true;
+
+            var existingNames = await _context.Ingredients
+                .AsNoTracking()
+                .Select(ingredient => ingredient.Name)
+                .ToListAsync();
+            var canonicalByName = existingNames
+                .Where(name => !string.IsNullOrWhiteSpace(name))
+                .GroupBy(name => name, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(group => group.Key, group => group.First(), StringComparer.OrdinalIgnoreCase);
+            var unknownIngredients = new List<T>();
+
+            foreach (var ingredient in submittedIngredients)
+            {
+                var submittedName = getName(ingredient).Trim();
+                if (canonicalByName.TryGetValue(submittedName, out var existingName))
+                {
+                    setName(ingredient, existingName);
+                    setLanguage(ingredient, "English");
+                }
+                else
+                {
+                    setName(ingredient, submittedName);
+                    unknownIngredients.Add(ingredient);
+                }
+            }
+
+            foreach (var languageGroup in unknownIngredients.GroupBy(ingredient =>
+                         string.IsNullOrWhiteSpace(getLanguage(ingredient)) ? fallbackLanguage : getLanguage(ingredient),
+                         StringComparer.OrdinalIgnoreCase))
+            {
+                var canonicalNames = await _recipeTranslationService.CanonicalizeIngredientNamesAsync(
+                    languageGroup.Select(getName), languageGroup.Key);
+                if (canonicalNames == null) return false;
+
+                foreach (var ingredient in languageGroup)
+                {
+                    if (!canonicalNames.TryGetValue(getName(ingredient), out var canonicalName)) return false;
+                    setName(ingredient, canonicalByName.TryGetValue(canonicalName, out var existingName) ? existingName : canonicalName);
+                    setLanguage(ingredient, "English");
+                }
+            }
+
+            return true;
         }
 
         private void TriggerIngredientImageGeneration(IEnumerable<string> ingredientNames)

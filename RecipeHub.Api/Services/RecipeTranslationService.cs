@@ -20,6 +20,8 @@ namespace RecipeHub.Api.Services
     {
         Task<RecipeResponse> TranslateAsync(RecipeResponse recipe, string targetLanguage);
         Task<List<RecipeResponse>> TranslateSummariesAsync(List<RecipeResponse> recipes, string targetLanguage);
+        Task<IReadOnlyDictionary<string, string>> CanonicalizeIngredientNamesAsync(IEnumerable<string> names, string sourceLanguage);
+        Task<IReadOnlyDictionary<string, string>> TranslateIngredientNamesAsync(IEnumerable<string> names, string targetLanguage);
     }
 
     public class OpenAiRecipeTranslationService : IRecipeTranslationService
@@ -200,6 +202,145 @@ namespace RecipeHub.Api.Services
             }
         }
 
+        public async Task<IReadOnlyDictionary<string, string>> CanonicalizeIngredientNamesAsync(IEnumerable<string> names, string sourceLanguage)
+        {
+            var language = SupportedLanguages.FirstOrDefault(item => item.Equals(sourceLanguage?.Trim(), StringComparison.OrdinalIgnoreCase));
+            var distinctNames = (names ?? Enumerable.Empty<string>())
+                .Where(name => !string.IsNullOrWhiteSpace(name))
+                .Select(name => name.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (distinctNames.Count == 0)
+                return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+            if (language == null)
+                return null;
+
+            if (language.Equals("English", StringComparison.OrdinalIgnoreCase))
+                return distinctNames.ToDictionary(name => name, name => name, StringComparer.OrdinalIgnoreCase);
+
+            var apiKey = GetApiKey();
+            if (string.IsNullOrWhiteSpace(apiKey)) return null;
+
+            var source = distinctNames.Select((name, index) => new IngredientCanonicalization
+            {
+                Index = index,
+                OriginalName = name,
+                CanonicalName = name
+            }).ToList();
+            var sourceJson = JsonSerializer.Serialize(source);
+            var sourceHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(sourceJson)));
+            var cacheKey = $"ingredient-canonicalization:v1:{language.ToLowerInvariant()}:{sourceHash}";
+            if (_cache.TryGetValue(cacheKey, out Dictionary<string, string> cachedNames)) return cachedNames;
+
+            var requestBody = CreateRequestBody(
+                $"Convert every canonicalName in this JSON array from {language} to a concise, singular English grocery ingredient name. Preserve index and originalName exactly. Text that is already English must remain English. Return an object with an ingredients property containing the identical array shape: {sourceJson}",
+                "You normalize grocery ingredient names into canonical English. Return valid JSON only. Never change indexes, originalName values, array order, quantities, brands, or add items.");
+
+            try
+            {
+                var content = await SendAsync(requestBody, apiKey);
+                if (content == null) return null;
+
+                var response = JsonSerializer.Deserialize<IngredientCanonicalizationResponse>(content, JsonOptions);
+                if (response?.Ingredients == null || response.Ingredients.Count != source.Count ||
+                    response.Ingredients.Select((item, index) => item.Index != index ||
+                        !string.Equals(item.OriginalName, source[index].OriginalName, StringComparison.Ordinal) ||
+                        string.IsNullOrWhiteSpace(item.CanonicalName)).Any(invalid => invalid))
+                {
+                    return null;
+                }
+
+                var canonicalNames = response.Ingredients.ToDictionary(
+                    item => item.OriginalName,
+                    item => NormalizeCanonicalIngredientName(item.CanonicalName),
+                    StringComparer.OrdinalIgnoreCase);
+                _cache.Set(cacheKey, canonicalNames, TimeSpan.FromDays(30));
+                return canonicalNames;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogWarning(exception, "Ingredient canonicalization failed for language {Language}", language);
+                return null;
+            }
+        }
+
+        public async Task<IReadOnlyDictionary<string, string>> TranslateIngredientNamesAsync(IEnumerable<string> names, string targetLanguage)
+        {
+            var language = SupportedLanguages.FirstOrDefault(item => item.Equals(targetLanguage?.Trim(), StringComparison.OrdinalIgnoreCase));
+            var distinctNames = (names ?? Enumerable.Empty<string>())
+                .Where(name => !string.IsNullOrWhiteSpace(name))
+                .Select(name => name.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (distinctNames.Count == 0)
+                return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+            if (language == null || language.Equals("English", StringComparison.OrdinalIgnoreCase))
+                return distinctNames.ToDictionary(name => name, name => name, StringComparer.OrdinalIgnoreCase);
+
+            var apiKey = GetApiKey();
+            if (string.IsNullOrWhiteSpace(apiKey)) return null;
+
+            var translatedNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var batch in distinctNames.Chunk(75))
+            {
+                var source = batch.Select((name, index) => new IngredientNameTranslation
+                {
+                    Index = index,
+                    Name = name,
+                    DisplayName = name
+                }).ToList();
+                var sourceJson = JsonSerializer.Serialize(source);
+                var sourceHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(sourceJson)));
+                var cacheKey = $"ingredient-name-translations:v2:{language.ToLowerInvariant()}:{sourceHash}";
+                if (_cache.TryGetValue(cacheKey, out Dictionary<string, string> cachedBatch))
+                {
+                    foreach (var item in cachedBatch) translatedNames[item.Key] = item.Value;
+                    continue;
+                }
+
+                var requestBody = CreateRequestBody(
+                    $"Translate every displayName in this JSON array from English to {language}. Use the common concise grocery-store term. Preserve index and name exactly. Return an object with an ingredients property containing the identical array shape: {sourceJson}",
+                    "You translate grocery ingredient names accurately. Return valid JSON only. Never change indexes, name values, array order, quantities, brands, or add items.");
+
+                try
+                {
+                    var content = await SendAsync(requestBody, apiKey);
+                    if (content == null)
+                    {
+                        foreach (var item in source) translatedNames[item.Name] = item.Name;
+                        continue;
+                    }
+
+                    var response = JsonSerializer.Deserialize<IngredientNameTranslationResponse>(content, JsonOptions);
+                    if (response?.Ingredients == null || response.Ingredients.Count != source.Count ||
+                        response.Ingredients.Select((item, index) => item.Index != index ||
+                            string.IsNullOrWhiteSpace(item.DisplayName)).Any(invalid => invalid))
+                    {
+                        _logger.LogWarning("Ingredient name translation returned an invalid batch for language {Language}", language);
+                        foreach (var item in source) translatedNames[item.Name] = item.Name;
+                        continue;
+                    }
+
+                    var translatedBatch = response.Ingredients
+                        .Select((item, index) => new { source[index].Name, DisplayName = item.DisplayName.Trim() })
+                        .ToDictionary(item => item.Name, item => item.DisplayName, StringComparer.OrdinalIgnoreCase);
+                    _cache.Set(cacheKey, translatedBatch, TimeSpan.FromDays(30));
+                    foreach (var item in translatedBatch) translatedNames[item.Key] = item.Value;
+                }
+                catch (Exception exception)
+                {
+                    _logger.LogWarning(exception, "Ingredient name translation failed for language {Language}", language);
+                    foreach (var item in source) translatedNames[item.Name] = item.Name;
+                }
+            }
+
+            return translatedNames;
+        }
+
         private string GetApiKey() => Environment.GetEnvironmentVariable("OPENAI_API_KEY")
             ?? _configuration["RecipeTranslation:OpenAIApiKey"]
             ?? _configuration["NutritionEstimation:OpenAIApiKey"]
@@ -233,6 +374,12 @@ namespace RecipeHub.Api.Services
 
             using var document = JsonDocument.Parse(responseBody);
             return document.RootElement.GetProperty("choices")[0].GetProperty("message").GetProperty("content").GetString();
+        }
+
+        private static string NormalizeCanonicalIngredientName(string name)
+        {
+            var normalized = name.Trim();
+            return normalized.Length == 0 ? normalized : char.ToUpperInvariant(normalized[0]) + normalized.Substring(1);
         }
 
         private static RecipeResponse CloneRecipe(RecipeResponse recipe) => new RecipeResponse
@@ -323,6 +470,30 @@ namespace RecipeHub.Api.Services
             public string Description { get; set; }
             public string AmountType { get; set; }
             public string Group { get; set; }
+        }
+
+        private class IngredientCanonicalizationResponse
+        {
+            public List<IngredientCanonicalization> Ingredients { get; set; } = new List<IngredientCanonicalization>();
+        }
+
+        private class IngredientNameTranslationResponse
+        {
+            public List<IngredientNameTranslation> Ingredients { get; set; } = new List<IngredientNameTranslation>();
+        }
+
+        private class IngredientNameTranslation
+        {
+            public int Index { get; set; }
+            public string Name { get; set; }
+            public string DisplayName { get; set; }
+        }
+
+        private class IngredientCanonicalization
+        {
+            public int Index { get; set; }
+            public string OriginalName { get; set; }
+            public string CanonicalName { get; set; }
         }
 
         private class SummaryTranslationResponse

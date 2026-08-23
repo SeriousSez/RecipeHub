@@ -5,6 +5,7 @@ namespace RecipeHub.Domain.Responses
     public class IngredientResponse
     {
         public string Name { get; set; }
+        public string DisplayName { get; set; }
         public string Description { get; set; }
         public string Language { get; set; }
         public decimal Amount { get; set; }
