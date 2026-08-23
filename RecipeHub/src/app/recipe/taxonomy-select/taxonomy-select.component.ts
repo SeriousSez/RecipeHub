@@ -26,6 +26,8 @@ export class TaxonomySelectComponent implements ControlValueAccessor {
     @Input() allowCustom = true;
     @Input() emptyValue = '';
     @Input() emptyLabel = '';
+    @Input() compactSelection = false;
+    @Input() selectedCountLabel = 'selected';
 
     public isOpen = false;
     public searchTerm = '';
@@ -61,8 +63,22 @@ export class TaxonomySelectComponent implements ControlValueAccessor {
             : this.groups;
 
         return groups
-            .map(group => ({ ...group, values: group.values.filter(value => !query || this.getOptionLabel(value).toLowerCase().includes(query)) }))
+            .map(group => ({
+                ...group,
+                values: group.values.filter(value =>
+                    (!this.multiple || !this.isSelected(value)) &&
+                    (!query || this.getOptionLabel(value).toLowerCase().includes(query)))
+            }))
             .filter(group => group.values.length > 0);
+    }
+
+    public get visibleSelectedValues(): string[] {
+        if (!this.multiple) {
+            return [];
+        }
+
+        const query = this.searchTerm.trim().toLowerCase();
+        return this.selectedValues.filter(value => !query || this.getOptionLabel(value).toLowerCase().includes(query));
     }
 
     public getOptionLabel(value: string): string {
@@ -75,7 +91,7 @@ export class TaxonomySelectComponent implements ControlValueAccessor {
     }
 
     public get filteredValues(): string[] {
-        const values = this.filteredGroups.flatMap(group => group.values);
+        const values = [...this.visibleSelectedValues, ...this.filteredGroups.flatMap(group => group.values)];
         return !this.multiple && this.emptyLabel ? [this.emptyValue, ...values] : values;
     }
 
@@ -235,6 +251,12 @@ export class TaxonomySelectComponent implements ControlValueAccessor {
     public removeValue(value: string, event: MouseEvent): void {
         event.stopPropagation();
         this.toggleValue(value);
+    }
+
+    public clearSelection(event: MouseEvent): void {
+        event.stopPropagation();
+        this.selectedValues = [];
+        this.onChange('');
     }
 
     @HostListener('document:click', ['$event'])

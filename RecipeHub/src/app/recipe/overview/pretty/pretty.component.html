@@ -22,6 +22,14 @@
           {{ badge.value }}
         </span>
       </div>
+
+      <div class="recipe-nutrition-highlights" *ngIf="getNutritionHighlights(recipe).length > 0">
+        <span class="recipe-nutrition-highlight" *ngFor="let highlight of getNutritionHighlights(recipe)">
+          <strong *ngIf="highlight.value != null">{{ highlight.value | number:'1.0-2' }} {{ highlight.unit }}</strong>
+          <strong class="recipe-nutrition-unavailable" *ngIf="highlight.value == null">{{ 'recipe.nutritionNotEstimated' | translate }}</strong>
+          <span>{{ highlight.labelKey | translate }} · {{ 'recipe.nutritionPerServing' | translate }}</span>
+        </span>
+      </div>
     </div>
   </article>
   }

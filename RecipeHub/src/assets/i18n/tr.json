@@ -310,6 +310,7 @@
         "canBeFrozenLabel": "Dondurulabilir",
         "nutritionHeading": "Tahmini besin değerleri",
         "nutritionPerServing": "Porsiyon başına",
+        "nutritionNotEstimated": "Tahmin edilmedi",
         "nutritionEditorHint": "Malzemeler ve pişirme talimatlarından yenileyin, ardından gerekirse elle düzenleyin.",
         "refreshNutritionAria": "Tahmini besin değerlerini yenile",
         "nutritionEstimateComplete": "Tahmin {{provider}} kullanılarak yenilendi.",

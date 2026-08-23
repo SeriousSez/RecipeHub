@@ -12,6 +12,7 @@ import { GroceryService } from 'src/app/shared/services/grocery.service';
 import { UserSettings } from 'src/app/account/models/user-settings.interface';
 import { UtilityService } from 'src/app/shared/utils/utility.service';
 import { TranslateService } from '@ngx-translate/core';
+import { getRecipeNutritionHighlights, RecipeNutritionHighlight } from '../models/recipe-taxonomy';
 
 @Component({
   selector: 'app-overview',
@@ -98,8 +99,8 @@ export class OverviewComponent implements OnInit {
   public get hasActiveFilters(): boolean {
     return !!this.searchTerm
       || !!this.creatorFilter
-      || this.categoryFilter !== 'all'
-      || this.tagFilter !== 'all'
+      || this.selectedCategoryFilters.length > 0
+      || this.selectedTagFilters.length > 0
       || this.sortSetting !== 'created'
       || this.ascending !== false
       || this.showFavorites
@@ -109,8 +110,8 @@ export class OverviewComponent implements OnInit {
 
   clearFilters(): void {
     this.searchTerm = '';
-    this.categoryFilter = 'all';
-    this.tagFilter = 'all';
+    this.categoryFilter = '';
+    this.tagFilter = '';
     this.sortSetting = 'created';
     this.ascending = false;
     this.showFavorites = false;
@@ -122,22 +123,51 @@ export class OverviewComponent implements OnInit {
 
   public searchTerm: string = '';
   public creatorFilter: string = '';
-  public categoryFilter: string = 'all';
-  public tagFilter: string = 'all';
+  public categoryFilter: string = '';
+  public tagFilter: string = '';
   public pantryIngredients: string = '';
   public availableCategories: string[] = [];
   public availableTags: string[] = [];
   public bestMatchScore: number = 0;
 
+  public get selectedCategoryFilters(): string[] {
+    return this.parseTaxonomyFilter(this.categoryFilter);
+  }
+
+  public get selectedTagFilters(): string[] {
+    return this.parseTaxonomyFilter(this.tagFilter);
+  }
+
   public sortSetting: string = 'created';
-  public readonly sortOptions: string[] = ['created', 'title', 'creator', 'instructions'];
+
+  public get sortOptions(): string[] {
+    return ['created', 'title', 'creator', 'instructions', 'protein', 'carbohydrates', 'fiber'];
+  }
+
+  public get nutritionHighlightTags(): string[] {
+    const tags = [...this.selectedTagFilters];
+    const sortTag = {
+      protein: 'High Protein',
+      carbohydrates: 'Low Carb',
+      fiber: 'High Fiber'
+    }[this.sortSetting];
+
+    if (sortTag && !tags.some(tag => this.normalizeText(tag) === this.normalizeText(sortTag))) {
+      tags.push(sortTag);
+    }
+
+    return tags;
+  }
 
   public get sortOptionLabels(): Record<string, string> {
     return {
       created: this.translateService.instant('recipe.sortCreated'),
       title: this.translateService.instant('recipe.sortTitle'),
       creator: this.translateService.instant('recipe.sortCreator'),
-      instructions: this.translateService.instant('recipe.sortInstructions')
+      instructions: this.translateService.instant('recipe.sortInstructions'),
+      protein: `${this.translateService.instant('recipe.proteinLabel')} · ${this.translateService.instant('recipe.nutritionPerServing')}`,
+      carbohydrates: `${this.translateService.instant('recipe.carbohydratesLabel')} · ${this.translateService.instant('recipe.nutritionPerServing')}`,
+      fiber: `${this.translateService.instant('recipe.fiberLabel')} · ${this.translateService.instant('recipe.nutritionPerServing')}`
     };
   }
   public ascending: boolean = false;
@@ -156,6 +186,7 @@ export class OverviewComponent implements OnInit {
   subscription?: Subscription;
   settingsSubscription?: Subscription;
   private groceryFeedbackTimer?: ReturnType<typeof setTimeout>;
+  private pageRequestSequence: number = 0;
 
   constructor(private recipeService: RecipeService, private userService: UserService, private favoriteService: FavoriteService, private groceryService: GroceryService, private datepipe: DatePipe, private router: Router, private route: ActivatedRoute, private utilityService: UtilityService, private translateService: TranslateService) { }
 
@@ -194,8 +225,8 @@ export class OverviewComponent implements OnInit {
     try {
       const state = JSON.parse(saved);
       this.searchTerm = state.searchTerm ?? this.searchTerm;
-      this.categoryFilter = state.categoryFilter ?? this.categoryFilter;
-      this.tagFilter = state.tagFilter ?? this.tagFilter;
+      this.categoryFilter = this.normalizeSavedTaxonomyFilter(state.categoryFilter);
+      this.tagFilter = this.normalizeSavedTaxonomyFilter(state.tagFilter);
       this.sortSetting = state.sortSetting ?? this.sortSetting;
       this.ascending = state.ascending ?? this.ascending;
     } catch {
@@ -250,6 +281,8 @@ export class OverviewComponent implements OnInit {
   }
 
   private fetchPage(reset: boolean): void {
+    const requestSequence = ++this.pageRequestSequence;
+
     if (reset) {
       this.currentPage = 1;
       if (this.hasLoadedOnce) {
@@ -271,27 +304,24 @@ export class OverviewComponent implements OnInit {
       page: this.currentPage,
       pageSize: this.pageSize,
       search: this.searchTerm || undefined,
-      category: this.categoryFilter !== 'all' ? this.categoryFilter : undefined,
-      tag: this.tagFilter !== 'all' ? this.tagFilter : undefined,
+      category: this.selectedCategoryFilters.join(',') || undefined,
+      tag: this.selectedTagFilters.join(',') || undefined,
       sortBy: this.sortSetting,
       ascending: this.ascending,
       creator: creatorParam,
       favoriteIds: favoriteIdsParam
     }).subscribe({
       next: result => {
+        if (requestSequence !== this.pageRequestSequence) return;
+
         const items = Array.isArray(result?.items) ? result.items : [];
         this.shownRecipes = reset ? items : [...this.shownRecipes, ...items];
         this.totalCount = result?.totalCount ?? this.shownRecipes.length;
         this.availableCategories = result?.availableCategories ?? [];
         this.availableTags = result?.availableTags ?? [];
 
-        if (this.categoryFilter !== 'all' && !this.availableCategories.includes(this.categoryFilter)) {
-          this.categoryFilter = 'all';
-        }
-
-        if (this.tagFilter !== 'all' && !this.availableTags.includes(this.tagFilter)) {
-          this.tagFilter = 'all';
-        }
+        this.categoryFilter = this.keepAvailableFilters(this.selectedCategoryFilters, this.availableCategories);
+        this.tagFilter = this.keepAvailableFilters(this.selectedTagFilters, this.availableTags);
 
         this.hasLoadedOnce = true;
         this.refreshing = false;
@@ -310,6 +340,8 @@ export class OverviewComponent implements OnInit {
         }
       },
       error: () => {
+        if (requestSequence !== this.pageRequestSequence) return;
+
         if (reset) {
           this.shownRecipes = [];
           this.totalCount = 0;
@@ -448,6 +480,10 @@ export class OverviewComponent implements OnInit {
     return this.datepipe.transform(created, 'dd-MM-yyyy');
   }
 
+  getNutritionHighlights(recipe: Recipe): RecipeNutritionHighlight[] {
+    return getRecipeNutritionHighlights(recipe, this.nutritionHighlightTags);
+  }
+
   private clearCreatorFilter(): void {
     if (!this.creatorFilter) {
       return;
@@ -464,6 +500,23 @@ export class OverviewComponent implements OnInit {
 
   private normalizeText(value: string | null | undefined): string {
     return (value ?? '').trim().toLowerCase();
+  }
+
+  private parseTaxonomyFilter(value: string | null | undefined): string[] {
+    return (value ?? '')
+      .split(',')
+      .map(item => item.trim())
+      .filter(item => item.length > 0 && this.normalizeText(item) !== 'all');
+  }
+
+  private normalizeSavedTaxonomyFilter(value: unknown): string {
+    const savedValues = Array.isArray(value) ? value.join(',') : typeof value === 'string' ? value : '';
+    return this.parseTaxonomyFilter(savedValues).join(', ');
+  }
+
+  private keepAvailableFilters(selected: string[], available: string[]): string {
+    const availableValues = new Set(available.map(value => this.normalizeText(value)));
+    return selected.filter(value => availableValues.has(this.normalizeText(value))).join(', ');
   }
 
   private normalizeIngredientText(value: string | null | undefined): string {
@@ -608,8 +661,10 @@ export class OverviewComponent implements OnInit {
 
   private recipeMatchesFilters(recipe: Recipe): boolean {
     const term = this.searchTerm.trim().toLowerCase();
-    const categoryMatch = this.categoryFilter === 'all' || (recipe.categories ?? []).some(category => this.normalizeText(category) === this.categoryFilter);
-    const tagMatch = this.tagFilter === 'all' || (recipe.tags ?? []).some(tag => this.normalizeText(tag) === this.tagFilter);
+    const recipeCategories = new Set((recipe.categories ?? []).map(category => this.normalizeText(category)));
+    const recipeTags = new Set((recipe.tags ?? []).map(tag => this.normalizeText(tag)));
+    const categoryMatch = this.selectedCategoryFilters.every(category => recipeCategories.has(this.normalizeText(category)));
+    const tagMatch = this.selectedTagFilters.every(tag => recipeTags.has(this.normalizeText(tag)));
 
     if (!categoryMatch || !tagMatch) {
       return false;
@@ -633,6 +688,11 @@ export class OverviewComponent implements OnInit {
   }
 
   applyFiltersAndSort() {
+    if (!this.sortOptions.includes(this.sortSetting)) {
+      this.sortSetting = 'created';
+      this.ascending = false;
+    }
+
     if (!this.showPantryMatches) {
       if (this.searchDebounceTimer) {
         clearTimeout(this.searchDebounceTimer);
@@ -664,6 +724,12 @@ export class OverviewComponent implements OnInit {
     );
 
     this.shownRecipes = [...filtered].sort((a, b) => {
+      const nutritionComparison = this.compareRecipeNutrition(a, b);
+
+      if (nutritionComparison !== 0) {
+        return nutritionComparison;
+      }
+
       const coverageComparison = this.getIngredientMatchPercentage(b) - this.getIngredientMatchPercentage(a);
 
       if (coverageComparison !== 0) {
@@ -705,7 +771,7 @@ export class OverviewComponent implements OnInit {
   sort(sortSetting: string) {
     if (this.sortSetting !== sortSetting) {
       this.sortSetting = sortSetting;
-      this.ascending = true;
+      this.ascending = this.getDefaultSortDirection(sortSetting);
     } else {
       this.ascending = !this.ascending;
     }
@@ -717,7 +783,31 @@ export class OverviewComponent implements OnInit {
     if (this.sortSetting === sortSetting) return;
 
     this.sortSetting = sortSetting;
-    this.ascending = true;
+    this.ascending = this.getDefaultSortDirection(sortSetting);
     this.applyFiltersAndSort();
+  }
+
+  private getDefaultSortDirection(sortSetting: string): boolean {
+    return sortSetting !== 'protein' && sortSetting !== 'fiber';
+  }
+
+  private compareRecipeNutrition(left: Recipe, right: Recipe): number {
+    switch (this.sortSetting) {
+      case 'protein':
+        return this.compareNullableNutrition(left.proteinGrams, right.proteinGrams);
+      case 'carbohydrates':
+        return this.compareNullableNutrition(left.carbohydrateGrams, right.carbohydrateGrams);
+      case 'fiber':
+        return this.compareNullableNutrition(left.fiberGrams, right.fiberGrams);
+      default:
+        return 0;
+    }
+  }
+
+  private compareNullableNutrition(left: number | null | undefined, right: number | null | undefined): number {
+    if (left == null && right == null) return 0;
+    if (left == null) return 1;
+    if (right == null) return -1;
+    return this.ascending ? left - right : right - left;
   }
 }

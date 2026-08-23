@@ -1,9 +1,15 @@
 <div class="taxonomy-select" [class.is-open]="isOpen" [class.is-disabled]="disabled" [class.opens-upward]="opensUpward">
-    <div class="taxonomy-select-control" (click)="open()">
+    <div class="taxonomy-select-control" [class.has-selection]="multiple && selectedValues.length > 0" (click)="open()">
         <div class="taxonomy-selected-values" *ngIf="multiple && selectedValues.length > 0">
-            <span class="taxonomy-chip" *ngFor="let value of selectedValues">
-                {{ value }}
+            <span class="taxonomy-chip" *ngFor="let value of (!isOpen && (!compactSelection || selectedValues.length === 1) ? selectedValues : [])">
+                <span class="taxonomy-chip-label">{{ value }}</span>
                 <button type="button" (click)="removeValue(value, $event)" [attr.aria-label]="'Remove ' + value">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+            </span>
+            <span class="taxonomy-chip taxonomy-selection-count" *ngIf="isOpen || (compactSelection && selectedValues.length > 1)">
+                <span class="taxonomy-chip-label">{{ selectedValues.length }} {{ selectedCountLabel }}</span>
+                <button type="button" (click)="clearSelection($event)" [attr.aria-label]="'Clear ' + ariaLabel">
                     <i class="fas fa-times" aria-hidden="true"></i>
                 </button>
             </span>
@@ -22,6 +28,16 @@
             </span>
             <span>{{ emptyLabel }}</span>
         </button>
+        <ng-container *ngIf="multiple && visibleSelectedValues.length > 0">
+            <div class="taxonomy-group-label">{{ selectedCountLabel }}</div>
+            <button type="button" tabindex="-1" class="taxonomy-option" *ngFor="let value of visibleSelectedValues; trackBy: trackValue" [class.is-highlighted]="filteredValues[highlightedIndex] === value" (mouseenter)="highlightValue(value)" (click)="selectValueWithMouse(value, $event)">
+                <span class="taxonomy-checkbox is-checked">
+                    <i class="fas fa-check" aria-hidden="true"></i>
+                </span>
+                <span>{{ getOptionLabel(value) }}</span>
+            </button>
+            <div class="taxonomy-selection-separator" *ngIf="filteredGroups.length > 0" aria-hidden="true"></div>
+        </ng-container>
         <ng-container *ngFor="let group of filteredGroups; trackBy: trackGroup">
             <div class="taxonomy-group-label" *ngIf="group.labelKey">{{ group.labelKey | translate }}</div>
             <button type="button" tabindex="-1" class="taxonomy-option" *ngFor="let value of group.values; trackBy: trackValue" [class.is-highlighted]="filteredValues[highlightedIndex] === value" (mouseenter)="highlightValue(value)" (click)="selectValueWithMouse(value, $event)">

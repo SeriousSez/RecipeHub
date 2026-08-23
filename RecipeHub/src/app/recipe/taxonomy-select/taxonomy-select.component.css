@@ -25,9 +25,11 @@
 
 .taxonomy-selected-values {
     display: flex;
-    flex-wrap: wrap;
+    flex: 1;
+    flex-wrap: nowrap;
     gap: .3rem;
     min-width: 0;
+    overflow: hidden;
 }
 
 .taxonomy-chip {
@@ -40,6 +42,15 @@
     color: #245b88;
     font-size: .78rem;
     font-weight: 600;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.taxonomy-chip-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .taxonomy-chip button,
@@ -50,8 +61,24 @@
 }
 
 .taxonomy-chip button {
+    flex: 0 0 auto;
     padding: 0;
     font-size: .65rem;
+}
+
+.taxonomy-select:not(.is-open) .taxonomy-select-control.has-selection input {
+    flex: 0 0 0;
+    width: 0;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.taxonomy-select.is-open .taxonomy-select-control.has-selection .taxonomy-selected-values {
+    flex: 0 1 auto;
+}
+
+.taxonomy-select.is-open .taxonomy-select-control.has-selection input {
+    min-width: 0;
 }
 
 .taxonomy-select-control input {
@@ -95,6 +122,11 @@
     box-shadow: 0 14px 30px rgba(15, 23, 42, .15);
 }
 
+:host#recipe-sort .taxonomy-dropdown,
+:host#recipe-sort-mobile .taxonomy-dropdown {
+    min-width: 15rem;
+}
+
 .taxonomy-select.opens-upward .taxonomy-dropdown {
     top: auto;
     bottom: calc(100% + .35rem);
@@ -107,6 +139,12 @@
     font-size: .7rem;
     font-weight: 700;
     text-transform: uppercase;
+}
+
+.taxonomy-selection-separator {
+    height: 1px;
+    margin: .35rem .55rem;
+    background: #dbe3ec;
 }
 
 .taxonomy-option {
@@ -176,4 +214,8 @@
 :host-context([data-theme='dark']) .taxonomy-option:hover,
 :host-context([data-theme='dark']) .taxonomy-option.is-highlighted {
     background: rgba(148, 163, 184, .12);
+}
+
+.taxonomy-selection-count {
+    white-space: nowrap;
 }

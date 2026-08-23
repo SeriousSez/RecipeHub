@@ -310,6 +310,7 @@
         "canBeFrozenLabel": "Can be frozen",
         "nutritionHeading": "Estimated nutrition",
         "nutritionPerServing": "Per serving",
+        "nutritionNotEstimated": "Not estimated",
         "nutritionEditorHint": "Refresh from ingredients and cooking instructions, then adjust manually if needed.",
         "refreshNutritionAria": "Refresh estimated nutrition",
         "nutritionEstimateComplete": "Estimate refreshed using {{provider}}.",

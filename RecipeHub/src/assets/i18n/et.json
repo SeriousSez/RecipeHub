@@ -310,6 +310,7 @@
         "canBeFrozenLabel": "Saab külmutada",
         "nutritionHeading": "Hinnanguline toiteväärtus",
         "nutritionPerServing": "Portsjoni kohta",
+        "nutritionNotEstimated": "Pole hinnatud",
         "nutritionEditorHint": "Värskenda koostisosade ja valmistusjuhiste põhjal ning kohanda vajadusel käsitsi.",
         "refreshNutritionAria": "Värskenda hinnangulist toiteväärtust",
         "nutritionEstimateComplete": "Hinnang värskendati teenusega {{provider}}.",

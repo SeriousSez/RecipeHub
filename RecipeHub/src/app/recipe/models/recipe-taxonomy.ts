@@ -4,6 +4,25 @@ export interface RecipeTaxonomyGroup {
     values: string[];
 }
 
+export interface RecipeNutritionHighlight {
+    labelKey: string;
+    value: number | null;
+    unit: string;
+}
+
+export function getRecipeNutritionHighlights(recipe: { proteinGrams?: number | null; carbohydrateGrams?: number | null; fiberGrams?: number | null }, selectedTags: string[]): RecipeNutritionHighlight[] {
+    const normalizedTags = new Set(selectedTags.map(tag => tag.trim().toLowerCase()));
+    const highlights = [
+        { tag: 'high protein', labelKey: 'recipe.proteinLabel', value: recipe.proteinGrams, unit: 'g' },
+        { tag: 'low carb', labelKey: 'recipe.carbohydratesLabel', value: recipe.carbohydrateGrams, unit: 'g' },
+        { tag: 'high fiber', labelKey: 'recipe.fiberLabel', value: recipe.fiberGrams, unit: 'g' }
+    ];
+
+    return highlights
+        .filter(highlight => normalizedTags.has(highlight.tag))
+        .map(highlight => ({ labelKey: highlight.labelKey, value: highlight.value ?? null, unit: highlight.unit }));
+}
+
 export function sortRecipeTaxonomyValues(values: string[], groups: RecipeTaxonomyGroup[]): string[] {
     const ranks = new Map<string, number>();
     groups.forEach((group, groupIndex) => {

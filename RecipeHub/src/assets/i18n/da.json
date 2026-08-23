@@ -310,6 +310,7 @@
         "canBeFrozenLabel": "Kan fryses",
         "nutritionHeading": "Anslået næringsindhold",
         "nutritionPerServing": "Pr. portion",
+        "nutritionNotEstimated": "Ikke anslået",
         "nutritionEditorHint": "Opdater ud fra ingredienser og tilberedning, og juster derefter manuelt efter behov.",
         "refreshNutritionAria": "Opdater anslået næringsindhold",
         "nutritionEstimateComplete": "Estimatet er opdateret med {{provider}}.",

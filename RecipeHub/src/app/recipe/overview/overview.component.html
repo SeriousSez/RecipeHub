@@ -112,13 +112,13 @@
         </div>
         <div class="recipe-filter-group recipe-sort-group">
           <label for="recipe-category" class="recipe-filter-label">{{ 'recipe.categoryLabel' | translate }}</label>
-          <app-taxonomy-select id="recipe-category" [(ngModel)]="categoryFilter" [options]="availableCategories" [multiple]="false" [allowCustom]="false" emptyValue="all" [emptyLabel]="'recipe.allCategories' | translate" [placeholder]="'recipe.categoryLabel' | translate"
+          <app-taxonomy-select id="recipe-category" [(ngModel)]="categoryFilter" [options]="availableCategories" [multiple]="true" [allowCustom]="false" [compactSelection]="true" [selectedCountLabel]="'recipe.selectedSuffix' | translate" [placeholder]="'recipe.categoryLabel' | translate"
             [ariaLabel]="'recipe.categoryLabel' | translate" (ngModelChange)="applyFiltersAndSort()"></app-taxonomy-select>
         </div>
         <div class="recipe-filter-group recipe-sort-group">
           <label for="recipe-tag" class="recipe-filter-label">{{ 'recipe.tagLabel' | translate }}</label>
-          <app-taxonomy-select id="recipe-tag" [(ngModel)]="tagFilter" [options]="availableTags" [multiple]="false" [allowCustom]="false" emptyValue="all" [emptyLabel]="'recipe.allTags' | translate" [placeholder]="'recipe.tagLabel' | translate" [ariaLabel]="'recipe.tagLabel' | translate"
-            (ngModelChange)="applyFiltersAndSort()"></app-taxonomy-select>
+          <app-taxonomy-select id="recipe-tag" [(ngModel)]="tagFilter" [options]="availableTags" [multiple]="true" [allowCustom]="false" [compactSelection]="true" [selectedCountLabel]="'recipe.selectedSuffix' | translate" [placeholder]="'recipe.tagLabel' | translate"
+            [ariaLabel]="'recipe.tagLabel' | translate" (ngModelChange)="applyFiltersAndSort()"></app-taxonomy-select>
         </div>
         <div class="recipe-filter-group recipe-sort-group">
           <label for="recipe-sort" class="recipe-filter-label">{{ 'recipe.sortByLabel' | translate }}</label>
@@ -143,7 +143,7 @@
         <button class="recipe-mobile-filter-toggle" type="button" (click)="toggleMobileFilters()">
           <i class="fas fa-filter" aria-hidden="true"></i>
           <span>{{ 'recipe.filtersToggle' | translate }}</span>
-          <span class="recipe-mobile-filter-count">{{ searchTerm || categoryFilter !== 'all' || tagFilter !== 'all' || pantryIngredients ? ('recipe.filtersOn' | translate) : ('recipe.filtersOff' | translate) }}</span>
+          <span class="recipe-mobile-filter-count">{{ searchTerm || selectedCategoryFilters.length || selectedTagFilters.length || pantryIngredients ? ('recipe.filtersOn' | translate) : ('recipe.filtersOff' | translate) }}</span>
         </button>
       </div>
 
@@ -170,13 +170,13 @@
           </div>
           <div class="recipe-filter-group recipe-sort-group">
             <label for="recipe-category-mobile" class="recipe-filter-label">{{ 'recipe.categoryLabel' | translate }}</label>
-            <app-taxonomy-select id="recipe-category-mobile" [(ngModel)]="categoryFilter" [options]="availableCategories" [multiple]="false" [allowCustom]="false" emptyValue="all" [emptyLabel]="'recipe.allCategories' | translate" [placeholder]="'recipe.categoryLabel' | translate"
+            <app-taxonomy-select id="recipe-category-mobile" [(ngModel)]="categoryFilter" [options]="availableCategories" [multiple]="true" [allowCustom]="false" [compactSelection]="true" [selectedCountLabel]="'recipe.selectedSuffix' | translate" [placeholder]="'recipe.categoryLabel' | translate"
               [ariaLabel]="'recipe.categoryLabel' | translate" (ngModelChange)="applyFiltersAndSort()"></app-taxonomy-select>
           </div>
           <div class="recipe-filter-group recipe-sort-group">
             <label for="recipe-tag-mobile" class="recipe-filter-label">{{ 'recipe.tagLabel' | translate }}</label>
-            <app-taxonomy-select id="recipe-tag-mobile" [(ngModel)]="tagFilter" [options]="availableTags" [multiple]="false" [allowCustom]="false" emptyValue="all" [emptyLabel]="'recipe.allTags' | translate" [placeholder]="'recipe.tagLabel' | translate" [ariaLabel]="'recipe.tagLabel' | translate"
-              (ngModelChange)="applyFiltersAndSort()"></app-taxonomy-select>
+            <app-taxonomy-select id="recipe-tag-mobile" [(ngModel)]="tagFilter" [options]="availableTags" [multiple]="true" [allowCustom]="false" [compactSelection]="true" [selectedCountLabel]="'recipe.selectedSuffix' | translate" [placeholder]="'recipe.tagLabel' | translate"
+              [ariaLabel]="'recipe.tagLabel' | translate" (ngModelChange)="applyFiltersAndSort()"></app-taxonomy-select>
           </div>
           <div class="recipe-filter-group recipe-sort-group">
             <label for="recipe-sort-mobile" class="recipe-filter-label">{{ 'recipe.sortByLabel' | translate }}</label>
@@ -221,7 +221,8 @@
         <table class="table table-hover caption-top">
           <caption>{{ showMyRecipes ? ('recipe.myRecipesCaption' | translate) : (showFavorites ? ('recipe.favoriteRecipesCaption' | translate) : ('recipe.allRecipesCaption' | translate)) }}</caption>
           @if (settings.recipesTheme === 'Pretty') {
-          <app-pretty [recipes]="visibleRecipes" [favoredRecipes]="favoredRecipes" [selectedRecipes]="selectedRecipes" [pantryIngredients]="showPantryMatches ? getPantryIngredientList() : []" [bestMatchScore]="bestMatchScore" (selectRecipe)="toggleRecipeSelected($event)"></app-pretty>
+          <app-pretty [recipes]="visibleRecipes" [favoredRecipes]="favoredRecipes" [selectedRecipes]="selectedRecipes" [pantryIngredients]="showPantryMatches ? getPantryIngredientList() : []" [bestMatchScore]="bestMatchScore" [activeTagFilters]="nutritionHighlightTags"
+            (selectRecipe)="toggleRecipeSelected($event)"></app-pretty>
           }
           @if (settings.recipesTheme === 'List') {
           <thead>
@@ -251,6 +252,13 @@
               </th>
               <td class="cursor-pointer" (click)="openRecipe(recipe)">
                 {{recipe.title}}
+                <div class="recipe-list-nutrition" *ngIf="getNutritionHighlights(recipe).length > 0">
+                  <span *ngFor="let highlight of getNutritionHighlights(recipe)">
+                    <strong *ngIf="highlight.value != null">{{ highlight.value | number:'1.0-2' }} {{ highlight.unit }}</strong>
+                    <strong *ngIf="highlight.value == null">{{ 'recipe.nutritionNotEstimated' | translate }}</strong>
+                    {{ highlight.labelKey | translate }} · {{ 'recipe.nutritionPerServing' | translate }}
+                  </span>
+                </div>
               </td>
               <td class="cursor-pointer creator" (click)="openRecipe(recipe)">
                 {{recipe.creator}}

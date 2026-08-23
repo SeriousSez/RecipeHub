@@ -93,6 +93,9 @@
 }
 
 .recipe-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
     font-family: 'Calibri';
     padding: 0.9rem 0.9rem 1rem;
 }
@@ -174,6 +177,42 @@
 
 .recipe-tag-features {
     background: #7c3aed;
+}
+
+.recipe-nutrition-highlights {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .45rem 1rem;
+    margin-top: auto;
+    padding-top: 1.45rem;
+}
+
+.recipe-nutrition-highlights::before {
+    content: '';
+    position: absolute;
+    top: .75rem;
+    right: 0;
+    left: 0;
+    height: 1px;
+    background: rgba(15, 23, 42, .08);
+}
+
+.recipe-nutrition-highlight {
+    display: flex;
+    align-items: baseline;
+    gap: .3rem;
+    color: #64748b;
+    font-size: .66rem;
+}
+
+.recipe-nutrition-highlight strong {
+    color: #047857;
+    font-size: .8rem;
+}
+
+.recipe-nutrition-highlight .recipe-nutrition-unavailable {
+    color: #64748b;
 }
 
 @media only screen and (max-device-width: 480px) {

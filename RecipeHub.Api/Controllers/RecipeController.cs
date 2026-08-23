@@ -407,12 +407,16 @@ namespace RecipeHub.Api.Controllers
 
                 if (!string.IsNullOrWhiteSpace(category) && !string.Equals(category, "all", StringComparison.OrdinalIgnoreCase))
                 {
-                    filtered = filtered.Where(r => (r.Categories ?? new List<string>()).Any(c => !string.IsNullOrWhiteSpace(c) && string.Equals(c.Trim(), category.Trim(), StringComparison.OrdinalIgnoreCase)));
+                    var selectedCategories = SplitFilterValues(category);
+                    filtered = filtered.Where(r => selectedCategories.All(selected =>
+                        (r.Categories ?? new List<string>()).Any(value => !string.IsNullOrWhiteSpace(value) && string.Equals(value.Trim(), selected, StringComparison.OrdinalIgnoreCase))));
                 }
 
                 if (!string.IsNullOrWhiteSpace(tag) && !string.Equals(tag, "all", StringComparison.OrdinalIgnoreCase))
                 {
-                    filtered = filtered.Where(r => (r.Tags ?? new List<string>()).Any(t => !string.IsNullOrWhiteSpace(t) && string.Equals(t.Trim(), tag.Trim(), StringComparison.OrdinalIgnoreCase)));
+                    var selectedTags = SplitFilterValues(tag);
+                    filtered = filtered.Where(r => selectedTags.All(selected =>
+                        (r.Tags ?? new List<string>()).Any(value => !string.IsNullOrWhiteSpace(value) && string.Equals(value.Trim(), selected, StringComparison.OrdinalIgnoreCase))));
                 }
 
                 if (!string.IsNullOrWhiteSpace(search))
@@ -433,6 +437,15 @@ namespace RecipeHub.Api.Controllers
                     "title" => ascending ? filtered.OrderBy(r => r.Title, StringComparer.OrdinalIgnoreCase) : filtered.OrderByDescending(r => r.Title, StringComparer.OrdinalIgnoreCase),
                     "creator" => ascending ? filtered.OrderBy(r => r.Creator, StringComparer.OrdinalIgnoreCase) : filtered.OrderByDescending(r => r.Creator, StringComparer.OrdinalIgnoreCase),
                     "instructions" => ascending ? filtered.OrderBy(r => r.Instructions, StringComparer.OrdinalIgnoreCase) : filtered.OrderByDescending(r => r.Instructions, StringComparer.OrdinalIgnoreCase),
+                    "protein" => ascending
+                        ? filtered.OrderBy(r => r.ProteinGrams.HasValue ? 0 : 1).ThenBy(r => r.ProteinGrams)
+                        : filtered.OrderBy(r => r.ProteinGrams.HasValue ? 0 : 1).ThenByDescending(r => r.ProteinGrams),
+                    "carbohydrates" => ascending
+                        ? filtered.OrderBy(r => r.CarbohydrateGrams.HasValue ? 0 : 1).ThenBy(r => r.CarbohydrateGrams)
+                        : filtered.OrderBy(r => r.CarbohydrateGrams.HasValue ? 0 : 1).ThenByDescending(r => r.CarbohydrateGrams),
+                    "fiber" => ascending
+                        ? filtered.OrderBy(r => r.FiberGrams.HasValue ? 0 : 1).ThenBy(r => r.FiberGrams)
+                        : filtered.OrderBy(r => r.FiberGrams.HasValue ? 0 : 1).ThenByDescending(r => r.FiberGrams),
                     _ => ascending ? filtered.OrderBy(r => r.Created) : filtered.OrderByDescending(r => r.Created),
                 };
 
@@ -464,6 +477,14 @@ namespace RecipeHub.Api.Controllers
         private static bool Contains(string value, string term)
         {
             return !string.IsNullOrEmpty(value) && value.Contains(term, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static List<string> SplitFilterValues(string value)
+        {
+            return value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Where(item => !string.Equals(item, "all", StringComparison.OrdinalIgnoreCase))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
         }
 
         private async Task<List<RecipeResponse>> GetAllRecipesCachedAsync()

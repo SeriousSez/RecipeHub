@@ -9,7 +9,7 @@ import { Ingredient } from 'src/app/recipe/models/ingredient.interface';
 import { RecipeService } from 'src/app/recipe/services/recipe.service';
 import { UtilityService } from 'src/app/shared/utils/utility.service';
 import { TranslateService } from '@ngx-translate/core';
-import { RECIPE_CATEGORY_GROUPS, RECIPE_TAG_GROUPS, sortRecipeTaxonomyValues } from '../../models/recipe-taxonomy';
+import { getRecipeNutritionHighlights, RecipeNutritionHighlight, RECIPE_CATEGORY_GROUPS, RECIPE_TAG_GROUPS, sortRecipeTaxonomyValues } from '../../models/recipe-taxonomy';
 
 @Component({
   selector: 'app-pretty',
@@ -23,6 +23,7 @@ export class PrettyComponent implements OnInit {
   @Input() selectedRecipes: Recipe[] = [];
   @Input() pantryIngredients: string[] = [];
   @Input() bestMatchScore: number = 0;
+  @Input() activeTagFilters: string[] = [];
   @Output() selectRecipe = new EventEmitter<Recipe>();
 
   public recipeList: Recipe[] = [];
@@ -125,6 +126,10 @@ export class PrettyComponent implements OnInit {
     });
 
     return badges;
+  }
+
+  getNutritionHighlights(recipe: Recipe): RecipeNutritionHighlight[] {
+    return getRecipeNutritionHighlights(recipe, this.activeTagFilters);
   }
 
   getIngredientMatchSummary(recipe: Recipe) {

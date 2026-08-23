@@ -970,3 +970,21 @@ button:focus {
         display: none;
     }
 }
+
+.recipe-list-nutrition {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .25rem .75rem;
+    margin-top: .2rem;
+    color: #64748b;
+    font-size: .68rem;
+}
+
+.recipe-list-nutrition span {
+    float: none !important;
+    margin-top: 0;
+}
+
+.recipe-list-nutrition strong {
+    color: #047857;
+}
