@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,6 +27,7 @@ using System.Data.Common;
 using System.Text;
 using RecipeHub.Api.Services;
 using RecipeHub.Api.Converters;
+using System.Threading.RateLimiting;
 
 namespace RecipeHub
 {
@@ -46,6 +48,19 @@ namespace RecipeHub
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMemoryCache();
+            var groceryOfferRateLimit = Math.Max(1, Configuration.GetValue("GroceryOffers:RateLimitPerMinute", 20));
+            services.AddRateLimiter(options =>
+            {
+                options.RejectionStatusCode = 429;
+                options.AddPolicy("GroceryOffers", context => RateLimitPartition.GetFixedWindowLimiter(
+                    context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                    _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = groceryOfferRateLimit,
+                        Window = TimeSpan.FromMinutes(1),
+                        QueueLimit = 0
+                    }));
+            });
 
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IRecipeRepository, RecipeRepository>();
@@ -69,6 +84,17 @@ namespace RecipeHub
             services.AddHttpClient<LocalStableDiffusionIngredientImageGenerator>();
             services.AddHttpClient<WikipediaIngredientImageGenerator>();
             services.AddHttpClient<IRecipeNutritionEstimator, RecipeNutritionEstimator>();
+            services.AddHttpClient("Madpris", client =>
+            {
+                client.BaseAddress = new Uri(Configuration["Madpris:BaseUrl"] ?? "https://madpris.gratis.dk/");
+                client.Timeout = TimeSpan.FromSeconds(60);
+            });
+            services.AddHttpClient("ShelfAtlas", client =>
+            {
+                client.BaseAddress = new Uri(Configuration["ShelfAtlas:BaseUrl"] ?? "https://api.shelfatlas.com/api/v1/public/catalog/");
+                client.Timeout = TimeSpan.FromSeconds(20);
+            });
+            services.AddScoped<IGroceryOfferService, MadprisGroceryOfferService>();
             services.AddScoped<IIngredientImageGenerator, IngredientImageGenerator>();
             services.AddScoped<IFavoriteService, FavoriteService>();
             services.AddScoped<IGroceryService, GroceryService>();
@@ -245,6 +271,7 @@ namespace RecipeHub
             }
 
             app.UseRouting();
+            app.UseRateLimiter();
             app.UseCors(CorsPolicyName);
             app.UseAuthentication();
             app.UseAuthorization();

@@ -27,6 +27,7 @@ export class TaxonomySelectComponent implements ControlValueAccessor {
     @Input() emptyValue = '';
     @Input() emptyLabel = '';
     @Input() compactSelection = false;
+    @Input() compact = false;
     @Input() selectedCountLabel = 'selected';
 
     public isOpen = false;

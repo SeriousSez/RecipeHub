@@ -67,10 +67,12 @@ jobs:
         env:
           MYSQL_CONNECTION_STRING: ${{ secrets.MYSQL_CONNECTION_STRING }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          SHELFATLAS_API_KEY: ${{ secrets.SHELFATLAS_API_KEY }}
           USDA_API_KEY: ${{ secrets.USDA_API_KEY }}
         run: |
           $required = @(
             @{ Name = 'MYSQL_CONNECTION_STRING'; Value = $env:MYSQL_CONNECTION_STRING }
+            @{ Name = 'SHELFATLAS_API_KEY'; Value = $env:SHELFATLAS_API_KEY }
             @{ Name = 'USDA_API_KEY'; Value = $env:USDA_API_KEY }
           )
 
@@ -95,6 +97,9 @@ jobs:
             }
             NutritionEstimation = @{
               UsdaApiKey = $env:USDA_API_KEY
+            }
+            ShelfAtlas = @{
+              ApiKey = $env:SHELFATLAS_API_KEY
             }
             Logging = @{
               LogLevel = @{

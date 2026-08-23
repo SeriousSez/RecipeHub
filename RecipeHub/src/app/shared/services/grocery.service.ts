@@ -13,6 +13,7 @@ import { GroceryPlan } from '../models/grocery-plan.interface';
 import { map } from 'rxjs/operators';
 import { UserService } from './user.service';
 import { GroceryList } from '../models/grocery-list.interface';
+import { GroceryOfferSearchRequest, GroceryOfferSearchResponse } from '../models/grocery-offer-search.interface';
 
 @Injectable({ providedIn: 'root' })
 export class GroceryService extends BaseService {
@@ -99,6 +100,10 @@ export class GroceryService extends BaseService {
             ));
     }
 
+    findNearbyOffers(model: GroceryOfferSearchRequest) {
+        return this.http.post<GroceryOfferSearchResponse>(this.baseUrl + "/grocery/nearbyoffers", model, this.httpOptions);
+    }
+
     getRecipeList() {
         return this.recipeList;
     }
@@ -133,6 +138,17 @@ export class GroceryService extends BaseService {
         });
 
         this.persistState();
+    }
+
+    updateIngredientInList(ingredient: Ingredient, updatedIngredient: Ingredient) {
+        const index = this.ingredientList.indexOf(ingredient);
+        if (index < 0) {
+            return ingredient;
+        }
+
+        Object.assign(ingredient, updatedIngredient);
+        this.persistState();
+        return ingredient;
     }
 
     addIngredientsFromRecipeToList(recipe: Recipe) {

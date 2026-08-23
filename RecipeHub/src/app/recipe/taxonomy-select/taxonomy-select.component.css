@@ -219,3 +219,19 @@
 .taxonomy-selection-count {
     white-space: nowrap;
 }
+
+.taxonomy-select.is-compact .taxonomy-select-control {
+    min-height: 2rem;
+    padding: .15rem .25rem .15rem .5rem;
+}
+
+.taxonomy-select.is-compact .taxonomy-select-control input {
+    height: 1.5rem;
+    font-size: .75rem;
+}
+
+.taxonomy-select.is-compact .taxonomy-toggle {
+    width: 1.5rem;
+    height: 1.5rem;
+    flex-basis: 1.5rem;
+}

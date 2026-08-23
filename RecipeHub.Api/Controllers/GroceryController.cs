@@ -1,8 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Logging;
+using RecipeHub.Api.Services;
 using RecipeHub.ApplicationService.Interfaces;
 using RecipeHub.Domain.Models;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace RecipeHub.Api.Controllers
@@ -13,11 +17,47 @@ namespace RecipeHub.Api.Controllers
     {
         private readonly ILogger<GroceryController> _logger;
         private readonly IGroceryService _groceryService;
+        private readonly IGroceryOfferService _groceryOfferService;
 
-        public GroceryController(ILogger<GroceryController> logger, IGroceryService groceryService)
+        public GroceryController(ILogger<GroceryController> logger, IGroceryService groceryService, IGroceryOfferService groceryOfferService)
         {
             _logger = logger;
             _groceryService = groceryService;
+            _groceryOfferService = groceryOfferService;
+        }
+
+        [AllowAnonymous]
+        [EnableRateLimiting("GroceryOffers")]
+        [HttpPost("nearbyoffers")]
+        public async Task<IActionResult> FindNearbyOffers([FromBody] GroceryOfferSearchViewModel model)
+        {
+            if (model?.IngredientNames == null || model.IngredientNames.Count == 0 || model.IngredientNames.Count > 10 ||
+                model.IngredientNames.Any(name => string.IsNullOrWhiteSpace(name) || name.Length > 100) ||
+                model.Latitude < -90 || model.Latitude > 90 || model.Longitude < -180 || model.Longitude > 180 ||
+                model.RadiusKm <= 0 || model.RadiusKm > 50)
+            {
+                return BadRequest(new { code = "invalid_request" });
+            }
+
+            if (!_groceryOfferService.IsLocationConfigured)
+            {
+                return StatusCode(503, new { code = "shelfatlas_not_configured" });
+            }
+
+            try
+            {
+                return Ok(await _groceryOfferService.FindNearbyOffersAsync(model));
+            }
+            catch (GroceryOfferProviderException exception)
+            {
+                _logger.LogWarning("Grocery offer search failed with upstream status {StatusCode}", exception.StatusCode);
+                return StatusCode(503, new { code = exception.StatusCode == 429 ? "shelfatlas_rate_limited" : "shelfatlas_unavailable" });
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Grocery offer search failed");
+                return StatusCode(503, new { code = "shelfatlas_unavailable" });
+            }
         }
 
         [HttpPost("createplan")]

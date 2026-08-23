@@ -54,10 +54,13 @@
     font-weight: 800;
 }
 
-.grocery-add-field .form-control,
-.grocery-add-field .form-select {
+.grocery-add-field .form-control {
     min-height: 44px;
     border-radius: 7px;
+}
+
+.grocery-add-field app-taxonomy-select {
+    width: 100%;
 }
 
 .grocery-add-submit {
@@ -324,11 +327,12 @@
 }
 
 .grocery-action-column {
-    width: 3.25rem;
+    width: 5rem;
 }
 
 .grocery-row-action {
-    width: 3.25rem;
+    width: 5rem;
+    white-space: nowrap;
     text-align: center;
 }
 
@@ -344,6 +348,31 @@
 .grocery-row-action button:hover {
     background: #fee2e2;
     color: #b91c1c;
+}
+
+.grocery-row-action button.is-save:hover {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.grocery-edit-name {
+    min-width: 13rem;
+}
+
+.grocery-edit-amount {
+    display: grid;
+    grid-template-columns: minmax(5rem, .65fr) minmax(8rem, 1fr);
+    gap: .4rem;
+    min-width: 14rem;
+}
+
+.grocery-edit-amount .form-control {
+    min-height: 38px;
+    font-size: .8rem;
+}
+
+.grocery-edit-amount app-taxonomy-select {
+    width: 100%;
 }
 
 @media (max-width: 640px) {
@@ -501,4 +530,378 @@
     .grocery-table .is-selected input {
         opacity: 1;
     }
+}
+
+.grocery-offers-panel {
+    margin-bottom: 1.5rem;
+    padding: 1.25rem;
+    border: 1px solid rgba(15, 23, 42, .1);
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 14px 34px rgba(15, 23, 42, .07);
+}
+
+.grocery-offers-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(15, 23, 42, .08);
+}
+
+.grocery-offers-header h2,
+.grocery-nearby-stores h3 {
+    margin: 0;
+    color: #0f172a;
+    font-weight: 800;
+}
+
+.grocery-offers-header h2 {
+    font-size: 1.45rem;
+}
+
+.grocery-offers-header p {
+    margin: .35rem 0 0;
+    color: #64748b;
+    font-size: .85rem;
+}
+
+.grocery-offers-eyebrow {
+    color: #047857 !important;
+    font-size: .7rem !important;
+    font-weight: 800;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.grocery-radius-control {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem .5rem;
+    align-items: end;
+    flex: 0 0 auto;
+}
+
+.grocery-offer-control {
+    display: grid;
+    gap: .35rem;
+}
+
+.grocery-offer-control label {
+    color: #475569;
+    font-size: .7rem;
+    font-weight: 800;
+}
+
+.grocery-offer-control.is-radius app-taxonomy-select {
+    width: 7.25rem;
+    min-width: 7.25rem;
+}
+
+.grocery-offer-control.is-preference app-taxonomy-select {
+    width: 10rem;
+    min-width: 10rem;
+}
+
+.grocery-radius-control .btn {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+}
+
+.grocery-deals-toggle {
+    color: #475569;
+}
+
+.grocery-offers-message {
+    margin-top: 1rem;
+    padding: .85rem 1rem;
+    border: 1px solid #bae6fd;
+    border-radius: 7px;
+    background: #f0f9ff;
+    color: #075985;
+    font-size: .85rem;
+}
+
+.grocery-offers-message.is-error {
+    border-color: #fecaca;
+    background: #fff5f5;
+    color: #991b1b;
+}
+
+.grocery-offer-groups {
+    display: grid;
+    gap: 1.35rem;
+    margin-top: 1.15rem;
+}
+
+.grocery-offer-group-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: .55rem;
+}
+
+.grocery-offer-group-heading h3 {
+    margin: 0;
+    color: #172033;
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+.grocery-offer-group-heading span {
+    color: #64748b;
+    font-size: .72rem;
+}
+
+.grocery-offer-refine,
+.grocery-unmatched-item {
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+}
+
+.grocery-offer-refine app-taxonomy-select,
+.grocery-unmatched-item app-taxonomy-select {
+    flex: 0 0 9.5rem;
+    width: 9.5rem;
+    min-width: 0;
+}
+
+.grocery-offer-refine .btn,
+.grocery-unmatched-item .btn {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+}
+
+.grocery-offer-list {
+    border-top: 1px solid rgba(15, 23, 42, .08);
+}
+
+.grocery-offer-item {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr) auto;
+    gap: .85rem;
+    align-items: center;
+    min-height: 82px;
+    padding: .75rem 0;
+    border-bottom: 1px solid rgba(15, 23, 42, .08);
+}
+
+.grocery-offer-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    overflow: hidden;
+    border-radius: 6px;
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+.grocery-offer-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.grocery-offer-copy {
+    min-width: 0;
+}
+
+.grocery-offer-copy h4 {
+    margin: .25rem 0;
+    overflow-wrap: anywhere;
+    color: #0f172a;
+    font-size: .9rem;
+    font-weight: 800;
+}
+
+.grocery-offer-copy p {
+    margin: 0;
+    color: #475569;
+    font-size: .74rem;
+}
+
+.grocery-offer-copy .grocery-offer-address {
+    margin-top: .15rem;
+    color: #64748b;
+}
+
+.grocery-offer-labels {
+    display: flex;
+    gap: .35rem;
+}
+
+.grocery-offer-kind,
+.grocery-offer-discount {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.35rem;
+    padding: .15rem .4rem;
+    border-radius: 4px;
+    background: #e2e8f0;
+    color: #475569;
+    font-size: .62rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.grocery-offer-kind.is-campaign,
+.grocery-offer-discount {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.grocery-offer-price {
+    display: flex;
+    align-items: flex-end;
+    flex-direction: column;
+    min-width: 7rem;
+}
+
+.grocery-offer-price del {
+    color: #94a3b8;
+    font-size: .72rem;
+}
+
+.grocery-offer-price strong {
+    color: #0f766e;
+    font-size: 1.05rem;
+}
+
+.grocery-offer-price span {
+    margin-top: .15rem;
+    color: #64748b;
+    font-size: .65rem;
+}
+
+.grocery-unmatched {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .45rem;
+    margin-top: 1rem;
+    padding: .7rem .8rem;
+    border-left: 3px solid #f59e0b;
+    background: #fffbeb;
+    color: #78350f;
+    font-size: .78rem;
+}
+
+.grocery-unmatched-item>span {
+    min-width: 8rem;
+}
+
+.grocery-nearby-stores {
+    margin-top: 1.25rem;
+}
+
+.grocery-nearby-stores h3 {
+    font-size: .95rem;
+}
+
+.grocery-store-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .5rem;
+    margin-top: .6rem;
+}
+
+.grocery-store-list a {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: .1rem .5rem;
+    padding: .65rem .75rem;
+    border: 1px solid rgba(15, 23, 42, .08);
+    border-radius: 6px;
+    color: #0f172a;
+    text-decoration: none;
+}
+
+.grocery-store-list a:hover {
+    border-color: rgba(37, 99, 235, .3);
+    background: #f8fafc;
+}
+
+.grocery-store-list span {
+    color: #64748b;
+    font-size: .7rem;
+}
+
+.grocery-store-list i {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    align-self: center;
+    color: #64748b;
+    font-size: .7rem;
+}
+
+.grocery-offers-source {
+    margin: 1rem 0 0;
+    color: #94a3b8;
+    font-size: .65rem;
+    text-align: right;
+}
+
+.grocery-offers-source a {
+    color: inherit;
+}
+
+@media (max-width: 700px) {
+    .grocery-offers-header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .grocery-radius-control {
+        align-self: flex-start;
+    }
+
+    .grocery-offer-item {
+        grid-template-columns: 52px minmax(0, 1fr);
+    }
+
+    .grocery-offer-image {
+        width: 52px;
+        height: 52px;
+    }
+
+    .grocery-offer-price {
+        grid-column: 2;
+        align-items: flex-start;
+    }
+
+    .grocery-store-list {
+        grid-template-columns: 1fr;
+    }
+
+    .grocery-unmatched {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .grocery-offer-group-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .grocery-offer-refine,
+    .grocery-unmatched-item {
+        width: 100%;
+    }
+
+    .grocery-offer-refine app-taxonomy-select,
+    .grocery-unmatched-item app-taxonomy-select {
+        flex: 1 1 auto;
+        width: auto;
+    }
+}
+
+.grocery-offer-group.is-collapsed .grocery-offer-group-heading {
+    margin-bottom: 0;
 }

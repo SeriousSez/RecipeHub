@@ -8,7 +8,11 @@
 
     <div class="grocery-hero-actions">
       <button class="btn btn-brand-alt" type="button" routerLink="/recipes">{{ 'grocery.addRecipe' | translate }}</button>
-      <button class="btn btn-brand-secondary" type="button" (click)="showAddIngredient = !showAddIngredient">{{ 'grocery.addIngredient' | translate }}</button>
+      <button class="btn btn-brand-secondary" type="button" (click)="openAddIngredient()">{{ 'grocery.addIngredient' | translate }}</button>
+      <button class="btn btn-brand-secondary" type="button" [disabled]="!hasIngredients || searchingNearbyOffers" (click)="findNearbyOffers()">
+        <i class="fas" [ngClass]="searchingNearbyOffers ? 'fa-spinner fa-spin' : 'fa-store'" aria-hidden="true"></i>
+        {{ (searchingNearbyOffers ? 'grocery.searchingNearbyOffers' : 'grocery.findNearbyOffers') | translate }}
+      </button>
       <button class="btn btn-brand" type="button" [disabled]="!hasIngredients" (click)="save()">{{ 'grocery.createGroceryList' | translate }}</button>
     </div>
 
@@ -28,8 +32,146 @@
     </div>
   </section>
 
+  @if (nearbyOfferErrorKey || nearbyOfferResults) {
+  <section class="grocery-offers-panel" aria-labelledby="nearby-offers-heading">
+    <div class="grocery-offers-header">
+      <div>
+        <p class="grocery-offers-eyebrow">{{ 'grocery.nearbyOffersKicker' | translate }}</p>
+        <h2 id="nearby-offers-heading">{{ 'grocery.nearbyOffersHeading' | translate }}</h2>
+        <p>{{ 'grocery.nearbyOffersHint' | translate:{ count: offerSearchIngredientCount, radius: offerSearchRadiusKm } }}</p>
+      </div>
+      <div class="grocery-radius-control">
+        <div class="grocery-offer-control is-radius">
+          <label for="offer-radius">{{ 'grocery.radiusLabel' | translate }}</label>
+          <app-taxonomy-select id="offer-radius" [ngModel]="offerSearchRadiusKm.toString()" (ngModelChange)="setOfferSearchRadius($event)" [options]="offerRadiusOptions" [optionLabels]="offerRadiusLabels" [multiple]="false" [allowCustom]="false" placeholder="10 km"
+            [ariaLabel]="'grocery.radiusLabel' | translate"></app-taxonomy-select>
+        </div>
+        <div class="grocery-offer-control is-preference">
+          <label for="offer-preference">{{ 'grocery.offerShoppingPreferenceLabel' | translate }}</label>
+          <app-taxonomy-select id="offer-preference" [ngModel]="offerShoppingPreference" (ngModelChange)="setOfferShoppingPreference($event)" [options]="offerShoppingPreferences" [optionLabels]="offerShoppingPreferenceLabels" [multiple]="false" [allowCustom]="false"
+            [placeholder]="'grocery.offerShoppingPreferences.balanced' | translate" [ariaLabel]="'grocery.offerShoppingPreferenceLabel' | translate"></app-taxonomy-select>
+        </div>
+        <button type="button" class="btn btn-outline-brand" [disabled]="searchingNearbyOffers" (click)="findNearbyOffers()" [attr.aria-label]="'grocery.refreshNearbyOffers' | translate" [title]="'grocery.refreshNearbyOffers' | translate">
+          <i class="fas fa-sync-alt" [class.fa-spin]="searchingNearbyOffers" aria-hidden="true"></i>
+        </button>
+        @if (nearbyOfferResults) {
+        <button type="button" class="btn btn-outline-brand grocery-deals-toggle" (click)="toggleDealsCollapsed()" [attr.aria-expanded]="!dealsCollapsed" aria-controls="grocery-deals-results"
+          [attr.aria-label]="(dealsCollapsed ? 'grocery.expandNearbyOffers' : 'grocery.collapseNearbyOffers') | translate" [title]="(dealsCollapsed ? 'grocery.expandNearbyOffers' : 'grocery.collapseNearbyOffers') | translate">
+          <i class="fas" [ngClass]="dealsCollapsed ? 'fa-chevron-down' : 'fa-chevron-up'" aria-hidden="true"></i>
+        </button>
+        }
+      </div>
+    </div>
+
+    @if (nearbyOfferErrorKey) {
+    <div class="grocery-offers-message is-error" role="alert">{{ nearbyOfferErrorKey | translate }}</div>
+    }
+
+    @if (nearbyOfferResults && !dealsCollapsed) {
+    <div id="grocery-deals-results">
+      @if (nearbyOfferGroups.length > 0) {
+      <div class="grocery-offer-groups">
+        @for (group of nearbyOfferGroups; track group.ingredientName; let groupIndex = $index) {
+        <section class="grocery-offer-group" [class.is-collapsed]="isIngredientDealsCollapsed(group.ingredientName)">
+          <div class="grocery-offer-group-heading">
+            <h3>{{ group.ingredientName }}</h3>
+            <div class="grocery-offer-refine">
+              <span>{{ 'grocery.matchesFound' | translate:{ count: group.offers.length } }}</span>
+              <app-taxonomy-select [ngModel]="getOfferCategory(group.ingredientName)" (ngModelChange)="setOfferCategory(group.ingredientName, $event)" [options]="offerCategories" [optionLabels]="offerCategoryLabels" [multiple]="false" [allowCustom]="false" [compact]="true"
+                [placeholder]="'grocery.offerCategories.auto' | translate" [ariaLabel]="'grocery.offerCategoryLabel' | translate"></app-taxonomy-select>
+              <button type="button" class="btn btn-outline-brand" [disabled]="searchingNearbyOffers || isRetryingIngredient(group.ingredientName)" (click)="retryIngredientOffers(group.ingredientName)" [attr.aria-label]="'grocery.retryIngredient' | translate:{ ingredient: group.ingredientName }"
+                [title]="'grocery.retryIngredient' | translate:{ ingredient: group.ingredientName }">
+                <i class="fas fa-sync-alt" [class.fa-spin]="isRetryingIngredient(group.ingredientName)" aria-hidden="true"></i>
+              </button>
+              <button type="button" class="btn btn-outline-brand" (click)="toggleIngredientDealsCollapsed(group.ingredientName)" [attr.aria-expanded]="!isIngredientDealsCollapsed(group.ingredientName)" [attr.aria-controls]="'ingredient-offers-' + groupIndex"
+                [attr.aria-label]="(isIngredientDealsCollapsed(group.ingredientName) ? 'grocery.expandIngredientOffers' : 'grocery.collapseIngredientOffers') | translate:{ ingredient: group.ingredientName }"
+                [title]="(isIngredientDealsCollapsed(group.ingredientName) ? 'grocery.expandIngredientOffers' : 'grocery.collapseIngredientOffers') | translate:{ ingredient: group.ingredientName }">
+                <i class="fas" [ngClass]="isIngredientDealsCollapsed(group.ingredientName) ? 'fa-chevron-down' : 'fa-chevron-up'" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+          @if (!isIngredientDealsCollapsed(group.ingredientName)) {
+          <div class="grocery-offer-list" [id]="'ingredient-offers-' + groupIndex">
+            @for (offer of group.offers; track offer.offerId) {
+            <article class="grocery-offer-item">
+              <div class="grocery-offer-image">
+                @if (offer.imageUrl) {
+                <img [src]="offer.imageUrl" [alt]="offer.productName" loading="lazy">
+                } @else {
+                <i class="fas fa-shopping-basket" aria-hidden="true"></i>
+                }
+              </div>
+              <div class="grocery-offer-copy">
+                <div class="grocery-offer-labels">
+                  <span class="grocery-offer-kind" [class.is-campaign]="offer.priceKind === 'campaign'">{{ (offer.priceKind === 'campaign' ? 'grocery.campaignPrice' : 'grocery.regularPrice') | translate }}</span>
+                  @if (offer.discountPercentage) { <span class="grocery-offer-discount">-{{ offer.discountPercentage }}%</span> }
+                </div>
+                <h4>
+                  @if (offer.productUrl) {
+                  <a [href]="offer.productUrl" target="_blank" rel="noopener noreferrer">{{ offer.productName }}</a>
+                  } @else {
+                  {{ offer.productName }}
+                  }
+                </h4>
+                <p><strong>{{ offer.chainName }}</strong> · {{ offer.storeName }} · {{ offer.distanceKm | number:'1.0-1' }} km</p>
+                <p class="grocery-offer-address">{{ offer.storeAddress }}, {{ offer.storePostalCode }} {{ offer.storeCity }}</p>
+              </div>
+              <div class="grocery-offer-price">
+                @if (offer.originalPrice && offer.originalPrice > offer.price) { <del>{{ offer.originalPrice | currency:offer.currency:'symbol-narrow':'1.2-2' }}</del> }
+                <strong>{{ offer.price | currency:offer.currency:'symbol-narrow':'1.2-2' }}</strong>
+                @if (offer.validTo) { <span>{{ 'grocery.validUntil' | translate }} {{ offer.validTo | date:'mediumDate' }}</span> }
+              </div>
+            </article>
+            }
+          </div>
+          }
+        </section>
+        }
+      </div>
+      } @else {
+      <div class="grocery-offers-message">{{ 'grocery.noNearbyOffers' | translate }}</div>
+      }
+
+      @if (nearbyOfferResults.unmatchedIngredients.length > 0) {
+      <div class="grocery-unmatched">
+        <strong>{{ 'grocery.unmatchedIngredients' | translate }}</strong>
+        @for (ingredientName of nearbyOfferResults.unmatchedIngredients; track ingredientName) {
+        <div class="grocery-unmatched-item">
+          <span>{{ ingredientName }}</span>
+          <app-taxonomy-select [ngModel]="getOfferCategory(ingredientName)" (ngModelChange)="setOfferCategory(ingredientName, $event)" [options]="offerCategories" [optionLabels]="offerCategoryLabels" [multiple]="false" [allowCustom]="false" [compact]="true"
+            [placeholder]="'grocery.offerCategories.auto' | translate" [ariaLabel]="'grocery.offerCategoryLabel' | translate"></app-taxonomy-select>
+          <button type="button" class="btn btn-outline-brand" [disabled]="searchingNearbyOffers || isRetryingIngredient(ingredientName)" (click)="retryIngredientOffers(ingredientName)" [attr.aria-label]="'grocery.retryIngredient' | translate:{ ingredient: ingredientName }"
+            [title]="'grocery.retryIngredient' | translate:{ ingredient: ingredientName }">
+            <i class="fas fa-sync-alt" [class.fa-spin]="isRetryingIngredient(ingredientName)" aria-hidden="true"></i>
+          </button>
+        </div>
+        }
+      </div>
+      }
+
+      @if (nearbyStores.length > 0) {
+      <div class="grocery-nearby-stores">
+        <h3>{{ 'grocery.nearbyStoresHeading' | translate }}</h3>
+        <div class="grocery-store-list">
+          @for (store of nearbyStores; track store.id) {
+          <a [href]="getStoreMapUrl(store)" target="_blank" rel="noopener noreferrer">
+            <strong>{{ store.chainName }}</strong>
+            <span>{{ store.name }} · {{ store.distanceKm | number:'1.0-1' }} km</span>
+            <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+          </a>
+          }
+        </div>
+      </div>
+      }
+
+      <p class="grocery-offers-source">{{ 'grocery.offersSource' | translate }} <a href="https://madpris.gratis.dk" target="_blank" rel="noopener noreferrer">Madpris</a> · <a href="https://shelfatlas.com" target="_blank" rel="noopener noreferrer">ShelfAtlas</a></p>
+    </div>
+    }
+  </section>
+  }
+
   @if (showAddIngredient) {
-  <section class="grocery-add-panel" aria-labelledby="grocery-add-heading">
+  <section #ingredientEditor class="grocery-add-panel" aria-labelledby="grocery-add-heading">
     <div class="grocery-add-heading">
       <div>
         <h2 id="grocery-add-heading">{{ 'grocery.addIngredientHeading' | translate }}</h2>
@@ -48,9 +190,7 @@
       </div>
       <div class="grocery-add-field">
         <label for="grocery-ingredient-unit">{{ 'grocery.unitLabel' | translate }}</label>
-        <select id="grocery-ingredient-unit" class="form-select" [(ngModel)]="draftIngredientUnit">
-          @for (unit of ingredientUnits; track unit) { <option [value]="unit">{{ unit }}</option> }
-        </select>
+        <app-taxonomy-select id="grocery-ingredient-unit" [(ngModel)]="draftIngredientUnit" [options]="ingredientUnits" [multiple]="false" [allowCustom]="false" [placeholder]="'grocery.unitLabel' | translate" [ariaLabel]="'grocery.unitLabel' | translate"></app-taxonomy-select>
       </div>
       <button class="btn btn-brand grocery-add-submit" type="button" [disabled]="!draftIngredientName.trim() || draftIngredientAmount == null || draftIngredientAmount <= 0" (click)="addIngredientToList()"><i class="fas fa-plus" aria-hidden="true"></i>{{ 'grocery.addToList' | translate }}</button>
     </div>
@@ -65,6 +205,7 @@
         <p class="mb-0">{{ 'grocery.helperText' | translate }}</p>
       </div>
       <div class="grocery-list-actions">
+        <button class="btn btn-outline-brand" type="button" (click)="openAddIngredient()"><i class="fas fa-plus" aria-hidden="true"></i>{{ 'grocery.addIngredient' | translate }}</button>
         <button class="btn btn-outline-brand" type="button" [disabled]="selectedIngredientCount === 0 || addingToPantry" (click)="addSelectedToPantry()"><i class="fas fa-box" aria-hidden="true"></i>{{ (addingToPantry ? 'grocery.addingToPantry' : 'grocery.addSelectedToPantry') | translate }}</button>
         <button class="btn btn-outline-brand" type="button" [disabled]="selectedIngredientCount === 0" (click)="removeSelectedFromIngredients()"><i class="fas fa-trash-alt" aria-hidden="true"></i>{{ 'grocery.removeSelected' | translate }}</button>
         <button class="btn btn-outline-danger" type="button" (click)="confirmClearList = true"><i class="fas fa-trash-alt" aria-hidden="true"></i>{{ 'grocery.clearList' | translate }}</button>
@@ -106,19 +247,35 @@
           <th scope="row">
             <input class="form-check-input me-1 cursor-pointer" type="checkbox" [checked]="isIngredientSelected(ingredient)" (click)="$event.stopPropagation(); toggleIngredientSelected(ingredient)">
           </th>
-          <td class="cursor-pointer" (click)="handleIngredientClick(ingredient, 'accordion' + i, 'table-row' + i)">
-            {{ingredient.name}}
+          @if (isEditingIngredient(ingredient)) {
+          <td class="grocery-edit-name">
+            <app-taxonomy-select [name]="'edit-grocery-ingredient-' + i" [(ngModel)]="editIngredientName" [options]="ingredientOptions" [multiple]="false" [allowCustom]="true" [placeholder]="'grocery.ingredientPlaceholder' | translate"
+              [ariaLabel]="'grocery.ingredientColumn' | translate"></app-taxonomy-select>
           </td>
-          <td class="cursor-pointer" (click)="handleIngredientClick(ingredient, 'accordion' + i, 'table-row' + i)">
-            {{ingredient.amount}} {{ingredient.amountType}}
+          <td>
+            <div class="grocery-edit-amount">
+              <input class="form-control" type="number" min="0.01" step="any" [(ngModel)]="editIngredientAmount" [attr.aria-label]="'grocery.amountColumn' | translate">
+              <app-taxonomy-select [(ngModel)]="editIngredientUnit" [options]="ingredientUnits" [multiple]="false" [allowCustom]="false" [compact]="true" [placeholder]="'grocery.unitLabel' | translate" [ariaLabel]="'grocery.unitLabel' | translate"></app-taxonomy-select>
+            </div>
           </td>
+          } @else {
+          <td class="cursor-pointer" (click)="handleIngredientClick(ingredient, 'accordion' + i, 'table-row' + i)">{{ingredient.name}}</td>
+          <td class="cursor-pointer" (click)="handleIngredientClick(ingredient, 'accordion' + i, 'table-row' + i)">{{ingredient.amount}} {{ingredient.amountType}}</td>
+          }
           <td class="cursor-pointer" (click)="handleIngredientClick(ingredient, 'accordion' + i, 'table-row' + i)">
             {{displayDateOnly(ingredient.created)}}
           </td>
           <td class="grocery-row-action">
+            @if (isEditingIngredient(ingredient)) {
+            <button type="button" class="is-save" [disabled]="!editIngredientName.trim() || editIngredientAmount == null || editIngredientAmount <= 0" (click)="$event.stopPropagation(); saveIngredientEdit()" [attr.aria-label]="'grocery.saveIngredient' | translate"
+              [title]="'grocery.saveIngredient' | translate"><i class="fas fa-check" aria-hidden="true"></i></button>
+            <button type="button" (click)="$event.stopPropagation(); cancelEditingIngredient()" [attr.aria-label]="'grocery.cancelIngredientEdit' | translate" [title]="'grocery.cancelIngredientEdit' | translate"><i class="fas fa-times" aria-hidden="true"></i></button>
+            } @else {
+            <button type="button" (click)="$event.stopPropagation(); startEditingIngredient(ingredient)" [attr.aria-label]="('grocery.editIngredient' | translate) + ': ' + ingredient.name" [title]="'grocery.editIngredient' | translate"><i class="fas fa-pen" aria-hidden="true"></i></button>
             <button type="button" (click)="$event.stopPropagation(); removeIngredient(ingredient)" [attr.aria-label]="('grocery.removeIngredient' | translate) + ': ' + ingredient.name" [title]="'grocery.removeIngredient' | translate">
               <i class="fas fa-times" aria-hidden="true"></i>
             </button>
+            }
           </td>
         </tr>
         <tr>
@@ -150,7 +307,7 @@
     <p class="mb-4">{{ 'grocery.emptyDescription' | translate }}</p>
     <div class="grocery-empty-actions">
       <button class="btn btn-brand-alt" type="button" routerLink="/recipes">{{ 'grocery.addRecipe' | translate }}</button>
-      <button class="btn btn-brand-secondary" type="button" (click)="showAddIngredient = true">{{ 'grocery.addIngredient' | translate }}</button>
+      <button class="btn btn-brand-secondary" type="button" (click)="openAddIngredient()">{{ 'grocery.addIngredient' | translate }}</button>
     </div>
   </section>
   }

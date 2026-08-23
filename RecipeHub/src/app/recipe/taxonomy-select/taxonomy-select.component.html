@@ -1,4 +1,4 @@
-<div class="taxonomy-select" [class.is-open]="isOpen" [class.is-disabled]="disabled" [class.opens-upward]="opensUpward">
+<div class="taxonomy-select" [class.is-open]="isOpen" [class.is-disabled]="disabled" [class.is-compact]="compact" [class.opens-upward]="opensUpward">
     <div class="taxonomy-select-control" [class.has-selection]="multiple && selectedValues.length > 0" (click)="open()">
         <div class="taxonomy-selected-values" *ngIf="multiple && selectedValues.length > 0">
             <span class="taxonomy-chip" *ngFor="let value of (!isOpen && (!compactSelection || selectedValues.length === 1) ? selectedValues : [])">
