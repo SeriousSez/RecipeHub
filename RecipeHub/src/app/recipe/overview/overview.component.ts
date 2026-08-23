@@ -175,6 +175,7 @@ export class OverviewComponent implements OnInit {
 
   public loading: boolean = true;
   public refreshing: boolean = false;
+  public showRefreshIndicator: boolean = false;
   public loadingMore: boolean = false;
   public matchingLoading: boolean = false;
   public loadError: boolean = false;
@@ -187,6 +188,7 @@ export class OverviewComponent implements OnInit {
   subscription?: Subscription;
   settingsSubscription?: Subscription;
   private groceryFeedbackTimer?: ReturnType<typeof setTimeout>;
+  private refreshIndicatorTimer?: ReturnType<typeof setTimeout>;
   private pageRequestSequence: number = 0;
 
   constructor(private recipeService: RecipeService, private userService: UserService, private favoriteService: FavoriteService, private groceryService: GroceryService, private datepipe: DatePipe, private router: Router, private route: ActivatedRoute, private utilityService: UtilityService, private translateService: TranslateService) { }
@@ -274,6 +276,7 @@ export class OverviewComponent implements OnInit {
     // prevent memory leak when component is destroyed
     this.subscription?.unsubscribe();
     this.settingsSubscription?.unsubscribe();
+    if (this.refreshIndicatorTimer) clearTimeout(this.refreshIndicatorTimer);
   }
 
   getRecipes() {
@@ -287,7 +290,7 @@ export class OverviewComponent implements OnInit {
     if (reset) {
       this.currentPage = 1;
       if (this.hasLoadedOnce) {
-        this.refreshing = true;
+        this.startRefreshing();
       } else {
         this.loading = true;
       }
@@ -325,7 +328,7 @@ export class OverviewComponent implements OnInit {
         this.tagFilter = this.keepAvailableFilters(this.selectedTagFilters, this.availableTags);
 
         this.hasLoadedOnce = true;
-        this.refreshing = false;
+        this.stopRefreshing();
         this.loadingMore = false;
         this.persistFilterState();
 
@@ -351,10 +354,30 @@ export class OverviewComponent implements OnInit {
         }
         this.loadError = true;
         this.loading = false;
-        this.refreshing = false;
+        this.stopRefreshing();
         this.loadingMore = false;
       }
     });
+  }
+
+  private startRefreshing(): void {
+    this.refreshing = true;
+    if (this.showRefreshIndicator) return;
+
+    if (this.refreshIndicatorTimer) clearTimeout(this.refreshIndicatorTimer);
+    this.refreshIndicatorTimer = setTimeout(() => {
+      this.showRefreshIndicator = this.refreshing;
+      this.refreshIndicatorTimer = undefined;
+    }, 180);
+  }
+
+  private stopRefreshing(): void {
+    this.refreshing = false;
+    this.showRefreshIndicator = false;
+    if (this.refreshIndicatorTimer) {
+      clearTimeout(this.refreshIndicatorTimer);
+      this.refreshIndicatorTimer = undefined;
+    }
   }
 
   getFavorites() {

@@ -716,9 +716,7 @@ button:focus {
 }
 
 .recipe-table-shell.is-refreshing {
-    opacity: 0.4;
     pointer-events: none;
-    transition: opacity 0.15s ease;
 }
 
 .recipe-refresh-overlay {
@@ -726,11 +724,36 @@ button:focus {
     inset: 0;
     z-index: 2;
     overflow: hidden;
-    opacity: 0.35;
+    border-radius: .5rem;
+    background: rgba(248, 250, 252, .32);
 }
 
-.recipe-skeleton-grid-overlay {
-    padding-top: 0.25rem;
+.recipe-refresh-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 35%;
+    height: 3px;
+    border-radius: 999px;
+    background: #2563eb;
+    animation: recipeRefreshProgress 1.1s ease-in-out infinite;
+}
+
+@keyframes recipeRefreshProgress {
+    from {
+        transform: translateX(-100%);
+    }
+
+    to {
+        transform: translateX(385%);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .recipe-refresh-progress {
+        width: 100%;
+        animation: none;
+    }
 }
 
 .alert {

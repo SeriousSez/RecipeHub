@@ -198,24 +198,10 @@
       </aside>
       }
 
-      <div class="recipe-table-shell" [class.is-refreshing]="refreshing">
-        @if (refreshing) {
+      <div class="recipe-table-shell" [class.is-refreshing]="showRefreshIndicator" [attr.aria-busy]="refreshing">
+        @if (showRefreshIndicator) {
         <div class="recipe-refresh-overlay" aria-label="Loading recipes" aria-busy="true">
-          <div class="recipe-skeleton-grid recipe-skeleton-grid-overlay">
-            @for (placeholder of [1, 2, 3, 4, 5, 6]; track placeholder) {
-            <article class="recipe-skeleton-card">
-              <div class="recipe-skeleton-image"></div>
-              <div class="recipe-skeleton-body">
-                <span class="recipe-skeleton-line recipe-skeleton-title"></span>
-                <span class="recipe-skeleton-line recipe-skeleton-subtitle"></span>
-                <div class="recipe-skeleton-tags">
-                  <span class="recipe-skeleton-tag"></span>
-                  <span class="recipe-skeleton-tag short"></span>
-                </div>
-              </div>
-            </article>
-            }
-          </div>
+          <span class="recipe-refresh-progress"></span>
         </div>
         }
         <table class="table table-hover caption-top">
