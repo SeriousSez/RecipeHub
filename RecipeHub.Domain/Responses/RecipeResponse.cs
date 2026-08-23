@@ -26,6 +26,9 @@ namespace RecipeHub.Domain.Responses
         public decimal? FiberGrams { get; set; }
         public decimal? SugarGrams { get; set; }
         public decimal? SodiumMilligrams { get; set; }
+        public int MadeCount { get; set; }
+        public decimal? AverageRating { get; set; }
+        public int RatingCount { get; set; }
         public List<string> Categories { get; set; } = new List<string>();
         public List<string> Tags { get; set; } = new List<string>();
         public DateTime Created { get; set; }

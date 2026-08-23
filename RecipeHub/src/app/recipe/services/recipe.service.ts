@@ -14,18 +14,19 @@ import { ingredientModal } from 'src/app/shared/modals/ingredient/ingredient.mod
 import { RecipeUpdate } from '../models/recipe-update.interface';
 import { RecipePagedQuery, RecipePagedResult } from '../models/recipe-paged.interface';
 import { NutritionEstimate, NutritionEstimateIngredient } from '../models/nutrition-estimate.interface';
+import { RecipeEngagement } from '../models/recipe-engagement.interface';
 
 @Injectable()
 
 export class RecipeService extends BaseService {
 
   baseUrl: string = '';
-  private httpOptions = {
-    headers: new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-    })
-  };
+  private get httpOptions() {
+    const authToken = localStorage.getItem('authToken');
+    return authToken
+      ? { headers: new HttpHeaders({ 'Authorization': `Bearer ${authToken}` }) }
+      : {};
+  }
 
   constructor(private http: HttpClient, private configService: ConfigService) {
     super();
@@ -46,6 +47,14 @@ export class RecipeService extends BaseService {
         return details;
       }, (error: any) => console.log(error, "fails")
       ));
+  }
+
+  getEngagement(recipeId: string): Observable<RecipeEngagement> {
+    return this.http.get<RecipeEngagement>(this.baseUrl + `/recipe/engagement/${encodeURIComponent(recipeId)}`, this.httpOptions);
+  }
+
+  saveEngagement(recipeId: string, rating: number | null): Observable<RecipeEngagement> {
+    return this.http.post<RecipeEngagement>(this.baseUrl + '/recipe/engagement', { recipeId, rating }, this.httpOptions);
   }
 
   getRecipes(): Observable<Recipe[]> {
@@ -78,7 +87,7 @@ export class RecipeService extends BaseService {
 
     return this.http.get<RecipePagedResult>(this.baseUrl + `/recipe/paged?${params.toString()}`, this.httpOptions)
       .pipe(
-        retry({ count: 2, delay: (_, attempt) => timer(attempt * 800) }),
+        retry({ count: 4, delay: (_, attempt) => timer(1000 * Math.pow(2, attempt - 1)) }),
         map(details => {
           return details;
         }, (error: any) => console.log(error, "fails")

@@ -141,7 +141,7 @@ export class OverviewComponent implements OnInit {
   public sortSetting: string = 'created';
 
   public get sortOptions(): string[] {
-    return ['created', 'title', 'creator', 'instructions', 'protein', 'carbohydrates', 'fiber'];
+    return ['created', 'rating', 'popularity', 'title', 'creator', 'protein', 'carbohydrates', 'fiber'];
   }
 
   public get nutritionHighlightTags(): string[] {
@@ -164,7 +164,8 @@ export class OverviewComponent implements OnInit {
       created: this.translateService.instant('recipe.sortCreated'),
       title: this.translateService.instant('recipe.sortTitle'),
       creator: this.translateService.instant('recipe.sortCreator'),
-      instructions: this.translateService.instant('recipe.sortInstructions'),
+      rating: this.translateService.instant('recipe.sortRating'),
+      popularity: this.translateService.instant('recipe.sortPopularity'),
       protein: `${this.translateService.instant('recipe.proteinLabel')} · ${this.translateService.instant('recipe.nutritionPerServing')}`,
       carbohydrates: `${this.translateService.instant('recipe.carbohydratesLabel')} · ${this.translateService.instant('recipe.nutritionPerServing')}`,
       fiber: `${this.translateService.instant('recipe.fiberLabel')} · ${this.translateService.instant('recipe.nutritionPerServing')}`
@@ -751,9 +752,6 @@ export class OverviewComponent implements OnInit {
         case 'creator':
           comparison = a.creator.localeCompare(b.creator);
           break;
-        case 'instructions':
-          comparison = (a.instructions ?? '').localeCompare(b.instructions ?? '');
-          break;
         case 'created':
         default:
           comparison = new Date(a.created).getTime() - new Date(b.created).getTime();
@@ -788,7 +786,7 @@ export class OverviewComponent implements OnInit {
   }
 
   private getDefaultSortDirection(sortSetting: string): boolean {
-    return sortSetting !== 'protein' && sortSetting !== 'fiber';
+    return !['protein', 'fiber', 'rating', 'popularity'].includes(sortSetting);
   }
 
   private compareRecipeNutrition(left: Recipe, right: Recipe): number {
@@ -799,6 +797,12 @@ export class OverviewComponent implements OnInit {
         return this.compareNullableNutrition(left.carbohydrateGrams, right.carbohydrateGrams);
       case 'fiber':
         return this.compareNullableNutrition(left.fiberGrams, right.fiberGrams);
+      case 'rating':
+        return this.compareNullableNutrition(left.averageRating, right.averageRating);
+      case 'popularity':
+        return this.ascending
+          ? (left.madeCount ?? 0) - (right.madeCount ?? 0)
+          : (right.madeCount ?? 0) - (left.madeCount ?? 0);
       default:
         return 0;
     }

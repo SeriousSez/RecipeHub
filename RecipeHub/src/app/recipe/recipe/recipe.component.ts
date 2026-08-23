@@ -22,6 +22,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { SafeHtml } from '@angular/platform-browser';
 import { finalize } from 'rxjs/operators';
 import { NutritionEstimate } from '../models/nutrition-estimate.interface';
+import { RecipeEngagement } from '../models/recipe-engagement.interface';
 
 @Component({
   selector: 'app-recipe',
@@ -82,6 +83,10 @@ export class RecipeComponent implements OnInit {
   public nutritionEstimateMessageKey: string = '';
   public nutritionUnmatchedCount: number = 0;
   public nutritionEstimateProvider: string = '';
+  public engagement: RecipeEngagement = { madeCount: 0, averageRating: null, ratingCount: 0, hasMade: false, userRating: null };
+  public savingEngagement: boolean = false;
+  public engagementError: boolean = false;
+  public readonly ratingValues = [1, 2, 3, 4, 5];
 
   get ingredientGroups(): Array<{ name: string; ingredients: Ingredient[] }> {
     const groups = new Map<string, Ingredient[]>();
@@ -228,6 +233,27 @@ export class RecipeComponent implements OnInit {
   }
   //#endregion
 
+  markAsMade(): void {
+    this.saveEngagement(null);
+  }
+
+  rateRecipe(rating: number): void {
+    this.saveEngagement(rating);
+  }
+
+  private saveEngagement(rating: number | null): void {
+    if (!this.userService.isAuthenticated() || !this.recipeId || this.savingEngagement) return;
+
+    this.savingEngagement = true;
+    this.engagementError = false;
+    this.recipeService.saveEngagement(this.recipeId, rating).pipe(
+      finalize(() => this.savingEngagement = false)
+    ).subscribe({
+      next: engagement => this.engagement = engagement,
+      error: () => this.engagementError = true
+    });
+  }
+
   //#region plan
   isInGroceries(recipe: Recipe) {
     this.inGroceries = this.groceryService.isInGroceries(recipe);
@@ -291,6 +317,7 @@ export class RecipeComponent implements OnInit {
     this.title = recipe.title;
     this.creator = recipe.creator;
     this.recipeId = recipe.id;
+    this.loadEngagement(recipe.id);
     this.categoriesInput = (recipe.categories ?? []).join(', ');
     this.tagsInput = (recipe.tags ?? []).join(', ');
     this.setCurrentIngredients();
@@ -302,6 +329,13 @@ export class RecipeComponent implements OnInit {
     if (recipe.creator == this.userService.getUserName()) {
       this.canEdit = true;
     }
+  }
+
+  private loadEngagement(recipeId: string): void {
+    this.recipeService.getEngagement(recipeId).subscribe({
+      next: engagement => this.engagement = engagement,
+      error: () => { }
+    });
   }
 
   getIngredients() {

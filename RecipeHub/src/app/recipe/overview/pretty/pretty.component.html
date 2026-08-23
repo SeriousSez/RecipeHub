@@ -23,6 +23,11 @@
         </span>
       </div>
 
+      <div class="recipe-rating-summary" *ngIf="showEngagement && ((recipe.ratingCount ?? 0) > 0 || (recipe.madeCount ?? 0) > 0)">
+        <span *ngIf="(recipe.ratingCount ?? 0) > 0 && recipe.averageRating != null"><i class="fas fa-star" aria-hidden="true"></i> <strong>{{ recipe.averageRating | number:'1.1-1' }}</strong> ({{ recipe.ratingCount }})</span>
+        <span *ngIf="(recipe.madeCount ?? 0) > 0"><i class="fas fa-utensils" aria-hidden="true"></i> {{ 'recipe.madeThisCount' | translate:{ count: recipe.madeCount } }}</span>
+      </div>
+
       <div class="recipe-nutrition-highlights" *ngIf="getNutritionHighlights(recipe).length > 0">
         <span class="recipe-nutrition-highlight" *ngFor="let highlight of getNutritionHighlights(recipe)">
           <strong *ngIf="highlight.value != null">{{ highlight.value | number:'1.0-2' }} {{ highlight.unit }}</strong>

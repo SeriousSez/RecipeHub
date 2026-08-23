@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecipeHub.ApplicationServic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecipeHub.Infrastructure", "RecipeHub.Infrastructure\RecipeHub.Infrastructure.csproj", "{EE133226-0B24-4A11-A2C3-202A2242E653}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".tmp-schema-probe", ".tmp-schema-probe", "{567FF9F4-10FA-41FF-EF71-CC92964DBEDB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

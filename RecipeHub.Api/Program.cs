@@ -21,11 +21,7 @@ namespace RecipeHub
             {
                 var host = CreateHostBuilder(args).Build();
 
-                var environment = host.Services.GetRequiredService<IHostEnvironment>();
-                if (environment.IsDevelopment())
-                {
-                    MigrateDatabase(host);
-                }
+                MigrateDatabase(host);
 
                 host.Run();
             }
@@ -80,7 +76,10 @@ namespace RecipeHub
                 try
                 {
                     var context = services.GetRequiredService<RecipeHubContext>();
-                    context.Database.Migrate();
+                    if (context.Database.IsRelational())
+                    {
+                        context.Database.Migrate();
+                    }
                 }
                 catch (Exception ex)
                 {

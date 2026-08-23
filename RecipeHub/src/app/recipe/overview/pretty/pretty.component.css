@@ -238,3 +238,22 @@
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 }
+
+.recipe-rating-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem .8rem;
+    margin-top: auto;
+    padding-top: .85rem;
+    color: #64748b;
+    font-size: .68rem;
+}
+
+.recipe-rating-summary i,
+.recipe-rating-summary strong {
+    color: #b45309;
+}
+
+.recipe-rating-summary+.recipe-nutrition-highlights {
+    margin-top: .55rem;
+}

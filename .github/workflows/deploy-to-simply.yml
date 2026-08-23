@@ -6,6 +6,10 @@ on:
       - master
   workflow_dispatch:
 
+concurrency:
+  group: simply-production
+  cancel-in-progress: false
+
 env:
   DOTNET_VERSION: "8.0.x"
   PROJECT_PATH: "RecipeHub.Api/RecipeHub.Api.csproj"

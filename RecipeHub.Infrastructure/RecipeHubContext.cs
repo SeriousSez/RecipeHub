@@ -36,6 +36,7 @@ namespace RecipeHub.Infrastructure
 
         public DbSet<Recipe> Recipes { get; set; }
         public DbSet<RecipeIngredient> RecipeIngredients { get; set; }
+        public DbSet<RecipeRating> RecipeRatings { get; set; }
         public DbSet<Ingredient> Ingredients { get; set; }
         public DbSet<Favorites> Favorites { get; set; }
 
@@ -64,6 +65,31 @@ namespace RecipeHub.Infrastructure
                 .WithMany()
                 .HasForeignKey(recipe => recipe.ImageId)
                 .IsRequired(false);
+
+            modelBuilder.Entity<RecipeRating>()
+                .HasIndex(rating => new { rating.RecipeId, rating.UserId })
+                .IsUnique();
+
+            modelBuilder.Entity<RecipeRating>()
+                .Property(rating => rating.UserId)
+                .UseCollation("utf8mb4_general_ci");
+
+            modelBuilder.Entity<RecipeRating>()
+                .Property(rating => rating.RecipeId)
+                .UseCollation("utf8mb4_unicode_ci");
+
+            modelBuilder.Entity<RecipeRating>()
+                .HasOne(rating => rating.Recipe)
+                .WithMany(recipe => recipe.Ratings)
+                .HasForeignKey(rating => rating.RecipeId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<RecipeRating>()
+                .HasOne(rating => rating.User)
+                .WithMany()
+                .HasForeignKey(rating => rating.UserId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
 
             var stringListComparer = new ValueComparer<List<string>>(
                 (left, right) => left != null && right != null && left.SequenceEqual(right),

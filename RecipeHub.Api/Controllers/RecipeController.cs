@@ -375,6 +375,7 @@ namespace RecipeHub.Api.Controllers
                 pageSize = pageSize < 1 ? 9 : pageSize;
 
                 var allRecipes = await GetAllRecipesCachedAsync();
+                var engagementByRecipe = await GetRecipeEngagementStatsAsync();
 
                 var availableCategories = allRecipes
                     .SelectMany(r => r.Categories ?? new List<string>())
@@ -436,7 +437,6 @@ namespace RecipeHub.Api.Controllers
                 {
                     "title" => ascending ? filtered.OrderBy(r => r.Title, StringComparer.OrdinalIgnoreCase) : filtered.OrderByDescending(r => r.Title, StringComparer.OrdinalIgnoreCase),
                     "creator" => ascending ? filtered.OrderBy(r => r.Creator, StringComparer.OrdinalIgnoreCase) : filtered.OrderByDescending(r => r.Creator, StringComparer.OrdinalIgnoreCase),
-                    "instructions" => ascending ? filtered.OrderBy(r => r.Instructions, StringComparer.OrdinalIgnoreCase) : filtered.OrderByDescending(r => r.Instructions, StringComparer.OrdinalIgnoreCase),
                     "protein" => ascending
                         ? filtered.OrderBy(r => r.ProteinGrams.HasValue ? 0 : 1).ThenBy(r => r.ProteinGrams)
                         : filtered.OrderBy(r => r.ProteinGrams.HasValue ? 0 : 1).ThenByDescending(r => r.ProteinGrams),
@@ -446,11 +446,21 @@ namespace RecipeHub.Api.Controllers
                     "fiber" => ascending
                         ? filtered.OrderBy(r => r.FiberGrams.HasValue ? 0 : 1).ThenBy(r => r.FiberGrams)
                         : filtered.OrderBy(r => r.FiberGrams.HasValue ? 0 : 1).ThenByDescending(r => r.FiberGrams),
+                    "rating" => ascending
+                        ? filtered.OrderBy(r => GetEngagement(r.Id, engagementByRecipe).AverageRating.HasValue ? 0 : 1).ThenBy(r => GetEngagement(r.Id, engagementByRecipe).AverageRating).ThenByDescending(r => GetEngagement(r.Id, engagementByRecipe).RatingCount)
+                        : filtered.OrderBy(r => GetEngagement(r.Id, engagementByRecipe).AverageRating.HasValue ? 0 : 1).ThenByDescending(r => GetEngagement(r.Id, engagementByRecipe).AverageRating).ThenByDescending(r => GetEngagement(r.Id, engagementByRecipe).RatingCount),
+                    "popularity" => ascending
+                        ? filtered.OrderBy(r => GetEngagement(r.Id, engagementByRecipe).MadeCount)
+                        : filtered.OrderByDescending(r => GetEngagement(r.Id, engagementByRecipe).MadeCount),
                     _ => ascending ? filtered.OrderBy(r => r.Created) : filtered.OrderByDescending(r => r.Created),
                 };
 
                 var filteredList = filtered.ToList();
-                var pageItems = filteredList.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+                var pageItems = filteredList
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .Select(recipe => CreatePagedRecipeResponse(recipe, GetEngagement(recipe.Id, engagementByRecipe)))
+                    .ToList();
 
                 var response = new RecipePagedResponse
                 {
@@ -474,6 +484,70 @@ namespace RecipeHub.Api.Controllers
             }
         }
 
+        [HttpGet("engagement/{recipeId:guid}")]
+        public async Task<IActionResult> GetEngagement(Guid recipeId)
+        {
+            if (!await _context.Recipes.AsNoTracking().AnyAsync(recipe => recipe.Id == recipeId))
+                return NotFound();
+
+            var stats = await GetRecipeEngagementAsync(recipeId, User?.Identity?.Name);
+            return new OkObjectResult(stats);
+        }
+
+        [HttpPost("engagement")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> SaveEngagement([FromBody] RecipeEngagementViewModel model)
+        {
+            if (model == null || (model.Rating.HasValue && (model.Rating < 1 || model.Rating > 5)))
+                return BadRequest("Rating must be between 1 and 5.");
+
+            var userEmail = User?.Identity?.Name;
+            var user = await _context.Users.SingleOrDefaultAsync(item => item.Email == userEmail);
+            if (user == null)
+                return Unauthorized();
+
+            if (!await _context.Recipes.AnyAsync(recipe => recipe.Id == model.RecipeId))
+                return NotFound();
+
+            var engagement = await _context.RecipeRatings
+                .SingleOrDefaultAsync(item => item.RecipeId == model.RecipeId && item.UserId == user.Id);
+
+            if (engagement == null)
+            {
+                engagement = new Domain.Entities.Recipe.RecipeRating
+                {
+                    Id = Guid.NewGuid(),
+                    RecipeId = model.RecipeId,
+                    UserId = user.Id
+                };
+                _context.RecipeRatings.Add(engagement);
+            }
+
+            engagement.Rating = model.Rating;
+            await _context.SaveChangesAsync();
+
+            return new OkObjectResult(await GetRecipeEngagementAsync(model.RecipeId, user.Email));
+        }
+
+        [HttpGet("image/{recipeId:guid}")]
+        [ResponseCache(Duration = 86400, Location = ResponseCacheLocation.Any)]
+        public async Task<IActionResult> GetRecipeImage(Guid recipeId)
+        {
+            var recipe = (await GetAllRecipesCachedAsync()).FirstOrDefault(item => item.Id == recipeId);
+            var imageUrl = recipe?.Image?.Url;
+
+            if (string.IsNullOrWhiteSpace(imageUrl))
+                return NotFound();
+
+            if (!IsDataUri(imageUrl))
+                return Redirect(imageUrl);
+
+            if (!TryDecodeDataUri(imageUrl, out var contentType, out var imageBytes))
+                return NotFound();
+
+            return File(imageBytes, contentType);
+        }
+
         private static bool Contains(string value, string term)
         {
             return !string.IsNullOrEmpty(value) && value.Contains(term, StringComparison.OrdinalIgnoreCase);
@@ -485,6 +559,131 @@ namespace RecipeHub.Api.Controllers
                 .Where(item => !string.Equals(item, "all", StringComparison.OrdinalIgnoreCase))
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
+        }
+
+        private RecipeResponse CreatePagedRecipeResponse(RecipeResponse recipe, RecipeEngagementResponse engagement)
+        {
+            var image = recipe.Image == null
+                ? null
+                : new ImageResponse
+                {
+                    Id = recipe.Image.Id,
+                    Caption = recipe.Image.Caption,
+                    Url = IsDataUri(recipe.Image.Url)
+                        ? $"{Request.Scheme}://{Request.Host}{Url.Action(nameof(GetRecipeImage), values: new { recipeId = recipe.Id, v = GetRecipeCacheVersion() })}"
+                        : recipe.Image.Url
+                };
+
+            return new RecipeResponse
+            {
+                Id = recipe.Id,
+                Title = recipe.Title,
+                Creator = recipe.Creator,
+                Description = recipe.Description,
+                Calories = recipe.Calories,
+                ProteinGrams = recipe.ProteinGrams,
+                CarbohydrateGrams = recipe.CarbohydrateGrams,
+                FatGrams = recipe.FatGrams,
+                FiberGrams = recipe.FiberGrams,
+                SugarGrams = recipe.SugarGrams,
+                SodiumMilligrams = recipe.SodiumMilligrams,
+                MadeCount = engagement.MadeCount,
+                AverageRating = engagement.AverageRating,
+                RatingCount = engagement.RatingCount,
+                Categories = recipe.Categories,
+                Tags = recipe.Tags,
+                Created = recipe.Created,
+                Image = image
+            };
+        }
+
+        private async Task<Dictionary<Guid, RecipeEngagementResponse>> GetRecipeEngagementStatsAsync()
+        {
+            return await _context.RecipeRatings
+                .AsNoTracking()
+                .GroupBy(item => item.RecipeId)
+                .Select(group => new
+                {
+                    RecipeId = group.Key,
+                    MadeCount = group.Count(),
+                    RatingCount = group.Count(item => item.Rating.HasValue),
+                    AverageRating = group.Where(item => item.Rating.HasValue).Average(item => (decimal?)item.Rating)
+                })
+                .ToDictionaryAsync(item => item.RecipeId, item => new RecipeEngagementResponse
+                {
+                    MadeCount = item.MadeCount,
+                    RatingCount = item.RatingCount,
+                    AverageRating = item.AverageRating
+                });
+        }
+
+        private async Task<RecipeEngagementResponse> GetRecipeEngagementAsync(Guid recipeId, string userEmail)
+        {
+            var ratings = _context.RecipeRatings.AsNoTracking().Where(item => item.RecipeId == recipeId);
+            var response = await ratings
+                .GroupBy(item => item.RecipeId)
+                .Select(group => new RecipeEngagementResponse
+                {
+                    MadeCount = group.Count(),
+                    RatingCount = group.Count(item => item.Rating.HasValue),
+                    AverageRating = group.Where(item => item.Rating.HasValue).Average(item => (decimal?)item.Rating)
+                })
+                .SingleOrDefaultAsync() ?? new RecipeEngagementResponse();
+
+            if (!string.IsNullOrWhiteSpace(userEmail))
+            {
+                var userRating = await ratings
+                    .Where(item => item.User.Email == userEmail)
+                    .Select(item => new { item.Rating })
+                    .SingleOrDefaultAsync();
+                response.HasMade = userRating != null;
+                response.UserRating = userRating?.Rating;
+            }
+
+            return response;
+        }
+
+        private static RecipeEngagementResponse GetEngagement(Guid recipeId, IReadOnlyDictionary<Guid, RecipeEngagementResponse> engagementByRecipe)
+        {
+            return engagementByRecipe.TryGetValue(recipeId, out var engagement)
+                ? engagement
+                : new RecipeEngagementResponse();
+        }
+
+        private static bool IsDataUri(string value)
+        {
+            return value?.StartsWith("data:", StringComparison.OrdinalIgnoreCase) == true;
+        }
+
+        private static bool TryDecodeDataUri(string value, out string contentType, out byte[] bytes)
+        {
+            contentType = null;
+            bytes = null;
+
+            if (!IsDataUri(value))
+                return false;
+
+            var separatorIndex = value.IndexOf(',');
+            if (separatorIndex < 0)
+                return false;
+
+            var metadata = value.Substring(5, separatorIndex - 5);
+            if (!metadata.EndsWith(";base64", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            contentType = metadata.Substring(0, metadata.Length - ";base64".Length);
+
+            try
+            {
+                bytes = Convert.FromBase64String(value.Substring(separatorIndex + 1));
+                return !string.IsNullOrWhiteSpace(contentType);
+            }
+            catch (FormatException)
+            {
+                contentType = null;
+                bytes = null;
+                return false;
+            }
         }
 
         private async Task<List<RecipeResponse>> GetAllRecipesCachedAsync()

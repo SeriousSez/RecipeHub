@@ -209,6 +209,28 @@
                 </div>
             </dl>
         </section>
+
+        <section *ngIf="status || engagement.madeCount > 0 || engagement.ratingCount > 0" class="recipe-engagement" [class.is-action-only]="engagement.madeCount === 0 && engagement.ratingCount === 0" [attr.aria-label]="'recipe.communityRatingLabel' | translate">
+            <div *ngIf="engagement.madeCount > 0 || engagement.ratingCount > 0" class="recipe-engagement-summary">
+                <i class="fas fa-star" aria-hidden="true"></i>
+                <strong *ngIf="engagement.averageRating != null">{{ engagement.averageRating | number:'1.1-1' }}</strong>
+                <span *ngIf="engagement.ratingCount > 0">{{ 'recipe.ratingCount' | translate:{ count: engagement.ratingCount } }}</span>
+                <span *ngIf="engagement.madeCount > 0">{{ 'recipe.madeThisCount' | translate:{ count: engagement.madeCount } }}</span>
+            </div>
+
+            <div *ngIf="status" class="recipe-engagement-actions">
+                <button type="button" class="recipe-made-button" (click)="markAsMade()" [disabled]="engagement.hasMade || savingEngagement">
+                    <i [ngClass]="engagement.hasMade ? 'fas fa-check' : 'fas fa-utensils'" aria-hidden="true"></i>
+                    {{ (engagement.hasMade ? 'recipe.madeThis' : 'recipe.markAsMade') | translate }}
+                </button>
+                <div class="recipe-rating-stars" [attr.aria-label]="'recipe.rateRecipe' | translate">
+                    <button *ngFor="let rating of ratingValues" type="button" (click)="rateRecipe(rating)" [disabled]="savingEngagement" [attr.aria-label]="'recipe.rateStarsAria' | translate:{ count: rating }">
+                        <i [ngClass]="(engagement.userRating ?? 0) >= rating ? 'fas fa-star' : 'far fa-star'" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+            <span *ngIf="engagementError" class="recipe-engagement-error">{{ 'recipe.engagementError' | translate }}</span>
+        </section>
     </article>
 
     <div *ngIf="edit == true" class="horizontal-center card recipe-edit-card" id="recipeEditAccordion">

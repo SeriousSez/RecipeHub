@@ -22,6 +22,9 @@ export interface Recipe {
     fiberGrams?: number | null;
     sugarGrams?: number | null;
     sodiumMilligrams?: number | null;
+    madeCount?: number;
+    averageRating?: number | null;
+    ratingCount?: number;
     created: string;
     image: Image | null;
     ingredients: Ingredient[];

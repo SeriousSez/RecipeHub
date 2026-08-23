@@ -24,6 +24,7 @@ export class PrettyComponent implements OnInit {
   @Input() pantryIngredients: string[] = [];
   @Input() bestMatchScore: number = 0;
   @Input() activeTagFilters: string[] = [];
+  @Input() showEngagement: boolean = false;
   @Output() selectRecipe = new EventEmitter<Recipe>();
 
   public recipeList: Recipe[] = [];

@@ -41,5 +41,6 @@ namespace RecipeHub.Domain.Entities.Recipe
         [ForeignKey(nameof(ImageId))]
         public Image Image { get; set; }
         public List<RecipeIngredient> RecipeIngredients { get; set; }
+        public List<RecipeRating> Ratings { get; set; } = new List<RecipeRating>();
     }
 }
