@@ -437,6 +437,7 @@ image-cropper {
     background: transparent;
     box-shadow: none;
     overflow: visible;
+    padding: 0 10px;
 }
 
 .recipe-editor-header {
@@ -446,7 +447,7 @@ image-cropper {
     flex-wrap: wrap;
     gap: .8rem;
     margin: 0;
-    padding: 0 0 1rem;
+    padding: 0 10px 10px;
     border: 0;
     border-bottom: 1px solid rgba(15, 23, 42, .1);
     background: transparent;
@@ -724,7 +725,7 @@ image-cropper {
     width: 100%;
     border-radius: 6px;
     object-fit: cover;
-    max-width: 650px;
+    max-width: 600px;
     margin: auto;
 }
 
@@ -735,7 +736,7 @@ image-cropper {
     overflow: hidden;
     border-radius: 6px;
     background: #edf1f5;
-    max-width: 650px;
+    max-width: 600px;
     margin: auto;
 }
 
