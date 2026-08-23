@@ -130,7 +130,7 @@
                         <span>{{formatPortions(recipe.portions)}}</span>
                     </ng-template>
                 </div>
-                <div class="recipe-detail-instructions" [innerHTML]="utilityService.transformToSafeHtml(recipe.instructions)"></div>
+                <div class="recipe-detail-instructions" [innerHTML]="safeInstructions" (click)="toggleInstruction($event)"></div>
             </main>
 
             <aside class="recipe-detail-side-panel" *ngIf="edit == false">
@@ -144,10 +144,11 @@
                 <div *ngIf="showIngredients && currentIngredients.length > 0" class="recipe-ingredient-list">
                     <section *ngFor="let group of ingredientGroups" class="recipe-ingredient-group">
                         <h3 *ngIf="group.name" class="recipe-ingredient-group-title">{{group.name}}</h3>
-                        <p *ngFor="let ingredient of group.ingredients" class="recipe-ingredient-item" [class.is-in-pantry]="isPantryIngredient(ingredient.name)">
+                        <button *ngFor="let ingredient of group.ingredients" type="button" class="recipe-ingredient-item" [class.is-in-pantry]="isPantryIngredient(ingredient.name)" [class.is-complete]="isIngredientComplete(ingredient)" [attr.aria-pressed]="isIngredientComplete(ingredient)"
+                            (click)="toggleIngredientComplete(ingredient)">
                             {{ingredient.name}} <span *ngIf="ingredient.amount || ingredient.amountType === 'To taste'">- <i><ng-container *ngIf="ingredient.amountType !== 'To taste'">{{getScaledIngredientAmount(ingredient.amount)}}
                                     </ng-container>{{getMeasurementAbbreviation(ingredient.amountType)}}</i></span>
-                        </p>
+                        </button>
                     </section>
                 </div>
 

@@ -19,6 +19,7 @@ import { RecipeService } from '../services/recipe.service';
 import { TaxonomySelectComponent } from '../taxonomy-select/taxonomy-select.component';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
 import { TranslateService } from '@ngx-translate/core';
+import { SafeHtml } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-recipe',
@@ -49,6 +50,7 @@ export class RecipeComponent implements OnInit {
   public recipeId: string | null = null;
 
   public recipe: Recipe;
+  public safeInstructions: SafeHtml;
   public basePortions: number | null = null;
   public selectedPortions: number | null = null;
   public ingredientsToDelete: Ingredient[] = [];
@@ -73,6 +75,7 @@ export class RecipeComponent implements OnInit {
   public canEdit: boolean = false;
   public showIngredients: boolean = true;
   public favored: boolean = false;
+  public completedIngredients = new Set<Ingredient>();
 
   get ingredientGroups(): Array<{ name: string; ingredients: Ingredient[] }> {
     const groups = new Map<string, Ingredient[]>();
@@ -103,6 +106,24 @@ export class RecipeComponent implements OnInit {
 
   trackIngredientEditorGroup(_index: number, group: { name: string; ingredients: Ingredient[] }): string {
     return group.name;
+  }
+
+  public toggleInstruction(event: MouseEvent): void {
+    const container = event.currentTarget as HTMLElement;
+    const target = event.target as HTMLElement;
+    const line = target.closest<HTMLElement>('li, p');
+    if (!line || !container.contains(line)) return;
+
+    line.classList.toggle('is-complete');
+  }
+
+  public toggleIngredientComplete(ingredient: Ingredient): void {
+    if (this.completedIngredients.has(ingredient)) this.completedIngredients.delete(ingredient);
+    else this.completedIngredients.add(ingredient);
+  }
+
+  public isIngredientComplete(ingredient: Ingredient): boolean {
+    return this.completedIngredients.has(ingredient);
   }
   public inGroceries: boolean = false;
 
@@ -257,6 +278,8 @@ export class RecipeComponent implements OnInit {
 
   setRecipeState(recipe: Recipe) {
     this.recipe = recipe;
+    this.safeInstructions = this.utilityService.transformToSafeHtml(recipe.instructions);
+    this.completedIngredients.clear();
     this.basePortions = this.parseNumericPortions(recipe.portions);
     this.selectedPortions = this.basePortions;
     this.title = recipe.title;
