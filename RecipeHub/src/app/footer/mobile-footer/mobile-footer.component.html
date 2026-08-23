@@ -1,7 +1,7 @@
 <footer class="bg-dark align-items-center justify-content-center justify-content-md-between py-2" id="footer">
     <ul class="nav col-12 col-md-auto justify-content-center">
-        <li class="col-4"><a class="nav-link px-2 text-header text-center text-light" routerLinkActive="active" routerLink="recipes">{{ 'footer.recipes' | translate }}</a></li>
-        <li class="col-4"><a class="nav-link px-2 text-header text-center text-light" routerLinkActive="active" routerLink="recipes/create"><i class="fas fa-plus"></i></a></li>
-        <li class="col-4"><a class="nav-link px-2 text-header text-center text-light" routerLinkActive="active" routerLink="grocery">{{ 'footer.grocery' | translate }}</a></li>
+        <li class="col-4"><a class="nav-link px-2 text-header text-center" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" routerLink="/recipes">{{ 'footer.recipes' | translate }}</a></li>
+        <li class="col-4"><a class="nav-link px-2 text-header text-center" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" routerLink="/recipes/create" [attr.aria-label]="'recipe.addRecipeNav' | translate"><i class="fas fa-plus" aria-hidden="true"></i></a></li>
+        <li class="col-4"><a class="nav-link px-2 text-header text-center" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" routerLink="/grocery">{{ 'footer.grocery' | translate }}</a></li>
     </ul>
 </footer>

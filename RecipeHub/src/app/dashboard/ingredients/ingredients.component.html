@@ -26,13 +26,13 @@
       <th scope="row">
         <input class="form-check-input me-1 cursor-pointer" type="checkbox" value="" [disabled]="isIngredientBusy(ingredient)" (click)="toggleIngredientSelected(ingredient)">
       </th>
-      <td class="cursor-pointer" (click)="toggleAccordionIfAvailable(ingredient, 'accordion' + i, 'table-row' + i)">
+      <td class="cursor-pointer" [attr.data-label]="'dashboard.ingredientColumn' | translate" (click)="toggleAccordionIfAvailable(ingredient, 'accordion' + i, 'table-row' + i)">
         {{ingredient.name}}
       </td>
-      <td class="cursor-pointer" (click)="toggleAccordionIfAvailable(ingredient, 'accordion' + i, 'table-row' + i)">
+      <td class="cursor-pointer" [attr.data-label]="'dashboard.languageColumn' | translate" (click)="toggleAccordionIfAvailable(ingredient, 'accordion' + i, 'table-row' + i)">
         {{ingredient.language || defaultLanguage}}
       </td>
-      <td class="cursor-pointer" (click)="toggleAccordionIfAvailable(ingredient, 'accordion' + i, 'table-row' + i)">
+      <td class="cursor-pointer" [attr.data-label]="'dashboard.createdColumn' | translate" (click)="toggleAccordionIfAvailable(ingredient, 'accordion' + i, 'table-row' + i)">
         {{displayDateOnly(ingredient.created)}}
       </td>
     </tr>

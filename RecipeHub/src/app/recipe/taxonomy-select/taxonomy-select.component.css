@@ -95,6 +95,12 @@
     box-shadow: 0 14px 30px rgba(15, 23, 42, .15);
 }
 
+.taxonomy-select.opens-upward .taxonomy-dropdown {
+    top: auto;
+    bottom: calc(100% + .35rem);
+    box-shadow: 0 -14px 30px rgba(15, 23, 42, .15);
+}
+
 .taxonomy-group-label {
     padding: .55rem .55rem .3rem;
     color: #64748b;
@@ -167,6 +173,7 @@
     color: #e2e8f0;
 }
 
-:host-context([data-theme='dark']) .taxonomy-option:hover {
+:host-context([data-theme='dark']) .taxonomy-option:hover,
+:host-context([data-theme='dark']) .taxonomy-option.is-highlighted {
     background: rgba(148, 163, 184, .12);
 }

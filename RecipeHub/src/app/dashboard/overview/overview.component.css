@@ -1,35 +1,117 @@
-.offcanvas{
+.offcanvas {
     height: 15vh;
 }
 
-.offcanvas-header{
+.offcanvas-header {
     padding: 0.5rem 1rem;
 }
 
-.offcanvas-title{
+.offcanvas-title {
     line-height: 0.5;
 }
 
-.dropdown-menu{
+.dropdown-menu {
     margin-top: -2px !important;
     padding: .4rem 0;
 }
 
-@media screen and (max-device-width : 600px) {
-    td{
-        text-overflow: ellipsis;
+.button-group {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .75rem;
+}
+
+.button-group>.float-end {
+    display: flex;
+    gap: .75rem;
+    margin-left: auto;
+}
+
+@media (max-width: 640px) {
+
+    .button-group,
+    .button-group>.float-end {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        width: 100%;
+        gap: .5rem;
     }
 
-    span{
-        float: left !important;
-        margin-top: .5rem;
+    .button-group>.float-end {
+        grid-column: 1 / -1;
+        margin: 0;
     }
 
-    .test-button{
+    .button-group .btn {
+        width: 100%;
         margin-left: 0 !important;
     }
 
-    .fullname{
+    .table thead {
         display: none;
+    }
+
+    .table caption {
+        display: block;
+        width: 100%;
+    }
+
+    .table,
+    .table tbody {
+        display: block;
+        width: 100%;
+    }
+
+    .table tbody {
+        display: grid;
+        gap: .75rem;
+    }
+
+    .table tr {
+        position: relative;
+        display: grid;
+        gap: .5rem;
+        padding: .9rem;
+        border: 1px solid #dce3eb;
+        border-radius: 7px;
+    }
+
+    .table th[scope='row'] {
+        position: absolute;
+        top: .85rem;
+        right: .7rem;
+        border: 0;
+    }
+
+    .table td,
+    .table .fullname {
+        display: grid;
+        grid-template-columns: 6.5rem minmax(0, 1fr);
+        align-items: center;
+        gap: .5rem;
+        padding: 0;
+        border: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .table td::before {
+        content: attr(data-label);
+        color: #64748b;
+        font-size: .68rem;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+    .table td:first-of-type {
+        padding-right: 2rem;
+        font-weight: 700;
+    }
+
+    .table select {
+        width: 100% !important;
+        min-width: 0;
+        max-width: none !important;
+        min-height: 38px;
     }
 }

@@ -55,6 +55,15 @@
     font-size: 1.6rem;
 }
 
+:host-context([data-theme='dark']) .account-card-header h1,
+:host-context([data-theme='dark']) .account-card-header h2 {
+    color: #f8fafc;
+}
+
+:host-context([data-theme='dark']) .account-kicker {
+    color: #93c5fd;
+}
+
 .account-form {
     display: flex;
     flex-direction: column;

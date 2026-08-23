@@ -1535,10 +1535,156 @@ image-cropper {
         grid-template-columns: 1fr;
     }
 
+    .editor-ingredients-table {
+        display: block;
+    }
+
+    .editor-ingredients-table thead {
+        display: none;
+    }
+
+    .editor-ingredients-table tbody,
+    .editor-ingredients-table tr {
+        display: block;
+        width: 100%;
+    }
+
+    .editor-ingredient-section-header {
+        display: flex !important;
+        width: 100%;
+    }
+
+    .editor-ingredient-section-header th {
+        display: block;
+        flex: 1 1 100%;
+        width: auto !important;
+        min-width: 100%;
+        max-width: none;
+        box-sizing: border-box;
+        border-top-width: .65rem;
+    }
+
+    .editor-ingredient-section-header-content {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .editor-ingredient-section-actions {
+        width: 100%;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .editor-group-remove {
+        display: grid;
+        place-items: center;
+        width: 44px;
+        min-height: 44px;
+        padding: 0;
+        border: 1px solid #b8c6d3;
+        border-radius: 7px;
+        background: #fff;
+        color: #24557c;
+    }
+
+    .editor-group-delete {
+        border-color: #e4b4ba;
+        background: #fff7f8;
+        color: #a83245;
+    }
+
+    .editor-group-remove:focus-visible {
+        outline: 3px solid rgba(57, 119, 173, .18);
+        outline-offset: 2px;
+    }
+
+    .editor-add-here {
+        flex: 1;
+        justify-content: center;
+        min-height: 44px;
+    }
+
+    .editor-ingredient-composer,
+    .editor-ingredient-row {
+        display: grid !important;
+        width: 100%;
+        box-sizing: border-box;
+        grid-template-columns: minmax(0, 1fr);
+        gap: .65rem;
+        padding: .75rem;
+        border-right: 1px solid #d9e1e8;
+        border-left: 1px solid #d9e1e8;
+        background: #fff;
+    }
+
+    .editor-ingredient-composer {
+        background: #f5f9fc;
+    }
+
+    .editor-ingredient-section>tr.editor-ingredient-composer>td,
+    .editor-ingredient-section>tr.editor-ingredient-row>td {
+        display: grid;
+        width: auto;
+        min-width: 0;
+        padding: 0;
+        border: 0;
+        background: transparent !important;
+    }
+
+    .editor-ingredient-composer td[data-label]::before,
+    .editor-ingredient-row td[data-label]::before {
+        content: attr(data-label);
+        margin-bottom: .3rem;
+        color: #475569;
+        font-size: .7rem;
+        font-weight: 800;
+    }
+
+    .editor-ingredient-composer .editor-ingredient-name-cell,
+    .editor-ingredient-composer .editor-ingredient-amount-cell,
+    .editor-ingredient-composer .editor-ingredient-measurement-cell,
+    .editor-ingredient-row .editor-ingredient-name-cell,
+    .editor-ingredient-row .editor-ingredient-group-cell,
+    .editor-ingredient-composer .editor-ingredient-add-cell {
+        grid-column: 1 / -1;
+    }
+
+    .editor-ingredient-composer app-taxonomy-select,
+    .editor-ingredient-row app-taxonomy-select,
+    .editor-ingredient-composer .form-control,
+    .editor-ingredient-row .form-control {
+        display: block;
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+
+    .editor-ingredient-row .editor-ingredient-action-column {
+        grid-column: 1 / -1;
+        justify-content: end;
+    }
+
+    .editor-ingredient-remove {
+        width: 44px;
+        flex-basis: 44px;
+    }
+
+    .editor-empty-group {
+        display: table-row !important;
+    }
+
+    .editor-empty-group td {
+        display: table-cell;
+    }
+
     .recipe-editor-actions {
-        position: sticky;
-        bottom: .5rem;
-        z-index: 10;
+        position: static;
+        padding-bottom: calc(4.5rem + env(safe-area-inset-bottom));
+    }
+
+    .recipe-editor-actions .form-group,
+    .recipe-editor-actions .btn-create {
+        width: 100%;
     }
 }
 
@@ -1550,6 +1696,103 @@ image-cropper {
 :host-context([data-theme='dark']) .editor-group-create label,
 :host-context([data-theme='dark']) .editor-active-group {
     color: #e5e7eb;
+}
+
+:host-context([data-theme='dark']) .recipe-editor-view-tabs {
+    border-color: #46505d;
+    background: #171c22;
+}
+
+:host-context([data-theme='dark']) .recipe-editor-view-tabs button {
+    color: #aeb9c7;
+}
+
+:host-context([data-theme='dark']) .recipe-editor-view-tabs button:hover {
+    background: #252d36;
+    color: #e5edf5;
+}
+
+:host-context([data-theme='dark']) .recipe-editor-view-tabs button.active {
+    background: #304151;
+    color: #d7ecff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .35);
+}
+
+:host-context([data-theme='dark']) .editor-add-group,
+:host-context([data-theme='dark']) .editor-add-here {
+    border-color: #4d7fa7;
+    background: #1d3549;
+    color: #b9dcf8;
+}
+
+:host-context([data-theme='dark']) .editor-add-group:hover:not(:disabled),
+:host-context([data-theme='dark']) .editor-add-here:hover:not(:disabled) {
+    border-color: #68a0cc;
+    background: #274a66;
+    color: #eef8ff;
+}
+
+:host-context([data-theme='dark']) .editor-add-group:disabled {
+    border-color: #46515e;
+    background: #303841;
+    color: #8f9ba8;
+    opacity: 1;
+}
+
+:host-context([data-theme='dark']) .editor-group-tab-wrap,
+:host-context([data-theme='dark']) .editor-group-tab {
+    border-color: #566170;
+    background: #252c34;
+    color: #d5dee8;
+}
+
+:host-context([data-theme='dark']) .editor-group-tab:hover {
+    background: #303a45;
+}
+
+:host-context([data-theme='dark']) .editor-group-tab.is-active {
+    border-color: #3977ad;
+    background: #245d8c;
+    color: #fff;
+}
+
+:host-context([data-theme='dark']) .editor-group-remove {
+    border-left-color: #566170;
+    color: #b7c4d1;
+}
+
+:host-context([data-theme='dark']) .editor-group-remove:hover {
+    background: #3b2a30;
+    color: #ffb4bd;
+}
+
+:host-context([data-theme='dark']) .editor-close-composer {
+    border-color: #566170;
+    background: #2b323a;
+    color: #dbe5ef;
+}
+
+:host-context([data-theme='dark']) .editor-close-composer:hover {
+    border-color: #708092;
+    background: #343d47;
+}
+
+:host-context([data-theme='dark']) .editor-ingredient-remove {
+    border-color: #7c4650;
+    background: #35262b;
+    color: #ffabb5;
+}
+
+:host-context([data-theme='dark']) .editor-ingredient-remove:hover {
+    border-color: #a85a68;
+    background: #4a2c33;
+    color: #ffd8dd;
+}
+
+:host-context([data-theme='dark']) .editor-file-input::file-selector-button {
+    border-right-color: #566170;
+    background: #303841;
+    color: #dbe5ef;
 }
 
 :host-context([data-theme='dark']) .editor-ingredient-section-header th {
@@ -1571,4 +1814,52 @@ image-cropper {
 :host-context([data-theme='dark']) .editor-ingredient-composer td {
     border-color: #46505d;
     background: #252a31 !important;
+}
+
+@media (max-width: 640px) {
+
+    :host-context([data-theme='dark']) .editor-group-remove {
+        border-color: #566170;
+        background: #2b323a;
+        color: #dbe5ef;
+    }
+
+    :host-context([data-theme='dark']) .editor-group-delete {
+        border-color: #7c4650;
+        background: #35262b;
+        color: #ffabb5;
+    }
+
+    :host-context([data-theme='dark']) .editor-ingredient-composer,
+    :host-context([data-theme='dark']) .editor-ingredient-row {
+        border-color: #46505d;
+        background: #20262e;
+    }
+
+    :host-context([data-theme='dark']) .editor-ingredient-section>tr.editor-ingredient-composer>td,
+    :host-context([data-theme='dark']) .editor-ingredient-section>tr.editor-ingredient-row>td {
+        background: transparent !important;
+    }
+
+    :host-context([data-theme='dark']) .editor-ingredient-composer td[data-label]::before,
+    :host-context([data-theme='dark']) .editor-ingredient-row td[data-label]::before {
+        color: #b8c5d3;
+    }
+
+    :host-context([data-theme='dark']) .editor-close-composer {
+        border-color: #566170;
+        background: #2b323a;
+        color: #dbe5ef;
+    }
+
+    :host-context([data-theme='dark']) .editor-close-composer:hover {
+        border-color: #708092;
+        background: #343d47;
+    }
+
+    :host-context([data-theme='dark']) .editor-empty-group td {
+        border-color: #46505d;
+        background: #20262e !important;
+        color: #9eacbb;
+    }
 }

@@ -1,3 +1,8 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
 .topbar {
   position: sticky;
   top: 0;
@@ -81,6 +86,20 @@
 .main-nav a.active {
   background: #eff6ff;
   color: #1d4ed8;
+}
+
+:host-context([data-theme='dark']) .main-nav a {
+  color: #cbd5e1;
+}
+
+:host-context([data-theme='dark']) .main-nav a:hover {
+  background: rgba(148, 163, 184, 0.12);
+  color: #f8fafc;
+}
+
+:host-context([data-theme='dark']) .main-nav a.active {
+  background: rgba(96, 165, 250, 0.16);
+  color: #93c5fd;
 }
 
 .topbar-actions {
@@ -184,16 +203,8 @@
   font-size: 1.2rem;
 }
 
-@media screen and (max-device-width: 991px) {
+@media screen and (max-width: 991px) {
   .topbar {
-    position: sticky;
-  }
-
-  .topbar-inner {
-    min-height: 64px;
-  }
-
-  .main-nav {
     display: none;
   }
 

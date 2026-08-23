@@ -298,10 +298,10 @@
                               </button>
                               }
                               @if (group.name) {
-                              <button type="button" class="editor-group-remove" [attr.aria-label]="('recipe.renameIngredientGroupAria' | translate) + ' ' + group.name" [attr.title]="'recipe.renameIngredientGroupAria' | translate" (click)="startIngredientGroupRename(group.name)">
+                              <button type="button" class="editor-group-remove editor-group-edit" [attr.aria-label]="('recipe.renameIngredientGroupAria' | translate) + ' ' + group.name" [attr.title]="'recipe.renameIngredientGroupAria' | translate" (click)="startIngredientGroupRename(group.name)">
                                 <i class="fas fa-pen" aria-hidden="true"></i>
                               </button>
-                              <button type="button" class="editor-group-remove" [attr.aria-label]="('recipe.removeIngredientGroupAria' | translate) + ' ' + group.name" [attr.title]="'recipe.removeIngredientGroupAria' | translate" (click)="removeIngredientGroup(group.name)">
+                              <button type="button" class="editor-group-remove editor-group-delete" [attr.aria-label]="('recipe.removeIngredientGroupAria' | translate) + ' ' + group.name" [attr.title]="'recipe.removeIngredientGroupAria' | translate" (click)="removeIngredientGroup(group.name)">
                                 <i class="fas fa-times" aria-hidden="true"></i>
                               </button>
                               }
@@ -312,14 +312,14 @@
                       </tr>
                       @if (activeIngredientGroup === group.name) {
                       <tr class="editor-ingredient-composer">
-                        <td class="editor-ingredient-name-cell">
+                        <td class="editor-ingredient-name-cell" [attr.data-label]="'recipe.ingredientsAccordionHeader' | translate">
                           <app-taxonomy-select #ingredientNameSelect name="ingredientName" [(ngModel)]="newIngredient.name" [options]="ingredientOptions" [multiple]="false" [allowCustom]="true" [placeholder]="'recipe.namePlaceholder' | translate" [ariaLabel]="'recipe.namePlaceholder' | translate"
                             (ngModelChange)="selectIngredientName($event)"></app-taxonomy-select>
                         </td>
-                        <td class="editor-ingredient-amount-cell">
+                        <td class="editor-ingredient-amount-cell" [attr.data-label]="'recipe.amountColumn' | translate">
                           <input type="number" step="any" class="form-control" [placeholder]="'recipe.amountPlaceholder' | translate" [(ngModel)]="newIngredient.amount" [disabled]="newIngredient.amountType === 'To taste'" autocomplete="off" data-lpignore="true" required="required">
                         </td>
-                        <td class="editor-ingredient-measurement-cell">
+                        <td class="editor-ingredient-measurement-cell" [attr.data-label]="'recipe.measurementColumn' | translate">
                           <app-taxonomy-select name="measurement" [(ngModel)]="newIngredient.amountType" [groups]="measurementGroups" [multiple]="false" [allowCustom]="true" [placeholder]="'recipe.measurementColumn' | translate" [ariaLabel]="'recipe.measurementColumn' | translate"
                             (ngModelChange)="selectMeasurement($event)"></app-taxonomy-select>
                         </td>
@@ -343,19 +343,19 @@
                       }
                       @for (ingredient of group.ingredients; track ingredient; let ingredientIndex = $index) {
                       <tr class="editor-ingredient-row">
-                        <td class="editor-ingredient-name-cell">
+                        <td class="editor-ingredient-name-cell" [attr.data-label]="'recipe.ingredientsAccordionHeader' | translate">
                           <app-taxonomy-select [ngModel]="ingredient.name" (ngModelChange)="updateIngredientName(ingredient, $event)" [name]="'new-name-' + groupIndex + '-' + ingredientIndex" [options]="ingredientOptions" [multiple]="false" [allowCustom]="true"
                             [placeholder]="'recipe.namePlaceholder' | translate" [ariaLabel]="'recipe.namePlaceholder' | translate"></app-taxonomy-select>
                         </td>
-                        <td class="editor-ingredient-amount-cell">
+                        <td class="editor-ingredient-amount-cell" [attr.data-label]="'recipe.amountColumn' | translate">
                           <input type="number" min="0" step="any" class="form-control" [(ngModel)]="ingredient.amount" [disabled]="ingredient.amountType === 'To taste'" [name]="'new-amount-' + groupIndex + '-' + ingredientIndex" [placeholder]="'recipe.amountPlaceholder' | translate"
                             [attr.aria-label]="'recipe.amountColumn' | translate" autocomplete="off" data-lpignore="true">
                         </td>
-                        <td class="editor-ingredient-measurement-cell">
+                        <td class="editor-ingredient-measurement-cell" [attr.data-label]="'recipe.measurementColumn' | translate">
                           <app-taxonomy-select [(ngModel)]="ingredient.amountType" [name]="'new-amountType-' + groupIndex + '-' + ingredientIndex" [groups]="measurementGroups" [multiple]="false" [allowCustom]="true" [placeholder]="'recipe.measurementColumn' | translate"
                             [ariaLabel]="'recipe.measurementColumn' | translate" (ngModelChange)="ingredient.amount = $event === 'To taste' ? 0 : ingredient.amount"></app-taxonomy-select>
                         </td>
-                        <td class="editor-ingredient-group-cell">
+                        <td class="editor-ingredient-group-cell" [attr.data-label]="'recipe.ingredientGroupColumn' | translate">
                           <app-taxonomy-select [ngModel]="ingredient.group ?? ''" (ngModelChange)="ingredient.group = $event || undefined" [name]="'new-group-' + groupIndex + '-' + ingredientIndex" [options]="ingredientGroupNames" [multiple]="false" [allowCustom]="false" emptyValue=""
                             [emptyLabel]="'recipe.noIngredientGroupLabel' | translate" [placeholder]="'recipe.noIngredientGroupLabel' | translate" [ariaLabel]="'recipe.ingredientGroupColumn' | translate"></app-taxonomy-select>
                         </td>

@@ -59,7 +59,7 @@ export class RecipeComponent implements OnInit {
   public newIngredient: Ingredient = { name: "", description: "", amount: 0, amountType: 'Pinch or dash', group: '', image: null, created: '' };
   public ingredientGroupNames: string[] = [];
   public newIngredientGroupName: string = '';
-  public activeIngredientGroup: string = '';
+  public activeIngredientGroup: string | null = '';
   public editingIngredientGroup: string | null = null;
   public ingredientGroupRenameValue: string = '';
   public categoriesInput: string = '';
@@ -609,7 +609,7 @@ export class RecipeComponent implements OnInit {
   }
 
   resetIngredientInputs() {
-    this.newIngredient = { name: '', description: '', amount: 0, amountType: 'Pinch or dash', group: this.activeIngredientGroup, image: null, created: '' };
+    this.newIngredient = { name: '', description: '', amount: 0, amountType: 'Pinch or dash', group: this.activeIngredientGroup || undefined, image: null, created: '' };
   }
 
   addIngredientGroup(): void {
@@ -628,6 +628,11 @@ export class RecipeComponent implements OnInit {
   selectIngredientGroup(groupName: string): void {
     this.activeIngredientGroup = groupName;
     this.newIngredient.group = groupName;
+  }
+
+  closeIngredientComposer(): void {
+    this.activeIngredientGroup = null;
+    this.newIngredient.group = undefined;
   }
 
   startIngredientGroupRename(groupName: string): void {

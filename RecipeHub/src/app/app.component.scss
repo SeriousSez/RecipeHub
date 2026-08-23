@@ -498,6 +498,10 @@ body {
     color: var(--recipehub-text);
 }
 
+:root[data-theme='dark'] .recipe-mobile-filter-drawer {
+    background: #0f172a;
+}
+
 :root[data-theme='dark'] .recipe-sort-direction {
     background: rgba(15, 23, 42, 0.8) !important;
     border-color: rgba(148, 163, 184, 0.16) !important;
@@ -584,12 +588,68 @@ body {
     color: #f8fafc;
 }
 
+:root[data-theme='dark'] .recipe-card .recipe-category-cuisine,
+:root[data-theme='dark'] .recipe-category-cuisine {
+    background: linear-gradient(135deg, #b45309, #92400e);
+    border-color: rgba(253, 186, 116, 0.42);
+}
+
+:root[data-theme='dark'] .recipe-card .recipe-category-dietary,
+:root[data-theme='dark'] .recipe-category-dietary {
+    background: linear-gradient(135deg, #15803d, #166534);
+    border-color: rgba(134, 239, 172, 0.38);
+}
+
+:root[data-theme='dark'] .recipe-card .recipe-category-seasonal,
+:root[data-theme='dark'] .recipe-category-seasonal {
+    background: linear-gradient(135deg, #0f766e, #115e59);
+    border-color: rgba(94, 234, 212, 0.38);
+}
+
+:root[data-theme='dark'] .recipe-card .recipe-category-other,
+:root[data-theme='dark'] .recipe-category-other {
+    background: linear-gradient(135deg, #475569, #334155);
+    border-color: rgba(203, 213, 225, 0.3);
+}
+
+:root[data-theme='dark'] .recipe-card .recipe-tag-practical,
+:root[data-theme='dark'] .recipe-tag-practical {
+    background: linear-gradient(135deg, #0369a1, #075985);
+    border-color: rgba(125, 211, 252, 0.4);
+}
+
+:root[data-theme='dark'] .recipe-card .recipe-tag-nutrition,
+:root[data-theme='dark'] .recipe-tag-nutrition {
+    background: linear-gradient(135deg, #047857, #065f46);
+    border-color: rgba(110, 231, 183, 0.38);
+}
+
+:root[data-theme='dark'] .recipe-card .recipe-tag-occasion,
+:root[data-theme='dark'] .recipe-tag-occasion {
+    background: linear-gradient(135deg, #be185d, #9d174d);
+    border-color: rgba(249, 168, 212, 0.4);
+}
+
+:root[data-theme='dark'] .recipe-card .recipe-tag-features,
+:root[data-theme='dark'] .recipe-tag-features {
+    background: linear-gradient(135deg, #7c3aed, #6d28d9);
+    border-color: rgba(196, 181, 253, 0.4);
+}
+
 :root[data-theme='dark'] .recipe-card .recipe-badge,
 :root[data-theme='dark'] .recipe-mobile-filter-count,
 :root[data-theme='dark'] .selection-pill {
     background: rgba(96, 165, 250, 0.14);
     border: 1px solid rgba(96, 165, 250, 0.2);
     color: #dbeafe;
+}
+
+:root[data-theme='dark'] .recipe-card .recipe-badge {
+    background: #17324d;
+    border-color: #4f8fc4;
+    color: #f8fafc;
+    box-shadow: 0 8px 18px rgba(2, 6, 23, 0.35);
+    backdrop-filter: none;
 }
 
 :root[data-theme='dark'] .recipe-card:hover,

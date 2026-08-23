@@ -1,3 +1,8 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
 .navbar {
   display: none !important;
   width: 100%;
@@ -12,60 +17,206 @@
 }
 
 @media (max-width: 991px) {
-  .menu{
-    width: 2rem;
+  .menu {
+    display: grid;
+    width: 44px;
+    height: 44px;
+    margin-left: auto;
+    padding: 0;
+    place-items: center;
+    border: 0;
+    background: transparent;
+    color: #fff;
+  }
+
+  .menu-btn {
+    width: 24px;
+    height: 24px;
+  }
+
+  .menu-btn__burger {
+    position: relative;
+    width: 22px;
+    height: 2px;
+    box-shadow: none;
+    transition: background-color .18s ease;
+  }
+
+  .menu-btn__burger::before,
+  .menu-btn__burger::after {
+    left: 0;
+    width: 22px;
+    height: 2px;
+    box-shadow: none;
+    transition: transform .18s ease;
+  }
+
+  .menu-btn__burger::before {
+    transform: translateY(-7px);
+  }
+
+  .menu-btn__burger::after {
+    transform: translateY(7px);
+  }
+
+  .menu-btn.open .menu-btn__burger {
+    transform: none;
+    background: transparent;
+  }
+
+  .menu-btn.open .menu-btn__burger::before {
+    transform: rotate(45deg);
+  }
+
+  .menu-btn.open .menu-btn__burger::after {
+    transform: rotate(-45deg);
   }
 
   .top-navbar {
     display: none !important;
-    text-align: center;
-    margin-top: 1.5vh;
+    text-align: left;
   }
+
   .navbar {
+    position: relative;
     display: block !important;
+    width: 100%;
     padding: 0;
   }
-  .navbar > .container {
+
+  .navbar>.container {
+    position: relative;
+    width: 100%;
+    max-width: none;
     height: 60px;
-    padding: 0;
+    padding: 0 1rem;
   }
-  .navbar-opened:host .navbar-mobile-top {
-    padding: 13px 0;
+
+  .navbar-mobile-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 60px;
   }
-  .navbar-toggle {
-    display: block !important;
-  }
-  .navbar-opened:host .container {
-    height: 60px !important;
-    padding: 14px 0 !important;
-  }
+
   .navbar-logo {
-    margin-left: 15px; 
+    min-width: 0;
   }
+
+  .navbar-brand-link {
+    display: inline-flex;
+    align-items: center;
+    gap: .55rem;
+    font-weight: 700;
+  }
+
+  .navbar-brand-link app-recipe-hub {
+    display: block;
+    width: 26px;
+  }
+
   .navbar-opened:host {
     .top-navbar {
       display: block !important;
+      position: absolute;
+      top: 60px;
+      left: 0;
       width: 100% !important;
-      height: auto;
+      max-height: calc(100dvh - 60px);
+      padding: .75rem 1rem 1rem;
+      overflow-y: auto;
       flex: none !important;
-      color: #000;
-      // background: ;
+      color: #fff;
+      border-top: 1px solid rgba(255, 255, 255, .14);
+      box-shadow: 0 14px 28px rgba(15, 23, 42, .28);
     }
   }
-  .navbar-opened:host .top-navbar a {
-    display: block;
+
+  .mobile-settings {
+    display: grid;
+    gap: .5rem;
+    padding-bottom: .75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, .14);
+  }
+
+  .mobile-setting-row {
+    display: flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .mobile-setting-row label {
+    margin: 0;
+    color: #dbe3eb;
+    font-size: .86rem;
+    font-weight: 700;
+  }
+
+  .mobile-language-select {
+    width: min(9rem, 48%);
+  }
+
+  .theme-toggle {
+    display: grid;
+    width: 38px;
+    height: 38px;
+    place-items: center;
+    border: 1px solid #8290a0;
+    border-radius: 6px;
+    background: transparent;
+    color: #fff;
+  }
+
+  .mobile-nav-links {
+    display: grid;
+    gap: .25rem;
+    padding-top: .75rem;
+  }
+
+  .mobile-nav-links a,
+  .mobile-nav-links button {
+    display: flex;
     width: 100%;
-    line-height: 35px !important;
+    min-height: 46px;
+    align-items: center;
+    gap: .8rem;
+    padding: .65rem .75rem;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: #f8fafc;
+    font: inherit;
+    text-align: left;
+    text-decoration: none;
   }
 
-  .dropdown-divider{
-    margin: 0.5rem 0;
-    overflow: hidden;
-    border-top: 1px solid rgba(255, 255, 255, 0.95);
+  .mobile-nav-links i {
+    width: 1.25rem;
+    color: #91a4b8;
+    text-align: center;
   }
 
-  a.active{
-    background-color: transparent;
+  .mobile-nav-links a:hover,
+  .mobile-nav-links button:hover {
+    background: rgba(255, 255, 255, .08);
+  }
+
+  .mobile-nav-links .sign-out {
+    margin-top: .5rem;
+    padding-top: .85rem;
+    border-top: 1px solid rgba(255, 255, 255, .14);
+    border-radius: 0;
+  }
+
+  a.active {
+    background-color: rgba(242, 93, 156, .12);
     color: #f25d9c !important;
+  }
+
+  a.active i {
+    color: #f25d9c;
   }
 }

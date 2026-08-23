@@ -2,50 +2,47 @@
   <div class="container" fxLayout="row wrap" fxLayoutAlign="start center">
     <div class="navbar-mobile-top d-c" fxLayout="row" fxLayoutWrap="wrap" fxLayoutAlign="start center">
       <div class="navbar-logo">
-        <a class="align-items-center col-md-3 ms-1 text-light text-decoration-none" routerLink="/" (click)="closeNavbar()">
-          <app-recipe-hub style="width: 15%; margin-right: 0px;"></app-recipe-hub>
+        <a class="navbar-brand-link text-light text-decoration-none" routerLink="/" (click)="closeNavbar()">
+          <app-recipe-hub></app-recipe-hub>
           RecipeHub
         </a>
       </div>
-      <a class="float-end btn-outline-brand-transparent menu me-2" (click)="toggleNavbar()">
-        <div class="menu-btn">
+      <button type="button" class="menu" (click)="toggleNavbar()" [attr.aria-expanded]="navbarOpened" aria-controls="mobile-navigation" aria-label="Toggle navigation">
+        <div class="menu-btn" [class.open]="navbarOpened">
           <div class="menu-btn__burger"></div>
         </div>
-      </a>
+      </button>
     </div>
-    <div fxFlex class="top-navbar bg-dark">
-      <div class="mb-2 d-flex align-items-center justify-content-between">
-        <label class="dropdown-item text-light mb-0" for="mobile-theme-toggle">{{ 'nav.toggleTheme' | translate }}</label>
-        <button id="mobile-theme-toggle" type="button" class="btn btn-outline-light btn-sm me-3" (click)="toggleTheme()" [attr.aria-pressed]="isDarkTheme">
-          <i class="fas" [ngClass]="isDarkTheme ? 'fa-sun' : 'fa-moon'"></i>
-        </button>
-      </div>
-      <div class="mb-2">
-        <label class="dropdown-item text-light mb-0" for="mobile-language-select">{{ 'nav.language' | translate }}</label>
-        <select id="mobile-language-select" class="form-select form-select-sm w-auto ms-3" [ngModel]="currentLanguage" (ngModelChange)="changeLanguage($event)">
-          @for (language of languages; track language.code) {
-          <option [value]="language.code">{{ language.label }}</option>
-          }
-        </select>
+    <div id="mobile-navigation" fxFlex class="top-navbar bg-dark">
+      <div class="mobile-settings">
+        <div class="mobile-setting-row">
+          <label for="mobile-theme-toggle">{{ 'nav.toggleTheme' | translate }}</label>
+          <button id="mobile-theme-toggle" type="button" class="theme-toggle" (click)="toggleTheme()" [attr.aria-pressed]="isDarkTheme">
+            <i class="fas" [ngClass]="isDarkTheme ? 'fa-sun' : 'fa-moon'"></i>
+          </button>
+        </div>
+        <div class="mobile-setting-row">
+          <label id="mobile-language-label">{{ 'nav.language' | translate }}</label>
+          <app-taxonomy-select id="mobile-language-select" class="mobile-language-select" [ngModel]="currentLanguage" (ngModelChange)="changeLanguage($event)" [options]="languageCodes" [optionLabels]="languageLabels" [multiple]="false" [allowCustom]="false"
+            [ariaLabel]="'nav.language' | translate"></app-taxonomy-select>
+        </div>
       </div>
       @if (isAuthenticated) {
-      <div class="mb-2">
+      <nav class="mobile-nav-links" aria-label="Account navigation">
         @if (isAdmin) {
-        <a class="dropdown-item text-light" routerLinkActive="active" routerLink="dashboard/users" (click)="toggleNavbar()">{{ 'nav.dashboard' | translate }}</a>
+        <a routerLinkActive="active" routerLink="dashboard/users" (click)="closeNavbar()"><i class="fas fa-chart-pie" aria-hidden="true"></i>{{ 'nav.dashboard' | translate }}</a>
         }
-        <a class="dropdown-item text-light" routerLinkActive="active" routerLink="/pantry" (click)="toggleNavbar()">{{ 'nav.pantry' | translate }}</a>
-        <a class="dropdown-item text-light" routerLinkActive="active" routerLink="account/profile" (click)="toggleNavbar()">{{ 'nav.profile' | translate }}</a>
-        <hr class="dropdown-divider">
-        <a class="dropdown-item text-light" (click)="logout()">{{ 'nav.signOut' | translate }}</a>
-      </div>
+        <a routerLinkActive="active" routerLink="/pantry" (click)="closeNavbar()"><i class="fas fa-box" aria-hidden="true"></i>{{ 'nav.pantry' | translate }}</a>
+        <a routerLinkActive="active" routerLink="account/profile" (click)="closeNavbar()"><i class="fas fa-user" aria-hidden="true"></i>{{ 'nav.profile' | translate }}</a>
+        <button type="button" class="sign-out" (click)="logout()"><i class="fas fa-sign-out-alt" aria-hidden="true"></i>{{ 'nav.signOut' | translate }}</button>
+      </nav>
       }
 
       @if (!isAuthenticated) {
-      <div class="mb-2">
-        <hr class="dropdown-divider">
-        <a class="dropdown-item text-light" routerLinkActive="active" routerLink="/login" (click)="toggleNavbar()">{{ 'nav.login' | translate }}</a>
-        <a class="dropdown-item text-light" routerLinkActive="active" routerLink="/register" (click)="toggleNavbar()">{{ 'nav.signUp' | translate }}</a>
-      </div>
+      <nav class="mobile-nav-links" aria-label="Account navigation">
+        <a routerLinkActive="active" routerLink="/login" (click)="closeNavbar()"><i class="fas fa-sign-in-alt" aria-hidden="true"></i>{{ 'nav.login' | translate }}</a>
+        <a routerLinkActive="active" routerLink="/register" (click)="closeNavbar()"><i class="fas fa-user-plus" aria-hidden="true"></i>{{ 'nav.signUp' | translate }}</a>
+      </nav>
       }
     </div>
   </div>

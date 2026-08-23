@@ -1,4 +1,4 @@
-<div class="taxonomy-select" [class.is-open]="isOpen" [class.is-disabled]="disabled">
+<div class="taxonomy-select" [class.is-open]="isOpen" [class.is-disabled]="disabled" [class.opens-upward]="opensUpward">
     <div class="taxonomy-select-control" (click)="open()">
         <div class="taxonomy-selected-values" *ngIf="multiple && selectedValues.length > 0">
             <span class="taxonomy-chip" *ngFor="let value of selectedValues">
@@ -15,7 +15,7 @@
         </button>
     </div>
 
-    <div #dropdown class="taxonomy-dropdown" *ngIf="isOpen">
+    <div #dropdown class="taxonomy-dropdown" *ngIf="isOpen" [style.max-height.px]="dropdownMaxHeight">
         <button type="button" tabindex="-1" class="taxonomy-option" [class.is-highlighted]="highlightedIndex === 0" *ngIf="!multiple && emptyLabel" (mouseenter)="highlightValue(emptyValue)" (click)="selectValueWithMouse(emptyValue, $event)">
             <span class="taxonomy-checkbox" [class.is-checked]="isSelected(emptyValue)">
                 <i *ngIf="isSelected(emptyValue)" class="fas fa-check" aria-hidden="true"></i>

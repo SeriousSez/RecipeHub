@@ -1,32 +1,55 @@
-footer{
+footer {
     display: none !important;
 }
 
 @media screen and (max-device-width : 991px) {
-    footer{
+    footer {
         display: block !important;
         position: fixed;
         bottom: 0;
         width: 100%;
+        z-index: 100;
     }
-    
-    .nav-item{
-        cursor: pointer;
+
+    .nav {
+        padding: 0 .35rem;
     }
-      
-    a, .btn-link {
+
+    .nav li {
+        padding: 0 .2rem;
+    }
+
+    .nav-link {
+        position: relative;
+        display: flex;
+        min-height: 44px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        color: #cbd5e1;
+        font-weight: 600;
+        transition: background-color .18s ease, color .18s ease;
+    }
+
+    .nav-link:hover {
+        background: rgba(148, 163, 184, .1);
+        color: #f8fafc;
+    }
+
+    .nav-link.active {
+        background: transparent;
+        color: #f25d9c;
+    }
+
+    .nav-link:focus-visible {
+        outline: 2px solid #f25d9c;
+        outline-offset: -2px;
+    }
+
+    a,
+    .btn-link {
         outline: none;
-        box-shadow: none; 
-    }
-      
-    a.active, .btn-link.active {
-        /* color: #f25d9c !important; */
-        outline: none;
-        box-shadow: none; 
-    }
-      
-    .text-header{
-        color: #ffffff8c;
+        box-shadow: none;
     }
 
     .scroll-down {
@@ -34,7 +57,7 @@ footer{
         transition-timing-function: ease-in;
         transform: translate3d(0, 100%, 0);
     }
-    
+
     .scroll-up {
         transition-duration: 0.5s;
         transition-timing-function: ease-in;

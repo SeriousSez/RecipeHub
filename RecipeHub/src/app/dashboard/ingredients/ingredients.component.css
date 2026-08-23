@@ -34,3 +34,122 @@
     background-color: #e9ecef;
     border: 1px solid #dee2e6;
 }
+
+.button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+}
+
+@media (max-width: 640px) {
+    .button-group {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .5rem;
+    }
+
+    .button-group .btn {
+        width: 100%;
+        margin-left: 0 !important;
+    }
+
+    .table thead {
+        display: none;
+    }
+
+    .table caption {
+        display: block;
+        width: 100%;
+    }
+
+    .table,
+    .table tbody {
+        display: block;
+        width: 100%;
+    }
+
+    .table tbody {
+        margin-bottom: .75rem;
+        border: 1px solid #dce3eb;
+        border-radius: 7px;
+        overflow: hidden;
+    }
+
+    .table tbody>tr:first-child {
+        position: relative;
+        display: grid;
+        gap: .55rem;
+        padding: .9rem;
+    }
+
+    .table tbody>tr:first-child th {
+        position: absolute;
+        top: .85rem;
+        right: .7rem;
+        border: 0;
+    }
+
+    .table tbody>tr:first-child td {
+        display: grid;
+        grid-template-columns: 6.5rem minmax(0, 1fr);
+        align-items: center;
+        gap: .5rem;
+        padding: 0;
+        border: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .table tbody>tr:first-child td::before {
+        content: attr(data-label);
+        color: #64748b;
+        font-size: .68rem;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+    .table tbody>tr:first-child td:first-of-type {
+        padding-right: 2rem;
+        font-weight: 700;
+    }
+
+    .table tbody>tr:last-child {
+        display: block;
+        width: 100%;
+    }
+
+    .table tbody>tr:last-child>td {
+        width: 100%;
+        padding: .9rem;
+    }
+
+    .table tbody>tr:last-child>td:not(.show):not(.collapsing) {
+        display: none;
+    }
+
+    .table tbody>tr:last-child>td.show,
+    .table tbody>tr:last-child>td.collapsing {
+        display: block;
+    }
+
+    .tr img,
+    .tr .list-group {
+        width: 100%;
+        max-width: 100%;
+        float: none !important;
+        padding-left: 0 !important;
+    }
+
+    .tr .list-group {
+        margin-top: .75rem;
+    }
+
+    .tr h5 {
+        display: grid;
+        gap: .5rem;
+    }
+
+    .tr h5 .btn {
+        width: 100%;
+        float: none !important;
+    }
+}

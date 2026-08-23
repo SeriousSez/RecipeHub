@@ -38,16 +38,16 @@
       <th scope="row">
         <input class="form-check-input me-1" type="checkbox" value="" (click)="toggleUserSelected(user)">
       </th>
-      <td class="fullname">
+      <td class="fullname" [attr.data-label]="'dashboard.fullNameColumn' | translate">
         {{user.fullName}}
       </td>
-      <td class="cursor-copy" (click)="copyText(user.email)" [attr.recipe-hub-title]="'dashboard.copyTooltip' | translate">
+      <td class="cursor-copy" [attr.data-label]="'dashboard.emailColumn' | translate" (click)="copyText(user.email)" [attr.recipe-hub-title]="'dashboard.copyTooltip' | translate">
         {{user.email}}
       </td>
-      <td>
+      <td [attr.data-label]="'dashboard.usernameColumn' | translate">
         {{user.userName}}
       </td>
-      <td>
+      <td [attr.data-label]="'dashboard.roleColumn' | translate">
         <select class="select" name="role" [(ngModel)]="user.role" (ngModelChange)="updateRole(user, $event)">
           @for (role of roles; track role) {
           <option class="select-items" [ngValue]="role" selected="user.role === role">{{role}}</option>

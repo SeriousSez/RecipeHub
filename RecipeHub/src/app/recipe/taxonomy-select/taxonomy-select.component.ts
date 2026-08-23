@@ -32,6 +32,8 @@ export class TaxonomySelectComponent implements ControlValueAccessor {
     public selectedValues: string[] = [];
     public disabled = false;
     public highlightedIndex = -1;
+    public opensUpward = false;
+    public dropdownMaxHeight = 288;
 
     private onChange: (value: string) => void = () => undefined;
     private onTouched: () => void = () => undefined;
@@ -106,6 +108,7 @@ export class TaxonomySelectComponent implements ControlValueAccessor {
     public open(): void {
         if (!this.disabled) {
             this.isOpen = true;
+            this.scheduleDropdownPosition();
         }
     }
 
@@ -134,6 +137,7 @@ export class TaxonomySelectComponent implements ControlValueAccessor {
             this.onChange(customValue);
         }
         this.open();
+        this.scheduleDropdownPosition();
     }
 
     public toggleValue(value: string): void {
@@ -240,11 +244,55 @@ export class TaxonomySelectComponent implements ControlValueAccessor {
         }
     }
 
+    @HostListener('window:resize')
+    public repositionWhenViewportChanges(): void {
+        if (this.isOpen) {
+            this.scheduleDropdownPosition();
+        }
+    }
+
+    private scheduleDropdownPosition(): void {
+        setTimeout(() => this.updateDropdownPosition());
+    }
+
+    private updateDropdownPosition(): void {
+        const dropdown = this.dropdown?.nativeElement;
+        const control = this.elementRef.nativeElement.querySelector<HTMLElement>('.taxonomy-select-control');
+        if (!dropdown || !control) {
+            return;
+        }
+
+        const viewportPadding = 8;
+        let boundaryTop = viewportPadding;
+        let boundaryBottom = window.innerHeight - viewportPadding;
+
+        for (let parent = this.elementRef.nativeElement.parentElement; parent; parent = parent.parentElement) {
+            const overflowY = getComputedStyle(parent).overflowY;
+            if (overflowY === 'auto' || overflowY === 'scroll' || overflowY === 'hidden') {
+                const boundary = parent.getBoundingClientRect();
+                boundaryTop = Math.max(boundaryTop, boundary.top + viewportPadding);
+                boundaryBottom = Math.min(boundaryBottom, boundary.bottom - viewportPadding);
+            }
+        }
+
+        const controlBounds = control.getBoundingClientRect();
+        const gap = 6;
+        const spaceAbove = Math.max(0, controlBounds.top - boundaryTop - gap);
+        const spaceBelow = Math.max(0, boundaryBottom - controlBounds.bottom - gap);
+        const desiredHeight = Math.min(dropdown.scrollHeight, 288);
+
+        this.opensUpward = spaceBelow < desiredHeight && spaceAbove > spaceBelow;
+        const availableSpace = this.opensUpward ? spaceAbove : spaceBelow;
+        this.dropdownMaxHeight = Math.max(48, Math.min(288, availableSpace));
+    }
+
     private close(): void {
         if (this.isOpen) {
             this.isOpen = false;
             this.searchTerm = '';
             this.highlightedIndex = -1;
+            this.opensUpward = false;
+            this.dropdownMaxHeight = 288;
             this.onTouched();
         }
     }

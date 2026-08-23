@@ -1,7 +1,7 @@
 <div class="container">
   <div class="row">
 
-    <div class="col-md-2 mb-3" role="navigation" style="border-right:1px solid #cecece">
+    <div class="col-md-2 mb-3 dashboard-nav-column" role="navigation">
       <ul class="nav nav-pills nav-stacked">
         <li class="nav-item">
           <a class="nav-link sidebar-menu-button" routerLinkActive="active" routerLink='users'><i class="fa fa-list" aria-hidden="true"></i> {{ 'dashboard.usersNav' | translate }}</a>
@@ -12,7 +12,7 @@
       </ul>
     </div>
 
-    <div class="col-md-10">
+    <div class="col-md-10 dashboard-content">
       <router-outlet></router-outlet>
     </div>
   </div>

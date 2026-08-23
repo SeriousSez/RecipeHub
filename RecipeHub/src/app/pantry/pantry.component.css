@@ -375,23 +375,38 @@ button:disabled {
     }
 
     .pantry-table,
-    .pantry-table tbody,
-    .pantry-table tr,
-    .pantry-table td {
+    .pantry-table tbody {
         display: block;
         width: 100%;
     }
 
+    .pantry-table tbody {
+        display: grid;
+        gap: .75rem;
+    }
+
     .pantry-table tr {
-        padding: .65rem 0;
-        border-bottom: 1px solid #e2e8f0;
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .75rem;
+        width: 100%;
+        padding: 1rem;
+        border: 1px solid #dce3eb;
+        border-radius: 7px;
+        background: #fff;
+    }
+
+    .pantry-table td:first-child,
+    .pantry-table td:nth-child(4) {
+        grid-column: 1 / -1;
     }
 
     .pantry-table td {
         display: grid;
-        grid-template-columns: 7rem minmax(0, 1fr);
-        align-items: center;
-        gap: .5rem;
+        min-width: 0;
+        gap: .3rem;
+        padding: 0;
         border: 0;
     }
 
@@ -403,12 +418,33 @@ button:disabled {
         text-transform: uppercase;
     }
 
+    .pantry-table input,
+    .pantry-table select {
+        min-width: 0;
+        border-color: #cbd5e1;
+        background: #fff;
+    }
+
     .pantry-row-action {
-        display: flex !important;
-        justify-content: flex-end;
+        position: absolute;
+        top: .55rem;
+        right: .55rem;
+        display: block !important;
+        width: auto !important;
     }
 
     .pantry-row-action::before {
         display: none;
+    }
+
+    .pantry-table td:first-child input {
+        padding-right: 2.5rem;
+    }
+
+    :host-context([data-theme='dark']) .pantry-table tr,
+    :host-context([data-theme='dark']) .pantry-table input,
+    :host-context([data-theme='dark']) .pantry-table select {
+        border-color: #3e4855;
+        background: #1d2127;
     }
 }

@@ -37,9 +37,9 @@ export class MobileHeaderComponent implements OnInit {
   subscription2?: Subscription;
 
   public isFixedNavbar = false;
-  public open: boolean = false;
-
   languages: UiLanguage[];
+  languageCodes: string[] = [];
+  languageLabels: Record<string, string> = {};
   currentLanguage: string;
   isDarkTheme: boolean;
 
@@ -50,6 +50,8 @@ export class MobileHeaderComponent implements OnInit {
     this.subscription2 = this.userService.adminStatus$.subscribe(result => this.isAdmin = result);
 
     this.languages = this.languageService.languages;
+    this.languageCodes = this.languages.map(language => language.code);
+    this.languageLabels = Object.fromEntries(this.languages.map(language => [language.code, language.label]));
     this.currentLanguage = this.languageService.getCurrentLanguage();
     this.isDarkTheme = this.themeService.isDark();
   }
@@ -70,28 +72,10 @@ export class MobileHeaderComponent implements OnInit {
 
   toggleNavbar() {
     this.navbarOpened = !this.navbarOpened;
-    this.toggleBurgerMenu();
   }
 
   closeNavbar() {
     this.navbarOpened = false;
-
-    const menuBtn = document.querySelector('.menu-btn');
-    if (menuBtn == null) return;
-    if (this.open) menuBtn.classList.remove('open');
-  }
-
-  toggleBurgerMenu() {
-    const menuBtn = document.querySelector('.menu-btn');
-    if (menuBtn == null) return;
-
-    if (!this.open) {
-      menuBtn.classList.add('open');
-      this.open = true;
-    } else {
-      menuBtn.classList.remove('open');
-      this.open = false;
-    }
   }
 
   logout() {
