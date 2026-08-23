@@ -457,8 +457,7 @@ class="views-count-label tw-hidden md_tw-inline">views</span></span></div>
           </ng-template>
 
           <div class="create-preview-badges" *ngIf="getSelectedValues(recipeForm.get('categories')?.value).length > 0 || getSelectedValues(recipeForm.get('tags')?.value).length > 0">
-            <span class="create-preview-category" *ngFor="let category of getSelectedValues(recipeForm.get('categories')?.value)">{{ category }}</span>
-            <span class="create-preview-tag" *ngFor="let tag of getSelectedValues(recipeForm.get('tags')?.value)">{{ tag }}</span>
+            <span *ngFor="let badge of getPreviewBadges()" [ngClass]="badge.cssClass">{{ badge.value }}</span>
           </div>
         </div>
       </article>

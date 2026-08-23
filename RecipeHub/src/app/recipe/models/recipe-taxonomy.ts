@@ -60,6 +60,6 @@ export const RECIPE_TAG_GROUPS: RecipeTaxonomyGroup[] = [
     {
         id: 'features',
         labelKey: 'recipe.taxonomyGroups.features',
-        values: ['Alcohol', 'Caffeine', 'Spicy', 'Sweet', 'Savory', 'Grilled', 'Baked', 'Fried', 'Roasted', 'Steamed']
+        values: ['Alcohol', 'Caffeine', 'Spicy', 'Sweet', 'Savory', "Creamy", 'Grilled', 'Baked', 'Fried', 'Roasted', 'Steamed']
     }
 ];

@@ -243,11 +243,43 @@ image-cropper {
 }
 
 .create-preview-category {
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    background: #2563eb;
+}
+
+.create-preview-category-cuisine {
+    background: #b45309;
+}
+
+.create-preview-category-dietary {
+    background: #15803d;
+}
+
+.create-preview-category-seasonal {
+    background: #0f766e;
+}
+
+.create-preview-category-other {
+    background: #475569;
 }
 
 .create-preview-tag {
-    background: linear-gradient(135deg, #10b981, #059669);
+    background: #6b7280;
+}
+
+.create-preview-tag-practical {
+    background: #0369a1;
+}
+
+.create-preview-tag-nutrition {
+    background: #047857;
+}
+
+.create-preview-tag-occasion {
+    background: #be185d;
+}
+
+.create-preview-tag-features {
+    background: #7c3aed;
 }
 
 .create-preview-footer {
@@ -523,7 +555,7 @@ image-cropper {
 
 .recipe-metadata-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: .8rem;
     align-items: end;
 }

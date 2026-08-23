@@ -8,7 +8,7 @@ import { RecipeCreation } from 'src/app/shared/models/recipe.creation.interface'
 import { UserService } from 'src/app/shared/services/user.service';
 import { UtilityService } from 'src/app/shared/utils/utility.service';
 import { Ingredient } from '../models/ingredient.interface';
-import { RECIPE_CATEGORY_GROUPS, RECIPE_TAG_GROUPS } from '../models/recipe-taxonomy';
+import { RECIPE_CATEGORY_GROUPS, RECIPE_TAG_GROUPS, sortRecipeTaxonomyValues } from '../models/recipe-taxonomy';
 import { IngredientService } from '../services/ingredient.service';
 import { RecipeService } from '../services/recipe.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -183,6 +183,28 @@ export class CreateComponent implements OnInit {
 
   public getSelectedValues(rawValue: string | string[] | null | undefined): string[] {
     return this.parseCsv(rawValue);
+  }
+
+  public getPreviewBadges(): Array<{ value: string; cssClass: string }> {
+    const categories = sortRecipeTaxonomyValues(this.getSelectedValues(this.recipeForm.get('categories')?.value), RECIPE_CATEGORY_GROUPS);
+    const tags = sortRecipeTaxonomyValues(this.getSelectedValues(this.recipeForm.get('tags')?.value), RECIPE_TAG_GROUPS);
+
+    return [
+      ...categories.map(category => {
+        const normalizedCategory = category.toLowerCase();
+        const group = RECIPE_CATEGORY_GROUPS.find(item =>
+          item.values.some(value => value.toLowerCase() === normalizedCategory)
+        );
+        return { value: category, cssClass: `create-preview-category create-preview-category-${group?.id ?? 'other'}` };
+      }),
+      ...tags.map(tag => {
+        const normalizedTag = tag.toLowerCase();
+        const group = RECIPE_TAG_GROUPS.find(item =>
+          item.values.some(value => value.toLowerCase() === normalizedTag)
+        );
+        return { value: tag, cssClass: `create-preview-tag create-preview-tag-${group?.id ?? 'other'}` };
+      })
+    ];
   }
 
   public isPresetSelected(type: 'category' | 'tag', value: string): boolean {
