@@ -323,7 +323,10 @@
         "suggestionHint": "Indtast en brugerdefineret værdi, eller vælg blandt forslagene.",
         "browseCategoryGroupsAria": "Gennemse kategorigrupper",
         "browseTagGroupsAria": "Gennemse taggrupper",
+        "categoryBadgeTooltip": "{{group}}",
+        "tagBadgeTooltip": "{{group}}",
         "taxonomyGroups": {
+            "custom": "Brugerdefineret",
             "mealType": "Måltidstype",
             "seasonal": "Sæson",
             "cuisine": "Køkken",

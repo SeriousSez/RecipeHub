@@ -165,10 +165,10 @@
 
         <div *ngIf="(recipe.categories ?? []).length > 0 || (recipe.tags ?? []).length > 0" class="recipe-detail-badges-wrap">
             <div *ngIf="(recipe.categories ?? []).length > 0" class="recipe-category-list">
-                <span *ngFor="let category of recipe.categories ?? []" class="recipe-category">{{ category }}</span>
+                <span *ngFor="let category of sortedCategories" [ngClass]="getCategoryCssClass(category)" [attr.title]="getCategoryBadgeLabel(category)" [attr.aria-label]="getCategoryBadgeLabel(category)">{{ category }}</span>
             </div>
             <div *ngIf="(recipe.tags ?? []).length > 0" class="recipe-tag-list mt-2">
-                <span *ngFor="let tag of recipe.tags ?? []" class="recipe-tag">{{ tag }}</span>
+                <span *ngFor="let tag of sortedTags" [ngClass]="getTagCssClass(tag)" [attr.title]="getTagBadgeLabel(tag)" [attr.aria-label]="getTagBadgeLabel(tag)">{{ tag }}</span>
             </div>
         </div>
     </article>

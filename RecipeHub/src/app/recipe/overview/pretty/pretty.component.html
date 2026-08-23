@@ -18,7 +18,7 @@
       <p class="recipe-subtitle" *ngIf="recipe.description">{{ recipe.description }}</p>
 
       <div class="recipe-badges" *ngIf="getVisibleBadges(recipe).length > 0">
-        <span *ngFor="let badge of getVisibleBadges(recipe)" [ngClass]="badge.kind === 'category' ? 'recipe-category' : 'recipe-tag'">
+        <span *ngFor="let badge of getVisibleBadges(recipe)" [ngClass]="badge.cssClass" [attr.title]="badge.label" [attr.aria-label]="badge.label">
           {{ badge.value }}
         </span>
       </div>

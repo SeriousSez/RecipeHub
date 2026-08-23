@@ -9,6 +9,7 @@ import { Ingredient } from 'src/app/recipe/models/ingredient.interface';
 import { RecipeService } from 'src/app/recipe/services/recipe.service';
 import { UtilityService } from 'src/app/shared/utils/utility.service';
 import { TranslateService } from '@ngx-translate/core';
+import { RECIPE_CATEGORY_GROUPS, RECIPE_TAG_GROUPS, sortRecipeTaxonomyValues } from '../../models/recipe-taxonomy';
 
 @Component({
   selector: 'app-pretty',
@@ -91,17 +92,22 @@ export class PrettyComponent implements OnInit {
     return this.utilityService.displayDateOnly(created);
   }
 
-  getVisibleBadges(recipe: Recipe): Array<{ value: string, kind: 'category' | 'tag' }> {
-    const categories = (recipe.categories ?? []).map(item => item.trim()).filter(Boolean);
-    const tags = (recipe.tags ?? []).map(item => item.trim()).filter(Boolean);
+  getVisibleBadges(recipe: Recipe): Array<{ value: string, cssClass: string, label: string }> {
+    const categories = sortRecipeTaxonomyValues((recipe.categories ?? []).map(item => item.trim()).filter(Boolean), RECIPE_CATEGORY_GROUPS);
+    const tags = sortRecipeTaxonomyValues((recipe.tags ?? []).map(item => item.trim()).filter(Boolean), RECIPE_TAG_GROUPS);
     const seen = new Set<string>();
-    const badges: Array<{ value: string, kind: 'category' | 'tag' }> = [];
+    const badges: Array<{ value: string, cssClass: string, label: string }> = [];
 
     categories.forEach(category => {
       const normalized = category.toLowerCase();
       if (!seen.has(normalized)) {
         seen.add(normalized);
-        badges.push({ value: category, kind: 'category' });
+        const group = RECIPE_CATEGORY_GROUPS.find(item =>
+          item.values.some(value => value.toLowerCase() === normalized)
+        );
+        const groupLabel = this.translateService.instant(group?.labelKey ?? 'recipe.taxonomyGroups.custom');
+        const label = this.translateService.instant('recipe.categoryBadgeTooltip', { group: groupLabel });
+        badges.push({ value: category, cssClass: `recipe-category recipe-category-${group?.id ?? 'other'}`, label });
       }
     });
 
@@ -109,7 +115,12 @@ export class PrettyComponent implements OnInit {
       const normalized = tag.toLowerCase();
       if (!seen.has(normalized)) {
         seen.add(normalized);
-        badges.push({ value: tag, kind: 'tag' });
+        const group = RECIPE_TAG_GROUPS.find(item =>
+          item.values.some(value => value.toLowerCase() === normalized)
+        );
+        const groupLabel = this.translateService.instant(group?.labelKey ?? 'recipe.taxonomyGroups.custom');
+        const label = this.translateService.instant('recipe.tagBadgeTooltip', { group: groupLabel });
+        badges.push({ value: tag, cssClass: `recipe-tag recipe-tag-${group?.id ?? 'other'}`, label });
       }
     });
 

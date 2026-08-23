@@ -13,7 +13,7 @@ import { SafeService } from 'src/app/shared/utils/safe.service';
 import { Ingredient } from '../models/ingredient.interface';
 import { RecipeUpdate } from '../models/recipe-update.interface';
 import { Recipe } from '../models/recipe.interface';
-import { RECIPE_CATEGORY_GROUPS, RECIPE_TAG_GROUPS } from '../models/recipe-taxonomy';
+import { RECIPE_CATEGORY_GROUPS, RECIPE_TAG_GROUPS, sortRecipeTaxonomyValues } from '../models/recipe-taxonomy';
 import { IngredientService } from '../services/ingredient.service';
 import { RecipeService } from '../services/recipe.service';
 import { AngularEditorConfig } from '@kolkov/angular-editor';
@@ -420,6 +420,50 @@ export class RecipeComponent implements OnInit {
     const restingMinutes = this.recipe?.restingMinutes ?? 0;
     const totalMinutes = preparationMinutes + cookingMinutes + chillingMinutes + coolingMinutes + restingMinutes;
     return totalMinutes > 0 ? totalMinutes : null;
+  }
+
+  getCategoryCssClass(category: string): string {
+    const normalizedCategory = category.trim().toLowerCase();
+    const group = RECIPE_CATEGORY_GROUPS.find(item =>
+      item.values.some(value => value.toLowerCase() === normalizedCategory)
+    );
+
+    return `recipe-category recipe-category-${group?.id ?? 'other'}`;
+  }
+
+  getCategoryBadgeLabel(category: string): string {
+    const normalizedCategory = category.trim().toLowerCase();
+    const group = RECIPE_CATEGORY_GROUPS.find(item =>
+      item.values.some(value => value.toLowerCase() === normalizedCategory)
+    );
+    const groupLabel = this.translateService.instant(group?.labelKey ?? 'recipe.taxonomyGroups.custom');
+    return this.translateService.instant('recipe.categoryBadgeTooltip', { value: category, group: groupLabel });
+  }
+
+  get sortedCategories(): string[] {
+    return sortRecipeTaxonomyValues(this.recipe?.categories ?? [], RECIPE_CATEGORY_GROUPS);
+  }
+
+  getTagCssClass(tag: string): string {
+    const normalizedTag = tag.trim().toLowerCase();
+    const group = RECIPE_TAG_GROUPS.find(item =>
+      item.values.some(value => value.toLowerCase() === normalizedTag)
+    );
+
+    return `recipe-tag recipe-tag-${group?.id ?? 'other'}`;
+  }
+
+  getTagBadgeLabel(tag: string): string {
+    const normalizedTag = tag.trim().toLowerCase();
+    const group = RECIPE_TAG_GROUPS.find(item =>
+      item.values.some(value => value.toLowerCase() === normalizedTag)
+    );
+    const groupLabel = this.translateService.instant(group?.labelKey ?? 'recipe.taxonomyGroups.custom');
+    return this.translateService.instant('recipe.tagBadgeTooltip', { value: tag, group: groupLabel });
+  }
+
+  get sortedTags(): string[] {
+    return sortRecipeTaxonomyValues(this.recipe?.tags ?? [], RECIPE_TAG_GROUPS);
   }
 
   formatDuration(totalMinutes: number): string {

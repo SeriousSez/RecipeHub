@@ -662,11 +662,43 @@
 }
 
 .recipe-category {
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    background: #2563eb;
+}
+
+.recipe-category-cuisine {
+    background: #b45309;
+}
+
+.recipe-category-dietary {
+    background: #15803d;
+}
+
+.recipe-category-seasonal {
+    background: #0f766e;
+}
+
+.recipe-category-other {
+    background: #475569;
 }
 
 .recipe-tag {
-    background: linear-gradient(135deg, #10b981, #059669);
+    background: #6b7280;
+}
+
+.recipe-tag-practical {
+    background: #0369a1;
+}
+
+.recipe-tag-nutrition {
+    background: #047857;
+}
+
+.recipe-tag-occasion {
+    background: #be185d;
+}
+
+.recipe-tag-features {
+    background: #7c3aed;
 }
 
 .buttons {

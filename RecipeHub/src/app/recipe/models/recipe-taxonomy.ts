@@ -4,6 +4,20 @@ export interface RecipeTaxonomyGroup {
     values: string[];
 }
 
+export function sortRecipeTaxonomyValues(values: string[], groups: RecipeTaxonomyGroup[]): string[] {
+    const ranks = new Map<string, number>();
+    groups.forEach((group, groupIndex) => {
+        group.values.forEach((value, valueIndex) => {
+            ranks.set(value.toLowerCase(), groupIndex * 1000 + valueIndex);
+        });
+    });
+
+    return values
+        .map((value, originalIndex) => ({ value, originalIndex, rank: ranks.get(value.trim().toLowerCase()) ?? Number.MAX_SAFE_INTEGER }))
+        .sort((left, right) => left.rank - right.rank || left.originalIndex - right.originalIndex)
+        .map(item => item.value);
+}
+
 export const RECIPE_CATEGORY_GROUPS: RecipeTaxonomyGroup[] = [
     {
         id: 'mealType',

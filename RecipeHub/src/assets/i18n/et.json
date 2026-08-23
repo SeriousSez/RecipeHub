@@ -323,7 +323,10 @@
         "suggestionHint": "Sisesta oma väärtus või vali soovitustest.",
         "browseCategoryGroupsAria": "Sirvi kategooriarühmi",
         "browseTagGroupsAria": "Sirvi sildirühmi",
+        "categoryBadgeTooltip": "{{group}}",
+        "tagBadgeTooltip": "{{group}}",
         "taxonomyGroups": {
+            "custom": "Kohandatud",
             "mealType": "Toidukord",
             "seasonal": "Hooajaline",
             "cuisine": "Köök",

@@ -323,7 +323,10 @@
         "suggestionHint": "Type a custom value or choose from the suggestions.",
         "browseCategoryGroupsAria": "Browse category groups",
         "browseTagGroupsAria": "Browse tag groups",
+        "categoryBadgeTooltip": "{{group}}",
+        "tagBadgeTooltip": "{{group}}",
         "taxonomyGroups": {
+            "custom": "Custom",
             "mealType": "Meal type",
             "seasonal": "Seasonal",
             "cuisine": "Cuisine",
