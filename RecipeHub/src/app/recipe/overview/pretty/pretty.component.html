@@ -1,41 +1,43 @@
 @if (recipes.length > 0) {
 <div class="card-group">
   @for (recipe of recipes; track recipe) {
-  <article (click)="openRecipe(recipe)" class="recipe-card cursor-pointer" [class.is-selected]="isRecipeSelected(recipe)">
+  <article class="recipe-card" [class.is-selected]="isRecipeSelected(recipe)">
     <button class="recipe-select" type="button" (click)="$event.stopPropagation(); selectRecipe.emit(recipe)" [attr.aria-pressed]="isRecipeSelected(recipe)">
       <i [ngClass]="isRecipeSelected(recipe) ? 'fas fa-check-square' : 'far fa-square'"></i>
     </button>
 
-    <div class="recipe-hero">
-      <img [src]="recipe.image?.url || '../assets/images/food.png'" [alt]="recipe.title">
-      <div class="recipe-badge" *ngIf="pantryIngredients.length > 0">
-        {{ getIngredientMatchSummary(recipe).label }}
-      </div>
-    </div>
-
-    <div class="recipe-body">
-      <h3 class="recipe-title">{{ recipe.title }}</h3>
-      <p class="recipe-subtitle" *ngIf="recipe.description">{{ recipe.description }}</p>
-
-      <div class="recipe-badges" *ngIf="getVisibleBadges(recipe).length > 0">
-        <span *ngFor="let badge of getVisibleBadges(recipe)" [ngClass]="badge.cssClass" [attr.title]="badge.label" [attr.aria-label]="badge.label">
-          {{ badge.value }}
-        </span>
+    <a class="recipe-card-link" [routerLink]="['/recipe', recipe.id, utilityService.toSlug(recipe.title)]">
+      <div class="recipe-hero">
+        <img [src]="recipe.image?.url || '../assets/images/food.png'" [alt]="recipe.title">
+        <div class="recipe-badge" *ngIf="pantryIngredients.length > 0">
+          {{ getIngredientMatchSummary(recipe).label }}
+        </div>
       </div>
 
-      <div class="recipe-rating-summary" *ngIf="showEngagement && ((recipe.ratingCount ?? 0) > 0 || (recipe.madeCount ?? 0) > 0)">
-        <span *ngIf="(recipe.ratingCount ?? 0) > 0 && recipe.averageRating != null"><i class="fas fa-star" aria-hidden="true"></i> <strong>{{ recipe.averageRating | number:'1.1-1' }}</strong> ({{ recipe.ratingCount }})</span>
-        <span *ngIf="(recipe.madeCount ?? 0) > 0"><i class="fas fa-utensils" aria-hidden="true"></i> {{ 'recipe.madeThisCount' | translate:{ count: recipe.madeCount } }}</span>
-      </div>
+      <div class="recipe-body">
+        <h3 class="recipe-title">{{ recipe.title }}</h3>
+        <p class="recipe-subtitle" *ngIf="recipe.description">{{ recipe.description }}</p>
 
-      <div class="recipe-nutrition-highlights" *ngIf="getNutritionHighlights(recipe).length > 0">
-        <span class="recipe-nutrition-highlight" *ngFor="let highlight of getNutritionHighlights(recipe)">
-          <strong *ngIf="highlight.value != null">{{ highlight.value | number:'1.0-2' }} {{ highlight.unit }}</strong>
-          <strong class="recipe-nutrition-unavailable" *ngIf="highlight.value == null">{{ 'recipe.nutritionNotEstimated' | translate }}</strong>
-          <span>{{ highlight.labelKey | translate }} · {{ 'recipe.nutritionPerServing' | translate }}</span>
-        </span>
+        <div class="recipe-badges" *ngIf="getVisibleBadges(recipe).length > 0">
+          <span *ngFor="let badge of getVisibleBadges(recipe)" [ngClass]="badge.cssClass" [attr.title]="badge.label" [attr.aria-label]="badge.label">
+            {{ badge.value }}
+          </span>
+        </div>
+
+        <div class="recipe-rating-summary" *ngIf="showEngagement && ((recipe.ratingCount ?? 0) > 0 || (recipe.madeCount ?? 0) > 0)">
+          <span *ngIf="(recipe.ratingCount ?? 0) > 0 && recipe.averageRating != null"><i class="fas fa-star" aria-hidden="true"></i> <strong>{{ recipe.averageRating | number:'1.1-1' }}</strong> ({{ recipe.ratingCount }})</span>
+          <span *ngIf="(recipe.madeCount ?? 0) > 0"><i class="fas fa-utensils" aria-hidden="true"></i> {{ 'recipe.madeThisCount' | translate:{ count: recipe.madeCount } }}</span>
+        </div>
+
+        <div class="recipe-nutrition-highlights" *ngIf="getNutritionHighlights(recipe).length > 0">
+          <span class="recipe-nutrition-highlight" *ngFor="let highlight of getNutritionHighlights(recipe)">
+            <strong *ngIf="highlight.value != null">{{ highlight.value | number:'1.0-2' }} {{ highlight.unit }}</strong>
+            <strong class="recipe-nutrition-unavailable" *ngIf="highlight.value == null">{{ 'recipe.nutritionNotEstimated' | translate }}</strong>
+            <span>{{ highlight.labelKey | translate }} · {{ 'recipe.nutritionPerServing' | translate }}</span>
+          </span>
+        </div>
       </div>
-    </div>
+    </a>
   </article>
   }
 </div>

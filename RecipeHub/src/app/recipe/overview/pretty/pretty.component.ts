@@ -1,6 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { DatePipe } from '@angular/common'
-import { Router } from '@angular/router';
 import { UserService } from 'src/app/shared/services/user.service';
 import { FavoriteService } from 'src/app/shared/services/favorite.service';
 import { GroceryService } from 'src/app/shared/services/grocery.service';
@@ -36,7 +35,7 @@ export class PrettyComponent implements OnInit {
   public sortSetting: string = 'created';
   public ascending: boolean = true;
 
-  constructor(private recipeService: RecipeService, private userService: UserService, private favoriteService: FavoriteService, private groceryService: GroceryService, public utilityService: UtilityService, private datepipe: DatePipe, private router: Router, private translateService: TranslateService) {
+  constructor(private recipeService: RecipeService, private userService: UserService, private favoriteService: FavoriteService, private groceryService: GroceryService, public utilityService: UtilityService, private datepipe: DatePipe, private translateService: TranslateService) {
 
   }
 
@@ -84,10 +83,6 @@ export class PrettyComponent implements OnInit {
     } else {
       this.shownRecipes = this.recipes;
     }
-  }
-
-  openRecipe(recipe: Recipe) {
-    this.router.navigate([`recipe/${recipe.id}/${this.utilityService.toSlug(recipe.title)}`]);
   }
 
   displayDateOnly(created: string) {
