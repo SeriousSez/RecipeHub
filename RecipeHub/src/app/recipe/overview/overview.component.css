@@ -630,12 +630,17 @@ button:focus {
 
 .recipe-filter-input,
 .recipe-filter-select {
-    border-radius: .7rem;
-    border: 1px solid rgba(23, 50, 77, 0.15);
+    border-radius: .5rem;
+    border: 1px solid #cbd5e1;
     background: #fff;
-    min-height: 2.2rem;
-    padding-top: 0.45rem;
-    padding-bottom: 0.45rem;
+    min-height: 2.75rem;
+    padding: .3rem 2.75rem .3rem .65rem;
+    color: #1f2937;
+}
+
+.recipe-filter-select:focus {
+    border-color: #3977ad;
+    box-shadow: 0 0 0 3px rgba(57, 119, 173, .12);
 }
 
 .recipe-sort-control {
@@ -662,10 +667,10 @@ button:focus {
     align-items: center;
     justify-content: center;
     flex: 0 0 auto;
-    width: 2.2rem;
-    min-height: 2.2rem;
-    border-radius: .7rem;
-    border: 1px solid rgba(23, 50, 77, 0.15);
+    width: 2.75rem;
+    min-height: 2.75rem;
+    border-radius: .5rem;
+    border: 1px solid #cbd5e1;
     background: #fff;
     color: #17324d;
 }

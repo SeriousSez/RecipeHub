@@ -47,6 +47,11 @@ namespace RecipeHub.Api.Controllers
         [Authorize(AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> Create([FromBody] RecipeViewModel model)
         {
+            if (model?.Image == null || string.IsNullOrWhiteSpace(model.Image.Url))
+            {
+                ModelState.AddModelError(nameof(model.Image), "An image is required.");
+            }
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);

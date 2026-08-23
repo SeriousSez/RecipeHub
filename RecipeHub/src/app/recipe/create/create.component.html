@@ -1,11 +1,23 @@
 <div class="recipe-editor-layout">
-  <div class="form recipe-editor-main">
-    <div class="card recipe-editor-card">
+  <header class="card-header recipe-editor-header">
+    <div class="recipe-editor-header-title">
+      <span class="recipe-editor-header-icon"><i class="fas fa-utensils" aria-hidden="true"></i></span>
+      <h4 class="card-title">{{ 'recipe.createRecipeHeading' | translate }}</h4>
+    </div>
+    <div class="recipe-editor-view-tabs" role="tablist" [attr.aria-label]="'recipe.createViewTabsAria' | translate">
+      <button type="button" role="tab" [class.active]="editorView === 'edit'" [attr.aria-selected]="editorView === 'edit'" aria-controls="recipe-create-edit-panel" (click)="setEditorView('edit')">
+        <i class="fas fa-pen" aria-hidden="true"></i>
+        <span>{{ 'recipe.createEditTab' | translate }}</span>
+      </button>
+      <button type="button" role="tab" [class.active]="editorView === 'preview'" [attr.aria-selected]="editorView === 'preview'" aria-controls="recipe-create-preview-panel" (click)="setEditorView('preview')">
+        <i class="fas fa-eye" aria-hidden="true"></i>
+        <span>{{ 'recipe.createPreviewTab' | translate }}</span>
+      </button>
+    </div>
+  </header>
 
-      <div class="card-header recipe-editor-header">
-        <span class="recipe-editor-header-icon"><i class="fas fa-utensils" aria-hidden="true"></i></span>
-        <h4 class="card-title">{{ 'recipe.createRecipeHeading' | translate }}</h4>
-      </div>
+  <div id="recipe-create-edit-panel" class="form recipe-editor-main recipe-editor-pane" role="tabpanel" [class.is-hidden]="editorView !== 'edit'">
+    <div class="card recipe-editor-card">
 
       <div class="card-block">
         <div class="accordion recipe-editor-accordion" id="accordion">
@@ -22,7 +34,7 @@
               <div id="collapseHead" class="accordion-collapse collapse show" aria-labelledby="headingHead" data-bs-parent="#accordion">
                 <div class="accordion-body">
                   <div class="form-group editor-field">
-                    <label for="title">{{ 'recipe.titleLabel' | translate }}</label>
+                    <label for="title">{{ 'recipe.titleLabel' | translate }} <span aria-hidden="true">*</span></label>
                     <input id="title" type="text" name="title" class="form-control" [ngClass]="{ 'is-invalid': f.title.touched && f.title.errors }" [placeholder]="'recipe.recipeTitlePlaceholder' | translate" autocomplete="off" data-lpignore="true" formControlName="title">
                     @if (f.title.touched && f.title.errors) {
                     <div class="invalid-feedback">
@@ -43,6 +55,7 @@
                   </div>
 
                   <div class="form-group editor-media-field">
+                    <label for="recipe-image">{{ 'recipe.imageLabel' | translate }} <span aria-hidden="true">*</span></label>
                     @if (!showCropOverlay) {
                     <img class="file image" [src]="defaultImageUrl">
                     }
@@ -53,7 +66,10 @@
                       </image-cropper>
                     </div>
                     }
-                    <input type="file" class="form-control editor-file-input" #image accept="image/*" (change)="handleFileInput($event)">
+                    <input id="recipe-image" type="file" class="form-control editor-file-input" [class.is-invalid]="f.image.invalid" #image accept="image/*" required aria-required="true" [attr.aria-invalid]="f.image.invalid ? true : null" (change)="handleFileInput($event)">
+                    @if (f.image.errors?.required) {
+                    <div class="invalid-feedback">{{ 'recipe.imageRequired' | translate }}</div>
+                    }
                   </div>
                 </div>
               </div>
@@ -70,7 +86,7 @@
               <div id="collapseBody" class="accordion-collapse collapse" aria-labelledby="headingBody" data-bs-parent="#accordion">
                 <div class="accordion-body">
                   <div class="form-group editor-field">
-                    <label for="instructions">{{ 'recipe.instructionsLabel' | translate }}</label>
+                    <label for="instructions">{{ 'recipe.instructionsLabel' | translate }} <span aria-hidden="true">*</span></label>
                     <angular-editor [config]="editorConfig" [placeholder]="'recipe.enterDescriptionPlaceholder' | translate" formControlName="instructions"></angular-editor>
                     <!-- <ckeditor #editor id="editor" formControlName="instructions"></ckeditor> -->
                     <!-- <textarea id="instructions" type="text" name="instructions" class="form-control" [ngClass]="{ 'is-invalid': f.instructions.touched && f.instructions.errors }" placeholder="Instructions to the recipe" formControlName="instructions"></textarea> -->
@@ -97,7 +113,7 @@
               <div id="collapseCosmetics" class="accordion-collapse collapse" aria-labelledby="headingBody" data-bs-parent="#accordion">
                 <div class="accordion-body">
                   <div class="form-group editor-field">
-                    <label for="card-caption">{{ 'recipe.cardDescriptionLabel' | translate }}</label>
+                    <label for="card-caption">{{ 'recipe.cardDescriptionLabel' | translate }} <span aria-hidden="true">*</span></label>
                     <input id="card-caption" type="text" name="description" class="form-control" [ngClass]="{ 'is-invalid': f.description.touched && f.description.errors }" [placeholder]="'recipe.cardDescriptionPlaceholder' | translate" autocomplete="off" data-lpignore="true"
                       formControlName="description">
                     @if (f.description.touched && f.description.errors) {
@@ -111,15 +127,11 @@
 
                   <div class="editor-field-grid">
                     <div class="form-group editor-field">
-                      <label for="language">{{ 'recipe.languageLabel' | translate }}</label>
-                      <select id="language" class="form-select language" name="language" formControlName="language">
-                        @for (language of languages; track language) {
-                        <option class="select-items" [ngValue]="language">{{language}}</option>
-                        }
-                      </select>
+                      <label for="language">{{ 'recipe.languageLabel' | translate }} <span aria-hidden="true">*</span></label>
+                      <app-taxonomy-select id="language" name="language" formControlName="language" [options]="languages" [multiple]="false" [allowCustom]="false" [placeholder]="'recipe.languageLabel' | translate" [ariaLabel]="'recipe.languageLabel' | translate"></app-taxonomy-select>
                     </div>
                     <div class="form-group editor-field">
-                      <label for="portions">{{ 'recipe.portionsLabel' | translate }}</label>
+                      <label for="portions">{{ 'recipe.portionsLabel' | translate }} <span aria-hidden="true">*</span></label>
                       <input id="portions" type="text" name="portions" class="form-control" [ngClass]="{ 'is-invalid': f.portions.touched && f.portions.errors }" [placeholder]="'recipe.portionsPlaceholder' | translate" autocomplete="off" data-lpignore="true" formControlName="portions">
                       @if (f.portions.touched && f.portions.errors) {
                       <div class="invalid-feedback">
@@ -244,13 +256,6 @@
                   <table class="table table-hover caption-top editor-ingredients-table">
                     <caption>
                       <span class="editor-ingredients-caption-title">{{ 'recipe.ingredientsHeading' | translate }}</span>
-                      <div class="editor-ingredients-tools">
-                        <div class="form-group editor-existing-ingredient">
-                          <label for="create-existing-ingredient">{{ 'recipe.pickExistingLabel' | translate }}</label>
-                          <app-taxonomy-select id="create-existing-ingredient" name="existingIngredientSearch" [(ngModel)]="ingredientSearch" [options]="ingredientOptions" [multiple]="false" [allowCustom]="false" [placeholder]="'recipe.pickExistingLabel' | translate"
-                            [ariaLabel]="'recipe.pickExistingLabel' | translate" (ngModelChange)="selectExistingIngredient($event)"></app-taxonomy-select>
-                        </div>
-                      </div>
                     </caption>
                     <thead>
                       <tr>
@@ -258,47 +263,64 @@
                         <th scope="col" class="amount">{{ 'recipe.amountColumn' | translate }}</th>
                         <th scope="col">{{ 'recipe.measurementColumn' | translate }}</th>
                         <th scope="col">{{ 'recipe.ingredientGroupColumn' | translate }}</th>
+                        <th scope="col" class="editor-ingredient-action-column"><span class="visually-hidden">{{ 'recipe.removeButton' | translate }}</span></th>
                       </tr>
                     </thead>
                     @for (group of ingredientEditorGroups; track group.name) {
                     <tbody class="editor-ingredient-section" [class.is-active]="activeIngredientGroup === group.name">
                       <tr class="editor-ingredient-section-header">
-                        <th colspan="4" scope="rowgroup">
+                        <th colspan="5" scope="rowgroup">
                           <div class="editor-ingredient-section-header-content">
                             <div class="editor-ingredient-section-title">
+                              @if (editingIngredientGroup === group.name) {
+                              <div class="editor-group-rename">
+                                <input type="text" class="form-control" [(ngModel)]="ingredientGroupRenameValue" [name]="'rename-group-' + group.name" [attr.aria-label]="'recipe.renameIngredientGroupAria' | translate" (keydown.enter)="saveIngredientGroupRename(group.name); $event.preventDefault()"
+                                  (keydown.escape)="cancelIngredientGroupRename()">
+                                <button type="button" [disabled]="!ingredientGroupRenameValue.trim()" [attr.aria-label]="'recipe.saveGroupRenameAria' | translate" [attr.title]="'recipe.saveGroupRenameAria' | translate" (click)="saveIngredientGroupRename(group.name)">
+                                  <i class="fas fa-check" aria-hidden="true"></i>
+                                </button>
+                                <button type="button" [attr.aria-label]="'recipe.cancelButton' | translate" [attr.title]="'recipe.cancelButton' | translate" (click)="cancelIngredientGroupRename()">
+                                  <i class="fas fa-times" aria-hidden="true"></i>
+                                </button>
+                              </div>
+                              } @else {
                               <span>{{ group.name || ('recipe.noIngredientGroupLabel' | translate) }}</span>
+                              }
                               <span class="editor-ingredient-count">{{group.ingredients.length}}</span>
                             </div>
+                            @if (editingIngredientGroup !== group.name) {
                             <div class="editor-ingredient-section-actions">
                               <button type="button" class="editor-add-here" (click)="selectIngredientGroup(group.name)">
                                 <i class="fas fa-plus" aria-hidden="true"></i>
                                 <span>{{ (activeIngredientGroup === group.name ? 'recipe.addingIngredientHereLabel' : 'recipe.addIngredientHereButton') | translate }}</span>
                               </button>
                               @if (group.name) {
+                              <button type="button" class="editor-group-remove" [attr.aria-label]="('recipe.renameIngredientGroupAria' | translate) + ' ' + group.name" [attr.title]="'recipe.renameIngredientGroupAria' | translate" (click)="startIngredientGroupRename(group.name)">
+                                <i class="fas fa-pen" aria-hidden="true"></i>
+                              </button>
                               <button type="button" class="editor-group-remove" [attr.aria-label]="('recipe.removeIngredientGroupAria' | translate) + ' ' + group.name" [attr.title]="'recipe.removeIngredientGroupAria' | translate" (click)="removeIngredientGroup(group.name)">
                                 <i class="fas fa-times" aria-hidden="true"></i>
                               </button>
                               }
                             </div>
+                            }
                           </div>
                         </th>
                       </tr>
                       @if (activeIngredientGroup === group.name) {
                       <tr class="editor-ingredient-composer">
-                        <td>
-                          <input type="text" class="form-control" [placeholder]="'recipe.namePlaceholder' | translate" [(ngModel)]="newIngredient.name" autocomplete="off" data-lpignore="true" required="required">
+                        <td class="editor-ingredient-name-cell">
+                          <app-taxonomy-select #ingredientNameSelect name="ingredientName" [(ngModel)]="newIngredient.name" [options]="ingredientOptions" [multiple]="false" [allowCustom]="true" [placeholder]="'recipe.namePlaceholder' | translate" [ariaLabel]="'recipe.namePlaceholder' | translate"
+                            (ngModelChange)="selectIngredientName($event)"></app-taxonomy-select>
                         </td>
-                        <td>
+                        <td class="editor-ingredient-amount-cell">
                           <input type="number" step="any" class="form-control" [placeholder]="'recipe.amountPlaceholder' | translate" [(ngModel)]="newIngredient.amount" [disabled]="newIngredient.amountType === 'To taste'" autocomplete="off" data-lpignore="true" required="required">
                         </td>
-                        <td>
-                          <select class="form-select editor-select" name="measurement" [(ngModel)]="newIngredient.amountType">
-                            @for (measurement of measurements; track measurement) {
-                            <option class="select-items" [ngValue]="measurement">{{measurement}}</option>
-                            }
-                          </select>
+                        <td class="editor-ingredient-measurement-cell">
+                          <app-taxonomy-select name="measurement" [(ngModel)]="newIngredient.amountType" [groups]="measurementGroups" [multiple]="false" [allowCustom]="true" [placeholder]="'recipe.measurementColumn' | translate" [ariaLabel]="'recipe.measurementColumn' | translate"
+                            (ngModelChange)="selectMeasurement($event)"></app-taxonomy-select>
                         </td>
-                        <td>
+                        <td colspan="2" class="editor-ingredient-add-cell">
                           <button type="button" class="editor-add-ingredient" [disabled]="!newIngredient.name || (!newIngredient.amount && newIngredient.amountType !== 'To taste') || !newIngredient.amountType || isRequesting" (click)="addIngredient()">
                             <i class="fas fa-plus" aria-hidden="true"></i>
                             <span>{{ 'recipe.addIngredientButton' | translate }}</span>
@@ -308,32 +330,30 @@
                       }
                       @if (group.ingredients.length === 0) {
                       <tr class="editor-empty-group">
-                        <td colspan="4">{{ 'recipe.emptyIngredientGroupMessage' | translate }}</td>
+                        <td colspan="5">{{ 'recipe.emptyIngredientGroupMessage' | translate }}</td>
                       </tr>
                       }
                       @for (ingredient of group.ingredients; track ingredient) {
-                      <tr>
-                        <td>
+                      <tr class="editor-ingredient-row">
+                        <td class="editor-ingredient-name-cell">
                           {{ingredient.name}}
                         </td>
-                        <td>
-                          <input type="number" min="0" step="any" class="form-control" [(ngModel)]="ingredient.amount" [disabled]="ingredient.amountType === 'To taste'" [name]="'new-amount-' + ingredient.name" autocomplete="off" data-lpignore="true">
+                        <td class="editor-ingredient-amount-cell">
+                          <input type="number" min="0" step="any" class="form-control" [(ngModel)]="ingredient.amount" [disabled]="ingredient.amountType === 'To taste'" [name]="'new-amount-' + ingredient.name" [placeholder]="'recipe.amountPlaceholder' | translate"
+                            [attr.aria-label]="'recipe.amountColumn' | translate" autocomplete="off" data-lpignore="true">
                         </td>
-                        <td>
-                          <select class="form-select editor-select" [(ngModel)]="ingredient.amountType" (change)="ingredient.amount = ingredient.amountType === 'To taste' ? 0 : ingredient.amount" [name]="'new-amountType-' + ingredient.name">
-                            @for (measurement of measurements; track measurement) {
-                            <option class="select-items" [ngValue]="measurement">{{measurement}}</option>
-                            }
-                          </select>
+                        <td class="editor-ingredient-measurement-cell">
+                          <app-taxonomy-select [(ngModel)]="ingredient.amountType" [name]="'new-amountType-' + ingredient.name" [groups]="measurementGroups" [multiple]="false" [allowCustom]="true" [placeholder]="'recipe.measurementColumn' | translate"
+                            [ariaLabel]="'recipe.measurementColumn' | translate" (ngModelChange)="ingredient.amount = $event === 'To taste' ? 0 : ingredient.amount"></app-taxonomy-select>
                         </td>
-                        <td>
-                          <select class="form-select editor-select" [(ngModel)]="ingredient.group" [name]="'new-group-' + ingredient.name">
-                            <option [ngValue]="undefined">{{ 'recipe.noIngredientGroupLabel' | translate }}</option>
-                            @for (groupName of ingredientGroupNames; track groupName) {
-                            <option [ngValue]="groupName">{{groupName}}</option>
-                            }
-                          </select>
-                          <button type="button" class="btn btn-link btn-sm" (click)="removeIngredient(ingredient)">{{ 'recipe.removeButton' | translate }}</button>
+                        <td class="editor-ingredient-group-cell">
+                          <app-taxonomy-select [ngModel]="ingredient.group ?? ''" (ngModelChange)="ingredient.group = $event || undefined" [name]="'new-group-' + ingredient.name" [options]="ingredientGroupNames" [multiple]="false" [allowCustom]="false" emptyValue=""
+                            [emptyLabel]="'recipe.noIngredientGroupLabel' | translate" [placeholder]="'recipe.noIngredientGroupLabel' | translate" [ariaLabel]="'recipe.ingredientGroupColumn' | translate"></app-taxonomy-select>
+                        </td>
+                        <td class="editor-ingredient-action-column">
+                          <button type="button" class="editor-ingredient-remove" [attr.aria-label]="('recipe.removeButton' | translate) + ' ' + ingredient.name" [attr.title]="'recipe.removeButton' | translate" (click)="removeIngredient(ingredient)">
+                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                          </button>
                         </td>
                       </tr>
                       }
@@ -368,7 +388,7 @@
     </div>
   </div>
 
-  <div class="card-preview mobile recipe-editor-preview">
+  <div id="recipe-create-preview-panel" class="card-preview mobile recipe-editor-preview recipe-editor-pane" role="tabpanel" [class.is-hidden]="editorView !== 'preview'">
     <div class="card recipe-preview-shell">
       <div class="btn-group float-end" role="group" aria-label="Basic outlined example">
         <button type="button" [ngClass]="recipePreview ? 'active' : ''" class="btn btn-outline-primary btn-sm" (click)="toRecipePreview()">{{ 'recipe.recipePreviewToggle' | translate }}</button>
@@ -378,66 +398,75 @@
       <hr />
 
       @if (recipePreview === true) {
-      <article class="m-3">
-        <header class="mb-2">
-          <h2>{{recipeForm.get('title')?.value.length > 0 ? recipeForm.get('title')?.value : badExampleTitle}}</h2>
-          <div>
-            <span class="post-meta-author">
-              <span>{{ 'recipe.byAuthor' | translate }} </span>
-              <a class="tw-text-strong hover_tw-no-underline" href="">{{userService.getUserName()}}</a>
-            </span>
-            <time class="post-meta-date"> - <i>{{utilityService.getCurrentDateAsDateOnly()}}</i></time>
+      <article class="preview-detail-page">
+        <header class="preview-detail-header">
+          <div class="preview-detail-heading-group">
+            <p class="preview-detail-kicker">{{ 'recipe.instructionsKicker' | translate }}</p>
+            <h2 class="preview-detail-title">{{ recipeForm.get('title')?.value || badExampleTitle }}</h2>
           </div>
         </header>
-        <figure class="figure w-100">
-          <img [src]="imageUrl == defaultImageUrl ? '../../assets/images/spices.jpg' : imageUrl" class="figure-img img-fluid rounded w-100" [alt]="recipeForm.get('imageCaption')?.value">
-          <figcaption class="figure-caption">{{recipeForm.get('imageCaption')?.value}}</figcaption>
-        </figure>
-        <div>
-          <div>
-            <header>
-              <h3>{{ 'recipe.instructionsHeading' | translate }}</h3>
-            </header>
-            @if (recipeForm.get('instructions')?.value.length == 0) {
-            <div class="list-group list-group-flush instructions" [innerHTML]="utilityService.transformToSafeHtml(fakeInstructions)"></div>
-            }
-            @if (recipeForm.get('instructions')?.value.length > 0) {
-            <div class="list-group list-group-flush instructions" [innerHTML]="utilityService.transformToSafeHtml(recipeForm.get('instructions')?.value)"></div>
-            }
-          </div>
-          <!-- POSSIBLE TAG PLACEMENT -->
-          <!-- <div class="post-tags tw-flex tw-flex-wrap tw-mt-6 tw--mb-2"><a
-        href="https://stein.rifki.net/stein/tag/creativity/" rel="tag">Creativity</a><a
-      href="https://stein.rifki.net/stein/tag/health/" rel="tag">Health</a><a
-    href="https://stein.rifki.net/stein/tag/world/" rel="tag">World</a></div> -->
+
+        <div class="preview-detail-meta">
+          <span class="preview-detail-author">{{ 'recipe.byAuthor' | translate }} <strong>{{ userService.getUserName() }}</strong></span>
+          <span class="preview-detail-date">{{ getPreviewDate() }}</span>
         </div>
-        <!-- POSSIBLE FOOTER -->
-        <footer>
-          <!-- <div class="tw-flex-1"> <a class="comments-count tw-text-strong hover_tw-no-underline"
-    href="https://stein.rifki.net/stein/2019/04/29/few-facts-about-streaming-and-music-creation/#comments"><i
-  class="comments-count-icon si si-comment tw-mr-1"></i><span
-class="comments-count-number">2</span> <span
-class="comments-count-label tw-hidden md_tw-inline">comments</span></a> <span
-class="views-count tw-text-strong tw-ml-3"><i
-class="views-count-icon si si-stats tw-mr-1"></i><span
-class="views-count-number">6.9K</span> <span
-class="views-count-label tw-hidden md_tw-inline">views</span></span></div>
-<ul class="post-share tw-list-reset tw-flex tw-items-center tw--mx-3 md_tw--mx-3">
-  <li class="tw-px-3 md_tw-px-3 tw-hidden md_tw-block"> Share:</li>
-  <li class="tw-px-3 md_tw-px-3"> <a class="tw-text-base tw-text-strong hover_tw-no-underline"
-    href="https://www.facebook.com/sharer/sharer.php?u=https://stein.rifki.net/stein/2019/04/29/few-facts-about-streaming-and-music-creation/&amp;t=Few Facts About Streaming and Music Creation"
-    target="_blank" title="Facebook"><i class="si si-facebook"></i></a></li>
-    <li class="tw-px-3 md_tw-px-3"> <a class="tw-text-base tw-text-strong hover_tw-no-underline"
-      href="https://twitter.com/intent/tweet?url=https://stein.rifki.net/stein/2019/04/29/few-facts-about-streaming-and-music-creation/&amp;text=Few Facts About Streaming and Music Creation"
-      target="_blank" title="Twitter"><i class="si si-twitter"></i></a></li>
-      <li class="tw-px-3 md_tw-px-3"> <a class="tw-text-base tw-text-strong hover_tw-no-underline"
-        href="https://www.linkedin.com/shareArticle?mini=1&amp;url=https://stein.rifki.net/stein/2019/04/29/few-facts-about-streaming-and-music-creation/&amp;title=Few Facts About Streaming and Music Creation"
-        target="_blank" title="Linkedin"><i class="si si-linkedin"></i></a></li>
-        <li class="tw-px-3 md_tw-px-3"> <a class="tw-text-base tw-text-strong hover_tw-no-underline"
-          href="mailto:?subject=Few Facts About Streaming and Music Creation&amp;body=Check out this article: https://stein.rifki.net/stein/2019/04/29/few-facts-about-streaming-and-music-creation/"
-          target="_blank" title="Email"><i class="si si-envelope"></i></a></li>
-        </ul> -->
-        </footer>
+
+        <div *ngIf="getPreviewTotalMinutes() != null || recipeForm.get('shelfLifeDays')?.value != null || recipeForm.get('canBeFrozen')?.value != null" class="preview-detail-facts">
+          <div *ngIf="getPreviewTotalMinutes() as totalMinutes" class="preview-detail-fact">
+            <i class="far fa-clock" aria-hidden="true"></i><span>{{ 'recipe.totalTimeLabel' | translate }}</span><strong>{{ formatPreviewDuration(totalMinutes) }}</strong>
+          </div>
+          <div
+            *ngFor="let fact of [{ field: 'preparationMinutes', icon: 'fas fa-utensils', label: 'recipe.preparationTimeLabel' }, { field: 'cookingMinutes', icon: 'fas fa-fire', label: 'recipe.cookingTimeLabel' }, { field: 'chillingMinutes', icon: 'far fa-snowflake', label: 'recipe.chillingTimeLabel' }, { field: 'coolingMinutes', icon: 'fas fa-temperature-low', label: 'recipe.coolingTimeLabel' }, { field: 'restingMinutes', icon: 'far fa-hourglass', label: 'recipe.restingTimeLabel' }]"
+            class="preview-detail-fact" [hidden]="recipeForm.get(fact.field)?.value == null">
+            <i [class]="fact.icon" aria-hidden="true"></i><span>{{ fact.label | translate }}</span><strong>{{ formatPreviewDuration(recipeForm.get(fact.field)?.value) }}</strong>
+          </div>
+          <div *ngIf="recipeForm.get('shelfLifeDays')?.value != null" class="preview-detail-fact">
+            <i class="far fa-calendar-alt" aria-hidden="true"></i><span>{{ 'recipe.shelfLifeLabel' | translate }}</span><strong>{{ recipeForm.get('shelfLifeDays')?.value }} {{ 'recipe.daysShort' | translate }}</strong>
+          </div>
+          <div *ngIf="recipeForm.get('canBeFrozen')?.value != null" class="preview-detail-fact">
+            <i class="far fa-snowflake" aria-hidden="true"></i><span>{{ 'recipe.canBeFrozenLabel' | translate }}</span><strong>{{ (recipeForm.get('canBeFrozen')?.value ? 'recipe.yesLabel' : 'recipe.noLabel') | translate }}</strong>
+          </div>
+        </div>
+
+        <figure class="preview-detail-figure">
+          <img [src]="imageUrl == defaultImageUrl ? '../../assets/images/spices.jpg' : imageUrl" [alt]="recipeForm.get('imageCaption')?.value || recipeForm.get('title')?.value || previewImageAlt">
+          <figcaption>{{ recipeForm.get('imageCaption')?.value }}</figcaption>
+        </figure>
+
+        <div class="preview-detail-content">
+          <main class="preview-detail-main-panel">
+            <div class="preview-detail-section-header">
+              <h3>{{ 'recipe.instructionsHeading' | translate }}</h3>
+              <span>{{ formatPreviewPortions() }}</span>
+            </div>
+            <div class="preview-detail-instructions" [innerHTML]="utilityService.transformToSafeHtml(recipeForm.get('instructions')?.value || fakeInstructions)"></div>
+          </main>
+
+          <aside class="preview-detail-side-panel">
+            <div class="preview-detail-side-header">{{ 'recipe.ingredientsHeading' | translate }}</div>
+            <div *ngIf="newIngredients.length > 0; else noPreviewIngredients" class="preview-ingredient-list">
+              <section *ngFor="let group of previewIngredientGroups" class="preview-ingredient-group">
+                <h3 *ngIf="group.name" class="preview-ingredient-group-title">{{ group.name }}</h3>
+                <p *ngFor="let ingredient of group.ingredients" class="preview-ingredient-item">
+                  {{ ingredient.name }} <span *ngIf="ingredient.amount || ingredient.amountType === 'To taste'">- <i><ng-container *ngIf="ingredient.amountType !== 'To taste'">{{ formatPreviewIngredientAmount(ingredient.amount) }} </ng-container>{{
+                      getPreviewMeasurementAbbreviation(ingredient.amountType) }}</i></span>
+                </p>
+              </section>
+            </div>
+            <ng-template #noPreviewIngredients>
+              <p class="preview-ingredient-item preview-ingredient-empty"><i>{{ 'recipe.noIngredientsMessage' | translate }}</i></p>
+            </ng-template>
+          </aside>
+        </div>
+
+        <div *ngIf="getPreviewCategoryBadges().length > 0 || getPreviewTagBadges().length > 0" class="preview-detail-badges-wrap">
+          <div class="preview-category-list">
+            <span *ngFor="let badge of getPreviewCategoryBadges()" [ngClass]="badge.cssClass" [attr.title]="badge.label" [attr.aria-label]="badge.label">{{ badge.value }}</span>
+          </div>
+          <div class="preview-tag-list mt-2">
+            <span *ngFor="let badge of getPreviewTagBadges()" [ngClass]="badge.cssClass" [attr.title]="badge.label" [attr.aria-label]="badge.label">{{ badge.value }}</span>
+          </div>
+        </div>
       </article>
       }
 
@@ -451,17 +480,15 @@ class="views-count-label tw-hidden md_tw-inline">views</span></span></div>
           <h3 class="create-preview-title">{{ recipeForm.get('title')?.value?.length > 0 ? recipeForm.get('title')?.value : badExampleTitle }}</h3>
 
           <p class="create-preview-subtitle" *ngIf="recipeForm.get('description')?.value?.length > 0; else defaultDescription">
-            {{ recipeForm.get('description')?.value.length > 140 ? (recipeForm.get('description')?.value | slice:0:140) + '...' : recipeForm.get('description')?.value }}
+            {{ recipeForm.get('description')?.value }}
           </p>
 
           <ng-template #defaultDescription>
-            <p class="create-preview-subtitle">
-              {{ fakeDescription.length > 140 ? (fakeDescription | slice:0:140) + '...' : fakeDescription }}
-            </p>
+            <p class="create-preview-subtitle">{{ fakeDescription }}</p>
           </ng-template>
 
           <div class="create-preview-badges" *ngIf="getSelectedValues(recipeForm.get('categories')?.value).length > 0 || getSelectedValues(recipeForm.get('tags')?.value).length > 0">
-            <span *ngFor="let badge of getPreviewBadges()" [ngClass]="badge.cssClass">{{ badge.value }}</span>
+            <span *ngFor="let badge of getPreviewBadges()" [ngClass]="badge.cssClass" [attr.title]="badge.label" [attr.aria-label]="badge.label">{{ badge.value }}</span>
           </div>
         </div>
       </article>

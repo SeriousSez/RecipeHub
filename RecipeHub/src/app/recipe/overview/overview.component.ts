@@ -130,6 +130,16 @@ export class OverviewComponent implements OnInit {
   public bestMatchScore: number = 0;
 
   public sortSetting: string = 'created';
+  public readonly sortOptions: string[] = ['created', 'title', 'creator', 'instructions'];
+
+  public get sortOptionLabels(): Record<string, string> {
+    return {
+      created: this.translateService.instant('recipe.sortCreated'),
+      title: this.translateService.instant('recipe.sortTitle'),
+      creator: this.translateService.instant('recipe.sortCreator'),
+      instructions: this.translateService.instant('recipe.sortInstructions')
+    };
+  }
   public ascending: boolean = false;
 
   public loading: boolean = true;
@@ -700,6 +710,14 @@ export class OverviewComponent implements OnInit {
       this.ascending = !this.ascending;
     }
 
+    this.applyFiltersAndSort();
+  }
+
+  changeSortSetting(sortSetting: string): void {
+    if (this.sortSetting === sortSetting) return;
+
+    this.sortSetting = sortSetting;
+    this.ascending = true;
     this.applyFiltersAndSort();
   }
 }

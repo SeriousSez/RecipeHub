@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { AbstractControl, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -8,9 +9,10 @@ import { RecipeCreation } from 'src/app/shared/models/recipe.creation.interface'
 import { UserService } from 'src/app/shared/services/user.service';
 import { UtilityService } from 'src/app/shared/utils/utility.service';
 import { Ingredient } from '../models/ingredient.interface';
-import { RECIPE_CATEGORY_GROUPS, RECIPE_TAG_GROUPS, sortRecipeTaxonomyValues } from '../models/recipe-taxonomy';
+import { RecipeTaxonomyGroup, RECIPE_CATEGORY_GROUPS, RECIPE_TAG_GROUPS, sortRecipeTaxonomyValues } from '../models/recipe-taxonomy';
 import { IngredientService } from '../services/ingredient.service';
 import { RecipeService } from '../services/recipe.service';
+import { TaxonomySelectComponent } from '../taxonomy-select/taxonomy-select.component';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
@@ -23,14 +25,22 @@ export class CreateComponent implements OnInit {
   imageAspectRatio = 4 / 3;
   imageCropperWidth = 'min(100%, 853px, 93.33vh)';
   public measurements: string[] = ['Gram', 'Milliliter', 'Piece', 'Teaspoon', 'Tablespoon', 'Cup', 'Kilogram', 'Liter', 'Pinch or dash', 'Clove', 'To taste', 'Ounce', 'Pound']
+  public readonly measurementGroups: RecipeTaxonomyGroup[] = [
+    { id: 'common', labelKey: 'recipe.measurementGroups.common', values: ['Piece', 'Teaspoon', 'Tablespoon', 'Cup'] },
+    { id: 'metric', labelKey: 'recipe.measurementGroups.metric', values: ['Gram', 'Kilogram', 'Milliliter', 'Liter'] },
+    { id: 'imperial', labelKey: 'recipe.measurementGroups.imperial', values: ['Ounce', 'Pound'] },
+    { id: 'other', labelKey: 'recipe.measurementGroups.other', values: ['Pinch or dash', 'Clove', 'To taste'] }
+  ];
   public languages: string[] = ['Danish', 'English', 'Estonian', 'Turkish']
 
   @ViewChild("select", { static: true }) select: ElementRef;
   @ViewChild('imageCropper') imageCropper?: ImageCropperComponent;
+  @ViewChild('ingredientNameSelect') ingredientNameSelect?: TaxonomySelectComponent;
   //#region preview
   public fakeInstructions: string = "<p><em><strong>Spice</strong></em></p><p><tt>An aromatic or pungent vegetable substance used to flavour food, e.g. cloves, pepper, or cumin.</tt></p><p><img alt='Get to Know Your SPICEs - Zuken US' src='https://www.zuken.com/us/wp-content/uploads/sites/12/2020/06/BL0236-spices-1280x620-1.jpg' style='height:100%; width:100%' /></p><p><q><cite><small>He ordered his regular breakfast. Two eggs sunnyside up, hash browns, and two strips of bacon. He continued to look at the menu wondering if this would be the day he added something new. This was also part of the routine. A few seconds of hesitation to see if something else would be added to the order before demuring and saying that would be all. It was the same exact meal that he had ordered every day for the past two years.</small></cite></q></p>";
   public fakeDescription: string = "A spice is a seed, fruit, root, bark, or other plant substance primarily used for flavoring or coloring food. Spices are distinguished from herbs, which are the leaves, flowers, or stems of plants used for flavoring or as a garnish. Spices are sometimes used in medicine, religious rituals, cosmetics or perfume production.";
   public recipePreview: boolean = true;
+  public editorView: 'edit' | 'preview' = 'edit';
   //#endregion
 
   public recipeForm: UntypedFormGroup;
@@ -42,12 +52,12 @@ export class CreateComponent implements OnInit {
 
   public defaultIngredient: IngredientCreation = { name: "", description: "", amount: 0, amountType: 'Pinch or dash', group: '', imageCaption: "", image: null, created: '' };
   public newIngredient: IngredientCreation;
-  public selectedIngredient: Ingredient | null = null;
-  public ingredientSearch: string = '';
   public newIngredients: IngredientCreation[] = [];
   public ingredientGroupNames: string[] = [];
   public newIngredientGroupName: string = '';
   public activeIngredientGroup: string = '';
+  public editingIngredientGroup: string | null = null;
+  public ingredientGroupRenameValue: string = '';
   public ingredients: Ingredient[];
   public categoriesInput: string = '';
   public tagsInput: string = '';
@@ -102,7 +112,7 @@ export class CreateComponent implements OnInit {
     toolbarPosition: 'top'
   };
 
-  constructor(public utilityService: UtilityService, private recipeService: RecipeService, private ingredientService: IngredientService, public userService: UserService, private router: Router, private formBuilder: UntypedFormBuilder, private translateService: TranslateService) { }
+  constructor(public utilityService: UtilityService, private recipeService: RecipeService, private ingredientService: IngredientService, public userService: UserService, private router: Router, private formBuilder: UntypedFormBuilder, private translateService: TranslateService, private datepipe: DatePipe) { }
 
   public get badExampleTitle(): string {
     return this.translateService.instant('recipe.badExampleTitle');
@@ -135,6 +145,7 @@ export class CreateComponent implements OnInit {
       shelfLifeDays: [null, Validators.min(0)],
       canBeFrozen: [false],
       imageCaption: [''],
+      image: [null, Validators.required],
       categories: [''],
       tags: [''],
       ingredients: []
@@ -160,8 +171,15 @@ export class CreateComponent implements OnInit {
 
   create({ value, valid }: { value: RecipeCreation, valid: boolean }) {
     this.submitted = true;
-    this.isRequesting = true;
     this.errors = '';
+
+    if (!valid) {
+      this.editorView = 'edit';
+      this.recipeForm.markAllAsTouched();
+      return;
+    }
+
+    this.isRequesting = true;
 
     value.creator = this.userService.getUserName();
     value.imageUrl = this.imageUrl;
@@ -170,41 +188,113 @@ export class CreateComponent implements OnInit {
     value.categories = this.parseCsv(value.categories ?? this.categoriesInput);
     value.tags = this.parseCsv(value.tags ?? this.tagsInput);
 
-    if (valid) {
-      this.recipeService.create(value)
-        .subscribe(result => {
-          this.router.navigate([`/recipe/${result.id}/${this.utilityService.toSlug(result.title)}`]);
-        }, errors => {
-          this.isRequesting = false;
-          this.errors = errors.error;
-        });
-    }
+    this.recipeService.create(value)
+      .subscribe(result => {
+        this.router.navigate([`/recipe/${result.id}/${this.utilityService.toSlug(result.title)}`]);
+      }, errors => {
+        this.isRequesting = false;
+        this.errors = errors.error;
+      });
   }
 
   public getSelectedValues(rawValue: string | string[] | null | undefined): string[] {
     return this.parseCsv(rawValue);
   }
 
-  public getPreviewBadges(): Array<{ value: string; cssClass: string }> {
-    const categories = sortRecipeTaxonomyValues(this.getSelectedValues(this.recipeForm.get('categories')?.value), RECIPE_CATEGORY_GROUPS);
-    const tags = sortRecipeTaxonomyValues(this.getSelectedValues(this.recipeForm.get('tags')?.value), RECIPE_TAG_GROUPS);
+  public getPreviewCategoryBadges(): Array<{ value: string; cssClass: string; label: string }> {
+    return sortRecipeTaxonomyValues(this.getSelectedValues(this.recipeForm.get('categories')?.value), RECIPE_CATEGORY_GROUPS)
+      .map(category => this.getPreviewBadge(category, 'category'));
+  }
 
-    return [
-      ...categories.map(category => {
-        const normalizedCategory = category.toLowerCase();
-        const group = RECIPE_CATEGORY_GROUPS.find(item =>
-          item.values.some(value => value.toLowerCase() === normalizedCategory)
-        );
-        return { value: category, cssClass: `create-preview-category create-preview-category-${group?.id ?? 'other'}` };
-      }),
-      ...tags.map(tag => {
-        const normalizedTag = tag.toLowerCase();
-        const group = RECIPE_TAG_GROUPS.find(item =>
-          item.values.some(value => value.toLowerCase() === normalizedTag)
-        );
-        return { value: tag, cssClass: `create-preview-tag create-preview-tag-${group?.id ?? 'other'}` };
-      })
-    ];
+  public getPreviewTagBadges(): Array<{ value: string; cssClass: string; label: string }> {
+    return sortRecipeTaxonomyValues(this.getSelectedValues(this.recipeForm.get('tags')?.value), RECIPE_TAG_GROUPS)
+      .map(tag => this.getPreviewBadge(tag, 'tag'));
+  }
+
+  public getPreviewBadges(): Array<{ value: string; cssClass: string; label: string }> {
+    const seen = new Set<string>();
+    return [...this.getPreviewCategoryBadges(), ...this.getPreviewTagBadges()].filter(badge => {
+      const normalizedValue = badge.value.toLowerCase();
+      if (seen.has(normalizedValue)) return false;
+      seen.add(normalizedValue);
+      return true;
+    });
+  }
+
+  public get previewIngredientGroups(): Array<{ name: string; ingredients: IngredientCreation[] }> {
+    const groups = new Map<string, IngredientCreation[]>();
+    this.newIngredients.forEach(ingredient => {
+      const groupName = ingredient.group?.trim() ?? '';
+      const ingredients = groups.get(groupName) ?? [];
+      ingredients.push(ingredient);
+      groups.set(groupName, ingredients);
+    });
+    return Array.from(groups, ([name, ingredients]) => ({ name, ingredients }));
+  }
+
+  public getPreviewTotalMinutes(): number | null {
+    const fields = ['preparationMinutes', 'cookingMinutes', 'chillingMinutes', 'coolingMinutes', 'restingMinutes'];
+    const totalMinutes = fields.reduce((total, field) => total + (Number(this.recipeForm.get(field)?.value) || 0), 0);
+    return totalMinutes > 0 ? totalMinutes : null;
+  }
+
+  public formatPreviewDuration(totalMinutes: number): string {
+    if (totalMinutes < 60) return `${totalMinutes} ${this.translateService.instant('recipe.minutesShort')}`;
+
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    return minutes === 0
+      ? `${hours} ${this.translateService.instant('recipe.hoursShort')}`
+      : this.translateService.instant('recipe.hoursMinutesDuration', { hours, minutes });
+  }
+
+  public formatPreviewPortions(): string {
+    const portions = String(this.recipeForm.get('portions')?.value ?? '').trim() || '1';
+    return this.translateService.instant('recipe.servesLabel', { portions });
+  }
+
+  public formatPreviewIngredientAmount(amount: number | null | undefined): string {
+    if (amount == null || !Number.isFinite(Number(amount))) return '';
+
+    const numericAmount = Number(amount);
+    const wholeAmount = Math.floor(numericAmount);
+    if (Math.abs(numericAmount - wholeAmount - .5) < .001) return wholeAmount > 0 ? `${wholeAmount} 1/2` : '1/2';
+    return new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(numericAmount);
+  }
+
+  public getPreviewMeasurementAbbreviation(measurement: string): string {
+    const abbreviations: Record<string, string> = {
+      'To taste': 'to taste',
+      'Pinch or dash': 'Pinch or dash',
+      Piece: 'pcs',
+      Milliliter: 'ml',
+      Liter: 'l',
+      Teaspoon: 'tsp',
+      Tablespoon: 'tbs',
+      Cup: 'cup',
+      Gram: 'gram',
+      Kilogram: 'kg',
+      Ounce: 'oz',
+      Pound: 'lb',
+      Clove: 'Cloves'
+    };
+    return abbreviations[measurement] ?? measurement;
+  }
+
+  public getPreviewDate(): string | null {
+    const day = this.datepipe.transform(new Date(), 'dd');
+    const dayNumber = Number(day);
+    const suffix = dayNumber > 0 ? ['th', 'st', 'nd', 'rd'][(dayNumber > 3 && dayNumber < 21) || dayNumber % 10 > 3 ? 0 : dayNumber % 10] : '';
+    return `${dayNumber}${suffix}${this.datepipe.transform(new Date(), ' MMMM, yyyy')}`;
+  }
+
+  private getPreviewBadge(value: string, type: 'category' | 'tag'): { value: string; cssClass: string; label: string } {
+    const groups = type === 'category' ? RECIPE_CATEGORY_GROUPS : RECIPE_TAG_GROUPS;
+    const normalizedValue = value.toLowerCase();
+    const group = groups.find(item => item.values.some(groupValue => groupValue.toLowerCase() === normalizedValue));
+    const groupLabel = this.translateService.instant(group?.labelKey ?? 'recipe.taxonomyGroups.custom');
+    const label = this.translateService.instant(type === 'category' ? 'recipe.categoryBadgeTooltip' : 'recipe.tagBadgeTooltip', { value, group: groupLabel });
+    return { value, cssClass: `recipe-${type} recipe-${type}-${group?.id ?? 'other'}`, label };
   }
 
   public isPresetSelected(type: 'category' | 'tag', value: string): boolean {
@@ -251,20 +341,18 @@ export class CreateComponent implements OnInit {
     this.recipeForm.get(fieldName)?.setValue(updatedValues.join(', '));
   }
 
-  addToNewIngredient(event: Ingredient | null) {
-    if (!event) {
-      return;
-    }
-
-    this.newIngredient.name = event.name;
-    this.newIngredient.description = event.description;
-  }
-
-  selectExistingIngredient(name: string): void {
+  selectIngredientName(name: string): void {
     const normalizedName = (name ?? '').trim().toLowerCase();
     const ingredient = this.ingredients?.find(item => item.name.toLowerCase() === normalizedName) ?? null;
-    this.selectedIngredient = ingredient;
-    this.addToNewIngredient(ingredient);
+    this.newIngredient.name = name;
+    this.newIngredient.description = ingredient?.description ?? '';
+  }
+
+  selectMeasurement(measurement: string): void {
+    this.newIngredient.amountType = measurement;
+    if (measurement === 'To taste') {
+      this.newIngredient.amount = 0;
+    }
   }
 
   addIngredient() {
@@ -282,8 +370,7 @@ export class CreateComponent implements OnInit {
 
     this.newIngredients.push(ingredient);
     this.resetNewIngredient();
-    this.selectedIngredient = null;
-    this.ingredientSearch = '';
+    setTimeout(() => this.ingredientNameSelect?.focusInput());
   }
 
   resetNewIngredient() {
@@ -308,12 +395,39 @@ export class CreateComponent implements OnInit {
     this.newIngredient.group = groupName;
   }
 
+  startIngredientGroupRename(groupName: string): void {
+    this.editingIngredientGroup = groupName;
+    this.ingredientGroupRenameValue = groupName;
+  }
+
+  saveIngredientGroupRename(groupName: string): void {
+    const requestedName = this.ingredientGroupRenameValue.trim();
+    if (!requestedName) return;
+
+    const existingGroup = this.ingredientGroupNames.find(group => group !== groupName && group.toLowerCase() === requestedName.toLowerCase());
+    const targetName = existingGroup ?? requestedName;
+    this.newIngredients.forEach(ingredient => {
+      if (ingredient.group === groupName) ingredient.group = targetName;
+    });
+    this.ingredientGroupNames = this.ingredientGroupNames
+      .map(group => group === groupName ? targetName : group)
+      .filter((group, index, groups) => groups.findIndex(item => item.toLowerCase() === group.toLowerCase()) === index);
+    if (this.activeIngredientGroup === groupName) this.selectIngredientGroup(targetName);
+    this.cancelIngredientGroupRename();
+  }
+
+  cancelIngredientGroupRename(): void {
+    this.editingIngredientGroup = null;
+    this.ingredientGroupRenameValue = '';
+  }
+
   removeIngredientGroup(groupName: string): void {
     this.newIngredients.forEach(ingredient => {
       if (ingredient.group === groupName) ingredient.group = undefined;
     });
     this.ingredientGroupNames = this.ingredientGroupNames.filter(group => group !== groupName);
     if (this.activeIngredientGroup === groupName) this.selectIngredientGroup('');
+    if (this.editingIngredientGroup === groupName) this.cancelIngredientGroupRename();
   }
 
   removeIngredient(ingredient: IngredientCreation) {
@@ -326,8 +440,11 @@ export class CreateComponent implements OnInit {
   }
 
   handleFileInput(event: any) {
+    this.recipeForm.get('image')?.setValue(null);
+    this.recipeForm.get('image')?.markAsTouched();
+
     if (event.target.files.length < 1) {
-      this.imageUrl = "";
+      this.imageUrl = this.defaultImageUrl;
       this.showCropOverlay = false;
       return;
     }
@@ -349,11 +466,13 @@ export class CreateComponent implements OnInit {
 
   removeImage() {
     this.imageUrl = this.defaultImageUrl;
+    this.recipeForm.get('image')?.setValue(null);
     this.savedOrCanceled = false;
   }
 
   cancelImageUpload() {
     this.imageUrl = this.defaultImageUrl;
+    this.recipeForm.get('image')?.setValue(null);
     this.savedOrCanceled = false;
     this.showCropOverlay = false;
   }
@@ -362,6 +481,7 @@ export class CreateComponent implements OnInit {
     if (event.base64 == null) return;
 
     this.imageUrl = event.base64;
+    this.recipeForm.get('image')?.setValue(event.base64);
     this.savedOrCanceled = true;
   }
   imageLoaded(event: LoadedImage) {
@@ -378,7 +498,10 @@ export class CreateComponent implements OnInit {
     // cropper ready
   }
   loadImageFailed() {
-    // show message
+    this.imageUrl = this.defaultImageUrl;
+    this.recipeForm.get('image')?.setValue(null);
+    this.recipeForm.get('image')?.markAsTouched();
+    this.showCropOverlay = false;
   }
 
   get f(): { [key: string]: AbstractControl } {
@@ -387,6 +510,10 @@ export class CreateComponent implements OnInit {
 
   get formValues() {
     return this.recipeForm.value;
+  }
+
+  setEditorView(view: 'edit' | 'preview'): void {
+    this.editorView = view;
   }
 
   toRecipePreview() {

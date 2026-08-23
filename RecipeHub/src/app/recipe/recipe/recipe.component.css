@@ -1101,6 +1101,28 @@
     box-shadow: 0 0 0 3px rgba(37, 110, 170, .12);
 }
 
+.recipe-edit-card select.form-select {
+    min-height: 2.75rem;
+    padding: .3rem 2.75rem .3rem .65rem;
+    border-color: #cbd5e1;
+    border-radius: .5rem;
+    background-color: #fff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
+    background-position: right .85rem center;
+    background-size: 1rem 1rem;
+    color: #1f2937;
+}
+
+.recipe-edit-card select.form-select:focus {
+    border-color: #3977ad;
+    box-shadow: 0 0 0 3px rgba(57, 119, 173, .12);
+}
+
+.recipe-edit-card select.form-select:disabled {
+    background-color: #f1f5f9;
+    cursor: not-allowed;
+}
+
 .recipe-edit-card .form-control::placeholder {
     color: #8793a3;
 }
@@ -1192,7 +1214,7 @@
 
 .editor-table-wrap {
     width: 100%;
-    overflow-x: auto;
+    overflow: visible;
 }
 
 .editor-group-manager {
@@ -1329,6 +1351,30 @@
     font-weight: 800;
 }
 
+.editor-group-rename {
+    display: grid;
+    grid-template-columns: minmax(8rem, 1fr) 2rem 2rem;
+    gap: .3rem;
+    align-items: center;
+}
+
+.editor-group-rename .form-control {
+    min-height: 2rem;
+    padding: .25rem .5rem;
+}
+
+.editor-group-rename button {
+    width: 2rem;
+    height: 2rem;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 1px solid #9db6ca;
+    border-radius: 6px;
+    background: #fff;
+    color: #24557c;
+}
+
 .editor-ingredient-count {
     min-width: 1.6rem;
     padding: .12rem .4rem;
@@ -1447,6 +1493,29 @@
     opacity: .72;
 }
 
+.editor-ingredient-remove {
+    width: 2.5rem;
+    height: 2.75rem;
+    display: grid;
+    place-items: center;
+    flex: 0 0 2.5rem;
+    padding: 0;
+    border: 1px solid #fecaca;
+    border-radius: 7px;
+    background: #fff;
+    color: #b42318;
+}
+
+.editor-ingredient-remove:hover {
+    border-color: #fca5a5;
+    background: #fff1f2;
+}
+
+.editor-ingredient-remove:focus-visible {
+    outline: 3px solid rgba(180, 35, 24, .18);
+    outline-offset: 2px;
+}
+
 .editor-existing-ingredient {
     display: grid;
     gap: .35rem;
@@ -1478,12 +1547,17 @@
 
 .editor-ingredients-table th:first-child,
 .editor-ingredients-table td:first-child {
-    width: 30%;
+    width: 25%;
 }
 
 .editor-ingredients-table th:nth-child(2),
 .editor-ingredients-table td:nth-child(2) {
-    width: 18%;
+    width: 12%;
+}
+
+.editor-ingredients-table .editor-ingredient-action-column {
+    width: 3.5rem;
+    text-align: center;
 }
 
 .editor-ingredients-table th,
@@ -1540,6 +1614,10 @@
     border-color: #566170;
     background-color: #1d2127;
     color: #f1f5f9;
+}
+
+:host-context([data-theme='dark']) .recipe-edit-card select.form-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23cbd5e1' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
 }
 
 :host-context([data-theme='dark']) ::ng-deep .angular-editor {

@@ -83,9 +83,11 @@
     z-index: 40;
     top: calc(100% + .35rem);
     left: 0;
-    right: 0;
+    width: max(100%, 10rem);
+    max-width: calc(100vw - 1rem);
     max-height: 18rem;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: .4rem;
     border: 1px solid #dbe3ec;
     border-radius: .5rem;
@@ -103,6 +105,8 @@
 
 .taxonomy-option {
     width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
     display: flex;
     align-items: center;
     gap: .6rem;
@@ -114,7 +118,13 @@
     text-align: left;
 }
 
-.taxonomy-option:hover {
+.taxonomy-option>span:last-child {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.taxonomy-option:hover,
+.taxonomy-option.is-highlighted {
     background: #f1f5f9;
 }
 
