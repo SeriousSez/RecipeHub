@@ -407,6 +407,7 @@
         "totalTimeLabel": "Total time",
         "preparationTimeLabel": "Preparation",
         "cookingTimeLabel": "Cooking",
+        "proofingTimeLabel": "Proofing",
         "chillingTimeLabel": "Chilling",
         "coolingTimeLabel": "Cooling",
         "restingTimeLabel": "Resting",

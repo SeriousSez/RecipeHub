@@ -407,6 +407,7 @@
         "totalTimeLabel": "Toplam süre",
         "preparationTimeLabel": "Hazırlık",
         "cookingTimeLabel": "Pişirme",
+        "proofingTimeLabel": "Mayalanma",
         "chillingTimeLabel": "Soğutma",
         "coolingTimeLabel": "Soğuma",
         "restingTimeLabel": "Dinlendirme",

@@ -407,6 +407,7 @@
         "totalTimeLabel": "Tid i alt",
         "preparationTimeLabel": "Arbejdstid",
         "cookingTimeLabel": "Tilberedning",
+        "proofingTimeLabel": "Hævning",
         "chillingTimeLabel": "Køletid",
         "coolingTimeLabel": "Afkøling",
         "restingTimeLabel": "Hviletid",

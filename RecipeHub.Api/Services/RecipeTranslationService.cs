@@ -528,6 +528,7 @@ namespace RecipeHub.Api.Services
             Portions = recipe.Portions,
             PreparationMinutes = recipe.PreparationMinutes,
             CookingMinutes = recipe.CookingMinutes,
+            ProofingMinutes = recipe.ProofingMinutes,
             ChillingMinutes = recipe.ChillingMinutes,
             CoolingMinutes = recipe.CoolingMinutes,
             RestingMinutes = recipe.RestingMinutes,

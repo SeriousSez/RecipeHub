@@ -229,6 +229,7 @@ namespace RecipeHub.ApplicationService.Services
                     Portions = recipe.Portions,
                     PreparationMinutes = recipe.PreparationMinutes,
                     CookingMinutes = recipe.CookingMinutes,
+                    ProofingMinutes = recipe.ProofingMinutes,
                     ChillingMinutes = recipe.ChillingMinutes,
                     CoolingMinutes = recipe.CoolingMinutes,
                     RestingMinutes = recipe.RestingMinutes,
@@ -325,6 +326,7 @@ namespace RecipeHub.ApplicationService.Services
             recipe.Portions = model.Portions;
             recipe.PreparationMinutes = model.PreparationMinutes;
             recipe.CookingMinutes = model.CookingMinutes;
+            recipe.ProofingMinutes = model.ProofingMinutes;
             recipe.ChillingMinutes = model.ChillingMinutes;
             recipe.CoolingMinutes = model.CoolingMinutes;
             recipe.RestingMinutes = model.RestingMinutes;

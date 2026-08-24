@@ -155,11 +155,12 @@ export class CreateComponent implements OnInit, OnDestroy {
     this.recipeForm = this.formBuilder.group({
       title: ['', Validators.required],
       description: ['', Validators.required],
-      language: [this.userService.getUserLanguage(), Validators.required],
+      language: [this.getUiLanguage(), Validators.required],
       instructions: ['', Validators.required],
       portions: ['', Validators.required],
       preparationMinutes: [null, Validators.min(0)],
       cookingMinutes: [null, Validators.min(0)],
+      proofingMinutes: [null, Validators.min(0)],
       chillingMinutes: [null, Validators.min(0)],
       coolingMinutes: [null, Validators.min(0)],
       restingMinutes: [null, Validators.min(0)],
@@ -313,7 +314,7 @@ export class CreateComponent implements OnInit, OnDestroy {
   }
 
   public getPreviewTotalMinutes(): number | null {
-    const fields = ['preparationMinutes', 'cookingMinutes', 'chillingMinutes', 'coolingMinutes', 'restingMinutes'];
+    const fields = ['preparationMinutes', 'cookingMinutes', 'proofingMinutes', 'chillingMinutes', 'coolingMinutes', 'restingMinutes'];
     const totalMinutes = fields.reduce((total, field) => total + (Number(this.recipeForm.get(field)?.value) || 0), 0);
     return totalMinutes > 0 ? totalMinutes : null;
   }

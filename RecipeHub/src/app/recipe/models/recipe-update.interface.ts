@@ -11,6 +11,7 @@ export interface RecipeUpdate {
     portions: string;
     preparationMinutes?: number | null;
     cookingMinutes?: number | null;
+    proofingMinutes?: number | null;
     chillingMinutes?: number | null;
     coolingMinutes?: number | null;
     restingMinutes?: number | null;

@@ -72,6 +72,7 @@ export class RecipeComponent implements OnInit {
   public newIngredient: Ingredient = { name: "", description: "", amount: 0, amountType: 'Pinch or dash', group: '', image: null, created: '' };
   public ingredientGroupNames: string[] = [];
   public newIngredientGroupName: string = '';
+  public readonly languages: string[] = ['Danish', 'English', 'Estonian', 'Turkish'];
   public activeIngredientGroup: string | null = '';
   public editingIngredientGroup: string | null = null;
   public ingredientGroupRenameValue: string = '';
@@ -588,9 +589,10 @@ export class RecipeComponent implements OnInit {
     const preparationMinutes = this.recipe?.preparationMinutes ?? 0;
     const cookingMinutes = this.recipe?.cookingMinutes ?? 0;
     const chillingMinutes = this.recipe?.chillingMinutes ?? 0;
+    const proofingMinutes = this.recipe?.proofingMinutes ?? 0;
     const coolingMinutes = this.recipe?.coolingMinutes ?? 0;
     const restingMinutes = this.recipe?.restingMinutes ?? 0;
-    const totalMinutes = preparationMinutes + cookingMinutes + chillingMinutes + coolingMinutes + restingMinutes;
+    const totalMinutes = preparationMinutes + cookingMinutes + proofingMinutes + chillingMinutes + coolingMinutes + restingMinutes;
     return totalMinutes > 0 ? totalMinutes : null;
   }
 
@@ -989,10 +991,11 @@ export class RecipeComponent implements OnInit {
       creator: recipe.creator,
       description: recipe.description,
       instructions: recipe.instructions,
-      language: this.getRecipeLanguage(),
+      language: recipe.language ?? this.canonicalRecipe?.language ?? 'English',
       portions: recipe.portions,
       preparationMinutes: recipe.preparationMinutes,
       cookingMinutes: recipe.cookingMinutes,
+      proofingMinutes: recipe.proofingMinutes,
       chillingMinutes: recipe.chillingMinutes,
       coolingMinutes: recipe.coolingMinutes,
       restingMinutes: recipe.restingMinutes,

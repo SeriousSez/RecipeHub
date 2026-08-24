@@ -207,6 +207,13 @@
                         </div>
                       </div>
                       <div class="form-group editor-field">
+                        <label for="proofing-minutes">{{ 'recipe.proofingTimeLabel' | translate }}</label>
+                        <div class="editor-unit-input">
+                          <input id="proofing-minutes" type="number" min="0" step="1" class="form-control" formControlName="proofingMinutes">
+                          <span>{{ 'recipe.minutesShort' | translate }}</span>
+                        </div>
+                      </div>
+                      <div class="form-group editor-field">
                         <label for="chilling-minutes">{{ 'recipe.chillingTimeLabel' | translate }}</label>
                         <div class="editor-unit-input">
                           <input id="chilling-minutes" type="number" min="0" step="1" class="form-control" formControlName="chillingMinutes">
@@ -478,7 +485,7 @@
             <i class="far fa-clock" aria-hidden="true"></i><span>{{ 'recipe.totalTimeLabel' | translate }}</span><strong>{{ formatPreviewDuration(totalMinutes) }}</strong>
           </div>
           <div
-            *ngFor="let fact of [{ field: 'preparationMinutes', icon: 'fas fa-utensils', label: 'recipe.preparationTimeLabel' }, { field: 'cookingMinutes', icon: 'fas fa-fire', label: 'recipe.cookingTimeLabel' }, { field: 'chillingMinutes', icon: 'far fa-snowflake', label: 'recipe.chillingTimeLabel' }, { field: 'coolingMinutes', icon: 'fas fa-temperature-low', label: 'recipe.coolingTimeLabel' }, { field: 'restingMinutes', icon: 'far fa-hourglass', label: 'recipe.restingTimeLabel' }]"
+            *ngFor="let fact of [{ field: 'preparationMinutes', icon: 'fas fa-utensils', label: 'recipe.preparationTimeLabel' }, { field: 'cookingMinutes', icon: 'fas fa-fire', label: 'recipe.cookingTimeLabel' }, { field: 'proofingMinutes', icon: 'fas fa-bread-slice', label: 'recipe.proofingTimeLabel' }, { field: 'chillingMinutes', icon: 'far fa-snowflake', label: 'recipe.chillingTimeLabel' }, { field: 'coolingMinutes', icon: 'fas fa-temperature-low', label: 'recipe.coolingTimeLabel' }, { field: 'restingMinutes', icon: 'far fa-hourglass', label: 'recipe.restingTimeLabel' }]"
             class="preview-detail-fact" [hidden]="recipeForm.get(fact.field)?.value == null">
             <i [class]="fact.icon" aria-hidden="true"></i><span>{{ fact.label | translate }}</span><strong>{{ formatPreviewDuration(recipeForm.get(fact.field)?.value) }}</strong>
           </div>

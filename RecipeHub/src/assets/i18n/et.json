@@ -407,6 +407,7 @@
         "totalTimeLabel": "Koguaeg",
         "preparationTimeLabel": "Ettevalmistus",
         "cookingTimeLabel": "Küpsetamine",
+        "proofingTimeLabel": "Kergitamine",
         "chillingTimeLabel": "Jahutamine",
         "coolingTimeLabel": "Jahtumine",
         "restingTimeLabel": "Puhkamine",

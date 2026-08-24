@@ -63,7 +63,7 @@
             <span class="recipe-detail-date">{{displayDateOnly(recipe.created)}}</span>
         </div>
 
-        <div *ngIf="getTotalRecipeMinutes() != null || recipe.preparationMinutes != null || recipe.cookingMinutes != null || recipe.chillingMinutes != null || recipe.coolingMinutes != null || recipe.restingMinutes != null || recipe.shelfLifeDays != null || recipe.canBeFrozen != null"
+        <div *ngIf="getTotalRecipeMinutes() != null || recipe.preparationMinutes != null || recipe.cookingMinutes != null || recipe.proofingMinutes != null || recipe.chillingMinutes != null || recipe.coolingMinutes != null || recipe.restingMinutes != null || recipe.shelfLifeDays != null || recipe.canBeFrozen != null"
             class="recipe-detail-facts">
             <div *ngIf="getTotalRecipeMinutes() as totalMinutes" class="recipe-detail-fact">
                 <i class="far fa-clock" aria-hidden="true"></i>
@@ -79,6 +79,11 @@
                 <i class="fas fa-fire" aria-hidden="true"></i>
                 <span>{{ 'recipe.cookingTimeLabel' | translate }}</span>
                 <strong>{{ formatDuration(recipe.cookingMinutes) }}</strong>
+            </div>
+            <div *ngIf="recipe.proofingMinutes != null" class="recipe-detail-fact">
+                <i class="fas fa-bread-slice" aria-hidden="true"></i>
+                <span>{{ 'recipe.proofingTimeLabel' | translate }}</span>
+                <strong>{{ formatDuration(recipe.proofingMinutes) }}</strong>
             </div>
             <div *ngIf="recipe.chillingMinutes != null" class="recipe-detail-fact">
                 <i class="far fa-snowflake" aria-hidden="true"></i>
@@ -506,6 +511,11 @@
                                 </div>
                                 <div class="recipe-metadata-grid mt-3">
                                     <div class="form-group editor-field">
+                                        <label for="edit-language">{{ 'recipe.languageLabel' | translate }}</label>
+                                        <app-taxonomy-select id="edit-language" name="language" [(ngModel)]="recipe.language" [options]="languages" [multiple]="false" [allowCustom]="false" [placeholder]="'recipe.languageLabel' | translate"
+                                            [ariaLabel]="'recipe.languageLabel' | translate"></app-taxonomy-select>
+                                    </div>
+                                    <div class="form-group editor-field">
                                         <label for="edit-preparation-minutes">{{ 'recipe.preparationTimeLabel' | translate }}</label>
                                         <div class="editor-unit-input">
                                             <input id="edit-preparation-minutes" type="number" min="0" step="1" class="form-control" [(ngModel)]="recipe.preparationMinutes" name="preparationMinutes">
@@ -516,6 +526,13 @@
                                         <label for="edit-cooking-minutes">{{ 'recipe.cookingTimeLabel' | translate }}</label>
                                         <div class="editor-unit-input">
                                             <input id="edit-cooking-minutes" type="number" min="0" step="1" class="form-control" [(ngModel)]="recipe.cookingMinutes" name="cookingMinutes">
+                                            <span>{{ 'recipe.minutesShort' | translate }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group editor-field">
+                                        <label for="edit-proofing-minutes">{{ 'recipe.proofingTimeLabel' | translate }}</label>
+                                        <div class="editor-unit-input">
+                                            <input id="edit-proofing-minutes" type="number" min="0" step="1" class="form-control" [(ngModel)]="recipe.proofingMinutes" name="proofingMinutes">
                                             <span>{{ 'recipe.minutesShort' | translate }}</span>
                                         </div>
                                     </div>

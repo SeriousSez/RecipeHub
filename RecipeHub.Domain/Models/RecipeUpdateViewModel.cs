@@ -13,6 +13,7 @@ namespace RecipeHub.Domain.Models
         public string Portions { get; set; }
         public int? PreparationMinutes { get; set; }
         public int? CookingMinutes { get; set; }
+        public int? ProofingMinutes { get; set; }
         public int? ChillingMinutes { get; set; }
         public int? CoolingMinutes { get; set; }
         public int? RestingMinutes { get; set; }
