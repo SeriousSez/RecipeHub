@@ -298,6 +298,29 @@
     width: 3rem;
 }
 
+.grocery-table .form-check-input {
+    width: 1.2rem;
+    height: 1.2rem;
+    margin: 0 .25rem 0 0;
+    border: 2px solid #94a3b8;
+    border-radius: 5px;
+    accent-color: #0f766e;
+    cursor: pointer;
+    vertical-align: middle;
+    transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+
+.grocery-table .form-check-input:hover {
+    border-color: #0f766e;
+    transform: scale(1.06);
+}
+
+.grocery-table .form-check-input:focus-visible {
+    border-color: #0f766e;
+    box-shadow: 0 0 0 .2rem rgba(15, 118, 110, .2);
+    outline: none;
+}
+
 .grocery-list-actions {
     display: flex;
     flex-wrap: wrap;

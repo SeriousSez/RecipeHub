@@ -307,11 +307,11 @@
             </div>
           </td>
           } @else {
-          <td class="cursor-pointer" (click)="handleIngredientClick(ingredient, 'accordion' + group.recipeTitle + '-' + i, 'table-row' + group.recipeTitle + '-' + i)">@if (translatingLocalIngredients) { <span class="grocery-translation-skeleton" aria-label="Loading translation"></span> } @else { {{
+          <td>@if (translatingLocalIngredients) { <span class="grocery-translation-skeleton" aria-label="Loading translation"></span> } @else { {{
             getIngredientDisplayName(ingredient) }} }</td>
-          <td class="cursor-pointer" (click)="handleIngredientClick(ingredient, 'accordion' + group.recipeTitle + '-' + i, 'table-row' + group.recipeTitle + '-' + i)">{{ingredient.amount}} {{ingredient.amountType}}</td>
+          <td>{{ingredient.amount}} {{ingredient.amountType}}</td>
           }
-          <td class="cursor-pointer" (click)="handleIngredientClick(ingredient, 'accordion' + group.recipeTitle + '-' + i, 'table-row' + group.recipeTitle + '-' + i)">
+          <td>
             {{displayDateOnly(ingredient.created)}}
           </td>
           <td class="grocery-row-action">
