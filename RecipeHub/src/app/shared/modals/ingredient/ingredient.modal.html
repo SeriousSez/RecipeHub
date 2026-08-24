@@ -24,7 +24,7 @@
 
       <div class="form-group">
         <label for="description">Description</label>
-        <input id="description" type="text" name="description" class="form-control" [ngClass]="{ 'is-invalid': f.description.touched && f.description.errors }" placeholder="Your first name" formControlName="description">
+        <input id="description" type="text" name="description" class="form-control" [ngClass]="{ 'is-invalid': f.description.touched && f.description.errors }" placeholder="Description" formControlName="description">
         @if (f.description.touched && f.description.errors) {
         <div class="invalid-feedback">
           @if (f.description.errors.required) {

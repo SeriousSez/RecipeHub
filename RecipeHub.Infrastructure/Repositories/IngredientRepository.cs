@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RecipeHub.Domain.Entities.Recipe;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -14,6 +15,13 @@ namespace RecipeHub.Infrastructure.Repositories
         public async Task<bool> Exists(string name)
         {
             return await _context.Ingredients.AnyAsync(i => i.Name == name);
+        }
+
+        public async Task<Ingredient> GetFull(Guid id)
+        {
+            return await _context.Ingredients
+                .Include(i => i.Image)
+                .FirstOrDefaultAsync(i => i.Id == id);
         }
 
         public async Task<Ingredient> GetByName(string name)

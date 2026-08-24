@@ -91,8 +91,10 @@
 <!-- Modal -->
 <div class="modal fade" id="ingredientModal" tabindex="-1" aria-labelledby="ingredientModalLabel" aria-hidden="true" #ingredientModal>
   <div class="modal-dialog modal-dialog-centered">
-    @if (ingredients) {
-    <app-ingredient-modal [ingredients]="ingredients" [ingredient]="editingIngredient" [editMode]="!!editingIngredient" (finish)="closeIngredientModal($event)"></app-ingredient-modal>
-    }
+    <div class="modal-content">
+      @if (ingredients) {
+      <app-ingredient-modal [ingredients]="ingredients" [ingredient]="editingIngredient" [editMode]="!!editingIngredient" (finish)="closeIngredientModal($event)"></app-ingredient-modal>
+      }
+    </div>
   </div>
 </div>

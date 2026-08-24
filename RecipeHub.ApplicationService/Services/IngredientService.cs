@@ -138,8 +138,16 @@ namespace RecipeHub.ApplicationService.Services
 
         public async Task<Ingredient> Delete(IngredientResponse model)
         {
-            var ingredient = await _ingredientRepository.GetByNameFull(model.Name);
-            await _imageRepository.Delete(ingredient.Image);
+            if (model == null || model.Id == Guid.Empty)
+                return null;
+
+            var ingredient = await _ingredientRepository.GetFull(model.Id);
+            if (ingredient == null)
+                return null;
+
+            if (ingredient.Image != null)
+                await _imageRepository.Delete(ingredient.Image);
+
             await _ingredientRepository.Delete(ingredient);
 
             _logger.LogTrace("Ingredient deleted! Ingredient: {@Ingredient}", ingredient);

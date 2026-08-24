@@ -154,10 +154,9 @@ namespace RecipeHub.Api.Controllers
 
             foreach (var ingredient in ingredients)
             {
-                await _ingredientService.Delete(ingredient);
-
-                if (ingredient.Image != null)
-                    await _imageService.Delete(ingredient.Image);
+                var deletedIngredient = await _ingredientService.Delete(ingredient);
+                if (deletedIngredient == null)
+                    return NotFound();
             }
 
             _logger.LogTrace("Ingredients have been deleted! Ingredients: {@Ingredients}", ingredients);
