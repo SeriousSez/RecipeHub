@@ -139,6 +139,14 @@
     max-width: 34rem;
 }
 
+#ingredientModal .modal-content {
+    overflow: hidden;
+    border: 1px solid rgba(15, 23, 42, .1);
+    border-radius: 1rem;
+    background: #fff;
+    box-shadow: 0 24px 70px rgba(15, 23, 42, .2);
+}
+
 @media (max-width: 640px) {
     .dashboard-card {
         padding: 1rem;
