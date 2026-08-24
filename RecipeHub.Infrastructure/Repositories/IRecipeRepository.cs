@@ -11,6 +11,7 @@ namespace RecipeHub.Infrastructure.Repositories
         Task Create(Recipe recipe);
         Task<Recipe> Get(Guid id);
         Task<Recipe> GetFull(Guid id);
+        Task<Recipe> GetFullByShortId(string shortId);
         Task<Recipe> GetByTitle(string title);
         Task<Recipe> GetByTitleFull(string title);
         Task<Recipe> GetByTitleAndCreator(string title, string creator);

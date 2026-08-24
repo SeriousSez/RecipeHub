@@ -41,6 +41,22 @@ namespace RecipeHub.Infrastructure.Repositories
             return recipe;
         }
 
+        public async Task<Recipe> GetFullByShortId(string shortId)
+        {
+            var normalized = (shortId ?? string.Empty).Replace("-", string.Empty).Trim();
+            if (normalized.Length == 0) return null;
+
+            var matches = await _context.Recipes
+                .FromSqlInterpolated($"SELECT * FROM Recipes WHERE REPLACE(Id, '-', '') LIKE {normalized + "%"} LIMIT 2")
+                .Include(r => r.RecipeIngredients)
+                    .ThenInclude(ri => ri.Ingredient)
+                .Include(r => r.Creator)
+                .Include(r => r.Image)
+                .ToListAsync();
+
+            return matches.Count == 1 ? matches[0] : null;
+        }
+
         public async Task<Recipe> GetByTitle(string title)
         {
             var recipe = await _context.Recipes.FirstOrDefaultAsync(r => r.Title == title);

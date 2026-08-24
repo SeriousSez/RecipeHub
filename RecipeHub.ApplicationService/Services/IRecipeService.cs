@@ -13,6 +13,7 @@ namespace RecipeHub.ApplicationService.Services
         Task<RecipeResponse> AddIngredients(List<IngredientResponse> ingredients, string title, string creator);
         Task<Recipe> Get(RecipeResponse model);
         Task<RecipeResponse> Get(Guid id);
+        Task<RecipeResponse> GetByShortId(string shortId);
         Task<RecipeResponse> Get(string title, string creator);
         Task<IEnumerable<RecipeResponse>> GetAll();
         Task<IEnumerable<RecipeResponse>> GetAllWithIngredients();

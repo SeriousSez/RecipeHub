@@ -336,10 +336,7 @@ namespace RecipeHub.Api.Controllers
             else
             {
                 var shortId = id?.Replace("-", string.Empty);
-                var recipes = await _recipeService.GetAll();
-                recipe = string.IsNullOrWhiteSpace(shortId)
-                    ? null
-                    : recipes.SingleOrDefault(item => item.Id.ToString("N").StartsWith(shortId, StringComparison.OrdinalIgnoreCase));
+                recipe = await _recipeService.GetByShortId(shortId);
             }
 
             if (recipe == null)

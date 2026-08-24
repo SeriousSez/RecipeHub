@@ -188,6 +188,19 @@ namespace RecipeHub.ApplicationService.Services
             return recipeResponse;
         }
 
+        public async Task<RecipeResponse> GetByShortId(string shortId)
+        {
+            var recipe = await _recipeRepository.GetFullByShortId(shortId);
+            if (recipe == null) return null;
+
+            var recipeResponse = _mapper.Map<RecipeResponse>(recipe);
+            recipeResponse.Ingredients = OrderedRecipeIngredients(recipe)
+                .Select(CreateIngredientResponeModel)
+                .Where(ingredient => ingredient != null)
+                .ToList();
+            return recipeResponse;
+        }
+
         public async Task<RecipeResponse> Get(string title, string creator)
         {
             var recipe = await _recipeRepository.GetByTitleAndCreatorFull(title, creator);
