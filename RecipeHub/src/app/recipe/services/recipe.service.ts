@@ -89,6 +89,7 @@ export class RecipeService extends BaseService {
     if (query.creator) params.set('creator', query.creator);
     if (query.favoriteIds) params.set('favoriteIds', query.favoriteIds);
     if (query.language) params.set('language', query.language);
+    if (query.canBeFrozen !== undefined) params.set('canBeFrozen', String(query.canBeFrozen));
 
     return this.http.get<RecipePagedResult>(this.baseUrl + `/recipe/paged?${params.toString()}`, this.httpOptions)
       .pipe(

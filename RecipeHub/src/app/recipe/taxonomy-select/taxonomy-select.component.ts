@@ -36,7 +36,7 @@ export class TaxonomySelectComponent implements ControlValueAccessor {
     public disabled = false;
     public highlightedIndex = -1;
     public opensUpward = false;
-    public dropdownMaxHeight = 288;
+    public dropdownMaxHeight = 420;
 
     private onChange: (value: string) => void = () => undefined;
     private onTouched: () => void = () => undefined;
@@ -303,11 +303,11 @@ export class TaxonomySelectComponent implements ControlValueAccessor {
         const gap = 6;
         const spaceAbove = Math.max(0, controlBounds.top - boundaryTop - gap);
         const spaceBelow = Math.max(0, boundaryBottom - controlBounds.bottom - gap);
-        const desiredHeight = Math.min(dropdown.scrollHeight, 288);
+        const desiredHeight = Math.min(dropdown.scrollHeight, 420);
 
         this.opensUpward = spaceBelow < desiredHeight && spaceAbove > spaceBelow;
         const availableSpace = this.opensUpward ? spaceAbove : spaceBelow;
-        this.dropdownMaxHeight = Math.max(48, Math.min(288, availableSpace));
+        this.dropdownMaxHeight = Math.max(48, Math.min(420, availableSpace));
     }
 
     private close(): void {
@@ -316,7 +316,7 @@ export class TaxonomySelectComponent implements ControlValueAccessor {
             this.searchTerm = '';
             this.highlightedIndex = -1;
             this.opensUpward = false;
-            this.dropdownMaxHeight = 288;
+            this.dropdownMaxHeight = 420;
             this.onTouched();
         }
     }

@@ -112,7 +112,7 @@
     left: 0;
     width: max(100%, 10rem);
     max-width: calc(100vw - 1rem);
-    max-height: 18rem;
+    max-height: 26rem;
     overflow-y: auto;
     overflow-x: hidden;
     padding: .4rem;

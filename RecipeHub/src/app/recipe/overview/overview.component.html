@@ -39,6 +39,20 @@
         </div>
       </div>
       }
+
+      <div class="recipe-side-section recipe-side-filter recipe-mobile-hidden">
+        <div class="recipe-side-panel-header">{{ 'recipe.filtersToggle' | translate }}</div>
+        <div class="recipe-side-actions">
+          <button type="button" class="recipe-side-action-button recipe-action-button-secondary" (click)="openMobileFilters()">
+            <i class="fas fa-sliders-h" aria-hidden="true"></i>
+            <span>{{ 'recipe.filtersToggle' | translate }}</span>
+            <span *ngIf="activeFilterCount > 0" class="recipe-side-filter-count">{{ activeFilterCount }}</span>
+          </button>
+          <button type="button" class="recipe-side-action-button recipe-action-button-muted" [disabled]="!hasActiveFilters" (click)="clearFilters()">
+            {{ 'recipe.clearFiltersButton' | translate }}
+          </button>
+        </div>
+      </div>
     </div>
   </aside>
 
@@ -104,21 +118,11 @@
           <label for="recipe-search" class="recipe-filter-label">{{ 'recipe.filterLabel' | translate }}</label>
           <input id="recipe-search" class="form-control recipe-filter-input" type="search" [placeholder]="'recipe.searchPlaceholder' | translate" [value]="searchTerm" (input)="searchTerm = $any($event.target).value; applyFiltersAndSort()">
         </div>
-        <div class="recipe-filter-group">
+        <div class="recipe-filter-group recipe-pantry-quick-filter">
           <label class="recipe-filter-label">{{ 'recipe.pantryLabel' | translate }}</label>
           <button type="button" class="btn recipe-filter-input text-start pantry-match-button" [class.active]="showPantryMatches" (click)="togglePantryMatches()" [disabled]="matchingLoading" [attr.aria-pressed]="showPantryMatches">
             {{ matchingLoading ? ('recipe.findingMatches' | translate) : pantryButtonLabel }}
           </button>
-        </div>
-        <div class="recipe-filter-group recipe-sort-group">
-          <label for="recipe-category" class="recipe-filter-label">{{ 'recipe.categoryLabel' | translate }}</label>
-          <app-taxonomy-select id="recipe-category" [(ngModel)]="categoryFilter" [groups]="availableCategoryGroups" [optionLabels]="categoryOptionLabels" [multiple]="true" [allowCustom]="false" [compactSelection]="true" [selectedCountLabel]="'recipe.selectedSuffix' | translate"
-            [placeholder]="'recipe.categoryLabel' | translate" [ariaLabel]="'recipe.categoryLabel' | translate" (ngModelChange)="applyFiltersAndSort()"></app-taxonomy-select>
-        </div>
-        <div class="recipe-filter-group recipe-sort-group">
-          <label for="recipe-tag" class="recipe-filter-label">{{ 'recipe.tagLabel' | translate }}</label>
-          <app-taxonomy-select id="recipe-tag" [(ngModel)]="tagFilter" [groups]="availableTagGroups" [optionLabels]="tagOptionLabels" [multiple]="true" [allowCustom]="false" [compactSelection]="true" [selectedCountLabel]="'recipe.selectedSuffix' | translate"
-            [placeholder]="'recipe.tagLabel' | translate" [ariaLabel]="'recipe.tagLabel' | translate" (ngModelChange)="applyFiltersAndSort()"></app-taxonomy-select>
         </div>
         <div class="recipe-filter-group recipe-sort-group">
           <label for="recipe-sort" class="recipe-filter-label">{{ 'recipe.sortByLabel' | translate }}</label>
@@ -131,25 +135,19 @@
           </div>
         </div>
 
-        @if (hasActiveFilters) {
-        <div class="recipe-filter-group recipe-clear-group">
-          <label class="recipe-filter-label">&nbsp;</label>
-          <button type="button" class="btn btn-outline-secondary recipe-clear-filters" (click)="clearFilters()">{{ 'recipe.clearFiltersButton' | translate }}</button>
-        </div>
-        }
       </div>
 
       <div class="recipe-toolbar-mobile">
         <button class="recipe-mobile-filter-toggle" type="button" (click)="toggleMobileFilters()">
           <i class="fas fa-filter" aria-hidden="true"></i>
           <span>{{ 'recipe.filtersToggle' | translate }}</span>
-          <span class="recipe-mobile-filter-count">{{ searchTerm || selectedCategoryFilters.length || selectedTagFilters.length || pantryIngredients ? ('recipe.filtersOn' | translate) : ('recipe.filtersOff' | translate) }}</span>
+          <span class="recipe-mobile-filter-count">{{ activeFilterCount }}</span>
         </button>
       </div>
 
       @if (showMobileFilters || isClosingMobileFilters) {
       <div class="recipe-mobile-filter-backdrop" [class.is-closing]="isClosingMobileFilters" (click)="closeMobileFilters()"></div>
-      <aside class="recipe-mobile-filter-drawer" [class.is-closing]="isClosingMobileFilters" role="dialog" aria-modal="true" aria-label="Recipe filters">
+      <aside id="recipe-filter-drawer" class="recipe-mobile-filter-drawer" [class.is-closing]="isClosingMobileFilters" role="dialog" aria-modal="true" [attr.aria-label]="'recipe.filtersToggle' | translate">
         <div class="recipe-mobile-filter-header">
           <h3>{{ 'recipe.filtersToggle' | translate }}</h3>
           <button type="button" class="recipe-mobile-filter-close" (click)="closeMobileFilters()" [attr.aria-label]="'recipe.closeFiltersAria' | translate">
@@ -168,7 +166,7 @@
               {{ matchingLoading ? ('recipe.findingMatches' | translate) : pantryButtonLabel }}
             </button>
           </div>
-          <div class="recipe-filter-group recipe-sort-group">
+          <div class="recipe-filter-group recipe-sort-group recipe-freezer-filter">
             <label for="recipe-category-mobile" class="recipe-filter-label">{{ 'recipe.categoryLabel' | translate }}</label>
             <app-taxonomy-select id="recipe-category-mobile" [(ngModel)]="categoryFilter" [groups]="availableCategoryGroups" [optionLabels]="categoryOptionLabels" [multiple]="true" [allowCustom]="false" [compactSelection]="true" [selectedCountLabel]="'recipe.selectedSuffix' | translate"
               [placeholder]="'recipe.categoryLabel' | translate" [ariaLabel]="'recipe.categoryLabel' | translate" (ngModelChange)="applyFiltersAndSort()"></app-taxonomy-select>
@@ -177,6 +175,14 @@
             <label for="recipe-tag-mobile" class="recipe-filter-label">{{ 'recipe.tagLabel' | translate }}</label>
             <app-taxonomy-select id="recipe-tag-mobile" [(ngModel)]="tagFilter" [groups]="availableTagGroups" [optionLabels]="tagOptionLabels" [multiple]="true" [allowCustom]="false" [compactSelection]="true" [selectedCountLabel]="'recipe.selectedSuffix' | translate"
               [placeholder]="'recipe.tagLabel' | translate" [ariaLabel]="'recipe.tagLabel' | translate" (ngModelChange)="applyFiltersAndSort()"></app-taxonomy-select>
+          </div>
+          <div class="recipe-filter-group recipe-sort-group">
+            <label for="recipe-frozen-mobile" class="recipe-filter-label">{{ 'recipe.freezerFilterLabel' | translate }}</label>
+            <div id="recipe-frozen-mobile" class="recipe-freezer-segmented" role="group" [attr.aria-label]="'recipe.freezerFilterLabel' | translate">
+              <button type="button" [class.active]="frozenFilter === ''" (click)="frozenFilter = ''; applyFiltersAndSort()">{{ 'recipe.allFrozenOptions' | translate }}</button>
+              <button type="button" [class.active]="frozenFilter === 'true'" (click)="frozenFilter = 'true'; applyFiltersAndSort()">{{ 'recipe.canBeFrozenOption' | translate }}</button>
+              <button type="button" [class.active]="frozenFilter === 'false'" (click)="frozenFilter = 'false'; applyFiltersAndSort()">{{ 'recipe.cannotBeFrozenOption' | translate }}</button>
+            </div>
           </div>
           <div class="recipe-filter-group recipe-sort-group">
             <label for="recipe-sort-mobile" class="recipe-filter-label">{{ 'recipe.sortByLabel' | translate }}</label>
@@ -190,9 +196,7 @@
           </div>
 
           <div class="recipe-filter-group">
-            @if (hasActiveFilters) {
-            <button type="button" class="btn btn-outline-secondary recipe-clear-filters" (click)="clearFilters()">{{ 'recipe.clearFiltersButton' | translate }}</button>
-            }
+            <button type="button" class="btn btn-outline-secondary recipe-clear-filters" [disabled]="!hasActiveFilters" (click)="clearFilters()">{{ 'recipe.clearFiltersButton' | translate }}</button>
           </div>
         </div>
       </aside>

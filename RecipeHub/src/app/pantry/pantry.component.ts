@@ -27,6 +27,8 @@ export class PantryComponent implements OnInit {
     public syncing = false;
     public syncFailed = false;
     public translatingLocalIngredients = false;
+    public sortColumn: 'name' | 'amount' | 'unit' | 'expirationDate' = 'name';
+    public sortAscending = true;
     private ingredientNameLabels: Record<string, string> = {};
 
     constructor(private pantryService?: PantryService, private ingredientService?: IngredientService, private userService?: UserService, private router?: Router, private translateService?: TranslateService) { }
@@ -41,7 +43,18 @@ export class PantryComponent implements OnInit {
 
     public get filteredPantryItems(): PantryItem[] {
         const query = this.searchTerm.trim().toLowerCase();
-        return this.pantryItems.filter(item => !query || item.name.toLowerCase().includes(query));
+        return this.pantryItems
+            .filter(item => !query || item.name.toLowerCase().includes(query))
+            .slice()
+            .sort((first, second) => this.compareItems(first, second));
+    }
+
+    public sortBy(column: 'name' | 'amount' | 'unit' | 'expirationDate'): void {
+        if (this.sortColumn === column) this.sortAscending = !this.sortAscending;
+        else {
+            this.sortColumn = column;
+            this.sortAscending = true;
+        }
     }
 
     public get isAuthenticated(): boolean { return this.userService?.isAuthenticated() === true; }
@@ -154,6 +167,15 @@ export class PantryComponent implements OnInit {
     private resetDraft(): void { this.draftName = ''; this.draftAmount = null; this.draftUnit = 'Piece'; this.draftExpirationDate = ''; }
     private normalizeName(value: string): string { return (value ?? '').trim().replace(/\s+/g, ' '); }
     private sortItems(): void { this.pantryItems.sort((first, second) => first.name.localeCompare(second.name)); }
+    private compareItems(first: PantryItem, second: PantryItem): number {
+        let comparison = 0;
+        if (this.sortColumn === 'amount') comparison = (first.amount ?? -Infinity) - (second.amount ?? -Infinity);
+        else if (this.sortColumn === 'unit') comparison = first.amountType.localeCompare(second.amountType);
+        else if (this.sortColumn === 'expirationDate') comparison = (first.expirationDate || '9999-12-31').localeCompare(second.expirationDate || '9999-12-31');
+        else comparison = first.name.localeCompare(second.name);
+
+        return (comparison || first.name.localeCompare(second.name)) * (this.sortAscending ? 1 : -1);
+    }
     private createId(): string { return typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`; }
     private todayDate(): string { return new Date().toISOString().slice(0, 10); }
 }

@@ -225,6 +225,20 @@ button:disabled {
     text-transform: uppercase;
 }
 
+.pantry-table th.pantry-sortable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.pantry-table th.pantry-sortable:hover {
+    color: #0f766e;
+}
+
+.pantry-table th.pantry-sortable .fas {
+    margin-left: .25rem;
+    font-size: .7rem;
+}
+
 .pantry-table td {
     padding: .9rem .6rem;
     border-bottom: 1px solid rgba(15, 23, 42, .05);

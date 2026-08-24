@@ -51,10 +51,10 @@
             <table class="pantry-table">
                 <thead>
                     <tr>
-                        <th>{{ 'pantry.ingredientLabel' | translate }}</th>
-                        <th>{{ 'pantry.quantityLabel' | translate }}</th>
-                        <th>{{ 'pantry.unitLabel' | translate }}</th>
-                        <th>{{ 'pantry.expiryLabel' | translate }}</th>
+                        <th class="pantry-sortable" (click)="sortBy('name')">{{ 'pantry.ingredientLabel' | translate }} <i class="fas" [ngClass]="sortColumn === 'name' ? (sortAscending ? 'fa-sort-up' : 'fa-sort-down') : 'fa-sort'" aria-hidden="true"></i></th>
+                        <th class="pantry-sortable" (click)="sortBy('amount')">{{ 'pantry.quantityLabel' | translate }} <i class="fas" [ngClass]="sortColumn === 'amount' ? (sortAscending ? 'fa-sort-up' : 'fa-sort-down') : 'fa-sort'" aria-hidden="true"></i></th>
+                        <th class="pantry-sortable" (click)="sortBy('unit')">{{ 'pantry.unitLabel' | translate }} <i class="fas" [ngClass]="sortColumn === 'unit' ? (sortAscending ? 'fa-sort-up' : 'fa-sort-down') : 'fa-sort'" aria-hidden="true"></i></th>
+                        <th class="pantry-sortable" (click)="sortBy('expirationDate')">{{ 'pantry.expiryLabel' | translate }} <i class="fas" [ngClass]="sortColumn === 'expirationDate' ? (sortAscending ? 'fa-sort-up' : 'fa-sort-down') : 'fa-sort'" aria-hidden="true"></i></th>
                         <th><span class="visually-hidden">{{ 'pantry.actionsLabel' | translate }}</span></th>
                     </tr>
                 </thead>

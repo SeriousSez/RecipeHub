@@ -471,7 +471,8 @@ namespace RecipeHub.Api.Controllers
             bool ascending = false,
             string creator = null,
             string favoriteIds = null,
-            string language = "English")
+            string language = "English",
+            bool? canBeFrozen = null)
         {
             try
             {
@@ -508,6 +509,11 @@ namespace RecipeHub.Api.Controllers
                 {
                     var ids = favoriteIds.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToHashSet(StringComparer.OrdinalIgnoreCase);
                     filtered = filtered.Where(r => ids.Contains(r.Id.ToString()));
+                }
+
+                if (canBeFrozen.HasValue)
+                {
+                    filtered = filtered.Where(r => r.CanBeFrozen == canBeFrozen.Value);
                 }
 
                 if (!string.IsNullOrWhiteSpace(category) && !string.Equals(category, "all", StringComparison.OrdinalIgnoreCase))

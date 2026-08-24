@@ -20,4 +20,5 @@ export interface RecipePagedQuery {
     creator?: string;
     favoriteIds?: string;
     language?: string;
+    canBeFrozen?: boolean;
 }

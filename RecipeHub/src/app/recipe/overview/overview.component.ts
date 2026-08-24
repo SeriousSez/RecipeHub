@@ -102,6 +102,7 @@ export class OverviewComponent implements OnInit {
       || !!this.creatorFilter
       || this.selectedCategoryFilters.length > 0
       || this.selectedTagFilters.length > 0
+      || this.frozenFilter !== ''
       || this.sortSetting !== 'created'
       || this.ascending !== false
       || this.showFavorites
@@ -109,10 +110,24 @@ export class OverviewComponent implements OnInit {
       || this.showPantryMatches;
   }
 
+  public get activeFilterCount(): number {
+    return [
+      !!this.searchTerm,
+      !!this.creatorFilter,
+      this.selectedCategoryFilters.length > 0,
+      this.selectedTagFilters.length > 0,
+      this.frozenFilter !== '',
+      this.showFavorites,
+      this.showMyRecipes,
+      this.showPantryMatches
+    ].filter(Boolean).length;
+  }
+
   clearFilters(): void {
     this.searchTerm = '';
     this.categoryFilter = '';
     this.tagFilter = '';
+    this.frozenFilter = '';
     this.sortSetting = 'created';
     this.ascending = false;
     this.showFavorites = false;
@@ -126,6 +141,7 @@ export class OverviewComponent implements OnInit {
   public creatorFilter: string = '';
   public categoryFilter: string = '';
   public tagFilter: string = '';
+  public frozenFilter: '' | 'true' | 'false' = '';
   public pantryIngredients: string = '';
   public availableCategories: string[] = [];
   public availableTags: string[] = [];
@@ -137,6 +153,16 @@ export class OverviewComponent implements OnInit {
 
   public get selectedTagFilters(): string[] {
     return this.parseTaxonomyFilter(this.tagFilter);
+  }
+
+  public readonly frozenFilterOptions = ['', 'true', 'false'];
+
+  public get frozenFilterOptionLabels(): Record<string, string> {
+    return {
+      '': this.translateService.instant('recipe.allFrozenOptions'),
+      true: this.translateService.instant('recipe.canBeFrozenOption'),
+      false: this.translateService.instant('recipe.cannotBeFrozenOption')
+    };
   }
 
   public sortSetting: string = 'created';
@@ -274,6 +300,7 @@ export class OverviewComponent implements OnInit {
       this.searchTerm = state.searchTerm ?? this.searchTerm;
       this.categoryFilter = this.normalizeSavedTaxonomyFilter(state.categoryFilter);
       this.tagFilter = this.normalizeSavedTaxonomyFilter(state.tagFilter);
+      this.frozenFilter = state.frozenFilter === 'true' || state.frozenFilter === 'false' ? state.frozenFilter : '';
       this.sortSetting = state.sortSetting ?? this.sortSetting;
       this.ascending = state.ascending ?? this.ascending;
     } catch {
@@ -290,6 +317,7 @@ export class OverviewComponent implements OnInit {
       searchTerm: this.searchTerm,
       categoryFilter: this.categoryFilter,
       tagFilter: this.tagFilter,
+      frozenFilter: this.frozenFilter,
       sortSetting: this.sortSetting,
       ascending: this.ascending
     };
@@ -355,6 +383,7 @@ export class OverviewComponent implements OnInit {
       search: this.searchTerm || undefined,
       category: this.selectedCategoryFilters.join(',') || undefined,
       tag: this.selectedTagFilters.join(',') || undefined,
+      canBeFrozen: this.frozenFilter === '' ? undefined : this.frozenFilter === 'true',
       sortBy: this.sortSetting,
       ascending: this.ascending,
       creator: creatorParam,
