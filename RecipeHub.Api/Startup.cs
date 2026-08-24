@@ -81,6 +81,8 @@ namespace RecipeHub
             services.AddScoped<IFridgeGroceryRepository, FridgeGroceryRepository>();
 
             services.AddScoped<IIdentityManager, IdentityManager>();
+            services.Configure<EmailOptions>(Configuration.GetSection("Email"));
+            services.AddScoped<IEmailSender, SmtpEmailSender>();
 
             services.AddScoped<IJwtFactory, JwtFactory>();
             services.AddScoped<IUserService, UserService>();

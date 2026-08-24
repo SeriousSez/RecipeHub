@@ -2,7 +2,6 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AbstractControl, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { ForgotPasswordRequest } from '../shared/models/forgot-password.interface';
-import { PasswordResetRequestResponse } from '../shared/responses/password-reset-request.interface';
 import { UserService } from '../shared/services/user.service';
 
 @Component({
@@ -19,7 +18,6 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
     public submitted = false;
     public errors = '';
     public message = '';
-    public token: string | undefined;
 
     constructor(private formBuilder: UntypedFormBuilder, private userService: UserService) { }
 
@@ -42,7 +40,6 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
         this.isRequesting = true;
         this.errors = '';
         this.message = '';
-        this.token = undefined;
 
         if (!valid) {
             this.isRequesting = false;
@@ -51,9 +48,8 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
 
         const resetRequest$ = this.userService.requestPasswordReset(value)
             .subscribe({
-                next: (response: PasswordResetRequestResponse) => {
-                    this.message = response.message ?? 'If an account exists for this email, a reset token has been generated.';
-                    this.token = response.token;
+                next: (response) => {
+                    this.message = response.message ?? 'If an account exists for this email, a password reset link has been sent.';
                     this.isRequesting = false;
                 },
                 error: (error: any) => {

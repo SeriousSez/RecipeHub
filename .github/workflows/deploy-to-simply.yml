@@ -69,11 +69,19 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           SHELFATLAS_API_KEY: ${{ secrets.SHELFATLAS_API_KEY }}
           USDA_API_KEY: ${{ secrets.USDA_API_KEY }}
+          EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
+          EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_FROM_ADDRESS: ${{ secrets.EMAIL_FROM_ADDRESS }}
         run: |
           $required = @(
             @{ Name = 'MYSQL_CONNECTION_STRING'; Value = $env:MYSQL_CONNECTION_STRING }
             @{ Name = 'SHELFATLAS_API_KEY'; Value = $env:SHELFATLAS_API_KEY }
             @{ Name = 'USDA_API_KEY'; Value = $env:USDA_API_KEY }
+            @{ Name = 'EMAIL_HOST'; Value = $env:EMAIL_HOST }
+            @{ Name = 'EMAIL_USERNAME'; Value = $env:EMAIL_USERNAME }
+            @{ Name = 'EMAIL_PASSWORD'; Value = $env:EMAIL_PASSWORD }
+            @{ Name = 'EMAIL_FROM_ADDRESS'; Value = $env:EMAIL_FROM_ADDRESS }
           )
 
           $missing = $required | Where-Object { -not $_.Value }
@@ -100,6 +108,19 @@ jobs:
             }
             ShelfAtlas = @{
               ApiKey = $env:SHELFATLAS_API_KEY
+            }
+            Email = @{
+              Enabled = $true
+              Host = $env:EMAIL_HOST
+              Port = 587
+              EnableSsl = $true
+              Username = $env:EMAIL_USERNAME
+              Password = $env:EMAIL_PASSWORD
+              FromAddress = $env:EMAIL_FROM_ADDRESS
+              FromName = 'RecipeHub'
+            }
+            PasswordReset = @{
+              FrontendUrl = 'https://recipes.sezginsahin.dk'
             }
             Logging = @{
               LogLevel = @{

@@ -25,7 +25,7 @@ namespace RecipeHub.Api.Controllers
             }
 
             var response = await _authService.Login(credentials);
-            if(response == null)
+            if (response == null)
                 return BadRequest(("Login Failure", "Invalid username or password.", ModelState));
 
             //var json = JsonConvert.SerializeObject(response, _serializerSettings);
@@ -41,6 +41,9 @@ namespace RecipeHub.Api.Controllers
             }
 
             var response = await _authService.GeneratePasswordResetToken(model);
+            if (!response.Success)
+                return StatusCode(503, response);
+
             return new OkObjectResult(response);
         }
 

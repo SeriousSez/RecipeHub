@@ -132,10 +132,9 @@ export class OverviewComponent implements OnInit {
 
     this.deletingSelectedUsers = true;
     this.dashboardService.deleteUsers(this.selectedUsers).subscribe((users: User[]) => {
-      this.selectedUsers.forEach((user: User) => {
-        this.removeUserFromList(user);
-      });
-
+      this.users = users;
+      this.setFullName();
+      this.checkForTestUsers();
       this.selectedUsers = [];
       this.showDeleteConfirmation = false;
       this.deletingSelectedUsers = false;
@@ -164,9 +163,9 @@ export class OverviewComponent implements OnInit {
     this.deletingTestUsers = true;
     var testUsers = this.users.filter(u => u.role === 'Test');
     this.dashboardService.deleteUsers(testUsers).subscribe((users: User[]) => {
-      testUsers.forEach((user: User) => {
-        this.removeUserFromList(user);
-      });
+      this.users = users;
+      this.setFullName();
+      this.checkForTestUsers();
       this.showDeleteTestUsersConfirmation = false;
       this.deletingTestUsers = false;
     },

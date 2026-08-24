@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using RecipeHub.ApplicationService.Auth;
+using RecipeHub.ApplicationService.Interfaces;
 using RecipeHub.Domain.Entities;
 using RecipeHub.Domain.Helpers;
 using RecipeHub.Domain.Models;
@@ -16,6 +17,7 @@ using System.Security.Claims;
 using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace RecipeHub.ApplicationService.Services
 {
@@ -28,8 +30,10 @@ namespace RecipeHub.ApplicationService.Services
         private readonly JwtIssuerOptions _jwtOptions;
         private readonly IIdentityManager _identityManager;
         private readonly AppSettings _appSettings;
+        private readonly IEmailSender _emailSender;
+        private readonly IConfiguration _configuration;
 
-        public AuthService(UserManager<User> userManager, SignInManager<User> signInManager, IJwtFactory jwtFactory, IOptions<JwtIssuerOptions> jwtOptions, IIdentityManager identityManager, IOptions<AppSettings> appSettings)
+        public AuthService(UserManager<User> userManager, SignInManager<User> signInManager, IJwtFactory jwtFactory, IOptions<JwtIssuerOptions> jwtOptions, IIdentityManager identityManager, IOptions<AppSettings> appSettings, IEmailSender emailSender, IConfiguration configuration)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -37,6 +41,8 @@ namespace RecipeHub.ApplicationService.Services
             _jwtOptions = jwtOptions.Value;
             _identityManager = identityManager;
             _appSettings = appSettings.Value;
+            _emailSender = emailSender;
+            _configuration = configuration;
 
             _serializerSettings = new JsonSerializerSettings
             {
@@ -128,7 +134,7 @@ namespace RecipeHub.ApplicationService.Services
             var response = new PasswordResetRequestResponse
             {
                 Email = request.Email,
-                Message = "If an account exists for this email, a reset token has been generated.",
+                Message = "If an account exists for this email, a password reset link has been sent.",
                 Success = true
             };
 
@@ -138,9 +144,61 @@ namespace RecipeHub.ApplicationService.Services
                 return response;
             }
 
-            response.Token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var frontendUrl = (_configuration["PasswordReset:FrontendUrl"] ?? "http://localhost:4200").TrimEnd('/');
+            var resetUrl = $"{frontendUrl}/reset-password?email={Uri.EscapeDataString(user.Email)}&token={Uri.EscapeDataString(token)}";
+
+            try
+            {
+                await _emailSender.SendAsync(
+                    user.Email,
+                    "Reset your RecipeHub password",
+                    BuildPasswordResetEmail(resetUrl));
+            }
+            catch
+            {
+                return new PasswordResetRequestResponse
+                {
+                    Email = request.Email,
+                    Success = false,
+                    Message = "We could not send the password reset email. Please try again later."
+                };
+            }
 
             return response;
+        }
+
+        private static string BuildPasswordResetEmail(string resetUrl)
+        {
+            return $"""
+<!doctype html>
+        <html lang="en">
+<body style="margin:0;background:#f4f7fb;color:#172033;font-family:Arial,Helvetica,sans-serif;">
+    <div style="padding:32px 16px;">
+        <div style="width:100%;max-width:560px;margin:0 auto;background:#ffffff;border:1px solid #e1e8f0;border-radius:16px;overflow:hidden;box-shadow:0 14px 32px rgba(15,23,42,.08);">
+            <div style="padding:24px 32px;background:#1f2c37;color:#ffffff;">
+                <div style="font-size:22px;font-weight:800;letter-spacing:-.04em;">RecipeHub</div>
+                <div style="margin-top:6px;color:#b9c8d5;font-size:13px;">Simple food, thoughtfully organized.</div>
+            </div>
+            <div style="padding:34px 32px 30px;">
+                <div style="display:inline-block;padding:7px 11px;border-radius:999px;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;">Account security</div>
+                <h1 style="margin:18px 0 12px;color:#0f172a;font-size:28px;line-height:1.15;letter-spacing:-.04em;">Reset your password</h1>
+                <p style="margin:0;color:#475569;font-size:15px;line-height:1.7;">We received a request to reset the password for your RecipeHub account. Use the button below to choose a new one.</p>
+                <div style="padding:26px 0 22px;text-align:center;">
+                    <a href="{resetUrl}" style="display:inline-block;padding:13px 22px;border-radius:999px;background:#2563eb;color:#ffffff;font-size:15px;font-weight:700;text-decoration:none;">Reset my password</a>
+                </div>
+                <p style="margin:0;color:#64748b;font-size:13px;line-height:1.65;">This link expires in two hours. For your security, it can only be used once.</p>
+                <div style="height:1px;margin:24px 0;background:#e5eaf0;"></div>
+                <p style="margin:0;color:#64748b;font-size:13px;line-height:1.65;">If the button does not work, copy and paste this link into your browser:</p>
+                <p style="margin:8px 0 0;word-break:break-all;color:#2563eb;font-size:12px;line-height:1.6;">{resetUrl}</p>
+                <p style="margin:24px 0 0;color:#64748b;font-size:13px;line-height:1.65;">Didn't request a password reset? You can safely ignore this email. Your password will not change.</p>
+            </div>
+            <div style="padding:18px 32px;background:#f8fafc;color:#94a3b8;font-size:12px;line-height:1.5;">This is an automated message from RecipeHub. Please do not reply to this email.</div>
+        </div>
+    </div>
+</body>
+</html>
+""";
         }
 
         public async Task<IdentityResult> ResetPassword(ResetPasswordViewModel request)
