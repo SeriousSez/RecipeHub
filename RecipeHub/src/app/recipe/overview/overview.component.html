@@ -117,8 +117,8 @@
         </div>
         <div class="recipe-filter-group recipe-sort-group">
           <label for="recipe-tag" class="recipe-filter-label">{{ 'recipe.tagLabel' | translate }}</label>
-          <app-taxonomy-select id="recipe-tag" [(ngModel)]="tagFilter" [groups]="availableTagGroups" [optionLabels]="tagOptionLabels" [multiple]="true" [allowCustom]="false" [compactSelection]="true" [selectedCountLabel]="'recipe.selectedSuffix' | translate" [placeholder]="'recipe.tagLabel' | translate"
-            [ariaLabel]="'recipe.tagLabel' | translate" (ngModelChange)="applyFiltersAndSort()"></app-taxonomy-select>
+          <app-taxonomy-select id="recipe-tag" [(ngModel)]="tagFilter" [groups]="availableTagGroups" [optionLabels]="tagOptionLabels" [multiple]="true" [allowCustom]="false" [compactSelection]="true" [selectedCountLabel]="'recipe.selectedSuffix' | translate"
+            [placeholder]="'recipe.tagLabel' | translate" [ariaLabel]="'recipe.tagLabel' | translate" (ngModelChange)="applyFiltersAndSort()"></app-taxonomy-select>
         </div>
         <div class="recipe-filter-group recipe-sort-group">
           <label for="recipe-sort" class="recipe-filter-label">{{ 'recipe.sortByLabel' | translate }}</label>
