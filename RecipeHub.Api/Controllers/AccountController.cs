@@ -110,7 +110,7 @@ namespace RecipeHub.Api.Controllers
 
             _logger.LogTrace("User has been updated! User: {@User}", user);
 
-            return new OkResult();
+            return new OkObjectResult(user);
         }
 
         [HttpGet("getsettings")]

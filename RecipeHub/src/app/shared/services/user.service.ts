@@ -36,10 +36,12 @@ export class UserService extends BaseService {
   // Observable navItem source
   private _authStatus = new BehaviorSubject<boolean>(false);
   private _adminStatus = new BehaviorSubject<boolean>(false)
+  private _identity = new BehaviorSubject<{ userName: string; email: string }>({ userName: '', email: '' });
   private _settings = new BehaviorSubject<UserSettings>({ preferredLanguage: 'English', theme: 'Light', recipesTheme: 'Pretty', myRecipesTheme: 'Pretty' });
   // Observable navItem stream
   authStatus$ = this._authStatus.asObservable();
   adminStatus$ = this._adminStatus.asObservable();
+  identity$ = this._identity.asObservable();
   settings$ = this._settings.asObservable();
 
   private settings = { preferredLanguage: 'English', theme: 'Light', recipesTheme: 'Pretty', myRecipesTheme: 'Pretty' };
@@ -53,6 +55,7 @@ export class UserService extends BaseService {
     super();
     this._authStatus.next(!!this.isAuthenticated());
     this._adminStatus.next(!!this.isAdmin());
+    this._identity.next({ userName: this.getUserName(), email: this.getEmail() });
     this._settings.next(this.settings);
 
     this.baseUrl = configService.getApiURI();
@@ -95,6 +98,7 @@ export class UserService extends BaseService {
         localStorage.setItem('userName', response.userName);
         localStorage.setItem('email', response.email);
         localStorage.setItem('authToken', response.authToken);
+        this._identity.next({ userName: response.userName, email: response.email });
         console.log(response.authToken);
 
         this._authStatus.next(this.isAuthenticated());
@@ -138,8 +142,13 @@ export class UserService extends BaseService {
 
   update(user: UserUpdate): Observable<User> {
     return this.http.post<User>(this.baseUrl + "/account/update", user, this.httpOptions)
-      .pipe(map(user => {
-        return user;
+      .pipe(map(updatedUser => {
+        if (updatedUser) {
+          localStorage.setItem('userName', updatedUser.userName);
+          localStorage.setItem('email', updatedUser.email);
+          this._identity.next({ userName: updatedUser.userName, email: updatedUser.email });
+        }
+        return updatedUser;
       }, (error: any) => console.log(error, "fails")
       ));
   }
@@ -163,8 +172,12 @@ export class UserService extends BaseService {
 
   logout() {
     localStorage.removeItem('authToken');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('email');
     this._authStatus.next(false);
     this._adminStatus.next(false);
+    this._identity.next({ userName: '', email: '' });
   }
 
   getUserId() {

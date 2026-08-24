@@ -103,6 +103,14 @@ namespace RecipeHub.ApplicationService.Services
             if (user == null)
                 return IdentityResult.Failed(new IdentityError { Description = "User not found." });
 
+            var isDevelopment = string.Equals(_configuration["ASPNETCORE_ENVIRONMENT"], "Development", StringComparison.OrdinalIgnoreCase);
+            var emailEnabled = bool.TryParse(_configuration["Email:Enabled"], out var configuredEmailEnabled) && configuredEmailEnabled;
+            if (isDevelopment && !emailEnabled)
+            {
+                user.EmailConfirmed = true;
+                return await _userManager.UpdateAsync(user);
+            }
+
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var frontendUrl = (_configuration["PasswordReset:FrontendUrl"] ?? "http://localhost:4200").TrimEnd('/');
             var confirmationUrl = $"{frontendUrl}/confirm-email?userId={Uri.EscapeDataString(user.Id)}&token={Uri.EscapeDataString(token)}";

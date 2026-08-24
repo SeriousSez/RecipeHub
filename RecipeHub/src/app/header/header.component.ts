@@ -20,6 +20,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isAdmin: boolean = false;
   subscription?: Subscription;
   subscription2?: Subscription;
+  subscription3?: Subscription;
 
   languages: UiLanguage[];
   currentLanguage: string;
@@ -37,6 +38,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.email = this.userService.getEmail();
     this.subscription = this.userService.authStatus$.subscribe(result => this.isAuthenticated = result);
     this.subscription2 = this.userService.adminStatus$.subscribe(result => this.isAdmin = result);
+    this.subscription3 = this.userService.identity$.subscribe(identity => {
+      this.username = identity.userName;
+      this.email = identity.email;
+    });
 
     this.languages = this.languageService.languages;
     this.currentLanguage = this.languageService.getCurrentLanguage();
@@ -59,5 +64,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     // prevent memory leak when component is destroyed
     this.subscription?.unsubscribe();
+    this.subscription2?.unsubscribe();
+    this.subscription3?.unsubscribe();
   }
 }
