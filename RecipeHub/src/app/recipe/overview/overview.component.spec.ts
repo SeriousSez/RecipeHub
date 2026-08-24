@@ -23,6 +23,22 @@ describe('OverviewComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('groups available taxonomy values and keeps unmatched values under other', () => {
+    component.availableCategories = ['Danish', 'Breakfast', 'Legacy category'];
+    component.availableTags = ['Baked', 'Budget', 'Legacy tag'];
+
+    expect(component.availableCategoryGroups).toEqual([
+      { id: 'mealType', labelKey: 'recipe.taxonomyGroups.mealType', values: ['Breakfast'] },
+      { id: 'cuisine', labelKey: 'recipe.taxonomyGroups.cuisine', values: ['Danish'] },
+      { id: 'other', labelKey: 'recipe.taxonomyGroups.other', values: ['Legacy category'] }
+    ]);
+    expect(component.availableTagGroups).toEqual([
+      { id: 'practical', labelKey: 'recipe.taxonomyGroups.practical', values: ['Budget'] },
+      { id: 'features', labelKey: 'recipe.taxonomyGroups.features', values: ['Baked'] },
+      { id: 'other', labelKey: 'recipe.taxonomyGroups.other', values: ['Legacy tag'] }
+    ]);
+  });
+
   it('filters recipes by category, tag, and search text', () => {
     component.recipeList = [
       {

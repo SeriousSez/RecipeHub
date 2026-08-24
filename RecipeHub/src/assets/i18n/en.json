@@ -459,7 +459,8 @@
             "practical": "Practical",
             "nutrition": "Nutrition",
             "occasion": "Occasion",
-            "features": "Features"
+            "features": "Features",
+            "other": "Other"
         },
         "taxonomyValues": {
             "breakfast": "Breakfast",

@@ -459,7 +459,8 @@
             "practical": "Praktiline",
             "nutrition": "Toiteväärtus",
             "occasion": "Sündmus",
-            "features": "Omadused"
+            "features": "Omadused",
+            "other": "Muud"
         },
         "taxonomyValues": {
             "breakfast": "Hommikusöök",

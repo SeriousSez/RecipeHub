@@ -459,7 +459,8 @@
             "practical": "Pratik",
             "nutrition": "Beslenme",
             "occasion": "Özel gün",
-            "features": "Özellikler"
+            "features": "Özellikler",
+            "other": "Diğer"
         },
         "taxonomyValues": {
             "breakfast": "Kahvaltı",

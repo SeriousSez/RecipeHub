@@ -12,7 +12,7 @@ import { GroceryService } from 'src/app/shared/services/grocery.service';
 import { UserSettings } from 'src/app/account/models/user-settings.interface';
 import { UtilityService } from 'src/app/shared/utils/utility.service';
 import { TranslateService } from '@ngx-translate/core';
-import { getRecipeNutritionHighlights, RecipeNutritionHighlight, getTaxonomyValueLabel } from '../models/recipe-taxonomy';
+import { getRecipeNutritionHighlights, RecipeNutritionHighlight, getTaxonomyValueLabel, RecipeTaxonomyGroup, RECIPE_CATEGORY_GROUPS, RECIPE_TAG_GROUPS } from '../models/recipe-taxonomy';
 import { LanguageService } from 'src/app/shared/services/language.service';
 
 @Component({
@@ -149,6 +149,14 @@ export class OverviewComponent implements OnInit {
     return Object.fromEntries(this.availableTags.map(tag => [tag, getTaxonomyValueLabel(tag, this.translateService)]));
   }
 
+  public get availableCategoryGroups(): RecipeTaxonomyGroup[] {
+    return this.buildAvailableTaxonomyGroups(this.availableCategories, RECIPE_CATEGORY_GROUPS);
+  }
+
+  public get availableTagGroups(): RecipeTaxonomyGroup[] {
+    return this.buildAvailableTaxonomyGroups(this.availableTags, RECIPE_TAG_GROUPS);
+  }
+
   public get sortOptions(): string[] {
     return ['created', 'rating', 'popularity', 'title', 'creator', 'protein', 'carbohydrates', 'fiber'];
   }
@@ -181,6 +189,31 @@ export class OverviewComponent implements OnInit {
     };
   }
   public ascending: boolean = false;
+
+  private buildAvailableTaxonomyGroups(availableValues: string[], taxonomyGroups: RecipeTaxonomyGroup[]): RecipeTaxonomyGroup[] {
+    const valuesByName = new Map(availableValues.map(value => [value.trim().toLowerCase(), value]));
+    const groupedNames = new Set<string>();
+    const groups = taxonomyGroups
+      .map(group => ({
+        ...group,
+        values: group.values
+          .map(value => {
+            const normalizedValue = value.toLowerCase();
+            const availableValue = valuesByName.get(normalizedValue);
+            if (availableValue) {
+              groupedNames.add(normalizedValue);
+            }
+            return availableValue;
+          })
+          .filter((value): value is string => !!value)
+      }))
+      .filter(group => group.values.length > 0);
+    const otherValues = availableValues.filter(value => !groupedNames.has(value.trim().toLowerCase()));
+
+    return otherValues.length > 0
+      ? [...groups, { id: 'other', labelKey: 'recipe.taxonomyGroups.other', values: otherValues }]
+      : groups;
+  }
 
   public loading: boolean = true;
   public refreshing: boolean = false;

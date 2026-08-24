@@ -459,7 +459,8 @@
             "practical": "Praktisk",
             "nutrition": "Ernæring",
             "occasion": "Anledning",
-            "features": "Egenskaber"
+            "features": "Egenskaber",
+            "other": "Andre"
         },
         "taxonomyValues": {
             "breakfast": "Morgenmad",

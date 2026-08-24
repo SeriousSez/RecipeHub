@@ -127,6 +127,20 @@
     min-width: 15rem;
 }
 
+:host#recipe-category .taxonomy-dropdown,
+:host#recipe-category-mobile .taxonomy-dropdown,
+:host#recipe-tag .taxonomy-dropdown,
+:host#recipe-tag-mobile .taxonomy-dropdown {
+    width: max-content;
+    min-width: 100%;
+    max-width: min(18rem, calc(100vw - 1rem));
+}
+
+:host#recipe-tag .taxonomy-dropdown {
+    right: 0;
+    left: auto;
+}
+
 .taxonomy-select.opens-upward .taxonomy-dropdown {
     top: auto;
     bottom: calc(100% + .35rem);
@@ -164,7 +178,9 @@
 
 .taxonomy-option>span:last-child {
     min-width: 0;
-    overflow-wrap: anywhere;
+    line-height: 1.35;
+    overflow-wrap: break-word;
+    word-break: normal;
 }
 
 .taxonomy-option:hover,
