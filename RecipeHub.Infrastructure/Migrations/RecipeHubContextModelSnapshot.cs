@@ -554,6 +554,9 @@ namespace RecipeHub.Infrastructure.Migrations
                     b.Property<string>("Group")
                         .HasColumnType("longtext");
 
+                    b.Property<Guid?>("GroupId")
+                        .HasColumnType("char(36)");
+
                     b.Property<Guid?>("IngredientId")
                         .HasColumnType("char(36)");
 

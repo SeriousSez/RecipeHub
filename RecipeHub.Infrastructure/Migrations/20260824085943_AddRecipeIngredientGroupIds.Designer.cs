@@ -11,7 +11,7 @@ using RecipeHub.Infrastructure;
 namespace RecipeHub.Infrastructure.Migrations
 {
     [DbContext(typeof(RecipeHubContext))]
-    [Migration("20260824085322_AddRecipeIngredientGroupIds")]
+    [Migration("20260824085943_AddRecipeIngredientGroupIds")]
     partial class AddRecipeIngredientGroupIds
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -555,6 +555,9 @@ namespace RecipeHub.Infrastructure.Migrations
 
                     b.Property<string>("Group")
                         .HasColumnType("longtext");
+
+                    b.Property<Guid?>("GroupId")
+                        .HasColumnType("char(36)");
 
                     b.Property<Guid?>("IngredientId")
                         .HasColumnType("char(36)");
