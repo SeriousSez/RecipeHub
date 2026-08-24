@@ -62,3 +62,5 @@
 {"ts":1787569901502,"traceId":"tr-1787569901502-gzav00","type":"complete","filePath":"RecipeHub/src/app/recipe/recipe/recipe.component.html","result":{"completionLength":1,"latencyMs":11677,"localHits":3}}
 {"ts":1787569904089,"traceId":"tr-1787569904089-9g8f96","type":"complete","filePath":"RecipeHub/src/app/recipe/recipe/recipe.component.html","result":{"completionLength":366,"latencyMs":11919,"localHits":3}}
 {"ts":1787569905592,"traceId":"tr-1787569905592-j2le4t","type":"complete","filePath":"RecipeHub/src/app/recipe/recipe/recipe.component.html","result":{"completionLength":22,"latencyMs":11729,"localHits":3}}
+{"ts":1787587492239,"traceId":"tr-1787587492239-lp6h1f","type":"complete","filePath":"RecipeHub/src/app/header/mobile-header/mobile-header.component.scss","result":{"completionLength":0,"latencyMs":1014,"localHits":3}}
+{"ts":1787587500682,"traceId":"tr-1787587500682-n8083j","type":"complete","filePath":"RecipeHub/src/app/header/mobile-header/mobile-header.component.scss","result":{"completionLength":0,"latencyMs":666,"localHits":3}}
