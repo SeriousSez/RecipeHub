@@ -31,7 +31,7 @@ namespace RecipeHub.Api.Controllers
         [HttpPost("nearbyoffers")]
         public async Task<IActionResult> FindNearbyOffers([FromBody] GroceryOfferSearchViewModel model)
         {
-            if (model?.IngredientNames == null || model.IngredientNames.Count == 0 || model.IngredientNames.Count > 10 ||
+            if (model?.IngredientNames == null || model.IngredientNames.Count == 0 || model.IngredientNames.Count > 50 ||
                 model.IngredientNames.Any(name => string.IsNullOrWhiteSpace(name) || name.Length > 100) ||
                 model.Latitude < -90 || model.Latitude > 90 || model.Longitude < -180 || model.Longitude > 180 ||
                 model.RadiusKm <= 0 || model.RadiusKm > 50)
@@ -39,9 +39,9 @@ namespace RecipeHub.Api.Controllers
                 return BadRequest(new { code = "invalid_request" });
             }
 
-            if (!_groceryOfferService.IsLocationConfigured)
+            if (!_groceryOfferService.IsConfigured(model))
             {
-                return StatusCode(503, new { code = "shelfatlas_not_configured" });
+                return StatusCode(503, new { code = "grocery_provider_not_configured" });
             }
 
             try
@@ -51,12 +51,12 @@ namespace RecipeHub.Api.Controllers
             catch (GroceryOfferProviderException exception)
             {
                 _logger.LogWarning("Grocery offer search failed with upstream status {StatusCode}", exception.StatusCode);
-                return StatusCode(503, new { code = exception.StatusCode == 429 ? "shelfatlas_rate_limited" : "shelfatlas_unavailable" });
+                return StatusCode(503, new { code = exception.StatusCode == 429 ? "grocery_provider_rate_limited" : "grocery_provider_unavailable" });
             }
             catch (Exception exception)
             {
                 _logger.LogError(exception, "Grocery offer search failed");
-                return StatusCode(503, new { code = "shelfatlas_unavailable" });
+                return StatusCode(503, new { code = "grocery_provider_unavailable" });
             }
         }
 

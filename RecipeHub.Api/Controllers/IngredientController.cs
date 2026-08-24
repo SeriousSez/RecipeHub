@@ -72,9 +72,10 @@ namespace RecipeHub.Api.Controllers
                 ingredients.Select(ingredient => ingredient.Name), language);
             foreach (var ingredient in ingredients)
             {
-                ingredient.DisplayName = translatedNames != null && translatedNames.TryGetValue(ingredient.Name, out var displayName)
+                var canonicalName = ingredient.Name?.Trim();
+                ingredient.DisplayName = translatedNames != null && translatedNames.TryGetValue(canonicalName, out var displayName)
                     ? displayName
-                    : ingredient.Name;
+                    : canonicalName ?? ingredient.Name;
             }
 
             _logger.LogTrace("Ingredients fetched (lite)! Ingredients: {@Ingredients}", ingredients);

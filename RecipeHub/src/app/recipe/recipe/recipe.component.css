@@ -343,6 +343,28 @@
     transform: translateY(-1px);
 }
 
+.recipe-detail-icon-button.is-in-groceries {
+    border-color: rgba(22, 163, 74, 0.3);
+    background: rgba(22, 163, 74, 0.1);
+    color: #15803d;
+}
+
+.recipe-detail-icon-button.is-in-groceries:hover {
+    border-color: rgba(22, 163, 74, 0.45);
+    background: rgba(22, 163, 74, 0.16);
+}
+
+.recipe-detail-icon-button.is-favored {
+    border-color: rgba(202, 138, 4, 0.3);
+    background: rgba(250, 204, 21, 0.14);
+    color: #a16207;
+}
+
+.recipe-detail-icon-button.is-favored:hover {
+    border-color: rgba(202, 138, 4, 0.45);
+    background: rgba(250, 204, 21, 0.22);
+}
+
 .recipe-detail-icon-button i {
     font-size: 0.95rem;
 }

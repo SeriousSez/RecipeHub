@@ -51,9 +51,28 @@ export class GroceryService extends BaseService {
 
             this.recipeList = savedRecipes ? JSON.parse(savedRecipes) as Recipe[] : [];
             this.ingredientList = savedIngredients ? JSON.parse(savedIngredients) as Ingredient[] : [];
+            this.persistCompactRecipeState();
         } catch {
             this.recipeList = [];
             this.ingredientList = [];
+        }
+    }
+
+    private persistCompactRecipeState() {
+        if (typeof localStorage === 'undefined') {
+            return;
+        }
+
+        const compactRecipes = this.recipeList.map(recipe => ({
+            id: recipe.id,
+            title: recipe.title,
+            creator: recipe.creator
+        }));
+
+        try {
+            localStorage.setItem(this.recipeListStorageKey, JSON.stringify(compactRecipes));
+        } catch {
+            localStorage.removeItem(this.recipeListStorageKey);
         }
     }
 
@@ -62,8 +81,22 @@ export class GroceryService extends BaseService {
             return;
         }
 
-        localStorage.setItem(this.recipeListStorageKey, JSON.stringify(this.recipeList));
-        localStorage.setItem(this.ingredientListStorageKey, JSON.stringify(this.ingredientList));
+        this.persistCompactRecipeState();
+
+        try {
+            localStorage.setItem(this.ingredientListStorageKey, JSON.stringify(this.ingredientList));
+        } catch {
+            const compactIngredients = this.ingredientList.map(ingredient => ({
+                ...ingredient,
+                description: '',
+                image: null
+            }));
+            try {
+                localStorage.setItem(this.ingredientListStorageKey, JSON.stringify(compactIngredients));
+            } catch {
+                localStorage.removeItem(this.ingredientListStorageKey);
+            }
+        }
     }
 
     getGroceryLists(userId: string, recipe: Recipe) {
@@ -116,6 +149,17 @@ export class GroceryService extends BaseService {
         return this.ingredientList;
     }
 
+    private normalizeIngredientName(value: string | null | undefined): string {
+        return (value ?? '').trim().toLowerCase().replace(/\s+/g, ' ');
+    }
+
+    private getIngredientIdentityKey(ingredient: Partial<Ingredient>): string {
+        const recipeKey = ingredient.sourceRecipeId ?? ingredient.sourceRecipeTitle ?? ingredient.sourceRecipeCreator ?? 'manual';
+        const nameKey = this.normalizeIngredientName(ingredient.name);
+        const unitKey = (ingredient.amountType ?? '').trim().toLowerCase();
+        return `${recipeKey}|${nameKey}|${unitKey}`;
+    }
+
     toggleRecipeToList(recipe: Recipe) {
         if (this.recipeList.some(r => r.title == recipe.title && r.creator == recipe.creator)) {
             this.removeRecipeFromList(recipe);
@@ -129,8 +173,10 @@ export class GroceryService extends BaseService {
 
     addIngredientsToList(ingredients: Ingredient[]) {
         ingredients.forEach(ingredient => {
-            var listIngredient = this.ingredientList.find(i => i.name == ingredient.name);
-            if (listIngredient && ingredient.amountType == listIngredient.amountType) {
+            const targetKey = this.getIngredientIdentityKey(ingredient);
+            const listIngredient = this.ingredientList.find(i => this.getIngredientIdentityKey(i) === targetKey);
+
+            if (listIngredient) {
                 this.ingredientList[this.ingredientList.indexOf(listIngredient)].amount = ingredient.amount + listIngredient.amount;
             } else {
                 this.ingredientList.push(ingredient);
@@ -153,12 +199,25 @@ export class GroceryService extends BaseService {
 
     addIngredientsFromRecipeToList(recipe: Recipe) {
         recipe.ingredients.forEach(ingredient => {
-            var listIngredient = this.ingredientList.find(i => i.name == ingredient.name);
-            if (listIngredient && ingredient.amountType == listIngredient.amountType) {
+            const recipeIngredient: Ingredient = {
+                ...ingredient,
+                sourceRecipeId: recipe.id,
+                sourceRecipeTitle: recipe.title,
+                sourceRecipeCreator: recipe.creator
+            };
+
+            const listIngredient = this.ingredientList.find(item =>
+                this.normalizeIngredientName(item.name) === this.normalizeIngredientName(ingredient.name) &&
+                (item.amountType ?? '').toLowerCase() === (ingredient.amountType ?? '').toLowerCase() &&
+                (item.sourceRecipeId ?? item.sourceRecipeTitle ?? item.sourceRecipeCreator ?? 'manual') ===
+                (recipe.id ?? recipe.title ?? recipe.creator ?? 'manual'));
+
+            if (listIngredient) {
                 this.ingredientList[this.ingredientList.indexOf(listIngredient)].amount = ingredient.amount + listIngredient.amount;
-            } else {
-                this.ingredientList.push(ingredient);
+                return;
             }
+
+            this.ingredientList.push(recipeIngredient);
         });
 
         this.persistState();
@@ -166,12 +225,18 @@ export class GroceryService extends BaseService {
 
     handleIngredientsOnRecipeRemoval(recipe: Recipe) {
         recipe.ingredients.forEach(ingredient => {
-            var listIngredient = this.ingredientList.find(i => i.name == ingredient.name);
-            if (listIngredient && ingredient.amountType == listIngredient.amountType) {
-                this.ingredientList[this.ingredientList.indexOf(listIngredient)].amount = listIngredient.amount - ingredient.amount;
+            const listIngredient = this.ingredientList.find(i =>
+                this.normalizeIngredientName(i.name) === this.normalizeIngredientName(ingredient.name) &&
+                (i.amountType ?? '').toLowerCase() === (ingredient.amountType ?? '').toLowerCase() &&
+                (i.sourceRecipeId ?? i.sourceRecipeTitle ?? i.sourceRecipeCreator ?? 'manual') ===
+                (recipe.id ?? recipe.title ?? recipe.creator ?? 'manual'));
 
-                if (this.ingredientList[this.ingredientList.indexOf(listIngredient)].amount == 0) {
-                    this.removeIngredientFromList(ingredient);
+            if (listIngredient) {
+                const index = this.ingredientList.indexOf(listIngredient);
+                this.ingredientList[index].amount = listIngredient.amount - ingredient.amount;
+
+                if (this.ingredientList[index].amount == 0) {
+                    this.ingredientList.splice(index, 1);
                 }
             }
         });
@@ -184,11 +249,13 @@ export class GroceryService extends BaseService {
     }
 
     removeRecipeFromList(recipe: Recipe) {
-        var index = this.recipeList.indexOf(recipe, 0);
+        const index = this.recipeList.findIndex(item => item.title === recipe.title && item.creator === recipe.creator);
         if (index > -1) {
             this.recipeList.splice(index, 1);
-            recipe.ingredients.forEach(ingredient => {
-                this.removeIngredientFromList(ingredient);
+            this.ingredientList = this.ingredientList.filter(item => {
+                const itemRecipeKey = item.sourceRecipeId ?? item.sourceRecipeTitle ?? item.sourceRecipeCreator ?? 'manual';
+                const recipeKey = recipe.id ?? recipe.title ?? recipe.creator ?? 'manual';
+                return itemRecipeKey !== recipeKey;
             });
         }
 

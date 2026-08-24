@@ -16,13 +16,7 @@ using System.Threading.Tasks;
 
 namespace RecipeHub.Api.Services
 {
-    public interface IGroceryOfferService
-    {
-        bool IsLocationConfigured { get; }
-        Task<GroceryOfferSearchResponse> FindNearbyOffersAsync(GroceryOfferSearchViewModel model);
-    }
-
-    public class MadprisGroceryOfferService : IGroceryOfferService
+    public class MadprisGroceryOfferService : IGroceryProvider
     {
         private static readonly IReadOnlyDictionary<string, string> DanishIngredientQueries =
             new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -89,7 +83,9 @@ namespace RecipeHub.Api.Services
             _logger = logger;
         }
 
-        public bool IsLocationConfigured => !string.IsNullOrWhiteSpace(_configuration["ShelfAtlas:ApiKey"]);
+        public string CountryCode => "DK";
+
+        public bool IsConfigured => !string.IsNullOrWhiteSpace(_configuration["ShelfAtlas:ApiKey"]);
 
         public async Task<GroceryOfferSearchResponse> FindNearbyOffersAsync(GroceryOfferSearchViewModel model)
         {
@@ -97,7 +93,6 @@ namespace RecipeHub.Api.Services
                 .Where(name => !string.IsNullOrWhiteSpace(name))
                 .Select(name => name.Trim())
                 .Distinct(StringComparer.OrdinalIgnoreCase)
-                .Take(10)
                 .ToList();
 
             var locationKey = $"{Math.Round(model.Latitude, 3)}:{Math.Round(model.Longitude, 3)}:{Math.Round(model.RadiusKm, 1)}";
@@ -311,6 +306,7 @@ namespace RecipeHub.Api.Services
             var descriptionWords = description.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
             if (!MatchesCategory(category, product)) return int.MaxValue;
+            if (IsObviouslyUnrelatedProduct(normalizedQuery, name)) return int.MaxValue;
             if (name == normalizedQuery) return 0;
             if (ContainsPhrase(name, normalizedQuery)) return 1;
             if (!normalizedQuery.Contains(' ') && nameWords.Any(word => word.StartsWith(normalizedQuery, StringComparison.Ordinal) ||
@@ -318,6 +314,15 @@ namespace RecipeHub.Api.Services
             if (ContainsPhrase(description, normalizedQuery) ||
                 (!normalizedQuery.Contains(' ') && descriptionWords.Contains(normalizedQuery, StringComparer.Ordinal))) return 3;
             return int.MaxValue;
+        }
+
+        private static bool IsObviouslyUnrelatedProduct(string query, string productName)
+        {
+            string[] unrelatedTerms = { "snack", "chips", "slik", "bolcher", "kage", "dessert", "drik", "soda", "saebe", "shampoo", "hund", "kat" };
+            var queryWords = query.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            var productWords = productName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            return unrelatedTerms.Any(term => !queryWords.Contains(term, StringComparer.Ordinal) &&
+                productWords.Contains(term, StringComparer.Ordinal));
         }
 
         private static bool ContainsPhrase(string value, string phrase) =>

@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, OnInit, ViewChild, ViewChildren } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild, ViewChildren } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { ImageCroppedEvent, ImageCropperComponent, LoadedImage } from 'ngx-image-cropper';
@@ -189,7 +189,7 @@ export class RecipeComponent implements OnInit {
     toolbarPosition: 'top'
   };
 
-  constructor(private activatedRoute: ActivatedRoute, private datepipe: DatePipe, private router: Router, public utilityService: UtilityService, private recipeService: RecipeService, private groceryService: GroceryService, private ingredientService: IngredientService, private userService: UserService, private safeService: SafeService, private favoriteService: FavoriteService, private translateService: TranslateService, private languageService: LanguageService) {
+  constructor(private activatedRoute: ActivatedRoute, private datepipe: DatePipe, private router: Router, public utilityService: UtilityService, private recipeService: RecipeService, private groceryService: GroceryService, private ingredientService: IngredientService, private userService: UserService, private safeService: SafeService, private favoriteService: FavoriteService, private translateService: TranslateService, private languageService: LanguageService, private changeDetectorRef: ChangeDetectorRef) {
     this.recipeId = activatedRoute.snapshot.params['id'] || null;
     this.title = this.utilityService.fromSlug(activatedRoute.snapshot.params['title']);
     this.creator = decodeURIComponent(activatedRoute.snapshot.params['creator'] || '');
@@ -277,8 +277,24 @@ export class RecipeComponent implements OnInit {
       return;
     }
 
-    this.groceryService.toggleRecipeToList(this.canonicalRecipe ?? this.recipe);
-    this.inGroceries = !this.inGroceries;
+    const recipe = this.cloneRecipe(this.canonicalRecipe ?? this.recipe);
+    const portionScale = this.basePortions && this.selectedPortions
+      ? this.selectedPortions / this.basePortions
+      : 1;
+
+    if (portionScale !== 1) {
+      recipe.ingredients = recipe.ingredients.map(ingredient => ({
+        ...ingredient,
+        amount: Number.isFinite(Number(ingredient.amount))
+          ? Number(ingredient.amount) * portionScale
+          : ingredient.amount
+      }));
+      recipe.portions = String(this.selectedPortions);
+    }
+
+    this.groceryService.toggleRecipeToList(recipe);
+    this.inGroceries = this.groceryService.isInGroceries(recipe);
+    this.changeDetectorRef.detectChanges();
   }
   //#endregion
 

@@ -103,7 +103,21 @@ namespace RecipeHub
                 client.BaseAddress = new Uri(Configuration["ShelfAtlas:BaseUrl"] ?? "https://api.shelfatlas.com/api/v1/public/catalog/");
                 client.Timeout = TimeSpan.FromSeconds(20);
             });
-            services.AddScoped<IGroceryOfferService, MadprisGroceryOfferService>();
+            services.AddHttpClient("CamGoz", client =>
+            {
+                client.BaseAddress = new Uri(Configuration["CamGoz:BaseUrl"] ?? "https://camgoz.jojapi.net/");
+                client.Timeout = TimeSpan.FromSeconds(30);
+            });
+            services.AddHttpClient("OpenPrices", client =>
+            {
+                client.BaseAddress = new Uri(Configuration["OpenPrices:BaseUrl"] ?? "https://prices.openfoodfacts.org/");
+                client.DefaultRequestHeaders.UserAgent.ParseAdd(Configuration["OpenPrices:UserAgent"] ?? "RecipeHub/1.0");
+                client.Timeout = TimeSpan.FromSeconds(30);
+            });
+            services.AddScoped<IGroceryProvider, MadprisGroceryOfferService>();
+            services.AddScoped<IGroceryProvider, CamGozGroceryProvider>();
+            services.AddScoped<IGroceryProvider, OpenPricesGroceryProvider>();
+            services.AddScoped<IGroceryOfferService, GroceryProviderService>();
             services.AddScoped<IIngredientImageGenerator, IngredientImageGenerator>();
             services.AddScoped<IFavoriteService, FavoriteService>();
             services.AddScoped<IGroceryService, GroceryService>();

@@ -10,6 +10,16 @@ import { PantryService } from 'src/app/pantry/pantry.service';
 import { UserService } from 'src/app/shared/services/user.service';
 import { GroceryNearbyStore, GroceryOfferCategory, GroceryOfferGroup, GroceryOfferSearchResponse, GroceryShoppingPreference } from 'src/app/shared/models/grocery-offer-search.interface';
 
+interface GroceryIngredientGroup {
+  recipeTitle: string;
+  recipeId: string | null;
+  ingredients: Ingredient[];
+}
+
+interface GroceryIngredientSummary extends Ingredient {
+  sourceIngredients: Ingredient[];
+}
+
 @Component({
   selector: 'app-grocery',
   templateUrl: './grocery.component.html',
@@ -24,6 +34,8 @@ export class GroceryComponent implements OnInit {
   targetUrl: string = '/dashboard/createingredients';
 
   ingredients: Ingredient[] = [];
+  consolidatedIngredients: GroceryIngredientSummary[] = [];
+  viewMode: 'all' | 'recipe' = 'all';
   loadingIngredientDetails: Set<string> = new Set<string>();
   loadedIngredientDetails: Set<string> = new Set<string>();
 
@@ -45,6 +57,7 @@ export class GroceryComponent implements OnInit {
   confirmClearList: boolean = false;
   showAddIngredient: boolean = false;
   ingredientOptions: string[] = [];
+  private ingredientNameLabels: Record<string, string> = {};
   draftIngredientName: string = '';
   draftIngredientAmount: number | null = null;
   draftIngredientUnit: string = 'Piece';
@@ -63,14 +76,59 @@ export class GroceryComponent implements OnInit {
 
   ngOnInit() {
     this.getIngredients();
-    this.ingredientService.getIngredientsLite().subscribe({
-      next: ingredients => this.ingredientOptions = ingredients.map(ingredient => ingredient.name).sort((first, second) => first.localeCompare(second)),
-      error: () => this.ingredientOptions = []
-    });
+    this.loadIngredientTranslations();
+    this.translateService.onLangChange.subscribe(() => this.loadIngredientTranslations());
   }
 
   getIngredients() {
     this.ingredients = this.groceryService.getIngredientList();
+    const summaries = new Map<string, GroceryIngredientSummary>();
+
+    this.ingredients.forEach(ingredient => {
+      const key = `${ingredient.name.trim().toLowerCase()}|${ingredient.amountType.trim().toLowerCase()}`;
+      const summary = summaries.get(key);
+      if (summary) {
+        summary.amount += ingredient.amount;
+        summary.sourceIngredients.push(ingredient);
+      } else {
+        summaries.set(key, {
+          ...ingredient,
+          sourceIngredients: [ingredient]
+        });
+      }
+    });
+
+    this.consolidatedIngredients = Array.from(summaries.values());
+  }
+
+  getIngredientDisplayName(ingredient: Ingredient): string {
+    const lookupKey = ingredient.name?.trim();
+    if (!lookupKey) return ingredient.name;
+    return this.ingredientNameLabels[lookupKey.toLowerCase()] ?? ingredient.name;
+  }
+
+  getIngredientDisplayNameByName(name: string): string {
+    const lookupKey = name?.trim();
+    if (!lookupKey) return name;
+    return this.ingredientNameLabels[lookupKey.toLowerCase()] ?? name;
+  }
+
+  private loadIngredientTranslations() {
+    const languageCode = this.translateService.currentLang || 'en';
+    const requestedLanguage = { da: 'Danish', et: 'Estonian', tr: 'Turkish' }[languageCode] ?? 'English';
+
+    this.ingredientService.getIngredientsLite(requestedLanguage).subscribe({
+      next: ingredients => {
+        this.ingredientNameLabels = Object.fromEntries(
+          (ingredients ?? []).map(ingredient => [ingredient.name.toLowerCase(), ingredient.displayName ?? ingredient.name])
+        );
+        this.ingredientOptions = ingredients.map(ingredient => ingredient.name).sort((first, second) => first.localeCompare(second));
+      },
+      error: () => {
+        this.ingredientNameLabels = {};
+        this.ingredientOptions = [];
+      }
+    });
   }
 
   get ingredientCount() {
@@ -101,6 +159,26 @@ export class GroceryComponent implements OnInit {
     });
 
     return Array.from(groups.values());
+  }
+
+  get groupedIngredients(): GroceryIngredientGroup[] {
+    const groups = new Map<string, GroceryIngredientGroup>();
+
+    this.ingredients.forEach(ingredient => {
+      const recipeKey = ingredient.sourceRecipeId || ingredient.sourceRecipeTitle || 'manual';
+      const recipeTitle = ingredient.sourceRecipeTitle?.trim() || this.translateService.instant('grocery.manualIngredients');
+      const group: GroceryIngredientGroup = groups.get(recipeKey) ?? {
+        recipeTitle,
+        recipeId: ingredient.sourceRecipeId ?? null,
+        ingredients: []
+      };
+
+      group.ingredients.push(ingredient);
+      groups.set(recipeKey, group);
+    });
+
+    return Array.from(groups.values())
+      .sort((first, second) => first.recipeTitle.localeCompare(second.recipeTitle));
   }
 
   get nearbyStores(): GroceryNearbyStore[] {
@@ -226,6 +304,7 @@ export class GroceryComponent implements OnInit {
         ingredientNames: ingredients.map(ingredient => ingredient.name),
         ingredientCategories: this.getCategoryOverrides(ingredients.map(ingredient => ingredient.name)),
         shoppingPreference: this.offerShoppingPreference,
+        countryCode: this.getOfferCountryCode(),
         latitude: position.coords.latitude,
         longitude: position.coords.longitude,
         radiusKm: this.offerSearchRadiusKm
@@ -317,6 +396,7 @@ export class GroceryComponent implements OnInit {
       ingredientNames: [ingredientName],
       ingredientCategories: this.getCategoryOverrides([ingredientName]),
       shoppingPreference: this.offerShoppingPreference,
+      countryCode: this.getOfferCountryCode(),
       forceRefresh: true,
       latitude: this.lastOfferLocation.latitude,
       longitude: this.lastOfferLocation.longitude,
@@ -332,7 +412,11 @@ export class GroceryComponent implements OnInit {
   }
 
   private getOfferSearchIngredients() {
-    return (this.selectedIngredientCount > 0 ? this.selectedIngredients : this.ingredients).slice(0, 10);
+    return this.selectedIngredientCount > 0 ? this.selectedIngredients : this.ingredients;
+  }
+
+  private getOfferCountryCode(): 'DK' | 'EE' | 'TR' {
+    return { da: 'DK', et: 'EE', tr: 'TR' }[this.translateService.currentLang] as 'DK' | 'EE' | 'TR' ?? 'DK';
   }
 
   private getCategoryOverrides(ingredientNames: string[]) {
@@ -367,16 +451,22 @@ export class GroceryComponent implements OnInit {
 
   private setNearbyOfferError(error: any) {
     const code = error?.error?.code;
-    this.nearbyOfferErrorKey = code === 'shelfatlas_not_configured'
+    const isProviderNotConfigured = code === 'grocery_provider_not_configured' || code === 'shelfatlas_not_configured';
+    const isRateLimited = error?.status === 429 || code === 'grocery_provider_rate_limited' || code === 'shelfatlas_rate_limited';
+
+    this.nearbyOfferErrorKey = isProviderNotConfigured
       ? 'grocery.offerSearchNotConfigured'
-      : error?.status === 429 || code === 'shelfatlas_rate_limited'
+      : isRateLimited
         ? 'grocery.offerSearchRateLimited'
         : 'grocery.offerSearchFailed';
   }
 
   removeIngredient(ingredient: Ingredient) {
     if (this.editingIngredient === ingredient) this.cancelEditingIngredient();
-    this.groceryService.removeIngredientFromList(ingredient);
+    const summary = ingredient as Partial<GroceryIngredientSummary>;
+    (summary.sourceIngredients ?? [ingredient]).forEach(sourceIngredient => {
+      this.groceryService.removeIngredientFromList(sourceIngredient);
+    });
     this.selectedIngredients = this.selectedIngredients.filter(item => item !== ingredient);
     this.getIngredients();
   }
@@ -427,19 +517,21 @@ export class GroceryComponent implements OnInit {
     if (this.sortSetting != sortSetting) this.ascending = true;
     this.sortSetting = sortSetting;
 
+    const ingredients = this.viewMode === 'all' ? this.consolidatedIngredients : this.ingredients;
+
     switch (sortSetting) {
       case 'name':
-        this.ingredients.sort((a, b) => this.ascending == true ? a.name.localeCompare(b.name) : -(a.name.localeCompare(b.name)));
+        ingredients.sort((a, b) => this.ascending == true ? a.name.localeCompare(b.name) : -(a.name.localeCompare(b.name)));
         this.ascending = !this.ascending;
         return;
       case 'amount':
-        this.ingredients.sort((a, b) => this.ascending == true
+        ingredients.sort((a, b) => this.ascending == true
           ? (a.amount - b.amount) || a.name.localeCompare(b.name)
           : (b.amount - a.amount) || b.name.localeCompare(a.name));
         this.ascending = !this.ascending;
         return;
       case 'created':
-        this.ingredients.sort((a, b) => this.ascending == true ? a.created.localeCompare(b.created) : -a.created.localeCompare(b.created));
+        ingredients.sort((a, b) => this.ascending == true ? a.created.localeCompare(b.created) : -a.created.localeCompare(b.created));
         this.ascending = !this.ascending;
         return;
     }

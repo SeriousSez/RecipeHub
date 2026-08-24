@@ -8,6 +8,7 @@ namespace RecipeHub.Domain.Models
         public List<string> IngredientNames { get; set; } = new List<string>();
         public Dictionary<string, string> IngredientCategories { get; set; } = new Dictionary<string, string>();
         public string ShoppingPreference { get; set; } = "balanced";
+        public string CountryCode { get; set; } = "DK";
         public bool ForceRefresh { get; set; }
         public double Latitude { get; set; }
         public double Longitude { get; set; }

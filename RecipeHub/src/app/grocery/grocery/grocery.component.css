@@ -905,3 +905,28 @@
 .grocery-offer-group.is-collapsed .grocery-offer-group-heading {
     margin-bottom: 0;
 }
+
+.grocery-view-tabs {
+    display: inline-flex;
+    gap: .25rem;
+    margin-bottom: 1rem;
+    padding: .25rem;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    border-radius: 7px;
+    background: #f8fafc;
+}
+
+.grocery-view-tab {
+    border: 0;
+    border-radius: 5px;
+    padding: .5rem .8rem;
+    color: #475569;
+    background: transparent;
+    font-weight: 700;
+}
+
+.grocery-view-tab.is-active {
+    color: #0f172a;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+}

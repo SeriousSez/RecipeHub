@@ -31,6 +31,43 @@ namespace RecipeHub.Api.Services
         {
             "Danish", "English", "Estonian", "Turkish"
         };
+        private static readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> CommonIngredientTranslations =
+            new Dictionary<string, IReadOnlyDictionary<string, string>>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["Danish"] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["garlic"] = "hvidløg",
+                    ["onion"] = "løg",
+                    ["salt"] = "salt",
+                    ["black pepper"] = "sort peber",
+                    ["mushrooms"] = "svampe",
+                    ["butter"] = "smør",
+                    ["olive oil"] = "olivenolie",
+                    ["parsley"] = "persille"
+                },
+                ["Estonian"] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["garlic"] = "küüslauk",
+                    ["onion"] = "sibul",
+                    ["salt"] = "sool",
+                    ["black pepper"] = "must pipar",
+                    ["mushrooms"] = "seened",
+                    ["butter"] = "või",
+                    ["olive oil"] = "oliiviõli",
+                    ["parsley"] = "petersell"
+                },
+                ["Turkish"] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["garlic"] = "sarımsak",
+                    ["onion"] = "soğan",
+                    ["salt"] = "tuz",
+                    ["black pepper"] = "karabiber",
+                    ["mushrooms"] = "mantar",
+                    ["butter"] = "tereyağı",
+                    ["olive oil"] = "zeytinyağı",
+                    ["parsley"] = "maydanoz"
+                }
+            };
         private static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
@@ -221,7 +258,7 @@ namespace RecipeHub.Api.Services
                 return distinctNames.ToDictionary(name => name, name => name, StringComparer.OrdinalIgnoreCase);
 
             var apiKey = GetApiKey();
-            if (string.IsNullOrWhiteSpace(apiKey)) return null;
+            if (string.IsNullOrWhiteSpace(apiKey)) return CreateCommonIngredientTranslations(distinctNames, language);
 
             var source = distinctNames.Select((name, index) => new IngredientCanonicalization
             {
@@ -311,7 +348,7 @@ namespace RecipeHub.Api.Services
                     var content = await SendAsync(requestBody, apiKey);
                     if (content == null)
                     {
-                        foreach (var item in source) translatedNames[item.Name] = item.Name;
+                        foreach (var item in source) translatedNames[item.Name] = GetCommonIngredientTranslation(item.Name, language);
                         continue;
                     }
 
@@ -321,7 +358,7 @@ namespace RecipeHub.Api.Services
                             string.IsNullOrWhiteSpace(item.DisplayName)).Any(invalid => invalid))
                     {
                         _logger.LogWarning("Ingredient name translation returned an invalid batch for language {Language}", language);
-                        foreach (var item in source) translatedNames[item.Name] = item.Name;
+                        foreach (var item in source) translatedNames[item.Name] = GetCommonIngredientTranslation(item.Name, language);
                         continue;
                     }
 
@@ -334,11 +371,24 @@ namespace RecipeHub.Api.Services
                 catch (Exception exception)
                 {
                     _logger.LogWarning(exception, "Ingredient name translation failed for language {Language}", language);
-                    foreach (var item in source) translatedNames[item.Name] = item.Name;
+                    foreach (var item in source) translatedNames[item.Name] = GetCommonIngredientTranslation(item.Name, language);
                 }
             }
 
             return translatedNames;
+        }
+
+        private static Dictionary<string, string> CreateCommonIngredientTranslations(IEnumerable<string> names, string language)
+        {
+            return names.ToDictionary(name => name, name => GetCommonIngredientTranslation(name, language), StringComparer.OrdinalIgnoreCase);
+        }
+
+        private static string GetCommonIngredientTranslation(string name, string language)
+        {
+            return CommonIngredientTranslations.TryGetValue(language, out var translations) &&
+                   translations.TryGetValue(name.Trim(), out var translatedName)
+                ? translatedName
+                : name;
         }
 
         private string GetApiKey() => Environment.GetEnvironmentVariable("OPENAI_API_KEY")

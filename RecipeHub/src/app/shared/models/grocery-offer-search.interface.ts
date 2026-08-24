@@ -2,6 +2,7 @@ export interface GroceryOfferSearchRequest {
     ingredientNames: string[];
     ingredientCategories?: Record<string, GroceryOfferCategory>;
     shoppingPreference?: GroceryShoppingPreference;
+    countryCode: 'DK' | 'EE' | 'TR';
     forceRefresh?: boolean;
     latitude: number;
     longitude: number;

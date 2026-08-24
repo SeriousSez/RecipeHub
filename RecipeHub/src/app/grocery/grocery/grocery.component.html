@@ -73,7 +73,7 @@
         @for (group of nearbyOfferGroups; track group.ingredientName; let groupIndex = $index) {
         <section class="grocery-offer-group" [class.is-collapsed]="isIngredientDealsCollapsed(group.ingredientName)">
           <div class="grocery-offer-group-heading">
-            <h3>{{ group.ingredientName }}</h3>
+            <h3>{{ getIngredientDisplayNameByName(group.ingredientName) }}</h3>
             <div class="grocery-offer-refine">
               <span>{{ 'grocery.matchesFound' | translate:{ count: group.offers.length } }}</span>
               <app-taxonomy-select [ngModel]="getOfferCategory(group.ingredientName)" (ngModelChange)="setOfferCategory(group.ingredientName, $event)" [options]="offerCategories" [optionLabels]="offerCategoryLabels" [multiple]="false" [allowCustom]="false" [compact]="true"
@@ -136,7 +136,7 @@
         <strong>{{ 'grocery.unmatchedIngredients' | translate }}</strong>
         @for (ingredientName of nearbyOfferResults.unmatchedIngredients; track ingredientName) {
         <div class="grocery-unmatched-item">
-          <span>{{ ingredientName }}</span>
+          <span>{{ getIngredientDisplayNameByName(ingredientName) }}</span>
           <app-taxonomy-select [ngModel]="getOfferCategory(ingredientName)" (ngModelChange)="setOfferCategory(ingredientName, $event)" [options]="offerCategories" [optionLabels]="offerCategoryLabels" [multiple]="false" [allowCustom]="false" [compact]="true"
             [placeholder]="'grocery.offerCategories.auto' | translate" [ariaLabel]="'grocery.offerCategoryLabel' | translate"></app-taxonomy-select>
           <button type="button" class="btn btn-outline-brand" [disabled]="searchingNearbyOffers || isRetryingIngredient(ingredientName)" (click)="retryIngredientOffers(ingredientName)" [attr.aria-label]="'grocery.retryIngredient' | translate:{ ingredient: ingredientName }"
@@ -212,6 +212,15 @@
       </div>
     </div>
 
+    <div class="grocery-view-tabs" role="tablist" [attr.aria-label]="'grocery.viewModeLabel' | translate">
+      <button type="button" role="tab" class="grocery-view-tab" [class.is-active]="viewMode === 'all'" [attr.aria-selected]="viewMode === 'all'" (click)="viewMode = 'all'">
+        {{ 'grocery.allIngredients' | translate }}
+      </button>
+      <button type="button" role="tab" class="grocery-view-tab" [class.is-active]="viewMode === 'recipe'" [attr.aria-selected]="viewMode === 'recipe'" (click)="viewMode = 'recipe'">
+        {{ 'grocery.byRecipe' | translate }}
+      </button>
+    </div>
+
     @if (confirmClearList) {
     <div class="grocery-clear-confirm" role="alert">
       <span>{{ 'grocery.clearListConfirm' | translate }}</span>
@@ -240,15 +249,40 @@
           <th scope="col" class="grocery-action-column"><span class="visually-hidden">{{ 'grocery.actionsColumn' | translate }}</span></th>
         </tr>
       </thead>
-      @for (ingredient of ingredients; track ingredient; let i = $index) {
+      @if (viewMode === 'all') {
       <tbody>
-        <tr id="table-row{{i}}" tabindex="1" class="clickable collapsed" [class.is-selected]="isIngredientSelected(ingredient)">
+        @for (ingredient of consolidatedIngredients; track ingredient.name + ingredient.amountType) {
+        <tr class="clickable" [class.is-selected]="isIngredientSelected(ingredient)">
+          <th scope="row">
+            <input class="form-check-input me-1 cursor-pointer" type="checkbox" [checked]="isIngredientSelected(ingredient)" (click)="$event.stopPropagation(); toggleIngredientSelected(ingredient)">
+          </th>
+          <td>{{ getIngredientDisplayName(ingredient) }}</td>
+          <td>{{ ingredient.amount }} {{ ingredient.amountType }}</td>
+          <td>{{ displayDateOnly(ingredient.created) }}</td>
+          <td class="grocery-row-action">
+            <button type="button" (click)="$event.stopPropagation(); removeIngredient(ingredient)" [attr.aria-label]="('grocery.removeIngredient' | translate) + ': ' + getIngredientDisplayName(ingredient)" [title]="'grocery.removeIngredient' | translate">
+              <i class="fas fa-times" aria-hidden="true"></i>
+            </button>
+          </td>
+        </tr>
+        }
+      </tbody>
+      } @else {
+      @for (group of groupedIngredients; track group.recipeTitle) {
+      <tbody>
+        <tr class="grocery-group-header">
+          <td colspan="5">
+            <strong>{{ group.recipeTitle }}</strong>
+          </td>
+        </tr>
+        @for (ingredient of group.ingredients; track ingredient; let i = $index) {
+        <tr id="table-row{{group.recipeTitle}}-{{i}}" tabindex="1" class="clickable collapsed" [class.is-selected]="isIngredientSelected(ingredient)">
           <th scope="row">
             <input class="form-check-input me-1 cursor-pointer" type="checkbox" [checked]="isIngredientSelected(ingredient)" (click)="$event.stopPropagation(); toggleIngredientSelected(ingredient)">
           </th>
           @if (isEditingIngredient(ingredient)) {
           <td class="grocery-edit-name">
-            <app-taxonomy-select [name]="'edit-grocery-ingredient-' + i" [(ngModel)]="editIngredientName" [options]="ingredientOptions" [multiple]="false" [allowCustom]="true" [placeholder]="'grocery.ingredientPlaceholder' | translate"
+            <app-taxonomy-select [name]="'edit-grocery-ingredient-' + group.recipeTitle + '-' + i" [(ngModel)]="editIngredientName" [options]="ingredientOptions" [multiple]="false" [allowCustom]="true" [placeholder]="'grocery.ingredientPlaceholder' | translate"
               [ariaLabel]="'grocery.ingredientColumn' | translate"></app-taxonomy-select>
           </td>
           <td>
@@ -258,10 +292,10 @@
             </div>
           </td>
           } @else {
-          <td class="cursor-pointer" (click)="handleIngredientClick(ingredient, 'accordion' + i, 'table-row' + i)">{{ingredient.name}}</td>
-          <td class="cursor-pointer" (click)="handleIngredientClick(ingredient, 'accordion' + i, 'table-row' + i)">{{ingredient.amount}} {{ingredient.amountType}}</td>
+          <td class="cursor-pointer" (click)="handleIngredientClick(ingredient, 'accordion' + group.recipeTitle + '-' + i, 'table-row' + group.recipeTitle + '-' + i)">{{ getIngredientDisplayName(ingredient) }}</td>
+          <td class="cursor-pointer" (click)="handleIngredientClick(ingredient, 'accordion' + group.recipeTitle + '-' + i, 'table-row' + group.recipeTitle + '-' + i)">{{ingredient.amount}} {{ingredient.amountType}}</td>
           }
-          <td class="cursor-pointer" (click)="handleIngredientClick(ingredient, 'accordion' + i, 'table-row' + i)">
+          <td class="cursor-pointer" (click)="handleIngredientClick(ingredient, 'accordion' + group.recipeTitle + '-' + i, 'table-row' + group.recipeTitle + '-' + i)">
             {{displayDateOnly(ingredient.created)}}
           </td>
           <td class="grocery-row-action">
@@ -270,15 +304,16 @@
               [title]="'grocery.saveIngredient' | translate"><i class="fas fa-check" aria-hidden="true"></i></button>
             <button type="button" (click)="$event.stopPropagation(); cancelEditingIngredient()" [attr.aria-label]="'grocery.cancelIngredientEdit' | translate" [title]="'grocery.cancelIngredientEdit' | translate"><i class="fas fa-times" aria-hidden="true"></i></button>
             } @else {
-            <button type="button" (click)="$event.stopPropagation(); startEditingIngredient(ingredient)" [attr.aria-label]="('grocery.editIngredient' | translate) + ': ' + ingredient.name" [title]="'grocery.editIngredient' | translate"><i class="fas fa-pen" aria-hidden="true"></i></button>
-            <button type="button" (click)="$event.stopPropagation(); removeIngredient(ingredient)" [attr.aria-label]="('grocery.removeIngredient' | translate) + ': ' + ingredient.name" [title]="'grocery.removeIngredient' | translate">
+            <button type="button" (click)="$event.stopPropagation(); startEditingIngredient(ingredient)" [attr.aria-label]="('grocery.editIngredient' | translate) + ': ' + getIngredientDisplayName(ingredient)" [title]="'grocery.editIngredient' | translate"><i class="fas fa-pen"
+                aria-hidden="true"></i></button>
+            <button type="button" (click)="$event.stopPropagation(); removeIngredient(ingredient)" [attr.aria-label]="('grocery.removeIngredient' | translate) + ': ' + getIngredientDisplayName(ingredient)" [title]="'grocery.removeIngredient' | translate">
               <i class="fas fa-times" aria-hidden="true"></i>
             </button>
             }
           </td>
         </tr>
         <tr>
-          <td colspan="12" id="accordion{{i}}" class="accordion-collapse collapse tr ingredient-details-cell">
+          <td colspan="12" id="accordion{{group.recipeTitle}}-{{i}}" class="accordion-collapse collapse tr ingredient-details-cell">
             <div class="ingredient-details-grid">
               <div class="ingredient-media">
                 @if (isIngredientDetailsLoading(ingredient)) {
@@ -295,7 +330,9 @@
             </div>
           </td>
         </tr>
+        }
       </tbody>
+      }
       }
     </table>
   </section>

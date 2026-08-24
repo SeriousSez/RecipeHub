@@ -8,6 +8,9 @@ export interface Ingredient {
     amount: number;
     amountType: string;
     group?: string;
+    sourceRecipeId?: string;
+    sourceRecipeTitle?: string;
+    sourceRecipeCreator?: string;
     created: string;
     image: Image | null;
 }
