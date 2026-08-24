@@ -96,6 +96,10 @@ export class RecipeComponent implements OnInit {
   public savingEngagement: boolean = false;
   public engagementError: boolean = false;
   public readonly ratingValues = [1, 2, 3, 4, 5];
+  public movingIngredientGroup: string | null = null;
+  public movingIngredient: Ingredient | null = null;
+  public draggedIngredientGroup: string | null = null;
+  public draggedIngredient: Ingredient | null = null;
 
   get ingredientGroups(): Array<{ name: string; ingredients: Ingredient[] }> {
     const groups = new Map<string, { name: string; ingredients: Ingredient[] }>();
@@ -134,6 +138,104 @@ export class RecipeComponent implements OnInit {
 
   private getIngredientGroupId(groupName: string): string {
     return groupName.trim().toLocaleLowerCase().replace(/\s+/g, ' ') || '__ungrouped__';
+  }
+
+  moveIngredientGroup(groupName: string, direction: -1 | 1): void {
+    const index = this.ingredientGroupNames.indexOf(groupName);
+    const targetIndex = index + direction;
+    if (index < 0 || targetIndex < 0 || targetIndex >= this.ingredientGroupNames.length) return;
+
+    const reordered = this.ingredientGroupNames.slice();
+    const [group] = reordered.splice(index, 1);
+    reordered.splice(targetIndex, 0, group);
+    this.ingredientGroupNames = reordered;
+    this.movingIngredientGroup = groupName;
+    setTimeout(() => this.movingIngredientGroup = null, 240);
+  }
+
+  moveIngredient(ingredient: Ingredient, direction: -1 | 1): void {
+    const groupName = ingredient.group?.trim() ?? '';
+    const groupIngredients = this.currentIngredients.filter(item => (item.group?.trim() ?? '') === groupName);
+    const index = groupIngredients.indexOf(ingredient);
+    const targetIndex = index + direction;
+    if (index < 0 || targetIndex < 0 || targetIndex >= groupIngredients.length) return;
+
+    const target = groupIngredients[targetIndex];
+    const firstIndex = this.currentIngredients.indexOf(ingredient);
+    const secondIndex = this.currentIngredients.indexOf(target);
+    [this.currentIngredients[firstIndex], this.currentIngredients[secondIndex]] = [this.currentIngredients[secondIndex], this.currentIngredients[firstIndex]];
+    this.movingIngredient = ingredient;
+    setTimeout(() => this.movingIngredient = null, 240);
+  }
+
+  dragIngredientGroup(groupName: string): void {
+    this.draggedIngredientGroup = groupName;
+  }
+
+  dropIngredientGroup(targetGroupName: string): void {
+    if (this.draggedIngredient) {
+      this.dropRecipeIngredientIntoGroup(targetGroupName);
+      return;
+    }
+
+    const sourceGroupName = this.draggedIngredientGroup;
+    this.draggedIngredientGroup = null;
+    if (!sourceGroupName || !targetGroupName || sourceGroupName === targetGroupName) return;
+
+    const sourceIndex = this.ingredientGroupNames.indexOf(sourceGroupName);
+    const targetIndex = this.ingredientGroupNames.indexOf(targetGroupName);
+    if (sourceIndex < 0 || targetIndex < 0) return;
+
+    const reordered = this.ingredientGroupNames.slice();
+    const [group] = reordered.splice(sourceIndex, 1);
+    reordered.splice(targetIndex, 0, group);
+    this.ingredientGroupNames = reordered;
+    this.movingIngredientGroup = sourceGroupName;
+    setTimeout(() => this.movingIngredientGroup = null, 240);
+  }
+
+  dragRecipeIngredient(ingredient: Ingredient): void {
+    this.draggedIngredient = ingredient;
+  }
+
+  dropRecipeIngredient(target: Ingredient): void {
+    const source = this.draggedIngredient;
+    this.draggedIngredient = null;
+    if (!source || source === target) return;
+
+    const sourceIndex = this.currentIngredients.indexOf(source);
+    const targetIndex = this.currentIngredients.indexOf(target);
+    if (sourceIndex < 0 || targetIndex < 0) return;
+
+    source.group = target.group;
+    source.groupId = target.groupId;
+    this.currentIngredients.splice(sourceIndex, 1);
+    this.currentIngredients.splice(sourceIndex < targetIndex ? targetIndex - 1 : targetIndex, 0, source);
+    this.movingIngredient = source;
+    setTimeout(() => this.movingIngredient = null, 240);
+  }
+
+  private dropRecipeIngredientIntoGroup(targetGroupName: string): void {
+    const source = this.draggedIngredient;
+    this.draggedIngredient = null;
+    if (!source) return;
+
+    const target = this.currentIngredients.find(ingredient => ingredient.group?.trim() === targetGroupName);
+    source.group = targetGroupName;
+    source.groupId = target?.groupId;
+    const sourceIndex = this.currentIngredients.indexOf(source);
+    if (sourceIndex < 0) return;
+    this.currentIngredients.splice(sourceIndex, 1);
+    let insertIndex = this.currentIngredients.length;
+    for (let index = this.currentIngredients.length - 1; index >= 0; index--) {
+      if (this.currentIngredients[index].group?.trim() === targetGroupName) {
+        insertIndex = index + 1;
+        break;
+      }
+    }
+    this.currentIngredients.splice(insertIndex, 0, source);
+    this.movingIngredient = source;
+    setTimeout(() => this.movingIngredient = null, 240);
   }
 
   public toggleInstruction(event: MouseEvent): void {
@@ -991,6 +1093,20 @@ export class RecipeComponent implements OnInit {
     const categories = this.parseCsv(this.categoriesInput);
     const tags = this.parseCsv(this.tagsInput);
 
+    const groupOrders = new Map<string, number>();
+    const ingredientOrders = new Map<string, number>();
+    groupOrders.set('', 0);
+    this.ingredientGroupNames.forEach((groupName, index) => groupOrders.set(groupName.trim(), index + 1));
+    const orderedIngredients = this.ingredientEditorGroups.flatMap(group => group.ingredients);
+    const ingredients = orderedIngredients.map(ingredient => {
+      const groupName = ingredient.group?.trim() ?? '';
+      const groupId = this.getIngredientGroupId(groupName);
+      if (!groupOrders.has(groupId)) groupOrders.set(groupId, groupOrders.size);
+      const ingredientOrder = ingredientOrders.get(groupId) ?? 0;
+      ingredientOrders.set(groupId, ingredientOrder + 1);
+      return { ...ingredient, groupOrder: groupOrders.get(groupId), ingredientOrder };
+    });
+
     var model: RecipeUpdate = {
       oldTitle: this.title,
       title: recipe.title,
@@ -1016,7 +1132,7 @@ export class RecipeComponent implements OnInit {
       sodiumMilligrams: recipe.sodiumMilligrams,
       created: recipe.created,
       image: recipe.image,
-      ingredients: recipe.ingredients,
+      ingredients,
       categories,
       tags,
     }

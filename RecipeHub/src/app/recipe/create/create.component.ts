@@ -66,6 +66,10 @@ export class CreateComponent implements OnInit, OnDestroy {
   public defaultIngredient: IngredientCreation = { name: "", description: "", amount: 0, amountType: 'Pinch or dash', group: '', imageCaption: "", image: null, created: '' };
   public newIngredient: IngredientCreation;
   public newIngredients: IngredientCreation[] = [];
+  public movingIngredientGroup: string | null = null;
+  public movingIngredient: IngredientCreation | null = null;
+  public draggedIngredientGroup: string | null = null;
+  public draggedIngredient: IngredientCreation | null = null;
   public ingredientGroupNames: string[] = [];
   public newIngredientGroupName: string = '';
   public activeIngredientGroup: string | null = '';
@@ -224,7 +228,16 @@ export class CreateComponent implements OnInit, OnDestroy {
     value.creator = this.userService.getUserName();
     value.imageUrl = this.imageUrl;
     value.image = { url: this.imageUrl, caption: value.imageCaption }
-    value.ingredients = this.newIngredients;
+    const groupOrders = new Map<string, number>();
+    const ingredientOrders = new Map<string, number>();
+    const orderedIngredients = this.ingredientEditorGroups.flatMap(group => group.ingredients);
+    value.ingredients = orderedIngredients.map(ingredient => {
+      const groupName = ingredient.group?.trim() ?? '';
+      if (!groupOrders.has(groupName)) groupOrders.set(groupName, groupOrders.size);
+      const ingredientOrder = ingredientOrders.get(groupName) ?? 0;
+      ingredientOrders.set(groupName, ingredientOrder + 1);
+      return { ...ingredient, groupOrder: groupOrders.get(groupName), ingredientOrder };
+    });
     value.categories = this.parseCsv(value.categories ?? this.categoriesInput);
     value.tags = this.parseCsv(value.tags ?? this.tagsInput);
 
@@ -545,6 +558,101 @@ export class CreateComponent implements OnInit, OnDestroy {
     } else {
       this.newIngredients.push(ingredient);
     }
+  }
+
+  moveIngredientGroup(groupName: string, direction: -1 | 1): void {
+    const index = this.ingredientGroupNames.indexOf(groupName);
+    const targetIndex = index + direction;
+    if (index < 0 || targetIndex < 0 || targetIndex >= this.ingredientGroupNames.length) return;
+
+    const reordered = this.ingredientGroupNames.slice();
+    const [group] = reordered.splice(index, 1);
+    reordered.splice(targetIndex, 0, group);
+    this.ingredientGroupNames = reordered;
+    this.movingIngredientGroup = groupName;
+    setTimeout(() => this.movingIngredientGroup = null, 240);
+  }
+
+  moveIngredient(ingredient: IngredientCreation, direction: -1 | 1): void {
+    const groupName = ingredient.group?.trim() ?? '';
+    const groupIngredients = this.newIngredients.filter(item => (item.group?.trim() ?? '') === groupName);
+    const index = groupIngredients.indexOf(ingredient);
+    const targetIndex = index + direction;
+    if (index < 0 || targetIndex < 0 || targetIndex >= groupIngredients.length) return;
+
+    const target = groupIngredients[targetIndex];
+    const firstIndex = this.newIngredients.indexOf(ingredient);
+    const secondIndex = this.newIngredients.indexOf(target);
+    [this.newIngredients[firstIndex], this.newIngredients[secondIndex]] = [this.newIngredients[secondIndex], this.newIngredients[firstIndex]];
+    this.movingIngredient = ingredient;
+    setTimeout(() => this.movingIngredient = null, 240);
+  }
+
+  dragIngredientGroup(groupName: string): void {
+    this.draggedIngredientGroup = groupName;
+  }
+
+  dropIngredientGroup(targetGroupName: string): void {
+    if (this.draggedIngredient) {
+      this.dropIngredientIntoGroup(targetGroupName);
+      return;
+    }
+
+    const sourceGroupName = this.draggedIngredientGroup;
+    this.draggedIngredientGroup = null;
+    if (!sourceGroupName || !targetGroupName || sourceGroupName === targetGroupName) return;
+
+    const sourceIndex = this.ingredientGroupNames.indexOf(sourceGroupName);
+    const targetIndex = this.ingredientGroupNames.indexOf(targetGroupName);
+    if (sourceIndex < 0 || targetIndex < 0) return;
+
+    const reordered = this.ingredientGroupNames.slice();
+    const [group] = reordered.splice(sourceIndex, 1);
+    reordered.splice(targetIndex, 0, group);
+    this.ingredientGroupNames = reordered;
+    this.movingIngredientGroup = sourceGroupName;
+    setTimeout(() => this.movingIngredientGroup = null, 240);
+  }
+
+  dragRecipeIngredient(ingredient: IngredientCreation): void {
+    this.draggedIngredient = ingredient;
+  }
+
+  dropRecipeIngredient(target: IngredientCreation): void {
+    const source = this.draggedIngredient;
+    this.draggedIngredient = null;
+    if (!source || source === target) return;
+
+    const sourceIndex = this.newIngredients.indexOf(source);
+    const targetIndex = this.newIngredients.indexOf(target);
+    if (sourceIndex < 0 || targetIndex < 0) return;
+
+    source.group = target.group;
+    this.newIngredients.splice(sourceIndex, 1);
+    this.newIngredients.splice(sourceIndex < targetIndex ? targetIndex - 1 : targetIndex, 0, source);
+    this.movingIngredient = source;
+    setTimeout(() => this.movingIngredient = null, 240);
+  }
+
+  private dropIngredientIntoGroup(targetGroupName: string): void {
+    const source = this.draggedIngredient;
+    this.draggedIngredient = null;
+    if (!source) return;
+
+    source.group = targetGroupName;
+    const sourceIndex = this.newIngredients.indexOf(source);
+    if (sourceIndex < 0) return;
+    this.newIngredients.splice(sourceIndex, 1);
+    let insertIndex = this.newIngredients.length;
+    for (let index = this.newIngredients.length - 1; index >= 0; index--) {
+      if (this.newIngredients[index].group?.trim() === targetGroupName) {
+        insertIndex = index + 1;
+        break;
+      }
+    }
+    this.newIngredients.splice(insertIndex, 0, source);
+    this.movingIngredient = source;
+    setTimeout(() => this.movingIngredient = null, 240);
   }
 
   handleFileInput(event: any) {

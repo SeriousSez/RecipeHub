@@ -396,8 +396,9 @@
                                                 <th scope="col" class="editor-ingredient-action-column"><span class="visually-hidden">{{ 'recipe.removeButton' | translate }}</span></th>
                                             </tr>
                                         </thead>
-                                        <tbody *ngFor="let group of ingredientEditorGroups; let groupIndex = index; trackBy: trackIngredientEditorGroup" class="editor-ingredient-section" [class.is-active]="activeIngredientGroup === group.name">
-                                            <tr class="editor-ingredient-section-header">
+                                        <tbody *ngFor="let group of ingredientEditorGroups; let groupIndex = index; trackBy: trackIngredientEditorGroup" class="editor-ingredient-section" [class.is-active]="activeIngredientGroup === group.name"
+                                            [class.is-reordering]="movingIngredientGroup === group.name">
+                                            <tr class="editor-ingredient-section-header" [draggable]="!!group.name" (dragstart)="dragIngredientGroup(group.name)" (dragend)="draggedIngredientGroup = null" (dragover)="$event.preventDefault()" (drop)="dropIngredientGroup(group.name)">
                                                 <th colspan="5" scope="rowgroup">
                                                     <div class="editor-ingredient-section-header-content">
                                                         <div class="editor-ingredient-section-title">
@@ -418,6 +419,14 @@
                                                             <span class="editor-ingredient-count">{{group.ingredients.length}}</span>
                                                         </div>
                                                         <div *ngIf="editingIngredientGroup !== group.name" class="editor-ingredient-section-actions">
+                                                            <button *ngIf="group.name" type="button" class="editor-group-order" [disabled]="groupIndex === 1 && ingredientEditorGroups[0].name === ''" [attr.aria-label]="'recipe.moveGroupUpAria' | translate"
+                                                                [title]="'recipe.moveGroupUpAria' | translate" (click)="moveIngredientGroup(group.name, -1)">
+                                                                <i class="fas fa-chevron-up" aria-hidden="true"></i>
+                                                            </button>
+                                                            <button *ngIf="group.name" type="button" class="editor-group-order" [disabled]="groupIndex === ingredientEditorGroups.length - 1" [attr.aria-label]="'recipe.moveGroupDownAria' | translate" [title]="'recipe.moveGroupDownAria' | translate"
+                                                                (click)="moveIngredientGroup(group.name, 1)">
+                                                                <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                                                            </button>
                                                             <button *ngIf="activeIngredientGroup !== group.name" type="button" class="editor-add-here" (click)="selectIngredientGroup(group.name)">
                                                                 <i class="fas fa-plus" aria-hidden="true"></i>
                                                                 <span>{{ 'recipe.addIngredientHereButton' | translate }}</span>
@@ -459,13 +468,26 @@
                                                     </div>
                                                 </td>
                                             </tr>
-                                            <tr *ngIf="group.ingredients.length === 0" class="editor-empty-group">
+                                            <tr *ngIf="group.ingredients.length === 0" class="editor-empty-group" (dragover)="$event.preventDefault()" (drop)="dropIngredientGroup(group.name)">
                                                 <td colspan="5">{{ 'recipe.emptyIngredientGroupMessage' | translate }}</td>
                                             </tr>
-                                            <tr *ngFor="let ingredient of group.ingredients; let ingredientIndex = index" class="editor-ingredient-row">
+                                            <tr *ngFor="let ingredient of group.ingredients; let ingredientIndex = index" class="editor-ingredient-row" [class.is-reordering]="movingIngredient === ingredient" draggable="true" (dragstart)="dragRecipeIngredient(ingredient)"
+                                                (dragend)="draggedIngredient = null" (dragover)="$event.preventDefault()" (drop)="dropRecipeIngredient(ingredient)">
                                                 <td class="editor-ingredient-name-cell" [attr.data-label]="'recipe.ingredientsAccordionHeader' | translate">
-                                                    <app-taxonomy-select [ngModel]="ingredient.name" (ngModelChange)="updateIngredientName(ingredient, $event)" [name]="'existing-name-' + groupIndex + '-' + ingredientIndex" [options]="ingredientOptions" [optionLabels]="ingredientOptionLabels"
-                                                        [multiple]="false" [allowCustom]="true" [placeholder]="'recipe.namePlaceholder' | translate" [ariaLabel]="'recipe.namePlaceholder' | translate"></app-taxonomy-select>
+                                                    <div class="editor-ingredient-name-controls">
+                                                        <span class="editor-ingredient-order">
+                                                            <button type="button" class="editor-ingredient-move" [disabled]="ingredientIndex === 1" [attr.aria-label]="'recipe.moveIngredientUpAria' | translate" [title]="'recipe.moveIngredientUpAria' | translate"
+                                                                (click)="moveIngredient(ingredient, -1)">
+                                                                <i class="fas fa-chevron-up" aria-hidden="true"></i>
+                                                            </button>
+                                                            <button type="button" class="editor-ingredient-move" [disabled]="ingredientIndex === group.ingredients.length - 1" [attr.aria-label]="'recipe.moveIngredientDownAria' | translate" [title]="'recipe.moveIngredientDownAria' | translate"
+                                                                (click)="moveIngredient(ingredient, 1)">
+                                                                <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                                                            </button>
+                                                        </span>
+                                                        <app-taxonomy-select [ngModel]="ingredient.name" (ngModelChange)="updateIngredientName(ingredient, $event)" [name]="'existing-name-' + groupIndex + '-' + ingredientIndex" [options]="ingredientOptions" [optionLabels]="ingredientOptionLabels"
+                                                            [multiple]="false" [allowCustom]="true" [placeholder]="'recipe.namePlaceholder' | translate" [ariaLabel]="'recipe.namePlaceholder' | translate"></app-taxonomy-select>
+                                                    </div>
                                                 </td>
                                                 <!-- <td class="description">
                                                 {{ingredient.Description}}

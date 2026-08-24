@@ -53,8 +53,11 @@ namespace RecipeHub.ApplicationService.Services
             await _recipeRepository.Create(recipe);
 
             var groupIds = new Dictionary<string, Guid>(StringComparer.OrdinalIgnoreCase);
+            var groupOrders = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            var ingredientOrders = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             foreach (var ingredient in model.Ingredients)
             {
+                var groupKey = ingredient.Group?.Trim() ?? string.Empty;
                 var ingredientEntity = _mapper.Map<Ingredient>(ingredient);
 
                 var exists = await _ingredientRepository.Exists(ingredient.Name);
@@ -68,7 +71,7 @@ namespace RecipeHub.ApplicationService.Services
                     ingredientEntity = await _ingredientRepository.GetByName(ingredient.Name);
                 }
 
-                await CreateRecipeIngredient(ingredient.Amount, ingredient.AmountType, ingredient.Group, recipe, ingredientEntity, GetGroupId(ingredient.Group, ingredient.GroupId, groupIds));
+                await CreateRecipeIngredient(ingredient.Amount, ingredient.AmountType, ingredient.Group, recipe, ingredientEntity, GetGroupId(ingredient.Group, ingredient.GroupId, groupIds), GetGroupOrder(groupKey, groupOrders), GetOrder(groupKey, ingredientOrders));
             }
 
             _logger.LogTrace("Recipe created! Recipe: {@Recipe}", recipe);
@@ -81,8 +84,11 @@ namespace RecipeHub.ApplicationService.Services
         {
             var recipe = await _recipeRepository.GetByTitleAndCreatorFull(title, creator);
             var groupIds = new Dictionary<string, Guid>(StringComparer.OrdinalIgnoreCase);
+            var groupOrders = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            var ingredientOrders = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             foreach (var ingredient in ingredients)
             {
+                var groupKey = ingredient.Group?.Trim() ?? string.Empty;
                 var ingredientEntity = new Ingredient();
                 ingredientEntity.Name = ingredient.Name;
                 ingredientEntity.Description = ingredient.Description;
@@ -97,7 +103,7 @@ namespace RecipeHub.ApplicationService.Services
                     ingredientEntity = await _ingredientRepository.GetByNameFull(ingredient.Name);
                 }
 
-                await CreateRecipeIngredient(ingredient.Amount, ingredient.AmountType, ingredient.Group, recipe, ingredientEntity, GetGroupId(ingredient.Group, ingredient.GroupId, groupIds));
+                await CreateRecipeIngredient(ingredient.Amount, ingredient.AmountType, ingredient.Group, recipe, ingredientEntity, GetGroupId(ingredient.Group, ingredient.GroupId, groupIds), GetGroupOrder(groupKey, groupOrders), GetOrder(groupKey, ingredientOrders));
             }
 
             _logger.LogTrace("Recipe created! Recipe: {@Recipe}", recipe);
@@ -121,11 +127,28 @@ namespace RecipeHub.ApplicationService.Services
             return generatedGroupId;
         }
 
-        private async Task<RecipeIngredient> CreateRecipeIngredient(decimal amount, string amountType, string group, Recipe recipe, Ingredient ingredient, Guid? groupId)
+        private static int GetOrder(string group, Dictionary<string, int> orders)
+        {
+            if (!orders.TryGetValue(group, out var order)) order = orders.Count;
+            orders[group] = order + 1;
+            return order;
+        }
+
+        private static int GetGroupOrder(string group, Dictionary<string, int> orders)
+        {
+            if (orders.TryGetValue(group, out var order)) return order;
+            order = orders.Count;
+            orders[group] = order;
+            return order;
+        }
+
+        private async Task<RecipeIngredient> CreateRecipeIngredient(decimal amount, string amountType, string group, Recipe recipe, Ingredient ingredient, Guid? groupId, int groupOrder, int ingredientOrder)
         {
             var recipeIngredient = new RecipeIngredient
             {
                 GroupId = groupId,
+                GroupOrder = groupOrder,
+                IngredientOrder = ingredientOrder,
                 Amount = amount,
                 AmountType = amountType,
                 Group = string.IsNullOrWhiteSpace(group) ? null : group.Trim(),
@@ -155,7 +178,7 @@ namespace RecipeHub.ApplicationService.Services
             var recipeResponse = _mapper.Map<RecipeResponse>(recipe);
 
             recipeResponse.Ingredients = new List<IngredientResponse>();
-            foreach (var recipeIngredient in recipe.RecipeIngredients)
+            foreach (var recipeIngredient in OrderedRecipeIngredients(recipe))
             {
                 var ingredientResponse = CreateIngredientResponeModel(recipeIngredient);
                 if (ingredientResponse != null)
@@ -174,7 +197,7 @@ namespace RecipeHub.ApplicationService.Services
             var recipeResponse = _mapper.Map<RecipeResponse>(recipe);
 
             recipeResponse.Ingredients = new List<IngredientResponse>();
-            foreach (var recipeIngredient in recipe.RecipeIngredients)
+            foreach (var recipeIngredient in OrderedRecipeIngredients(recipe))
             {
                 var ingredientResponse = CreateIngredientResponeModel(recipeIngredient);
                 if (ingredientResponse != null)
@@ -196,7 +219,7 @@ namespace RecipeHub.ApplicationService.Services
                 var recipeResponse = _mapper.Map<RecipeResponse>(recipe);
                 recipeResponse.Ingredients = recipe.RecipeIngredients == null
                     ? new List<IngredientResponse>()
-                    : recipe.RecipeIngredients.Select(CreateIngredientResponeModel).Where(i => i != null).ToList();
+                    : OrderedRecipeIngredients(recipe).Select(CreateIngredientResponeModel).Where(i => i != null).ToList();
 
                 recipeList.Add(recipeResponse);
             }
@@ -214,7 +237,7 @@ namespace RecipeHub.ApplicationService.Services
                 var recipeResponse = _mapper.Map<RecipeResponse>(recipe);
                 recipeResponse.Ingredients = recipe.RecipeIngredients == null
                     ? new List<IngredientResponse>()
-                    : recipe.RecipeIngredients.Select(CreateIngredientResponeModel).Where(i => i != null).ToList();
+                    : OrderedRecipeIngredients(recipe).Select(CreateIngredientResponeModel).Where(i => i != null).ToList();
 
                 recipeList.Add(recipeResponse);
             }
@@ -266,7 +289,7 @@ namespace RecipeHub.ApplicationService.Services
                     Image = _mapper.Map<ImageResponse>(recipe.Image),
                     Ingredients = recipe.RecipeIngredients == null
                         ? new List<IngredientResponse>()
-                        : recipe.RecipeIngredients.Select(CreateIngredientResponeModel).Where(i => i != null).ToList()
+                        : OrderedRecipeIngredients(recipe).Select(CreateIngredientResponeModel).Where(i => i != null).ToList()
                 };
 
                 recipeList.Add(recipeResponse);
@@ -300,8 +323,11 @@ namespace RecipeHub.ApplicationService.Services
             if (model.Ingredients?.Any() == true)
             {
                 var groupIds = new Dictionary<string, Guid>(StringComparer.OrdinalIgnoreCase);
+                var groupOrders = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+                var ingredientOrders = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
                 foreach (var ingredient in model.Ingredients)
                 {
+                    var groupKey = ingredient.Group?.Trim() ?? string.Empty;
                     var matchingRecipeIngredient = recipe.RecipeIngredients?
                         .FirstOrDefault(r => ingredient.RecipeIngredientId.HasValue && r.Id == ingredient.RecipeIngredientId.Value)
                         ?? recipe.RecipeIngredients?.FirstOrDefault(r => r.Ingredient?.Name == ingredient.Name);
@@ -315,7 +341,7 @@ namespace RecipeHub.ApplicationService.Services
                             entity = await _ingredientRepository.Create(entity);
                         }
 
-                        matchingRecipeIngredient = await CreateRecipeIngredient(ingredient.Amount, ingredient.AmountType, ingredient.Group, recipe, entity, GetGroupId(ingredient.Group, ingredient.GroupId, groupIds));
+                        matchingRecipeIngredient = await CreateRecipeIngredient(ingredient.Amount, ingredient.AmountType, ingredient.Group, recipe, entity, GetGroupId(ingredient.Group, ingredient.GroupId, groupIds), GetGroupOrder(groupKey, groupOrders), GetOrder(groupKey, ingredientOrders));
                     }
 
                     var ingredientEntity = await _recipeIngredientRepository.GetFull(matchingRecipeIngredient.Id);
@@ -332,6 +358,8 @@ namespace RecipeHub.ApplicationService.Services
                     ingredientEntity.AmountType = ingredient.AmountType;
                     ingredientEntity.Group = string.IsNullOrWhiteSpace(ingredient.Group) ? null : ingredient.Group.Trim();
                     ingredientEntity.GroupId = GetGroupId(ingredient.Group, ingredient.GroupId ?? matchingRecipeIngredient.GroupId, groupIds);
+                    ingredientEntity.GroupOrder = ingredient.GroupOrder;
+                    ingredientEntity.IngredientOrder = ingredient.IngredientOrder;
 
                     await _recipeIngredientRepository.Update(ingredientEntity);
                 }
@@ -378,7 +406,7 @@ namespace RecipeHub.ApplicationService.Services
 
             var response = _mapper.Map<RecipeResponse>(recipe);
             response.Ingredients = new List<IngredientResponse>();
-            foreach (var recipeIngredient in recipe.RecipeIngredients)
+            foreach (var recipeIngredient in OrderedRecipeIngredients(recipe))
             {
                 var ingredientResponse = CreateIngredientResponeModel(recipeIngredient);
                 if (ingredientResponse != null)
@@ -435,6 +463,14 @@ namespace RecipeHub.ApplicationService.Services
             return recipe;
         }
 
+        private static IEnumerable<RecipeIngredient> OrderedRecipeIngredients(Recipe recipe)
+        {
+            return (recipe.RecipeIngredients ?? new List<RecipeIngredient>())
+                .OrderBy(ingredient => ingredient.GroupOrder)
+                .ThenBy(ingredient => ingredient.IngredientOrder)
+                .ThenBy(ingredient => ingredient.Created);
+        }
+
         private IngredientResponse CreateIngredientResponeModel(RecipeIngredient recipeIngredient)
         {
             var ingredient = recipeIngredient.Ingredient;
@@ -448,6 +484,8 @@ namespace RecipeHub.ApplicationService.Services
             {
                 RecipeIngredientId = recipeIngredient.Id,
                 GroupId = recipeIngredient.GroupId,
+                GroupOrder = recipeIngredient.GroupOrder,
+                IngredientOrder = recipeIngredient.IngredientOrder,
                 Name = ingredient.Name,
                 Description = ingredient.Description,
                 Amount = recipeIngredient.Amount,

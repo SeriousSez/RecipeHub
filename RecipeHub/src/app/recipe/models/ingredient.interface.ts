@@ -4,6 +4,8 @@ export interface Ingredient {
     id?: string;
     recipeIngredientId?: string;
     groupId?: string;
+    groupOrder?: number;
+    ingredientOrder?: number;
     name: string;
     displayName?: string;
     description: string;
