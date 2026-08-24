@@ -319,6 +319,15 @@ namespace RecipeHub.ApplicationService.Services
                     }
 
                     var ingredientEntity = await _recipeIngredientRepository.GetFull(matchingRecipeIngredient.Id);
+                    var selectedIngredient = await _ingredientRepository.GetByName(ingredient.Name);
+                    if (selectedIngredient == null)
+                    {
+                        selectedIngredient = _mapper.Map<Ingredient>(ingredient);
+                        selectedIngredient.Language = string.IsNullOrWhiteSpace(ingredient.Language) ? model.Language : ingredient.Language;
+                        selectedIngredient = await _ingredientRepository.Create(selectedIngredient);
+                    }
+
+                    ingredientEntity.Ingredient = selectedIngredient;
                     ingredientEntity.Amount = ingredient.Amount;
                     ingredientEntity.AmountType = ingredient.AmountType;
                     ingredientEntity.Group = string.IsNullOrWhiteSpace(ingredient.Group) ? null : ingredient.Group.Trim();
