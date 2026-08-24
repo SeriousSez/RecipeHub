@@ -200,7 +200,7 @@
       </div>
       <div class="grocery-add-field">
         <label for="grocery-ingredient-amount">{{ 'grocery.amountColumn' | translate }}</label>
-        <input id="grocery-ingredient-amount" class="form-control" type="number" min="0.01" step="any" [(ngModel)]="draftIngredientAmount" [placeholder]="'grocery.amountPlaceholder' | translate">
+        <input id="grocery-ingredient-amount" class="form-control" type="number" min="1" step="any" [(ngModel)]="draftIngredientAmount" [placeholder]="'grocery.amountPlaceholder' | translate">
       </div>
       <div class="grocery-add-field">
         <label for="grocery-ingredient-unit">{{ 'grocery.unitLabel' | translate }}</label>

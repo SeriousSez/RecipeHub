@@ -515,6 +515,9 @@ export class RecipeComponent implements OnInit {
 
     if (recipe.creator == this.userService.getUserName()) {
       this.canEdit = true;
+      if (this.activatedRoute.snapshot.queryParamMap.get('edit') === 'true') {
+        this.startEditing();
+      }
     }
   }
 

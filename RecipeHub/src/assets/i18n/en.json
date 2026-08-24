@@ -119,6 +119,15 @@
         "darkModeLabel": "Dark mode"
     },
     "myRecipes": {
+        "kicker": "Your kitchen",
+        "heading": "Manage my recipes",
+        "subtitle": "Keep your creations organized and ready to revisit.",
+        "countLabel": "recipes",
+        "searchPlaceholder": "Search my recipes",
+        "sortLabel": "Sort by",
+        "loading": "Loading your recipes...",
+        "selectColumn": "Select recipe",
+        "actionsColumn": "Actions",
         "deleteButton": "Delete",
         "createRecipeButton": "Create a Recipe",
         "tableCaption": "My recipes",
@@ -127,10 +136,15 @@
         "creatorColumn": "Creator",
         "createdColumn": "Created",
         "noRecipes": "There are no recipes to be shown..",
+        "emptySubtitle": "Create your first recipe to start building your collection.",
         "deletePrefix": "Delete -",
+        "deleteMessage": "Are you sure you want to delete the selected recipes? This cannot be undone.",
         "noRecipesSelected": "No recipes selected",
         "confirmButton": "Confirm",
-        "cancelButton": "Cancel"
+        "cancelButton": "Cancel",
+        "deletingButton": "Deleting...",
+        "doneButton": "Done",
+        "deletionSuccess": "The selected recipes were deleted."
     },
     "pantry": {
         "kicker": "Kitchen stock",

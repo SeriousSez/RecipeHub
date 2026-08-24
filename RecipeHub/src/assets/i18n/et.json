@@ -119,6 +119,15 @@
         "darkModeLabel": "Tume režiim"
     },
     "myRecipes": {
+        "kicker": "Sinu köök",
+        "heading": "Halda minu retsepte",
+        "subtitle": "Hoia oma looming korras ja valmis uuesti vaatamiseks.",
+        "countLabel": "retsepti",
+        "searchPlaceholder": "Otsi minu retsepte",
+        "sortLabel": "Sorteeri",
+        "loading": "Sinu retsepte laaditakse...",
+        "selectColumn": "Vali retsept",
+        "actionsColumn": "Toimingud",
         "deleteButton": "Kustuta",
         "createRecipeButton": "Loo retsept",
         "tableCaption": "Minu retseptid",
@@ -127,10 +136,15 @@
         "creatorColumn": "Looja",
         "createdColumn": "Loodud",
         "noRecipes": "Näidatavaid retsepte pole..",
+        "emptySubtitle": "Loo oma esimene retsept ja alusta kollektsiooni.",
         "deletePrefix": "Kustuta -",
+        "deleteMessage": "Kas soovid valitud retseptid kindlasti kustutada? Seda ei saa tagasi võtta.",
         "noRecipesSelected": "Retsepte pole valitud",
         "confirmButton": "Kinnita",
-        "cancelButton": "Tühista"
+        "cancelButton": "Tühista",
+        "deletingButton": "Kustutamine...",
+        "doneButton": "Valmis",
+        "deletionSuccess": "Valitud retseptid kustutati."
     },
     "pantry": {
         "kicker": "Köögi varud",

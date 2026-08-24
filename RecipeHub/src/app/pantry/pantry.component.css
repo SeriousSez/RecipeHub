@@ -67,6 +67,7 @@
     padding: .6rem .85rem;
     border-radius: .8rem;
     font-weight: 800;
+    transition: none;
 }
 
 .pantry-primary-button {

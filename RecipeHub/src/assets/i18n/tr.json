@@ -119,6 +119,15 @@
         "darkModeLabel": "Karanlık mod"
     },
     "myRecipes": {
+        "kicker": "Mutfağınız",
+        "heading": "Tariflerimi yönet",
+        "subtitle": "Tariflerinizi düzenli tutun ve yeniden keşfetmeye hazır olun.",
+        "countLabel": "tarif",
+        "searchPlaceholder": "Tariflerimde ara",
+        "sortLabel": "Sıralama",
+        "loading": "Tarifleriniz yükleniyor...",
+        "selectColumn": "Tarif seç",
+        "actionsColumn": "İşlemler",
         "deleteButton": "Sil",
         "createRecipeButton": "Tarif oluştur",
         "tableCaption": "Tariflerim",
@@ -127,10 +136,15 @@
         "creatorColumn": "Oluşturan",
         "createdColumn": "Oluşturulma",
         "noRecipes": "Gösterilecek tarif yok..",
+        "emptySubtitle": "İlk tarifinizi oluşturun ve koleksiyonunuzu oluşturmaya başlayın.",
         "deletePrefix": "Sil -",
+        "deleteMessage": "Seçili tarifleri silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
         "noRecipesSelected": "Tarif seçilmedi",
         "confirmButton": "Onayla",
-        "cancelButton": "İptal"
+        "cancelButton": "İptal",
+        "deletingButton": "Siliniyor...",
+        "doneButton": "Tamam",
+        "deletionSuccess": "Seçili tarifler silindi."
     },
     "pantry": {
         "kicker": "Mutfak stoku",

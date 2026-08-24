@@ -16,6 +16,7 @@
     border-radius: .5rem;
     background: #fff;
     cursor: text;
+    transition: none;
 }
 
 .taxonomy-select.is-open .taxonomy-select-control {

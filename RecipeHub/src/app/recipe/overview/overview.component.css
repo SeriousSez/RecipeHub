@@ -90,7 +90,7 @@ button:focus {
     text-decoration: none;
     font-size: 0.82rem;
     font-weight: 700;
-    transition: all 0.2s ease;
+    transition: none;
     line-height: 1.2;
 }
 
@@ -683,6 +683,7 @@ button:focus {
     background: #ffffff;
     color: #17324d;
     font-weight: 600;
+    transition: none;
     opacity: 1;
 }
 
@@ -760,6 +761,7 @@ button:focus {
     min-height: 2.75rem;
     padding: .3rem 2.75rem .3rem .65rem;
     color: #1f2937;
+    transition: none;
 }
 
 .recipe-filter-select:focus {
@@ -798,6 +800,7 @@ button:focus {
     border: 1px solid #cbd5e1;
     background: #fff;
     color: #17324d;
+    transition: none;
 }
 
 .recipe-sort-direction:hover {
@@ -1289,6 +1292,18 @@ button:focus {
     border-color: #566170;
     background: #252c34;
     color: #f1f5f9;
+}
+
+:host-context([data-theme='dark']) .pantry-match-button {
+    border-color: #566170;
+    background: #252c34;
+    color: #f1f5f9;
+}
+
+:host-context([data-theme='dark']) .recipe-sort-direction {
+    border-color: #566170;
+    background: #252c34;
+    color: #dbe5ef;
 }
 
 :host-context([data-theme='dark']) .personal-filter-button.active {

@@ -1,85 +1,93 @@
-<div class="container">
+<main class="my-recipes-page">
+    <header class="my-recipes-header">
+        <div>
+            <p class="my-recipes-kicker">{{ 'myRecipes.kicker' | translate }}</p>
+            <h1>{{ 'myRecipes.heading' | translate }}</h1>
+            <p>{{ 'myRecipes.subtitle' | translate }}</p>
+        </div>
+        <div class="my-recipes-count">
+            <strong>{{ recipes.length }}</strong>
+            <span>{{ 'myRecipes.countLabel' | translate }}</span>
+        </div>
+    </header>
 
-  <div class="mb-3">
-    <button class="btn btn-danger" type="button" data-bs-toggle="offcanvas" data-bs-target="#deleteModal" aria-controls="deleteModal" [disabled]="selectedRecipes.length == 0" #deleteButton>{{ 'myRecipes.deleteButton' | translate }}</button>
+    <section class="my-recipes-panel">
+        <div class="my-recipes-toolbar">
+            <div class="my-recipes-search">
+                <label class="visually-hidden" for="my-recipes-search">{{ 'myRecipes.searchPlaceholder' | translate }}</label>
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <input id="my-recipes-search" type="search" [(ngModel)]="recipeSearch" [placeholder]="'myRecipes.searchPlaceholder' | translate" autocomplete="off">
+            </div>
+            <label class="my-recipes-sort">
+                <span>{{ 'myRecipes.sortLabel' | translate }}</span>
+                <select [ngModel]="sortSetting" (ngModelChange)="changeSort($event)">
+                    <option value="created">{{ 'myRecipes.createdColumn' | translate }}</option>
+                    <option value="title">{{ 'myRecipes.titleColumn' | translate }}</option>
+                    <option value="description">{{ 'myRecipes.descriptionColumn' | translate }}</option>
+                </select>
+            </label>
+            <div class="my-recipes-actions">
+                <button class="btn btn-outline-danger" type="button" [disabled]="selectedRecipes.length === 0 || deletingRecipes" (click)="requestDeleteRecipes()">
+                    @if (deletingRecipes) { <span class="spinner-border spinner-border-sm" aria-hidden="true"></span> }
+                    {{ 'myRecipes.deleteButton' | translate }}
+                </button>
+                <button class="btn btn-primary" type="button" routerLink="/recipes/create">
+                    <i class="fas fa-plus" aria-hidden="true"></i>
+                    {{ 'myRecipes.createRecipeButton' | translate }}
+                </button>
+            </div>
+        </div>
 
-    <button class="btn btn-outline-dark ms-3" type="button" routerLink="/recipes/create">{{ 'myRecipes.createRecipeButton' | translate }}</button>
-  </div>
-
-  <table class="table table-hover caption-top">
-    <caption>{{ 'myRecipes.tableCaption' | translate }}</caption>
-    <thead>
-      <tr class="cursor-pointer">
-        <th scope="col">#</th>
-        <th scope="col" (click)="sort('title')">{{ 'myRecipes.titleColumn' | translate }} @if (sortSetting == 'title') {
-          <i class="fas fa-sort"></i>
-          }
-        </th>
-        <th scope="col" (click)="sort('description')">{{ 'myRecipes.descriptionColumn' | translate }} @if (sortSetting == 'description') {
-          <i class="fas fa-sort"></i>
-          }
-        </th>
-        <th scope="col" class="creator" (click)="sort('creator')">{{ 'myRecipes.creatorColumn' | translate }} @if (sortSetting == 'creator') {
-          <i class="fas fa-sort"></i>
-          }
-        </th>
-        <th scope="col" (click)="sort('created')">{{ 'myRecipes.createdColumn' | translate }} @if (sortSetting == 'created') {
-          <i class="fas fa-sort"></i>
-          }
-        </th>
-      </tr>
-    </thead>
-    <tbody xyz="fade stagger">
-      @for (recipe of recipes; track recipe) {
-      <tr class="xyz-in">
-        <th scope="row">
-          <input class="form-check-input me-1 cursor-pointer" type="checkbox" (click)="toggleRecipeSelected(recipe)">
-        </th>
-        <td class="cursor-pointer" (click)="openRecipe(recipe)">
-          {{recipe.title}}
-        </td>
-        <td class="cursor-pointer instructions" (click)="openRecipe(recipe)">
-          {{recipe.description}}
-        </td>
-        <td class="cursor-pointer creator" (click)="openRecipe(recipe)">
-          {{recipe.creator}}
-        </td>
-        <td class="cursor-pointer" (click)="openRecipe(recipe)">
-          {{displayDateOnly(recipe.created)}}
-        </td>
-      </tr>
-      }
-      @if (recipes.length == 0) {
-      <tr>
-        <td colspan="12" class="text-center">
-          {{ 'myRecipes.noRecipes' | translate }}
-        </td>
-      </tr>
-      }
-    </tbody>
-  </table>
-
-  <div class="offcanvas offcanvas-bottom" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="deleteModal" aria-labelledby="deleteModalLabel" #deleteModal>
-    <div class="offcanvas-header">
-      <h5 class="offcanvas-title" id="deleteModalLabel">
-        {{ 'myRecipes.deletePrefix' | translate }}
-        @for (id of selectedRecipes; track id; let isLast = $last) {
-        <small>
-          {{toRecipeTitle(id)}}
-          @if (!isLast) {
-          <small>, </small>
-          }
-        </small>
+        @if (loadingRecipes) {
+        <div class="my-recipes-loading" role="status" aria-live="polite">
+            <span class="spinner-border" aria-hidden="true"></span>
+            <span>{{ 'myRecipes.loading' | translate }}</span>
+        </div>
+        } @else if (filteredRecipes.length > 0) {
+        <div class="my-recipes-table-wrap">
+            <table class="table align-middle my-recipes-table">
+                <caption>{{ 'myRecipes.tableCaption' | translate }}</caption>
+                <thead>
+                    <tr>
+                        <th scope="col"><span class="visually-hidden">{{ 'myRecipes.selectColumn' | translate }}</span></th>
+                        <th scope="col">{{ 'myRecipes.titleColumn' | translate }}</th>
+                        <th scope="col">{{ 'myRecipes.descriptionColumn' | translate }}</th>
+                        <th scope="col">{{ 'myRecipes.createdColumn' | translate }}</th>
+                        <th scope="col"><span class="visually-hidden">{{ 'myRecipes.actionsColumn' | translate }}</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (recipe of filteredRecipes; track recipe.id) {
+                    <tr>
+                        <td><input class="form-check-input" type="checkbox" [checked]="selectedRecipes.includes(recipe.id)" (change)="toggleRecipeSelected(recipe)" [attr.aria-label]="recipe.title"></td>
+                        <td class="recipe-title-cell" (click)="openRecipe(recipe)">
+                            <strong>{{ recipe.title }}</strong>
+                            <span class="recipe-metadata">
+                                @for (category of recipe.categories ?? []; track category) { <span>{{ category }}</span> }
+                                @for (tag of recipe.tags ?? []; track tag) { <span>{{ tag }}</span> }
+                                @if (totalMinutes(recipe) > 0) { <span><i class="fas fa-clock" aria-hidden="true"></i> {{ formatTotalTime(recipe) }}</span> }
+                            </span>
+                        </td>
+                        <td class="recipe-description-cell" (click)="openRecipe(recipe)">{{ recipe.description }}</td>
+                        <td (click)="openRecipe(recipe)">{{ displayDateOnly(recipe.created) }}</td>
+                        <td class="recipe-row-actions">
+                            <button type="button" class="recipe-edit-button" (click)="$event.stopPropagation(); editRecipe(recipe)" [attr.aria-label]="'recipe.editRecipeAria' | translate" [title]="'recipe.editRecipeAria' | translate"><i class="fas fa-pen" aria-hidden="true"></i></button>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        } @else {
+        <div class="my-recipes-empty">
+            <i class="fas fa-utensils" aria-hidden="true"></i>
+            <h2>{{ 'myRecipes.noRecipes' | translate }}</h2>
+            <p>{{ 'myRecipes.emptySubtitle' | translate }}</p>
+            <button class="btn btn-primary" type="button" routerLink="/recipes/create"><i class="fas fa-plus" aria-hidden="true"></i>{{ 'myRecipes.createRecipeButton' | translate }}</button>
+        </div>
         }
-        @if (selectedRecipes.length == 0) {
-        <small>{{ 'myRecipes.noRecipesSelected' | translate }}</small>
-        }
-      </h5>
-      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body">
-      <button class="btn btn-danger me-1" type="button" (click)="deleteRecipes()" [disabled]="selectedRecipes.length == 0">{{ 'myRecipes.confirmButton' | translate }}</button>
-      <button class="btn btn-link text-reset" type="button" data-bs-dismiss="offcanvas" aria-label="Close">{{ 'myRecipes.cancelButton' | translate }}</button>
-    </div>
-  </div>
-</div>
+    </section>
+</main>
+
+<app-confirmation [visible]="showDeleteConfirmation" [title]="'myRecipes.deletePrefix' | translate" [message]="'myRecipes.deleteMessage' | translate" [confirmLabel]="'myRecipes.confirmButton' | translate" [loadingLabel]="'myRecipes.deletingButton' | translate"
+    [cancelLabel]="'myRecipes.cancelButton' | translate" [doneLabel]="'myRecipes.doneButton' | translate" [successMessage]="'myRecipes.deletionSuccess' | translate" [loading]="deletingRecipes" [danger]="true" (confirmed)="deleteRecipes()" (cancelled)="cancelDeleteRecipes()"></app-confirmation>

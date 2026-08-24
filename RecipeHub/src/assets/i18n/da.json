@@ -119,6 +119,15 @@
         "darkModeLabel": "Mørk tilstand"
     },
     "myRecipes": {
+        "kicker": "Dit køkken",
+        "heading": "Administrer mine opskrifter",
+        "subtitle": "Hold dine kreationer organiseret og klar til at besøge igen.",
+        "countLabel": "opskrifter",
+        "searchPlaceholder": "Søg i mine opskrifter",
+        "sortLabel": "Sortér efter",
+        "loading": "Indlæser dine opskrifter...",
+        "selectColumn": "Vælg opskrift",
+        "actionsColumn": "Handlinger",
         "deleteButton": "Slet",
         "createRecipeButton": "Opret en opskrift",
         "tableCaption": "Mine opskrifter",
@@ -127,10 +136,15 @@
         "creatorColumn": "Opretter",
         "createdColumn": "Oprettet",
         "noRecipes": "Der er ingen opskrifter at vise..",
+        "emptySubtitle": "Opret din første opskrift og begynd at bygge din samling.",
         "deletePrefix": "Slet -",
+        "deleteMessage": "Er du sikker på, at du vil slette de valgte opskrifter? Det kan ikke fortrydes.",
         "noRecipesSelected": "Ingen opskrifter valgt",
         "confirmButton": "Bekræft",
-        "cancelButton": "Annuller"
+        "cancelButton": "Annuller",
+        "deletingButton": "Sletter...",
+        "doneButton": "Færdig",
+        "deletionSuccess": "De valgte opskrifter blev slettet."
     },
     "pantry": {
         "kicker": "Spisekammerbeholdning",

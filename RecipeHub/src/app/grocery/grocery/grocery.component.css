@@ -942,6 +942,7 @@
     border: 1px solid rgba(15, 23, 42, 0.1);
     border-radius: 7px;
     background: #f8fafc;
+    transition: none;
 }
 
 .grocery-view-tab {
@@ -951,12 +952,38 @@
     color: #475569;
     background: transparent;
     font-weight: 700;
+    transition: none;
+}
+
+.grocery-view-tab:hover {
+    background: #f1f5f9;
+    color: #0f172a;
 }
 
 .grocery-view-tab.is-active {
     color: #0f172a;
     background: #ffffff;
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+}
+
+:host-context([data-theme='dark']) .grocery-view-tabs {
+    border-color: #46505d;
+    background: #1d2127;
+}
+
+:host-context([data-theme='dark']) .grocery-view-tab {
+    color: #cbd5e1;
+}
+
+:host-context([data-theme='dark']) .grocery-view-tab:hover {
+    background: rgba(148, 163, 184, .12);
+    color: #f8fafc;
+}
+
+:host-context([data-theme='dark']) .grocery-view-tab.is-active {
+    color: #f8fafc;
+    background: #252c34;
+    box-shadow: 0 1px 3px rgba(2, 6, 23, .35);
 }
 
 .grocery-product-category {

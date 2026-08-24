@@ -14,15 +14,19 @@ import { UtilityService } from 'src/app/shared/utils/utility.service';
 })
 export class RecipesComponent implements OnInit {
   @ViewChild('recipeModal') private recipeModal: ElementRef;
-  @ViewChild('deleteButton') private deleteButton: ElementRef;
 
   public recipes: Recipe[] = [];
   public selectedRecipes: string[] = [];
+  public recipeSearch = '';
+  public loadingRecipes = true;
+  public showDeleteConfirmation = false;
+  public deletingRecipes = false;
 
   public recipeToEdit: Recipe;
 
   public sortSetting: string = 'created';
   public ascending: boolean = true;
+  public sortOptions = ['created', 'title', 'description'];
 
   constructor(private recipeService: RecipeService, private userService: UserService, private datepipe: DatePipe, private router: Router, private utilityService: UtilityService) { }
 
@@ -31,29 +35,50 @@ export class RecipesComponent implements OnInit {
   }
 
   getRecipes() {
+    this.loadingRecipes = true;
     this.recipeService.getRecipesByCreator(this.userService.getUserName())
       .subscribe((recipes: Recipe[]) => {
         this.recipes = recipes;
         this.sort(this.sortSetting);
+        this.loadingRecipes = false;
       },
         error => {
-          //this.notificationService.printErrorMessage(error);
+          this.loadingRecipes = false;
         });
   }
 
+  get filteredRecipes(): Recipe[] {
+    const search = this.recipeSearch.trim().toLocaleLowerCase();
+    if (!search) return this.recipes;
+
+    return this.recipes.filter(recipe =>
+      [recipe.title, recipe.description, recipe.creator]
+        .some(value => value?.toLocaleLowerCase().includes(search))
+    );
+  }
+
+  requestDeleteRecipes() {
+    if (this.selectedRecipes.length > 0) this.showDeleteConfirmation = true;
+  }
+
+  cancelDeleteRecipes() {
+    this.showDeleteConfirmation = false;
+    this.deletingRecipes = false;
+  }
+
   deleteRecipes() {
+    if (this.selectedRecipes.length === 0 || this.deletingRecipes) return;
+    this.deletingRecipes = true;
     this.recipeService.deleteRecipes(this.selectedRecipes).subscribe((recipes) => {
-      this.selectedRecipes.forEach((id) => {
-        var recipe = this.recipes.find(r => r.id == id);
-        if (recipe == undefined) return;
-
-        this.removeRecipeFromList(recipe);
-      });
-
+      this.recipes = recipes;
+      this.sort(this.sortSetting);
       this.selectedRecipes = [];
-      this.closeDeleteModal();
+      this.showDeleteConfirmation = false;
+      this.deletingRecipes = false;
     },
       error => {
+        this.deletingRecipes = false;
+        this.showDeleteConfirmation = false;
         //this.notificationService.printErrorMessage(error);
       });
   }
@@ -78,6 +103,38 @@ export class RecipesComponent implements OnInit {
 
   openRecipe(recipe: Recipe) {
     this.router.navigate([`recipe/${this.utilityService.toRecipeKey(recipe.id, recipe.title)}`]);
+  }
+
+  editRecipe(recipe: Recipe) {
+    this.router.navigate([`recipe/${this.utilityService.toRecipeKey(recipe.id, recipe.title)}`], { queryParams: { edit: true } });
+  }
+
+  changeSort(sortSetting: string) {
+    this.sortSetting = sortSetting;
+    this.ascending = true;
+    this.sort(sortSetting);
+  }
+
+  totalMinutes(recipe: Recipe): number {
+    const timingValues: Array<number | null | undefined> = [
+      recipe.preparationMinutes,
+      recipe.cookingMinutes,
+      recipe.proofingMinutes,
+      recipe.chillingMinutes,
+      recipe.coolingMinutes,
+      recipe.restingMinutes
+    ];
+
+    return timingValues.reduce<number>((total, minutes) => total + (minutes ?? 0), 0);
+  }
+
+  formatTotalTime(recipe: Recipe): string {
+    const minutes = this.totalMinutes(recipe);
+    if (minutes <= 60) return `${minutes} min`;
+
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    return remainingMinutes > 0 ? `${hours} hr ${remainingMinutes} min` : `${hours} hr`;
   }
 
   displayDateOnly(created: string) {
@@ -145,7 +202,4 @@ export class RecipesComponent implements OnInit {
     this.recipeModal.nativeElement.click();
   }
 
-  public closeDeleteModal() {
-    this.deleteButton.nativeElement.click();
-  }
 }
