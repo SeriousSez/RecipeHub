@@ -1,6 +1,7 @@
 import { ImageCreation } from "./image.creation.interface";
 
 export interface IngredientCreation {
+    groupId?: string;
     name: string;
     description: string;
     language?: string;

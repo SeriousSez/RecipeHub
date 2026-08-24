@@ -2,6 +2,8 @@ import { Image } from "./image.interface";
 
 export interface Ingredient {
     id?: string;
+    recipeIngredientId?: string;
+    groupId?: string;
     name: string;
     displayName?: string;
     description: string;

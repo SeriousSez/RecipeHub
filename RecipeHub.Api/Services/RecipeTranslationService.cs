@@ -555,6 +555,7 @@ namespace RecipeHub.Api.Services
             },
             Ingredients = (recipe.Ingredients ?? new List<IngredientResponse>()).Select(ingredient => new IngredientResponse
             {
+                RecipeIngredientId = ingredient.RecipeIngredientId,
                 Name = ingredient.Name,
                 Description = ingredient.Description,
                 Language = ingredient.Language,

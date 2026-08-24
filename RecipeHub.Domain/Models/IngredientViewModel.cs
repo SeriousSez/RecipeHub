@@ -2,6 +2,8 @@ namespace RecipeHub.Domain.Models
 {
     public class IngredientViewModel
     {
+        public System.Guid? RecipeIngredientId { get; set; }
+        public System.Guid? GroupId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public string Language { get; set; }

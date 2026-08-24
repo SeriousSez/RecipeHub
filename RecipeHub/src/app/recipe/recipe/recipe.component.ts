@@ -3,7 +3,7 @@ import { ChangeDetectorRef, Component, OnInit, ViewChild, ViewChildren } from '@
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { ImageCroppedEvent, ImageCropperComponent, LoadedImage } from 'ngx-image-cropper';
-import { Subscription } from 'rxjs';
+import { Observable, of, Subscription } from 'rxjs';
 import { FavoriteRecipe } from 'src/app/shared/models/favorite-recipe.interface';
 import { FavoriteService } from 'src/app/shared/services/favorite.service';
 import { GroceryService } from 'src/app/shared/services/grocery.service';
@@ -20,7 +20,7 @@ import { TaxonomySelectComponent } from '../taxonomy-select/taxonomy-select.comp
 import { AngularEditorConfig } from '@kolkov/angular-editor';
 import { TranslateService } from '@ngx-translate/core';
 import { LanguageService } from 'src/app/shared/services/language.service';
-import { finalize } from 'rxjs/operators';
+import { concatMap, finalize } from 'rxjs/operators';
 import { NutritionEstimate } from '../models/nutrition-estimate.interface';
 import { RecipeEngagement } from '../models/recipe-engagement.interface';
 
@@ -98,23 +98,27 @@ export class RecipeComponent implements OnInit {
   public readonly ratingValues = [1, 2, 3, 4, 5];
 
   get ingredientGroups(): Array<{ name: string; ingredients: Ingredient[] }> {
-    const groups = new Map<string, Ingredient[]>();
+    const groups = new Map<string, { name: string; ingredients: Ingredient[] }>();
 
     for (const ingredient of this.currentIngredients) {
       const groupName = ingredient.group?.trim() ?? '';
-      const groupIngredients = groups.get(groupName) ?? [];
-      groupIngredients.push(ingredient);
-      groups.set(groupName, groupIngredients);
+      const groupId = this.getIngredientGroupId(groupName);
+      const group = groups.get(groupId) ?? { name: groupName, ingredients: [] };
+      group.ingredients.push(ingredient);
+      groups.set(groupId, group);
     }
 
-    return Array.from(groups, ([name, ingredients]) => ({ name, ingredients }));
+    return Array.from(groups.values());
   }
 
   get ingredientEditorGroups(): Array<{ name: string; ingredients: Ingredient[] }> {
+    const editorIngredients = this.currentIngredients.length > 0
+      ? this.currentIngredients
+      : (this.recipe?.ingredients ?? []).map(ingredient => this.createIngredientModel(ingredient));
     const groups = new Map<string, Ingredient[]>([['', []]]);
     this.ingredientGroupNames.forEach(groupName => groups.set(groupName, []));
 
-    for (const ingredient of this.currentIngredients) {
+    for (const ingredient of editorIngredients) {
       const groupName = ingredient.group?.trim() ?? '';
       const groupIngredients = groups.get(groupName) ?? [];
       groupIngredients.push(ingredient);
@@ -126,6 +130,10 @@ export class RecipeComponent implements OnInit {
 
   trackIngredientEditorGroup(_index: number, group: { name: string; ingredients: Ingredient[] }): string {
     return group.name;
+  }
+
+  private getIngredientGroupId(groupName: string): string {
+    return groupName.trim().toLocaleLowerCase().replace(/\s+/g, ' ') || '__ungrouped__';
   }
 
   public toggleInstruction(event: MouseEvent): void {
@@ -406,7 +414,10 @@ export class RecipeComponent implements OnInit {
 
   startEditing(): void {
     if (!this.canonicalRecipe) return;
-    this.applyRecipeDisplay(this.cloneRecipe(this.canonicalRecipe));
+    const sourceRecipe = this.canonicalRecipe.ingredients?.length > 0 || !this.recipe?.ingredients?.length
+      ? this.canonicalRecipe
+      : this.recipe;
+    this.applyRecipeDisplay(this.cloneRecipe(sourceRecipe));
     this.edit = true;
   }
 
@@ -529,25 +540,17 @@ export class RecipeComponent implements OnInit {
     }
     this.recipe.ingredients = this.currentIngredients;
 
-    if (this.ingredientsToDelete.length > 0) {
-      this.recipeService.deleteRecipeIngredient(this.ingredientsToDelete).subscribe(result => {
+    const ingredientsToDelete = [...this.ingredientsToDelete];
+    const deleteRequest: Observable<unknown> = ingredientsToDelete.length > 0
+      ? this.recipeService.deleteRecipeIngredient(ingredientsToDelete)
+      : of(null);
+
+    deleteRequest.pipe(
+      concatMap(() => {
         this.ingredientsToDelete = [];
-      }, errors => {
-        this.isRequesting = false;
-        this.errors = errors.error;
-      });
-    }
-
-    if (this.newIngredients.length > 0) {
-      this.recipeService.addIngredients(this.recipe, this.newIngredients).subscribe(result => {
-        this.newIngredients = [];
-      }, errors => {
-        this.isRequesting = false;
-        this.errors = errors.error;
-      });
-    }
-
-    this.recipeService.update(this.createRecipeUpgradeModel(this.recipe)).subscribe(result => {
+        return this.recipeService.update(this.createRecipeUpgradeModel(this.recipe)) as Observable<unknown>;
+      })
+    ).subscribe(result => {
       this.router.navigate([
         `recipe/${this.recipe.id}/${this.utilityService.toSlug(this.recipe.title)}`
       ], { replaceUrl: true }).then(() => {
@@ -917,6 +920,9 @@ export class RecipeComponent implements OnInit {
   // #region model creation
   createIngredientModel(ingredient: Ingredient) {
     var model: Ingredient = {
+      id: ingredient.id,
+      recipeIngredientId: ingredient.recipeIngredientId,
+      groupId: ingredient.groupId,
       name: ingredient.name,
       description: ingredient.description,
       image: null,

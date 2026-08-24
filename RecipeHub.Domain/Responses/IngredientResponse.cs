@@ -5,6 +5,8 @@ namespace RecipeHub.Domain.Responses
     public class IngredientResponse
     {
         public Guid Id { get; set; }
+        public Guid? RecipeIngredientId { get; set; }
+        public Guid? GroupId { get; set; }
         public string Name { get; set; }
         public string DisplayName { get; set; }
         public string Description { get; set; }

@@ -52,6 +52,7 @@ namespace RecipeHub.ApplicationService.Services
 
             await _recipeRepository.Create(recipe);
 
+            var groupIds = new Dictionary<string, Guid>(StringComparer.OrdinalIgnoreCase);
             foreach (var ingredient in model.Ingredients)
             {
                 var ingredientEntity = _mapper.Map<Ingredient>(ingredient);
@@ -67,7 +68,7 @@ namespace RecipeHub.ApplicationService.Services
                     ingredientEntity = await _ingredientRepository.GetByName(ingredient.Name);
                 }
 
-                await CreateRecipeIngredient(ingredient.Amount, ingredient.AmountType, ingredient.Group, recipe, ingredientEntity);
+                await CreateRecipeIngredient(ingredient.Amount, ingredient.AmountType, ingredient.Group, recipe, ingredientEntity, GetGroupId(ingredient.Group, ingredient.GroupId, groupIds));
             }
 
             _logger.LogTrace("Recipe created! Recipe: {@Recipe}", recipe);
@@ -79,6 +80,7 @@ namespace RecipeHub.ApplicationService.Services
         public async Task<RecipeResponse> AddIngredients(List<IngredientResponse> ingredients, string title, string creator)
         {
             var recipe = await _recipeRepository.GetByTitleAndCreatorFull(title, creator);
+            var groupIds = new Dictionary<string, Guid>(StringComparer.OrdinalIgnoreCase);
             foreach (var ingredient in ingredients)
             {
                 var ingredientEntity = new Ingredient();
@@ -95,7 +97,7 @@ namespace RecipeHub.ApplicationService.Services
                     ingredientEntity = await _ingredientRepository.GetByNameFull(ingredient.Name);
                 }
 
-                await CreateRecipeIngredient(ingredient.Amount, ingredient.AmountType, ingredient.Group, recipe, ingredientEntity);
+                await CreateRecipeIngredient(ingredient.Amount, ingredient.AmountType, ingredient.Group, recipe, ingredientEntity, GetGroupId(ingredient.Group, ingredient.GroupId, groupIds));
             }
 
             _logger.LogTrace("Recipe created! Recipe: {@Recipe}", recipe);
@@ -104,10 +106,26 @@ namespace RecipeHub.ApplicationService.Services
             return recipeResponse;
         }
 
-        private async Task<RecipeIngredient> CreateRecipeIngredient(decimal amount, string amountType, string group, Recipe recipe, Ingredient ingredient)
+        private static Guid? GetGroupId(string group, Guid? groupId, Dictionary<string, Guid> groupIds)
+        {
+            if (string.IsNullOrWhiteSpace(group)) return null;
+            if (groupId.HasValue) return groupId.Value;
+
+            var normalizedGroup = group.Trim();
+            if (!groupIds.TryGetValue(normalizedGroup, out var generatedGroupId))
+            {
+                generatedGroupId = Guid.NewGuid();
+                groupIds[normalizedGroup] = generatedGroupId;
+            }
+
+            return generatedGroupId;
+        }
+
+        private async Task<RecipeIngredient> CreateRecipeIngredient(decimal amount, string amountType, string group, Recipe recipe, Ingredient ingredient, Guid? groupId)
         {
             var recipeIngredient = new RecipeIngredient
             {
+                GroupId = groupId,
                 Amount = amount,
                 AmountType = amountType,
                 Group = string.IsNullOrWhiteSpace(group) ? null : group.Trim(),
@@ -281,10 +299,12 @@ namespace RecipeHub.ApplicationService.Services
 
             if (model.Ingredients?.Any() == true)
             {
+                var groupIds = new Dictionary<string, Guid>(StringComparer.OrdinalIgnoreCase);
                 foreach (var ingredient in model.Ingredients)
                 {
                     var matchingRecipeIngredient = recipe.RecipeIngredients?
-                        .FirstOrDefault(r => r.Ingredient?.Name == ingredient.Name);
+                        .FirstOrDefault(r => ingredient.RecipeIngredientId.HasValue && r.Id == ingredient.RecipeIngredientId.Value)
+                        ?? recipe.RecipeIngredients?.FirstOrDefault(r => r.Ingredient?.Name == ingredient.Name);
                     if (matchingRecipeIngredient == null)
                     {
                         var entity = await _ingredientRepository.GetByName(ingredient.Name);
@@ -295,13 +315,14 @@ namespace RecipeHub.ApplicationService.Services
                             entity = await _ingredientRepository.Create(entity);
                         }
 
-                        matchingRecipeIngredient = await CreateRecipeIngredient(ingredient.Amount, ingredient.AmountType, ingredient.Group, recipe, entity);
+                        matchingRecipeIngredient = await CreateRecipeIngredient(ingredient.Amount, ingredient.AmountType, ingredient.Group, recipe, entity, GetGroupId(ingredient.Group, ingredient.GroupId, groupIds));
                     }
 
                     var ingredientEntity = await _recipeIngredientRepository.GetFull(matchingRecipeIngredient.Id);
                     ingredientEntity.Amount = ingredient.Amount;
                     ingredientEntity.AmountType = ingredient.AmountType;
                     ingredientEntity.Group = string.IsNullOrWhiteSpace(ingredient.Group) ? null : ingredient.Group.Trim();
+                    ingredientEntity.GroupId = GetGroupId(ingredient.Group, ingredient.GroupId ?? matchingRecipeIngredient.GroupId, groupIds);
 
                     await _recipeIngredientRepository.Update(ingredientEntity);
                 }
@@ -360,8 +381,20 @@ namespace RecipeHub.ApplicationService.Services
 
         public async Task<bool> DeleteRecipeIngredient(IngredientResponse model)
         {
-            var ingredient = await _ingredientRepository.GetByName(model.Name);
-            var recipeIngredient = await _recipeIngredientRepository.GetFullByIngredient(ingredient);
+            if (model == null)
+                return false;
+
+            var recipeIngredient = model.RecipeIngredientId.HasValue
+                ? await _recipeIngredientRepository.GetFull(model.RecipeIngredientId.Value)
+                : null;
+
+            if (recipeIngredient == null && !string.IsNullOrWhiteSpace(model.Name))
+            {
+                var ingredient = await _ingredientRepository.GetByName(model.Name);
+                if (ingredient != null)
+                    recipeIngredient = await _recipeIngredientRepository.GetFullByIngredient(ingredient);
+            }
+
             if (recipeIngredient == null)
                 return false;
 
@@ -404,6 +437,8 @@ namespace RecipeHub.ApplicationService.Services
 
             var response = new IngredientResponse
             {
+                RecipeIngredientId = recipeIngredient.Id,
+                GroupId = recipeIngredient.GroupId,
                 Name = ingredient.Name,
                 Description = ingredient.Description,
                 Amount = recipeIngredient.Amount,
