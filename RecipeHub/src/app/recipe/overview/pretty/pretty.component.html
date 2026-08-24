@@ -6,7 +6,7 @@
       <i [ngClass]="isRecipeSelected(recipe) ? 'fas fa-check-square' : 'far fa-square'"></i>
     </button>
 
-    <a class="recipe-card-link" [routerLink]="['/recipe', recipe.id, utilityService.toSlug(recipe.title)]">
+    <a class="recipe-card-link" [routerLink]="['/recipe', utilityService.toRecipeKey(recipe.id, recipe.title)]">
       <div class="recipe-hero">
         <img [src]="recipe.image?.url || '../assets/images/food.png'" [alt]="recipe.title">
         <div class="recipe-badge" *ngIf="pantryIngredients.length > 0">

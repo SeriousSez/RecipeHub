@@ -261,6 +261,10 @@ export class RecipeComponent implements OnInit {
   public savedOrCanceled: boolean = false;
   public submitted: boolean = false;
   public isRequesting: boolean = false;
+  public shareDialogOpen: boolean = false;
+  public shareCopied: boolean = false;
+  public get canUseNativeShare(): boolean { return typeof navigator !== 'undefined' && !!navigator.share; }
+  public get shareUrl(): string { return window.location.href; }
 
   public originalImageUrl: string;
   public imageUrl: string;
@@ -307,8 +311,17 @@ export class RecipeComponent implements OnInit {
   };
 
   constructor(private activatedRoute: ActivatedRoute, private datepipe: DatePipe, private router: Router, public utilityService: UtilityService, private recipeService: RecipeService, private groceryService: GroceryService, private ingredientService: IngredientService, private userService: UserService, private safeService: SafeService, private favoriteService: FavoriteService, private translateService: TranslateService, private languageService: LanguageService, private changeDetectorRef: ChangeDetectorRef) {
-    this.recipeId = activatedRoute.snapshot.params['id'] || null;
-    this.title = this.utilityService.fromSlug(activatedRoute.snapshot.params['title']);
+    const routeId = activatedRoute.snapshot.params['id'];
+    const routeTitle = activatedRoute.snapshot.params['title'];
+    const routeKey = activatedRoute.snapshot.params['key'];
+    if (routeKey) {
+      const separatorIndex = routeKey.lastIndexOf('--');
+      this.recipeId = separatorIndex > 0 ? routeKey.slice(separatorIndex + 2) : null;
+      this.title = this.utilityService.fromSlug(separatorIndex > 0 ? routeKey.slice(0, separatorIndex) : routeKey);
+    } else {
+      this.recipeId = routeId || null;
+      this.title = this.utilityService.fromSlug(routeTitle);
+    }
     this.creator = decodeURIComponent(activatedRoute.snapshot.params['creator'] || '');
   }
 
@@ -360,6 +373,35 @@ export class RecipeComponent implements OnInit {
     this.favoriteService.favoriteRecipe(model).subscribe(result => {
       this.favored = !this.favored;
     });
+  }
+
+  public shareRecipe(): void {
+    this.shareCopied = false;
+    this.shareDialogOpen = true;
+  }
+
+  public async useNativeShare(): Promise<void> {
+    if (!navigator.share) return;
+
+    try {
+      await navigator.share({
+        title: this.recipe.title,
+        text: this.recipe.description || this.recipe.title,
+        url: this.shareUrl
+      });
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') return;
+    }
+  }
+
+  public closeShareDialog(): void {
+    this.shareDialogOpen = false;
+    this.shareCopied = false;
+  }
+
+  public async copyRecipeLink(): Promise<void> {
+    await navigator.clipboard?.writeText(window.location.href);
+    this.shareCopied = true;
   }
   //#endregion
 
@@ -654,7 +696,7 @@ export class RecipeComponent implements OnInit {
       })
     ).subscribe(result => {
       this.router.navigate([
-        `recipe/${this.recipe.id}/${this.utilityService.toSlug(this.recipe.title)}`
+        `recipe/${this.utilityService.toRecipeKey(this.recipe.id, this.recipe.title)}`
       ], { replaceUrl: true }).then(() => {
         this.title = this.recipe.title;
         this.creator = this.recipe.creator;

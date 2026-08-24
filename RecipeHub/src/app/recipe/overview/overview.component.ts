@@ -576,7 +576,7 @@ export class OverviewComponent implements OnInit {
   }
 
   openRecipe(recipe: Recipe) {
-    this.router.navigate([`recipe/${recipe.id}/${this.utilityService.toSlug(recipe.title)}`]);
+    this.router.navigate([`recipe/${this.utilityService.toRecipeKey(recipe.id, recipe.title)}`]);
   }
 
   displayDateOnly(created: string) {

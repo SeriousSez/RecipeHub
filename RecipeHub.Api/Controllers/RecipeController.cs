@@ -319,7 +319,7 @@ namespace RecipeHub.Api.Controllers
         }
 
         [HttpGet("getbyid/{id}")]
-        public async Task<IActionResult> GetById(Guid id)
+        public async Task<IActionResult> GetById(string id)
         {
             var cacheVersion = GetRecipeCacheVersion();
             var cacheKey = $"recipes:getbyid:{id}:v{cacheVersion}";
@@ -328,7 +328,20 @@ namespace RecipeHub.Api.Controllers
                 return new OkObjectResult(cachedRecipe);
             }
 
-            var recipe = await _recipeService.Get(id);
+            RecipeResponse recipe;
+            if (Guid.TryParse(id, out var recipeId))
+            {
+                recipe = await _recipeService.Get(recipeId);
+            }
+            else
+            {
+                var shortId = id?.Replace("-", string.Empty);
+                var recipes = await _recipeService.GetAll();
+                recipe = string.IsNullOrWhiteSpace(shortId)
+                    ? null
+                    : recipes.SingleOrDefault(item => item.Id.ToString("N").StartsWith(shortId, StringComparison.OrdinalIgnoreCase));
+            }
+
             if (recipe == null)
             {
                 _logger.LogError("Failed to fetch recipe by id! Id: {RecipeId}", id);

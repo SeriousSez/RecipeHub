@@ -2545,3 +2545,103 @@
         opacity: 1;
     }
 }
+
+.recipe-share-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1055;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    background: rgba(15, 23, 42, .48);
+    backdrop-filter: blur(4px);
+}
+
+.recipe-share-dialog {
+    width: min(100%, 28rem);
+    padding: 1.25rem;
+    border: 1px solid rgba(15, 23, 42, .1);
+    border-radius: 1rem;
+    background: #fff;
+    box-shadow: 0 24px 70px rgba(15, 23, 42, .2);
+}
+
+.recipe-share-dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.recipe-share-dialog h2 {
+    margin: 0;
+    color: #172033;
+    font-size: 1.2rem;
+    font-weight: 800;
+}
+
+.recipe-share-close {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid #dbe3ec;
+    border-radius: 50%;
+    background: #f8fafc;
+    color: #475569;
+}
+
+.recipe-share-title {
+    margin: .85rem 0 1rem;
+    color: #64748b;
+    font-weight: 700;
+}
+
+.recipe-share-actions {
+    display: grid;
+    gap: .55rem;
+}
+
+.recipe-share-action {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    min-height: 2.75rem;
+    padding: .55rem .75rem;
+    border: 1px solid #dbe3ec;
+    border-radius: .65rem;
+    background: #fff;
+    color: #245b88;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.recipe-share-action:hover {
+    border-color: #8fb4c9;
+    background: #eef6fb;
+    color: #174f87;
+}
+
+:host-context([data-theme='dark']) .recipe-share-dialog {
+    border-color: #46505d;
+    background: #1d2127;
+}
+
+:host-context([data-theme='dark']) .recipe-share-dialog h2,
+:host-context([data-theme='dark']) .recipe-share-title {
+    color: #e5e7eb;
+}
+
+:host-context([data-theme='dark']) .recipe-share-close,
+:host-context([data-theme='dark']) .recipe-share-action {
+    border-color: #566170;
+    background: #252c34;
+    color: #dbe5ef;
+}
+
+:host-context([data-theme='dark']) .recipe-share-close:hover,
+:host-context([data-theme='dark']) .recipe-share-action:hover {
+    border-color: #6d9fc8;
+    background: #30495f;
+    color: #eef8ff;
+}

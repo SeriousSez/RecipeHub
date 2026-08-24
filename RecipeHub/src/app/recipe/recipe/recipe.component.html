@@ -49,6 +49,9 @@
                 <button type="button" class="recipe-detail-icon-button" [class.is-favored]="favored" (click)="toggleFavorite()" [attr.aria-label]="favored ? ('recipe.removeFavoriteAria' | translate) : ('recipe.addFavoriteAria' | translate)">
                     <i [ngClass]="favored ? 'fas fa-star' : 'far fa-star'" aria-hidden="true"></i>
                 </button>
+                <button type="button" class="recipe-detail-icon-button" (click)="shareRecipe()" [attr.aria-label]="'recipe.shareRecipeAria' | translate" [title]="'recipe.shareRecipeAria' | translate">
+                    <i class="fas fa-share-alt" aria-hidden="true"></i>
+                </button>
                 <button *ngIf="canEdit" type="button" class="recipe-detail-icon-button" (click)="startEditing()" [attr.aria-label]="'recipe.editRecipeAria' | translate">
                     <i class="fas fa-pen" aria-hidden="true"></i>
                 </button>
@@ -682,4 +685,34 @@
     <div *ngIf="errors" class="alert alert-danger d-inline-block float-end" role="alert">
         <strong>{{ 'recipe.oops' | translate }}</strong> {{errors}}
     </div>
+</div>
+
+<div *ngIf="shareDialogOpen" class="recipe-share-backdrop" role="presentation" (click)="closeShareDialog()">
+    <section class="recipe-share-dialog" role="dialog" aria-modal="true" [attr.aria-label]="'recipe.shareRecipe' | translate" (click)="$event.stopPropagation()">
+        <div class="recipe-share-dialog-header">
+            <h2>{{ 'recipe.shareRecipe' | translate }}</h2>
+            <button type="button" class="recipe-share-close" (click)="closeShareDialog()" [attr.aria-label]="'recipe.closeShareDialogAria' | translate">
+                <i class="fas fa-times" aria-hidden="true"></i>
+            </button>
+        </div>
+        <p class="recipe-share-title">{{ recipe.title }}</p>
+        <div class="recipe-share-actions">
+            <button *ngIf="canUseNativeShare" type="button" class="recipe-share-action" (click)="useNativeShare()">
+                <i class="fas fa-share-alt" aria-hidden="true"></i>
+                <span>{{ 'recipe.useDeviceShare' | translate }}</span>
+            </button>
+            <button type="button" class="recipe-share-action" (click)="copyRecipeLink()">
+                <i class="fas fa-link" aria-hidden="true"></i>
+                <span>{{ (shareCopied ? 'recipe.linkCopied' : 'recipe.copyRecipeLink') | translate }}</span>
+            </button>
+            <a class="recipe-share-action" [href]="'mailto:?subject=' + recipe.title + '&body=' + recipe.description + '%0A%0A' + shareUrl" (click)="closeShareDialog()">
+                <i class="fas fa-envelope" aria-hidden="true"></i>
+                <span>{{ 'recipe.shareByEmail' | translate }}</span>
+            </a>
+            <a class="recipe-share-action" [href]="'https://wa.me/?text=' + recipe.title + '%20' + shareUrl" target="_blank" rel="noopener noreferrer" (click)="closeShareDialog()">
+                <i class="fab fa-whatsapp" aria-hidden="true"></i>
+                <span>{{ 'recipe.shareByWhatsApp' | translate }}</span>
+            </a>
+        </div>
+    </section>
 </div>

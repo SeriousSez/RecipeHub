@@ -25,6 +25,7 @@ const routes: Routes = [
   { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'recipe/:id/:slug', component: RecipeComponent },
   { path: 'recipe/:title/:creator', component: RecipeComponent },
+  { path: 'recipe/:key', component: RecipeComponent },
 
   { path: '**', component: HomeComponent }
 ];

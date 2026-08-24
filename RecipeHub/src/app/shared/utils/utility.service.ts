@@ -72,6 +72,14 @@ export class UtilityService extends BaseService {
             .replace(/(^-|-$)/g, '');
     }
 
+    toShortId(value: string): string {
+        return (value ?? '').replace(/-/g, '').slice(0, 8);
+    }
+
+    toRecipeKey(id: string, title: string): string {
+        return `${this.toSlug(title)}--${this.toShortId(id)}`;
+    }
+
     fromSlug(value: string) {
         if (!value) return '';
 

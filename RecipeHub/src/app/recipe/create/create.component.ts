@@ -243,7 +243,7 @@ export class CreateComponent implements OnInit, OnDestroy {
 
     this.recipeService.create(value)
       .subscribe(result => {
-        this.router.navigate([`/recipe/${result.id}/${this.utilityService.toSlug(result.title)}`]);
+        this.router.navigate([`/recipe/${this.utilityService.toRecipeKey(result.id, result.title)}`]);
       }, errors => {
         this.isRequesting = false;
         this.errors = errors.error;
