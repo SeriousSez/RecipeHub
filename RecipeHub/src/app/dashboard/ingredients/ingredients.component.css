@@ -1,15 +1,3 @@
-.offcanvas {
-    height: 15vh;
-}
-
-.offcanvas-header {
-    padding: 0.5rem 1rem;
-}
-
-.offcanvas-title {
-    line-height: 0.5;
-}
-
 .tr {
     border-color: #dee2e6;
     border-bottom-color: #dee2e6 !important;
@@ -35,22 +23,115 @@
     border: 1px solid #dee2e6;
 }
 
-.button-group {
+.dashboard-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.dashboard-card-header-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: .65rem;
+}
+
+.dashboard-section-kicker {
+    margin: 0 0 .3rem;
+    color: #0f766e;
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.dashboard-card-header h2 {
+    margin: 0;
+    color: #172033;
+    font-size: clamp(1.5rem, 2vw, 2rem);
+    font-weight: 850;
+}
+
+.dashboard-card-header p:last-child {
+    margin: .3rem 0 0;
+    color: #64748b;
+    font-size: .82rem;
+}
+
+.dashboard-count {
+    display: grid;
+    place-items: center;
+    min-width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background: #fef3c7;
+    color: #92400e;
+    font-size: 1.1rem;
+    font-weight: 850;
+}
+
+.dashboard-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: .75rem;
+    justify-content: flex-end;
+    gap: .55rem;
+}
+
+.dashboard-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+}
+
+.dashboard-table {
+    margin-bottom: 0;
+    --bs-table-hover-bg: #fffaf0;
+}
+
+.dashboard-table thead th {
+    border-bottom-width: 1px;
+    color: #64748b;
+    font-size: .68rem;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+.dashboard-row-actions {
+    width: 6rem;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.dashboard-row-actions .btn+.btn {
+    margin-left: .35rem;
+}
+
+#ingredientModal .modal-dialog {
+    max-width: 34rem;
 }
 
 @media (max-width: 640px) {
-    .button-group {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: .5rem;
+    .dashboard-card {
+        padding: 1rem;
     }
 
-    .button-group .btn {
+    .dashboard-card-header {
+        flex-direction: column;
+    }
+
+    .dashboard-card-header-actions {
         width: 100%;
-        margin-left: 0 !important;
+        align-items: stretch;
+    }
+
+    .dashboard-actions {
+        flex-direction: column;
+    }
+
+    .dashboard-actions .btn {
+        width: 100%;
     }
 
     .table thead {

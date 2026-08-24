@@ -13,6 +13,8 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using RecipeHub.Infrastructure;
 
 namespace RecipeHub.Api.Services
 {
@@ -21,7 +23,9 @@ namespace RecipeHub.Api.Services
         Task<RecipeResponse> TranslateAsync(RecipeResponse recipe, string targetLanguage);
         Task<List<RecipeResponse>> TranslateSummariesAsync(List<RecipeResponse> recipes, string targetLanguage);
         Task<IReadOnlyDictionary<string, string>> CanonicalizeIngredientNamesAsync(IEnumerable<string> names, string sourceLanguage);
-        Task<IReadOnlyDictionary<string, string>> TranslateIngredientNamesAsync(IEnumerable<string> names, string targetLanguage);
+        Task<IReadOnlyDictionary<string, string>> TranslateIngredientNamesAsync(IEnumerable<string> names, string targetLanguage, IReadOnlyDictionary<string, string> contexts = null);
+        Task<IReadOnlyDictionary<string, string>> GetIngredientTranslationsAsync(string ingredientName);
+        Task SaveIngredientTranslationAsync(string ingredientName, string language, string translatedName);
     }
 
     public class OpenAiRecipeTranslationService : IRecipeTranslationService
@@ -73,13 +77,15 @@ namespace RecipeHub.Api.Services
         private readonly IConfiguration _configuration;
         private readonly IMemoryCache _cache;
         private readonly ILogger<OpenAiRecipeTranslationService> _logger;
+        private readonly RecipeHubContext _context;
 
-        public OpenAiRecipeTranslationService(HttpClient httpClient, IConfiguration configuration, IMemoryCache cache, ILogger<OpenAiRecipeTranslationService> logger)
+        public OpenAiRecipeTranslationService(HttpClient httpClient, IConfiguration configuration, IMemoryCache cache, ILogger<OpenAiRecipeTranslationService> logger, RecipeHubContext context)
         {
             _httpClient = httpClient;
             _configuration = configuration;
             _cache = cache;
             _logger = logger;
+            _context = context;
         }
 
         public async Task<RecipeResponse> TranslateAsync(RecipeResponse recipe, string targetLanguage)
@@ -108,6 +114,8 @@ namespace RecipeHub.Api.Services
                 InstructionSegments = ExtractInstructionSegments(recipe.Instructions),
                 Portions = recipe.Portions,
                 ImageCaption = recipe.Image?.Caption,
+                Categories = new List<string>(recipe.Categories ?? new List<string>()),
+                Tags = new List<string>(recipe.Tags ?? new List<string>()),
                 Ingredients = (recipe.Ingredients ?? new List<IngredientResponse>()).Select(ingredient => new IngredientTranslation
                 {
                     Name = ingredient.Name,
@@ -131,7 +139,7 @@ namespace RecipeHub.Api.Services
                 messages = new[]
                 {
                     new { role = "system", content = "You translate recipes accurately. Return valid JSON only. Never alter numbers, array order, or add content." },
-                    new { role = "user", content = $"Translate every string value in this recipe JSON from English to {language}. Keep empty values empty and return the identical JSON shape: {sourceJson}" }
+                    new { role = "user", content = $"Translate every string value in this recipe JSON from English to {language}, including the Categories and Tags arrays. Keep taxonomy values concise, preserve their meaning, keep empty values empty, and return the identical JSON shape: {sourceJson}" }
                 }
             };
 
@@ -152,6 +160,8 @@ namespace RecipeHub.Api.Services
                 var content = document.RootElement.GetProperty("choices")[0].GetProperty("message").GetProperty("content").GetString();
                 var translation = JsonSerializer.Deserialize<TranslationPayload>(content ?? string.Empty, JsonOptions);
                 if (translation?.Ingredients == null || translation.Ingredients.Count != source.Ingredients.Count ||
+                    translation.Categories == null || translation.Categories.Count != source.Categories.Count ||
+                    translation.Tags == null || translation.Tags.Count != source.Tags.Count ||
                     translation.InstructionSegments == null || translation.InstructionSegments.Count != source.InstructionSegments.Count ||
                     translation.InstructionSegments.Select((segment, index) => segment.Index != index).Any(invalid => invalid)) return recipe;
 
@@ -160,8 +170,11 @@ namespace RecipeHub.Api.Services
                 translatedRecipe.Description = translation.Description ?? recipe.Description;
                 translatedRecipe.Instructions = ApplyInstructionTranslation(recipe.Instructions, translation.InstructionSegments);
                 translatedRecipe.Portions = translation.Portions ?? recipe.Portions;
+                translatedRecipe.Categories = translation.Categories.Select(value => value ?? string.Empty).ToList();
+                translatedRecipe.Tags = translation.Tags.Select(value => value ?? string.Empty).ToList();
                 if (translatedRecipe.Image != null) translatedRecipe.Image.Caption = translation.ImageCaption ?? translatedRecipe.Image.Caption;
                 translatedRecipe.Language = language;
+                var savedIngredientTranslations = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
                 for (var index = 0; index < translatedRecipe.Ingredients.Count; index++)
                 {
                     var translatedIngredient = translation.Ingredients[index];
@@ -170,8 +183,20 @@ namespace RecipeHub.Api.Services
                     translatedRecipe.Ingredients[index].AmountType = translatedIngredient.AmountType ?? translatedRecipe.Ingredients[index].AmountType;
                     translatedRecipe.Ingredients[index].Group = translatedIngredient.Group ?? translatedRecipe.Ingredients[index].Group;
                     translatedRecipe.Ingredients[index].Language = language;
+                    if (!string.IsNullOrWhiteSpace(recipe.Ingredients[index].Name) && !string.IsNullOrWhiteSpace(translatedIngredient.Name))
+                    {
+                        savedIngredientTranslations[recipe.Ingredients[index].Name] = translatedIngredient.Name;
+                    }
                 }
 
+                try
+                {
+                    await SaveIngredientTranslationsAsync(savedIngredientTranslations, language);
+                }
+                catch (Exception exception)
+                {
+                    _logger.LogWarning(exception, "Ingredient translations could not be persisted for recipe {RecipeId}", recipe.Id);
+                }
                 _cache.Set(cacheKey, translatedRecipe, TimeSpan.FromDays(30));
                 return translatedRecipe;
             }
@@ -303,7 +328,7 @@ namespace RecipeHub.Api.Services
             }
         }
 
-        public async Task<IReadOnlyDictionary<string, string>> TranslateIngredientNamesAsync(IEnumerable<string> names, string targetLanguage)
+        public async Task<IReadOnlyDictionary<string, string>> TranslateIngredientNamesAsync(IEnumerable<string> names, string targetLanguage, IReadOnlyDictionary<string, string> contexts = null)
         {
             var language = SupportedLanguages.FirstOrDefault(item => item.Equals(targetLanguage?.Trim(), StringComparison.OrdinalIgnoreCase));
             var distinctNames = (names ?? Enumerable.Empty<string>())
@@ -318,30 +343,36 @@ namespace RecipeHub.Api.Services
             if (language == null || language.Equals("English", StringComparison.OrdinalIgnoreCase))
                 return distinctNames.ToDictionary(name => name, name => name, StringComparer.OrdinalIgnoreCase);
 
+            var savedTranslations = await GetSavedIngredientTranslationsAsync(distinctNames, language);
+            var missingNames = distinctNames.Where(name => !savedTranslations.ContainsKey(name)).ToList();
+            if (missingNames.Count == 0) return savedTranslations;
+
             var apiKey = GetApiKey();
-            if (string.IsNullOrWhiteSpace(apiKey)) return null;
+            if (string.IsNullOrWhiteSpace(apiKey)) return savedTranslations.Count > 0 ? savedTranslations : null;
 
             var translatedNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var batch in distinctNames.Chunk(75))
+            foreach (var batch in missingNames.Chunk(75))
             {
                 var source = batch.Select((name, index) => new IngredientNameTranslation
                 {
                     Index = index,
                     Name = name,
-                    DisplayName = name
+                    DisplayName = name,
+                    Context = contexts != null && contexts.TryGetValue(name, out var context) ? context : null
                 }).ToList();
                 var sourceJson = JsonSerializer.Serialize(source);
                 var sourceHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(sourceJson)));
-                var cacheKey = $"ingredient-name-translations:v2:{language.ToLowerInvariant()}:{sourceHash}";
+                var cacheKey = $"ingredient-name-translations:v3:{language.ToLowerInvariant()}:{sourceHash}";
                 if (_cache.TryGetValue(cacheKey, out Dictionary<string, string> cachedBatch))
                 {
+                    await SaveIngredientTranslationsAsync(cachedBatch, language);
                     foreach (var item in cachedBatch) translatedNames[item.Key] = item.Value;
                     continue;
                 }
 
                 var requestBody = CreateRequestBody(
-                    $"Translate every displayName in this JSON array from English to {language}. Use the common concise grocery-store term. Preserve index and name exactly. Return an object with an ingredients property containing the identical array shape: {sourceJson}",
-                    "You translate grocery ingredient names accurately. Return valid JSON only. Never change indexes, name values, array order, quantities, brands, or add items.");
+                    $"Translate every displayName in this JSON array from English to {language} as an edible culinary ingredient search term. Use the context field to resolve ambiguity. Prefer the food meaning over brands, companies, product names, or proper nouns; for example, translate apple as the fruit, æble in Danish, even if Apple could be a brand. Return a concise grocery ingredient term suitable for a supermarket search. Preserve index, name, and context exactly. Return an object with an ingredients property containing the identical array shape: {sourceJson}",
+                    "You translate recipe ingredients for grocery searches. Interpret names as edible ingredients unless the context clearly says otherwise. Never return brand or company names as ingredient translations. Return valid JSON only. Never change indexes, name values, context values, array order, quantities, or add items.");
 
                 try
                 {
@@ -366,6 +397,7 @@ namespace RecipeHub.Api.Services
                         .Select((item, index) => new { source[index].Name, DisplayName = item.DisplayName.Trim() })
                         .ToDictionary(item => item.Name, item => item.DisplayName, StringComparer.OrdinalIgnoreCase);
                     _cache.Set(cacheKey, translatedBatch, TimeSpan.FromDays(30));
+                    await SaveIngredientTranslationsAsync(translatedBatch, language);
                     foreach (var item in translatedBatch) translatedNames[item.Key] = item.Value;
                 }
                 catch (Exception exception)
@@ -375,7 +407,66 @@ namespace RecipeHub.Api.Services
                 }
             }
 
+            foreach (var saved in savedTranslations) translatedNames[saved.Key] = saved.Value;
             return translatedNames;
+        }
+
+        private async Task<Dictionary<string, string>> GetSavedIngredientTranslationsAsync(IEnumerable<string> names, string language)
+        {
+            var normalizedNames = names.Select(name => name.Trim()).ToList();
+            var translations = await _context.IngredientTranslations
+                .AsNoTracking()
+                .Where(translation => translation.Language == language && normalizedNames.Contains(translation.IngredientName))
+                .Select(translation => new { translation.IngredientName, translation.TranslatedName })
+                .ToListAsync();
+            return translations.ToDictionary(item => item.IngredientName, item => item.TranslatedName, StringComparer.OrdinalIgnoreCase);
+        }
+
+        private async Task SaveIngredientTranslationsAsync(IReadOnlyDictionary<string, string> translations, string language)
+        {
+            var names = translations.Keys.Select(name => name.Trim()).ToList();
+            var existing = await _context.IngredientTranslations
+                .Where(translation => names.Contains(translation.IngredientName) && translation.Language == language)
+                .ToListAsync();
+            foreach (var translation in translations)
+            {
+                var saved = existing.FirstOrDefault(item => item.IngredientName.Equals(translation.Key, StringComparison.OrdinalIgnoreCase));
+                if (saved == null)
+                {
+                    _context.IngredientTranslations.Add(new Domain.Entities.Recipe.IngredientTranslation
+                    {
+                        Id = Guid.NewGuid(),
+                        IngredientName = translation.Key.Trim(),
+                        Language = language,
+                        TranslatedName = translation.Value,
+                        Source = "OpenAI"
+                    });
+                }
+                else
+                {
+                    saved.TranslatedName = translation.Value;
+                    saved.Source = "OpenAI";
+                }
+            }
+            await _context.SaveChangesAsync();
+        }
+
+        public Task SaveIngredientTranslationAsync(string ingredientName, string language, string translatedName)
+        {
+            return SaveIngredientTranslationsAsync(
+                new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { [ingredientName] = translatedName },
+                language);
+        }
+
+        public async Task<IReadOnlyDictionary<string, string>> GetIngredientTranslationsAsync(string ingredientName)
+        {
+            var normalizedName = ingredientName?.Trim();
+            if (string.IsNullOrWhiteSpace(normalizedName)) return new Dictionary<string, string>();
+
+            return await _context.IngredientTranslations
+            .AsNoTracking()
+            .Where(translation => translation.IngredientName == normalizedName)
+            .ToDictionaryAsync(translation => translation.Language, translation => translation.TranslatedName);
         }
 
         private static Dictionary<string, string> CreateCommonIngredientTranslations(IEnumerable<string> names, string language)
@@ -493,9 +584,25 @@ namespace RecipeHub.Api.Services
             for (var index = 0; index < parts.Length; index++)
             {
                 if (!parts[index].Any(char.IsLetter) || InstructionMarkupPattern.IsMatch(parts[index])) continue;
-                parts[index] = translatedSegments[translatedIndex++].Text ?? parts[index];
+                parts[index] = PreserveBoundaryWhitespace(parts[index], translatedSegments[translatedIndex++].Text);
             }
             return string.Concat(parts);
+        }
+
+        private static string PreserveBoundaryWhitespace(string original, string translated)
+        {
+            if (translated == null) return original;
+
+            var leadingLength = original.TakeWhile(char.IsWhiteSpace).Count();
+            var trailingLength = original.Reverse().TakeWhile(char.IsWhiteSpace).Count();
+            var leading = original.Substring(0, leadingLength);
+            var trailing = trailingLength == 0 ? string.Empty : original.Substring(original.Length - trailingLength);
+            var contentEnd = translated.Length;
+            while (contentEnd > 0 && char.IsWhiteSpace(translated[contentEnd - 1])) contentEnd--;
+            var contentStart = 0;
+            while (contentStart < contentEnd && char.IsWhiteSpace(translated[contentStart])) contentStart++;
+
+            return leading + translated.Substring(contentStart, contentEnd - contentStart) + trailing;
         }
 
         private class TranslationPayload
@@ -505,6 +612,8 @@ namespace RecipeHub.Api.Services
             public List<InstructionTranslationSegment> InstructionSegments { get; set; } = new List<InstructionTranslationSegment>();
             public string Portions { get; set; }
             public string ImageCaption { get; set; }
+            public List<string> Categories { get; set; } = new List<string>();
+            public List<string> Tags { get; set; } = new List<string>();
             public List<IngredientTranslation> Ingredients { get; set; } = new List<IngredientTranslation>();
         }
 
@@ -537,6 +646,7 @@ namespace RecipeHub.Api.Services
             public int Index { get; set; }
             public string Name { get; set; }
             public string DisplayName { get; set; }
+            public string Context { get; set; }
         }
 
         private class IngredientCanonicalization

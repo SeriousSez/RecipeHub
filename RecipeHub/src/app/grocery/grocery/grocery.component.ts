@@ -8,7 +8,7 @@ import { finalize } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 import { PantryService } from 'src/app/pantry/pantry.service';
 import { UserService } from 'src/app/shared/services/user.service';
-import { GroceryNearbyStore, GroceryOfferCategory, GroceryOfferGroup, GroceryOfferSearchResponse, GroceryShoppingPreference } from 'src/app/shared/models/grocery-offer-search.interface';
+import { GroceryIngredientOffer, GroceryNearbyStore, GroceryOfferCategory, GroceryOfferGroup, GroceryOfferSearchResponse, GroceryShoppingPreference } from 'src/app/shared/models/grocery-offer-search.interface';
 
 interface GroceryIngredientGroup {
   recipeTitle: string;
@@ -50,6 +50,9 @@ export class GroceryComponent implements OnInit {
   offerShoppingPreference: GroceryShoppingPreference = 'balanced';
   readonly offerShoppingPreferences: GroceryShoppingPreference[] = ['balanced', 'budget', 'deals', 'organic', 'premium'];
   ingredientOfferCategories: Record<string, GroceryOfferCategory> = {};
+  ratingOfferIngredients: Set<string> = new Set<string>();
+  savingCategoryFeedback: Set<string> = new Set<string>();
+  ratedOfferCategories: Set<string> = new Set<string>();
   retryingOfferIngredients: Set<string> = new Set<string>();
   collapsedOfferIngredients: Set<string> = new Set<string>();
   readonly offerCategories: GroceryOfferCategory[] = ['auto', 'produce', 'dairy', 'meat', 'bakery', 'pantry', 'candy', 'chocolate', 'beverages'];
@@ -58,6 +61,7 @@ export class GroceryComponent implements OnInit {
   showAddIngredient: boolean = false;
   ingredientOptions: string[] = [];
   private ingredientNameLabels: Record<string, string> = {};
+  translatingLocalIngredients: boolean = false;
   draftIngredientName: string = '';
   draftIngredientAmount: number | null = null;
   draftIngredientUnit: string = 'Piece';
@@ -82,6 +86,9 @@ export class GroceryComponent implements OnInit {
 
   getIngredients() {
     this.ingredients = this.groceryService.getIngredientList();
+    if (this.getRequestedLanguage() !== 'English' && this.ingredients.length > 0) {
+      this.translatingLocalIngredients = true;
+    }
     const summaries = new Map<string, GroceryIngredientSummary>();
 
     this.ingredients.forEach(ingredient => {
@@ -101,6 +108,34 @@ export class GroceryComponent implements OnInit {
     this.consolidatedIngredients = Array.from(summaries.values());
   }
 
+  private getRequestedLanguage(): string {
+    const languageCode = this.translateService.currentLang || 'en';
+    return { da: 'Danish', et: 'Estonian', tr: 'Turkish' }[languageCode] ?? 'English';
+  }
+
+  private translateLocalIngredients() {
+    const language = this.getRequestedLanguage();
+    if (language === 'English' || this.ingredients.length === 0) {
+      this.translatingLocalIngredients = false;
+      return;
+    }
+
+    this.translatingLocalIngredients = true;
+    const names = this.ingredients.map(ingredient => ingredient.name);
+    const contexts = this.getIngredientContexts(this.ingredients);
+    this.ingredientService.translate(names, language, contexts).subscribe({
+      next: translations => {
+        Object.entries(translations ?? {}).forEach(([name, displayName]) => {
+          if (displayName) this.ingredientNameLabels[name.toLowerCase()] = displayName;
+        });
+        this.translatingLocalIngredients = false;
+      },
+      error: () => {
+        this.translatingLocalIngredients = false;
+      }
+    });
+  }
+
   getIngredientDisplayName(ingredient: Ingredient): string {
     const lookupKey = ingredient.name?.trim();
     if (!lookupKey) return ingredient.name;
@@ -110,12 +145,13 @@ export class GroceryComponent implements OnInit {
   getIngredientDisplayNameByName(name: string): string {
     const lookupKey = name?.trim();
     if (!lookupKey) return name;
+    const providerDisplayName = this.nearbyOfferResults?.ingredientDisplayNames?.[lookupKey.toLowerCase()];
+    if (providerDisplayName) return providerDisplayName;
     return this.ingredientNameLabels[lookupKey.toLowerCase()] ?? name;
   }
 
   private loadIngredientTranslations() {
-    const languageCode = this.translateService.currentLang || 'en';
-    const requestedLanguage = { da: 'Danish', et: 'Estonian', tr: 'Turkish' }[languageCode] ?? 'English';
+    const requestedLanguage = this.getRequestedLanguage();
 
     this.ingredientService.getIngredientsLite(requestedLanguage).subscribe({
       next: ingredients => {
@@ -123,10 +159,12 @@ export class GroceryComponent implements OnInit {
           (ingredients ?? []).map(ingredient => [ingredient.name.toLowerCase(), ingredient.displayName ?? ingredient.name])
         );
         this.ingredientOptions = ingredients.map(ingredient => ingredient.name).sort((first, second) => first.localeCompare(second));
+        this.translateLocalIngredients();
       },
       error: () => {
         this.ingredientNameLabels = {};
         this.ingredientOptions = [];
+        this.translateLocalIngredients();
       }
     });
   }
@@ -161,6 +199,18 @@ export class GroceryComponent implements OnInit {
     return Array.from(groups.values());
   }
 
+  getOfferCategories(ingredientName: string): string[] {
+    const group = this.nearbyOfferGroups.find(item => item.ingredientName.toLowerCase() === ingredientName.toLowerCase());
+    const catalogCategories = this.nearbyOfferResults?.availableCategories ?? [];
+    const providerCategories = group?.offers
+      .map(offer => offer.productCategory?.trim())
+      .filter((category): category is string => !!category)
+      .filter((category, index, categories) => categories.findIndex(value => value.toLowerCase() === category.toLowerCase()) === index) ?? [];
+    const selectedCategory = this.getOfferCategory(ingredientName);
+    const categories = catalogCategories.length > 0 ? catalogCategories : providerCategories;
+    return ['auto', ...categories.filter(category => category.toLowerCase() !== 'auto' && category.toLowerCase() !== selectedCategory.toLowerCase()), ...(selectedCategory !== 'auto' ? [selectedCategory] : [])];
+  }
+
   get groupedIngredients(): GroceryIngredientGroup[] {
     const groups = new Map<string, GroceryIngredientGroup>();
 
@@ -183,6 +233,19 @@ export class GroceryComponent implements OnInit {
 
   get nearbyStores(): GroceryNearbyStore[] {
     return this.nearbyOfferResults?.stores.slice(0, 8) ?? [];
+  }
+
+  get hasOldOfferData(): boolean {
+    const cutoff = Date.now() - 90 * 24 * 60 * 60 * 1000;
+    return this.nearbyOfferResults?.offers.some(offer => {
+      const validFrom = offer.validFrom ? Date.parse(offer.validFrom) : NaN;
+      return Number.isFinite(validFrom) && validFrom < cutoff;
+    }) ?? false;
+  }
+
+  isOldOffer(offer: GroceryOfferGroup['offers'][number]): boolean {
+    const validFrom = offer.validFrom ? Date.parse(offer.validFrom) : NaN;
+    return Number.isFinite(validFrom) && validFrom < Date.now() - 90 * 24 * 60 * 60 * 1000;
   }
 
   get sortLabel() {
@@ -289,6 +352,8 @@ export class GroceryComponent implements OnInit {
   findNearbyOffers() {
     if (this.searchingNearbyOffers || !this.hasIngredients) return;
 
+    this.ratedOfferCategories.clear();
+
     if (typeof navigator === 'undefined' || !navigator.geolocation) {
       this.nearbyOfferErrorKey = 'grocery.locationUnavailable';
       return;
@@ -302,9 +367,10 @@ export class GroceryComponent implements OnInit {
       this.lastOfferLocation = { latitude: position.coords.latitude, longitude: position.coords.longitude };
       this.groceryService.findNearbyOffers({
         ingredientNames: ingredients.map(ingredient => ingredient.name),
+        ingredientContexts: this.getIngredientContexts(ingredients),
         ingredientCategories: this.getCategoryOverrides(ingredients.map(ingredient => ingredient.name)),
         shoppingPreference: this.offerShoppingPreference,
-        countryCode: this.getOfferCountryCode(),
+        countryCode: this.getOfferCountryCode(position.coords.latitude, position.coords.longitude),
         latitude: position.coords.latitude,
         longitude: position.coords.longitude,
         radiusKm: this.offerSearchRadiusKm
@@ -322,7 +388,7 @@ export class GroceryComponent implements OnInit {
     }, {
       enableHighAccuracy: false,
       timeout: 10000,
-      maximumAge: 300000
+      maximumAge: 0
     });
   }
 
@@ -333,6 +399,13 @@ export class GroceryComponent implements OnInit {
   get offerRadiusLabels(): Record<string, string> {
     return this.offerRadiusOptions.reduce((labels, radius) => {
       labels[radius] = `${radius} km`;
+      return labels;
+    }, {} as Record<string, string>);
+  }
+
+  getOfferCategoryLabels(ingredientName: string): Record<string, string> {
+    return this.getOfferCategories(ingredientName).reduce((labels, category) => {
+      labels[category] = category === 'auto' ? this.translateService.instant('grocery.offerCategories.auto') : category;
       return labels;
     }, {} as Record<string, string>);
   }
@@ -379,8 +452,36 @@ export class GroceryComponent implements OnInit {
     }
   }
 
-  setOfferCategory(ingredientName: string, category: GroceryOfferCategory) {
+  setOfferCategory(ingredientName: string, category: string) {
     this.ingredientOfferCategories[ingredientName] = category;
+  }
+
+  toggleOfferRating(ingredientName: string) {
+    if (this.ratingOfferIngredients.has(ingredientName)) this.ratingOfferIngredients.delete(ingredientName);
+    else this.ratingOfferIngredients.add(ingredientName);
+  }
+
+  isOfferRatingOpen(ingredientName: string) {
+    return this.ratingOfferIngredients.has(ingredientName);
+  }
+
+  rateOfferCategory(ingredientName: string, category: string, rating: 1 | -1) {
+    const key = `${ingredientName}|${category}`;
+    if (this.savingCategoryFeedback.has(key)) return;
+
+    this.savingCategoryFeedback.add(key);
+    this.groceryService.saveCategoryFeedback(ingredientName, category, rating).subscribe({
+      next: () => {
+        this.ratedOfferCategories.add(key);
+        this.retryIngredientOffers(ingredientName);
+      },
+      error: () => this.savingCategoryFeedback.delete(key),
+      complete: () => this.savingCategoryFeedback.delete(key)
+    });
+  }
+
+  isOfferCategoryRatingVisible(ingredientName: string, category: string) {
+    return !this.ratedOfferCategories.has(`${ingredientName}|${category}`);
   }
 
   isRetryingIngredient(ingredientName: string) {
@@ -394,9 +495,10 @@ export class GroceryComponent implements OnInit {
     this.nearbyOfferErrorKey = '';
     this.groceryService.findNearbyOffers({
       ingredientNames: [ingredientName],
+      ingredientContexts: this.getIngredientContexts(this.getOfferSearchIngredients().filter(ingredient => ingredient.name === ingredientName)),
       ingredientCategories: this.getCategoryOverrides([ingredientName]),
       shoppingPreference: this.offerShoppingPreference,
-      countryCode: this.getOfferCountryCode(),
+      countryCode: this.getOfferCountryCode(this.lastOfferLocation.latitude, this.lastOfferLocation.longitude),
       forceRefresh: true,
       latitude: this.lastOfferLocation.latitude,
       longitude: this.lastOfferLocation.longitude,
@@ -415,8 +517,24 @@ export class GroceryComponent implements OnInit {
     return this.selectedIngredientCount > 0 ? this.selectedIngredients : this.ingredients;
   }
 
-  private getOfferCountryCode(): 'DK' | 'EE' | 'TR' {
-    return { da: 'DK', et: 'EE', tr: 'TR' }[this.translateService.currentLang] as 'DK' | 'EE' | 'TR' ?? 'DK';
+  private getIngredientContexts(ingredients: Ingredient[]) {
+    return ingredients.reduce((contexts, ingredient) => {
+      const details = [ingredient.description, ingredient.sourceRecipeTitle, ingredient.amountType]
+        .filter(value => !!value?.trim())
+        .join('; ');
+      if (details) contexts[ingredient.name] = details;
+      return contexts;
+    }, {} as Record<string, string>);
+  }
+
+  private getOfferCountryCode(latitude?: number, longitude?: number): 'DK' | 'EE' | 'TR' {
+    if (latitude !== undefined && longitude !== undefined) {
+      if (latitude >= 54.5 && latitude <= 57.8 && longitude >= 8.0 && longitude <= 15.2) return 'DK';
+      if (latitude >= 57.5 && latitude <= 59.8 && longitude >= 21.5 && longitude <= 28.3) return 'EE';
+      if (latitude >= 35.8 && latitude <= 42.2 && longitude >= 25.5 && longitude <= 45.1) return 'TR';
+    }
+
+    return 'DK';
   }
 
   private getCategoryOverrides(ingredientNames: string[]) {
@@ -434,13 +552,24 @@ export class GroceryComponent implements OnInit {
     }
 
     const ingredientKey = ingredientName.toLowerCase();
+    const existingOffers = this.nearbyOfferResults.offers;
+    const originalPosition = existingOffers.findIndex(offer => offer.ingredientName.toLowerCase() === ingredientKey);
+    const offersWithoutIngredient = existingOffers.filter(offer => offer.ingredientName.toLowerCase() !== ingredientKey);
+    const mergedOffers = offersWithoutIngredient.slice();
+    if (originalPosition >= 0) {
+      mergedOffers.splice(Math.min(originalPosition, offersWithoutIngredient.length), 0, ...result.offers);
+    } else {
+      mergedOffers.push(...result.offers);
+    }
+
     this.nearbyOfferResults = {
       ...this.nearbyOfferResults,
       stores: result.stores.length > 0 ? result.stores : this.nearbyOfferResults.stores,
-      offers: [
-        ...this.nearbyOfferResults.offers.filter(offer => offer.ingredientName.toLowerCase() !== ingredientKey),
-        ...result.offers
-      ],
+      offers: mergedOffers,
+      ingredientDisplayNames: {
+        ...(this.nearbyOfferResults.ingredientDisplayNames ?? {}),
+        ...(result.ingredientDisplayNames ?? {})
+      },
       unmatchedIngredients: [
         ...this.nearbyOfferResults.unmatchedIngredients.filter(name => name.toLowerCase() !== ingredientKey),
         ...result.unmatchedIngredients

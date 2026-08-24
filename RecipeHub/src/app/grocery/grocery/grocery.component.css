@@ -780,6 +780,11 @@
     font-size: .65rem;
 }
 
+.grocery-offer-price span.is-old {
+    color: #b45309;
+    font-weight: 700;
+}
+
 .grocery-unmatched {
     display: flex;
     align-items: center;
@@ -929,4 +934,62 @@
     color: #0f172a;
     background: #ffffff;
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+}
+
+.grocery-product-category {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .35rem;
+    margin: .25rem 0 .35rem;
+    color: #374151;
+    font-size: .75rem;
+}
+
+.grocery-product-category-label {
+    padding: .15rem .4rem;
+    border-radius: 4px;
+    background: #fff7ed;
+    color: #9a3412;
+    font-weight: 800;
+}
+
+.grocery-product-category-prompt {
+    color: #64748b;
+}
+
+.grocery-category-rating-button {
+    width: 1.8rem;
+    height: 1.8rem;
+    border: 1px solid #d1d5db;
+    border-radius: 5px;
+    background: #fff;
+}
+
+.grocery-category-rating-button.is-positive {
+    color: #15803d;
+}
+
+.grocery-category-rating-button.is-negative {
+    color: #b91c1c;
+}
+
+.grocery-translation-skeleton {
+    display: inline-block;
+    width: min(12rem, 80%);
+    height: .85rem;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #e2e8f0 25%, #f8fafc 50%, #e2e8f0 75%);
+    background-size: 200% 100%;
+    animation: grocery-translation-shimmer 1.2s ease-in-out infinite;
+}
+
+@keyframes grocery-translation-shimmer {
+    from {
+        background-position: 200% 0;
+    }
+
+    to {
+        background-position: -200% 0;
+    }
 }

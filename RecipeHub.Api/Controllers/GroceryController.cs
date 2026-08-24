@@ -6,6 +6,8 @@ using RecipeHub.Api.Services;
 using RecipeHub.ApplicationService.Interfaces;
 using RecipeHub.Domain.Models;
 using System;
+using RecipeHub.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -18,13 +20,54 @@ namespace RecipeHub.Api.Controllers
         private readonly ILogger<GroceryController> _logger;
         private readonly IGroceryService _groceryService;
         private readonly IGroceryOfferService _groceryOfferService;
+        private readonly RecipeHubContext _context;
 
-        public GroceryController(ILogger<GroceryController> logger, IGroceryService groceryService, IGroceryOfferService groceryOfferService)
+        public GroceryController(ILogger<GroceryController> logger, IGroceryService groceryService, IGroceryOfferService groceryOfferService, RecipeHubContext context)
         {
             _logger = logger;
             _groceryService = groceryService;
             _groceryOfferService = groceryOfferService;
+            _context = context;
         }
+
+        [HttpPost("categoryfeedback")]
+        [AllowAnonymous]
+        public async Task<IActionResult> SaveCategoryFeedback([FromBody] GroceryCategoryFeedbackViewModel model)
+        {
+            if (model == null || (model.Rating != -1 && model.Rating != 1) || string.IsNullOrWhiteSpace(model.IngredientName) || string.IsNullOrWhiteSpace(model.Category) ||
+                model.IngredientName.Length > 100 || model.Category.Length > 200)
+            {
+                return BadRequest(new { code = "invalid_feedback" });
+            }
+
+            var ingredientName = NormalizeFeedbackValue(model.IngredientName);
+            var category = NormalizeFeedbackValue(model.Category);
+            var feedback = await _context.GroceryCategoryFeedback
+                .SingleOrDefaultAsync(item => item.IngredientName == ingredientName && item.Category == category);
+
+            if (feedback == null)
+            {
+                feedback = new Domain.Entities.Grocery.GroceryCategoryFeedback
+                {
+                    Id = Guid.NewGuid(),
+                    IngredientName = ingredientName,
+                    Category = category,
+                    ApprovalCount = model.Rating == 1 ? 1 : 0,
+                    RejectionCount = model.Rating == -1 ? 1 : 0
+                };
+                _context.GroceryCategoryFeedback.Add(feedback);
+            }
+            else
+            {
+                if (model.Rating == 1) feedback.ApprovalCount++;
+                else feedback.RejectionCount++;
+            }
+
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
+        private static string NormalizeFeedbackValue(string value) => string.Join(' ', value.Trim().ToLowerInvariant().Split(' ', StringSplitOptions.RemoveEmptyEntries));
 
         [AllowAnonymous]
         [EnableRateLimiting("GroceryOffers")]

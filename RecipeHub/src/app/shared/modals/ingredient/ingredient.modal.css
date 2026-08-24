@@ -1,0 +1,101 @@
+.ingredient-editor {
+    overflow: hidden;
+    border: 1px solid rgba(15, 23, 42, .1);
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, .96);
+    box-shadow: 0 24px 70px rgba(15, 23, 42, .2);
+}
+
+.ingredient-editor-header {
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+    padding: 1.25rem 1.25rem 1rem;
+    border-bottom: 1px solid rgba(15, 23, 42, .1);
+}
+
+.ingredient-editor-icon {
+    display: grid;
+    flex: 0 0 2.5rem;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: #e8f5f2;
+    color: #0f766e;
+}
+
+.ingredient-editor-kicker {
+    margin: 0 0 .2rem;
+    color: #0f766e;
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.ingredient-editor-header h2 {
+    margin: 0;
+    color: #172033;
+    font-size: 1.3rem;
+    font-weight: 800;
+}
+
+.ingredient-editor-body {
+    padding: 1.25rem;
+}
+
+.ingredient-editor .form-group {
+    margin-bottom: 1rem;
+}
+
+.ingredient-editor label {
+    display: block;
+    margin-bottom: .35rem;
+    color: #334155;
+    font-size: .78rem;
+    font-weight: 700;
+}
+
+.ingredient-editor .form-control,
+.ingredient-editor .form-select {
+    min-height: 42px;
+    border-color: #cbd5e1;
+    border-radius: .65rem;
+}
+
+.ingredient-editor .form-control:focus,
+.ingredient-editor .form-select:focus {
+    border-color: #5fbaaf;
+    box-shadow: 0 0 0 .2rem rgba(95, 186, 175, .16);
+}
+
+.ingredient-editor .image {
+    display: block;
+    width: min(100%, 20rem);
+    max-height: 14rem;
+    margin: 0 auto .75rem;
+    object-fit: contain;
+}
+
+.ingredient-editor input[type='file'] {
+    width: 100%;
+    font-size: .8rem;
+}
+
+.ingredient-editor-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1.25rem;
+}
+
+.ingredient-editor-footer .btn {
+    min-height: 42px;
+    border-radius: .7rem;
+    font-weight: 700;
+}
+
+.ingredient-editor .alert {
+    margin-top: 1rem;
+    margin-bottom: 0;
+}

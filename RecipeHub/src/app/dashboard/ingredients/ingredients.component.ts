@@ -15,7 +15,6 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class IngredientsComponent implements OnInit {
   @ViewChild('ingredientModal') private ingredientModal: ElementRef;
-  @ViewChild('deleteButton') private deleteButton: ElementRef;
 
   targetUrl: string = '/dashboard/createingredients';
 
@@ -25,6 +24,10 @@ export class IngredientsComponent implements OnInit {
   loadedIngredientDetails: Set<string> = new Set<string>();
 
   selectedIngredients: Ingredient[] = [];
+  showDeleteConfirmation = false;
+  deletingIngredients = false;
+  deleteCompleted = false;
+  editingIngredient: Ingredient | null = null;
   openedAccordion: string;
   clickedTableRow: string;
 
@@ -53,15 +56,18 @@ export class IngredientsComponent implements OnInit {
   }
 
   deleteIngredients() {
+    if (this.deletingIngredients) return;
+    this.deletingIngredients = true;
     this.ingredientService.deleteIngredients(this.selectedIngredients).subscribe((ingredients: Ingredient[]) => {
       this.selectedIngredients.forEach((ingredient: Ingredient) => {
         this.removeIngredientFromList(ingredient);
       });
 
-      this.selectedIngredients = [];
-      this.closeDeleteModal();
+      this.deletingIngredients = false;
+      this.deleteCompleted = true;
     },
       error => {
+        this.deletingIngredients = false;
         //this.notificationService.printErrorMessage(error);
       });
   }
@@ -110,12 +116,60 @@ export class IngredientsComponent implements OnInit {
   }
 
   public closeIngredientModal(ingredient: Ingredient) {
-    this.ingredients.push(ingredient);
+    if (!ingredient) {
+      this.editingIngredient = null;
+      this.ingredientModal.nativeElement.click();
+      return;
+    }
+
+    if (this.editingIngredient) {
+      const index = this.ingredients.indexOf(this.editingIngredient);
+      if (index > -1) this.ingredients[index] = ingredient;
+    } else {
+      this.ingredients.push(ingredient);
+    }
+    this.editingIngredient = null;
     this.ingredientModal.nativeElement.click();
   }
 
-  public closeDeleteModal() {
-    this.deleteButton.nativeElement.click();
+  public startCreateIngredient(): void {
+    this.editingIngredient = null;
+  }
+
+  public startEditIngredient(ingredient: Ingredient): void {
+    this.editingIngredient = ingredient;
+  }
+
+  public prepareSingleDelete(ingredient: Ingredient): void {
+    if (this.isIngredientBusy(ingredient)) return;
+    this.selectedIngredients = [ingredient];
+    this.showDeleteConfirmation = true;
+  }
+
+  public requestDelete(): void {
+    if (this.selectedIngredients.length > 0) {
+      this.deleteCompleted = false;
+      this.showDeleteConfirmation = true;
+    }
+  }
+
+  public cancelDelete(): void {
+    this.showDeleteConfirmation = false;
+    this.deletingIngredients = false;
+    this.deleteCompleted = false;
+  }
+
+  public getDeleteConfirmationTitle(): string {
+    return this.selectedIngredients.length === 1
+      ? this.translateService.instant('dashboard.deleteIngredientTitle')
+      : this.translateService.instant('dashboard.deletePrefix');
+  }
+
+  public getDeleteConfirmationMessage(): string {
+    if (this.selectedIngredients.length === 1) {
+      return this.translateService.instant('dashboard.deleteIngredientMessage', { ingredient: this.selectedIngredients[0].name });
+    }
+    return this.selectedIngredients.map(ingredient => ingredient.name).join(', ');
   }
 
   toggleAccordion(id: string, tableRowId: string) {

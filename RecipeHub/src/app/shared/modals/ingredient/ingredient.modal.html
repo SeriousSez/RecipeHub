@@ -1,10 +1,13 @@
-<div class="card">
+<section class="ingredient-editor">
+  <header class="ingredient-editor-header">
+    <div class="ingredient-editor-icon" aria-hidden="true"><i class="fas fa-carrot"></i></div>
+    <div>
+      <p class="ingredient-editor-kicker">{{ isEditMode ? 'Edit ingredient' : 'Ingredient catalog' }}</p>
+      <h2>{{ isEditMode ? 'Update ingredient' : 'Create ingredient' }}</h2>
+    </div>
+  </header>
 
-  <div class="card-header bg-white mb-3">
-    <h4 class="card-title">Ingredients</h4>
-  </div>
-
-  <div class="card-block">
+  <div class="ingredient-editor-body">
 
     <form (ngSubmit)="create(ingredientForm)" [formGroup]="ingredientForm">
       <div class="form-group">
@@ -31,14 +34,12 @@
         }
       </div>
 
+      @for (field of translationFields; track field.language) {
       <div class="form-group">
-        <label for="ingredient-language">Language</label>
-        <select id="ingredient-language" name="language" class="form-select" formControlName="language">
-          @for (language of languages; track language) {
-          <option [value]="language">{{language}}</option>
-          }
-        </select>
+        <label [for]="field.control">{{field.language}} name</label>
+        <input [id]="field.control" type="text" class="form-control" [formControlName]="field.control" [placeholder]="field.language + ' ingredient name'">
       </div>
+      }
 
       <div class="form-group">
         <label for="image-caption">Image Caption</label>
@@ -60,8 +61,8 @@
       </div>
     </form>
 
-    <div class="form-group d-inline-block">
-      <button type="submit" class="btn btn-primary" [disabled]="ingredientForm.invalid || isRequesting" (click)="create(ingredientForm)">Create ingredient</button>
+    <div class="ingredient-editor-footer">
+      <button type="submit" class="btn btn-brand" [disabled]="ingredientForm.invalid || isRequesting" (click)="create(ingredientForm)">{{ isEditMode ? 'Update ingredient' : 'Create ingredient' }}</button>
     </div>
 
     @if (errors) {
@@ -70,5 +71,4 @@
     </div>
     }
   </div>
-
-</div>
+</section>

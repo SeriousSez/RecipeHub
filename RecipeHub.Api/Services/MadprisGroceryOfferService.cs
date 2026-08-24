@@ -9,58 +9,18 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using RecipeHub.Infrastructure;
 
 namespace RecipeHub.Api.Services
 {
     public class MadprisGroceryOfferService : IGroceryProvider
     {
-        private static readonly IReadOnlyDictionary<string, string> DanishIngredientQueries =
-            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-            {
-                ["apple"] = "æble",
-                ["apples"] = "æbler",
-                ["basil"] = "basilikum",
-                ["beef"] = "oksekød",
-                ["black pepper"] = "sort peber",
-                ["butter"] = "smør",
-                ["carrot"] = "gulerod",
-                ["carrots"] = "gulerødder",
-                ["cheese"] = "ost",
-                ["chicken"] = "kylling",
-                ["chicken breast"] = "kyllingebryst",
-                ["chives"] = "purløg",
-                ["cream"] = "fløde",
-                ["cucumber"] = "agurk",
-                ["egg"] = "frilandsæg",
-                ["eggs"] = "frilandsæg",
-                ["flour"] = "mel",
-                ["fresh chives, finely chopped"] = "afskåret purløg",
-                ["garlic"] = "hvidløg",
-                ["lemon"] = "citron",
-                ["lemons"] = "citroner",
-                ["milk"] = "letmælk",
-                ["mushroom"] = "champignon",
-                ["mushrooms"] = "champignon",
-                ["olive oil"] = "olivenolie",
-                ["onion"] = "løg",
-                ["onions"] = "løg",
-                ["pepper"] = "peber",
-                ["potato"] = "kartoffel",
-                ["potatoes"] = "kartofler",
-                ["rice"] = "ris",
-                ["salt"] = "bordsalt",
-                ["spinach"] = "spinat",
-                ["sugar"] = "sukker",
-                ["sumac"] = "sumak",
-                ["tomato"] = "tomat",
-                ["tomatoes"] = "tomater",
-                ["yogurt"] = "yoghurt"
-            };
-
         private static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
@@ -70,17 +30,23 @@ namespace RecipeHub.Api.Services
         private readonly IConfiguration _configuration;
         private readonly IMemoryCache _cache;
         private readonly ILogger<MadprisGroceryOfferService> _logger;
+        private readonly RecipeHubContext _context;
+        private readonly IRecipeTranslationService _translationService;
 
         public MadprisGroceryOfferService(
             IHttpClientFactory httpClientFactory,
             IConfiguration configuration,
             IMemoryCache cache,
-            ILogger<MadprisGroceryOfferService> logger)
+            ILogger<MadprisGroceryOfferService> logger,
+            RecipeHubContext context,
+            IRecipeTranslationService translationService)
         {
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
             _cache = cache;
             _logger = logger;
+            _context = context;
+            _translationService = translationService;
         }
 
         public string CountryCode => "DK";
@@ -104,17 +70,25 @@ namespace RecipeHub.Api.Services
                 return cached;
             }
 
+            var marketFilters = await GetMarketFiltersAsync(model.ForceRefresh);
             var storesTask = GetNearbyStoresAsync(model, locationKey);
+            var approvedCategories = await GetApprovedCategoriesAsync(ingredients);
+            var translatedIngredients = await _translationService.TranslateIngredientNamesAsync(ingredients, "Danish", model.IngredientContexts)
+                ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             var searches = ingredients.Select(ingredient =>
             {
                 var category = GetCategory(model, ingredient);
-                var query = GetSearchQuery(ingredient, category);
+                var categories = category == "auto" && approvedCategories.TryGetValue(NormalizeFeedbackValue(ingredient), out var approvedCategoryList)
+                    ? approvedCategoryList
+                    : new List<string> { category };
+                var translated = translatedIngredients.TryGetValue(ingredient, out var translatedValue) ? translatedValue : null;
+                var query = GetSearchQuery(ingredient, categories.FirstOrDefault() ?? "auto", translated);
                 return new
                 {
                     Ingredient = ingredient,
                     Category = category,
                     Query = query,
-                    Products = SearchProductsAsync(query, model.ForceRefresh)
+                    Products = SearchProductsForCategoriesAsync(query, categories, model.ForceRefresh)
                 };
             }).ToList();
 
@@ -130,41 +104,65 @@ namespace RecipeHub.Api.Services
             foreach (var search in searches)
             {
                 var products = await search.Products;
+                var categoryPreference = await GetCategoryPreferenceAsync(search.Ingredient);
+                var hasApprovedCategory = categoryPreference.Values.Any(preference => preference > 0);
                 var matchedProducts = products
                     .Select(product => new
                     {
                         Product = product,
                         Store = FindNearestStore(nearbyStores, product.Store),
-                        MatchScore = GetMatchScore(search.Query, search.Category, product)
+                        MatchScore = GetMatchScore(search.Query, search.Category, product),
+                        CategoryPreference = categoryPreference.TryGetValue(NormalizeFeedbackValue(product.Category), out var preference) ? preference : 0
                     })
                     .Where(match => match.Store != null &&
                         match.MatchScore < int.MaxValue &&
                         (shoppingPreference != "organic" || IsOrganic(match.Product)));
 
+                var preferredProducts = matchedProducts
+                    .Where(match => categoryPreference.TryGetValue(NormalizeFeedbackValue(match.Product.Category), out var preference)
+                        ? hasApprovedCategory ? preference > 0 : preference >= 0
+                        : !hasApprovedCategory)
+                    .ToList();
+                var fallbackProducts = matchedProducts
+                    .Where(match => categoryPreference.TryGetValue(NormalizeFeedbackValue(match.Product.Category), out var preference) && preference < 0)
+                    .ToList();
+
                 var rankedProducts = shoppingPreference switch
                 {
-                    "budget" => matchedProducts
-                        .OrderBy(match => match.MatchScore)
+                    "budget" => preferredProducts
+                        .OrderByDescending(match => match.CategoryPreference)
+                        .ThenBy(match => match.MatchScore)
                         .ThenBy(match => match.Product.Price)
                         .ThenBy(match => match.Store.DistanceKm),
-                    "deals" => matchedProducts
-                        .OrderBy(match => match.MatchScore)
+                    "deals" => preferredProducts
+                        .OrderByDescending(match => match.CategoryPreference)
+                        .ThenBy(match => match.MatchScore)
                         .ThenByDescending(match => GetDiscountPercentage(match.Product))
                         .ThenBy(match => match.Product.Price)
                         .ThenBy(match => match.Store.DistanceKm),
-                    "premium" => matchedProducts
-                        .OrderBy(match => match.MatchScore)
+                    "premium" => preferredProducts
+                        .OrderByDescending(match => match.CategoryPreference)
+                        .ThenBy(match => match.MatchScore)
                         .ThenByDescending(match => match.Product.Price)
                         .ThenBy(match => match.Store.DistanceKm),
-                    _ => matchedProducts
-                        .OrderBy(match => match.MatchScore)
+                    _ => preferredProducts
+                        .OrderByDescending(match => match.CategoryPreference)
+                        .ThenBy(match => match.MatchScore)
                         .ThenByDescending(match => match.Product.OldPrice > match.Product.Price)
                         .ThenBy(match => match.Store.DistanceKm)
                         .ThenBy(match => match.Product.Price)
                 };
 
+                var fallbackRankedProducts = shoppingPreference switch
+                {
+                    "budget" => fallbackProducts.OrderByDescending(match => match.CategoryPreference).ThenBy(match => match.MatchScore).ThenBy(match => match.Product.Price),
+                    "deals" => fallbackProducts.OrderByDescending(match => match.CategoryPreference).ThenBy(match => match.MatchScore).ThenByDescending(match => GetDiscountPercentage(match.Product)).ThenBy(match => match.Product.Price),
+                    "premium" => fallbackProducts.OrderByDescending(match => match.CategoryPreference).ThenBy(match => match.MatchScore).ThenByDescending(match => match.Product.Price),
+                    _ => fallbackProducts.OrderByDescending(match => match.CategoryPreference).ThenBy(match => match.MatchScore).ThenBy(match => match.Store.DistanceKm).ThenBy(match => match.Product.Price)
+                };
                 var mappedProducts = rankedProducts
                     .Take(5)
+                    .Concat(fallbackRankedProducts.Take(Math.Max(0, 5 - preferredProducts.Count)))
                     .ToList();
 
                 if (mappedProducts.Count == 0)
@@ -187,6 +185,7 @@ namespace RecipeHub.Api.Services
                     resultOffers.Add(new GroceryIngredientOfferViewModel
                     {
                         IngredientName = search.Ingredient,
+                        ProductCategory = product.Category,
                         ProductName = product.Name,
                         ProductId = identity,
                         OfferId = $"{search.Ingredient}|{identity}",
@@ -223,6 +222,8 @@ namespace RecipeHub.Api.Services
                 }).ToList(),
                 Offers = resultOffers,
                 UnmatchedIngredients = unmatchedIngredients.OrderBy(name => name).ToList(),
+                AvailableCategories = marketFilters,
+                IngredientDisplayNames = translatedIngredients.ToDictionary(item => item.Key, item => item.Value, StringComparer.OrdinalIgnoreCase),
                 GeneratedAtUtc = DateTime.UtcNow
             };
 
@@ -230,7 +231,35 @@ namespace RecipeHub.Api.Services
             return response;
         }
 
-        private async Task<List<MadprisProduct>> SearchProductsAsync(string ingredient, bool forceRefresh)
+        private async Task<List<string>> GetMarketFiltersAsync(bool forceRefresh)
+        {
+            const string cacheKey = "madpris:filters";
+            if (!forceRefresh && _cache.TryGetValue(cacheKey, out List<string> cached)) return cached;
+
+            try
+            {
+                var client = _httpClientFactory.CreateClient("Madpris");
+                using var response = await client.GetAsync("api/filters");
+                if (!response.IsSuccessStatusCode) return new List<string>();
+
+                var filters = await response.Content.ReadFromJsonAsync<MadprisFilters>(JsonOptions);
+                var categories = (filters?.Categories ?? new List<string>())
+                    .Concat((filters?.Subcategories ?? new Dictionary<string, List<string>>()).Values.SelectMany(values => values ?? new List<string>()))
+                    .Where(category => !string.IsNullOrWhiteSpace(category))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(category => category, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+                _cache.Set(cacheKey, categories, TimeSpan.FromHours(12));
+                return categories;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogWarning(exception, "Madpris filters could not be loaded; using product categories");
+                return new List<string>();
+            }
+        }
+
+        private async Task<List<MadprisProduct>> SearchProductsAsync(string ingredient, string category, bool forceRefresh)
         {
             var query = NormalizeSearchTerm(ingredient);
             if (query.Length < 2)
@@ -238,14 +267,16 @@ namespace RecipeHub.Api.Services
                 return new List<MadprisProduct>();
             }
 
-            var cacheKey = $"madpris:products:{query.ToLowerInvariant()}";
+            var categoryFilter = GetMadprisCategoryFilter(category);
+            var cacheKey = $"madpris:products:{query.ToLowerInvariant()}:{categoryFilter.ToLowerInvariant()}";
             if (!forceRefresh && _cache.TryGetValue(cacheKey, out List<MadprisProduct> cached))
             {
                 return cached;
             }
 
             var client = _httpClientFactory.CreateClient("Madpris");
-            using var response = await client.GetAsync($"api/products?q={Uri.EscapeDataString(query)}&page=1");
+            var categoryQuery = string.IsNullOrWhiteSpace(categoryFilter) ? string.Empty : $"&category={Uri.EscapeDataString(categoryFilter)}";
+            using var response = await client.GetAsync($"api/merged-products?q={Uri.EscapeDataString(query)}&page=1{categoryQuery}");
             if (response.StatusCode == HttpStatusCode.NotFound)
             {
                 return new List<MadprisProduct>();
@@ -257,10 +288,101 @@ namespace RecipeHub.Api.Services
             }
 
             using var stream = await response.Content.ReadAsStreamAsync();
-            var result = await JsonSerializer.DeserializeAsync<MadprisProductSearchResponse>(stream, JsonOptions);
-            var products = result?.Products ?? new List<MadprisProduct>();
+            var result = await JsonSerializer.DeserializeAsync<MadprisMergedProductSearchResponse>(stream, JsonOptions);
+            if ((result?.Products == null || result.Products.Count == 0) && !string.IsNullOrWhiteSpace(categoryFilter))
+            {
+                using var fallbackResponse = await client.GetAsync($"api/merged-products?q={Uri.EscapeDataString(query)}&page=1");
+                if (fallbackResponse.IsSuccessStatusCode)
+                {
+                    using var fallbackStream = await fallbackResponse.Content.ReadAsStreamAsync();
+                    result = await JsonSerializer.DeserializeAsync<MadprisMergedProductSearchResponse>(fallbackStream, JsonOptions);
+                }
+            }
+            var products = (result?.Products ?? new List<MadprisMergedProduct>())
+                .SelectMany(product => (product.Stores ?? new List<MadprisMergedStore>()).Select(store => new MadprisProduct
+                {
+                    Name = store.Name ?? product.Name,
+                    Store = store.Store,
+                    Brand = store.Brand ?? product.Brand,
+                    Description = store.Description ?? product.Description,
+                    Category = product.Category,
+                    Price = store.Price,
+                    OldPrice = store.OldPrice,
+                    ImageUrl = store.ImageUrl ?? product.ImageUrl,
+                    Url = store.Url,
+                    GroupId = product.GroupId
+                }))
+                .ToList();
             _cache.Set(cacheKey, products, TimeSpan.FromHours(1));
             return products;
+        }
+
+        private async Task<List<MadprisProduct>> SearchProductsForCategoriesAsync(string query, IReadOnlyList<string> categories, bool forceRefresh)
+        {
+            var categoryList = (categories ?? new List<string> { "auto" })
+                .Where(category => !string.IsNullOrWhiteSpace(category))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            var results = await Task.WhenAll(categoryList.SelectMany(category => GetQueryVariants(query).Select(queryVariant => SearchProductsAsync(queryVariant, category, forceRefresh))));
+            return results.SelectMany(products => products)
+                .GroupBy(product => product.GroupId > 0
+                    ? $"group:{product.GroupId}"
+                    : $"{product.Store}|{product.Name}|{product.Price.ToString(CultureInfo.InvariantCulture)}", StringComparer.OrdinalIgnoreCase)
+                .Select(group => group.First())
+                .ToList();
+        }
+
+        private static IReadOnlyList<string> GetQueryVariants(string query)
+        {
+            var normalized = query?.Trim();
+            if (string.IsNullOrWhiteSpace(normalized)) return Array.Empty<string>();
+            var plural = normalized.EndsWith("e", StringComparison.OrdinalIgnoreCase)
+                ? normalized + "r"
+                : normalized.EndsWith("s", StringComparison.OrdinalIgnoreCase)
+                    ? normalized
+                    : normalized + "er";
+            return new[] { normalized, plural }.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        }
+
+        private static string GetMadprisCategoryFilter(string category)
+        {
+            return category?.Trim().ToLowerInvariant() switch
+            {
+                null or "" or "auto" => string.Empty,
+                "produce" => "Frugt & grønt",
+                "dairy" => "Mejeri",
+                "meat" => "Kød",
+                "bakery" => "Brød & kager",
+                "beverages" => "Drikkevarer",
+                "candy" => "Slik & snacks",
+                "chocolate" => "Slik & snacks",
+                "pantry" => "Kolonial",
+                _ => category.Trim()
+            };
+        }
+
+        private async Task<Dictionary<string, int>> GetCategoryPreferenceAsync(string ingredient)
+        {
+            var normalizedIngredient = NormalizeFeedbackValue(ingredient);
+            var feedback = await _context.GroceryCategoryFeedback
+                .AsNoTracking()
+                .Where(feedback => feedback.IngredientName == normalizedIngredient)
+                .ToDictionaryAsync(feedback => feedback.Category, feedback => feedback.ApprovalCount - feedback.RejectionCount, StringComparer.OrdinalIgnoreCase);
+            return feedback;
+        }
+
+        private async Task<Dictionary<string, List<string>>> GetApprovedCategoriesAsync(IEnumerable<string> ingredients)
+        {
+            var normalizedIngredients = ingredients.Select(NormalizeFeedbackValue).ToList();
+            var feedback = await _context.GroceryCategoryFeedback
+                .AsNoTracking()
+                .Where(feedback => normalizedIngredients.Contains(feedback.IngredientName))
+                .OrderByDescending(feedback => feedback.ApprovalCount - feedback.RejectionCount)
+                .Where(feedback => feedback.ApprovalCount > feedback.RejectionCount)
+                .ToListAsync();
+            return feedback
+                .GroupBy(item => item.IngredientName, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(group => group.Key, group => group.Select(item => item.Category).Distinct(StringComparer.OrdinalIgnoreCase).ToList(), StringComparer.OrdinalIgnoreCase);
         }
 
         private async Task<List<ShelfAtlasStore>> GetNearbyStoresAsync(GroceryOfferSearchViewModel model, string locationKey)
@@ -305,15 +427,26 @@ namespace RecipeHub.Api.Services
             var nameWords = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
             var descriptionWords = description.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
-            if (!MatchesCategory(category, product)) return int.MaxValue;
+            var categoryScore = GetCategoryMatchScore(category, product);
+            if (categoryScore == int.MaxValue) return int.MaxValue;
             if (IsObviouslyUnrelatedProduct(normalizedQuery, name)) return int.MaxValue;
-            if (name == normalizedQuery) return 0;
-            if (ContainsPhrase(name, normalizedQuery)) return 1;
+            if (name == normalizedQuery) return categoryScore;
+            if (ContainsPhrase(name, normalizedQuery)) return categoryScore + 1;
             if (!normalizedQuery.Contains(' ') && nameWords.Any(word => word.StartsWith(normalizedQuery, StringComparison.Ordinal) ||
-                word.EndsWith(normalizedQuery, StringComparison.Ordinal))) return 2;
+                word.EndsWith(normalizedQuery, StringComparison.Ordinal))) return categoryScore + 2;
             if (ContainsPhrase(description, normalizedQuery) ||
-                (!normalizedQuery.Contains(' ') && descriptionWords.Contains(normalizedQuery, StringComparer.Ordinal))) return 3;
+                (!normalizedQuery.Contains(' ') && descriptionWords.Contains(normalizedQuery, StringComparer.Ordinal))) return categoryScore + 3;
             return int.MaxValue;
+        }
+
+        private static int GetCategoryMatchScore(string category, MadprisProduct product)
+        {
+            if (category == "auto")
+            {
+                return IsNonGroceryCategory(product.Category) ? int.MaxValue : 10;
+            }
+
+            return MatchesCategory(category, product) ? 0 : int.MaxValue;
         }
 
         private static bool IsObviouslyUnrelatedProduct(string query, string productName)
@@ -349,6 +482,11 @@ namespace RecipeHub.Api.Services
         {
             var normalizedCategory = NormalizeComparisonText(product.Category);
             var normalizedName = NormalizeComparisonText(product.Name);
+            if (!string.IsNullOrWhiteSpace(category) && NormalizeComparisonText(category) == normalizedCategory)
+            {
+                return true;
+            }
+
             return category switch
             {
                 "bakery" => normalizedCategory.Contains("bager", StringComparison.Ordinal) || normalizedCategory.Contains("brod", StringComparison.Ordinal),
@@ -376,29 +514,28 @@ namespace RecipeHub.Api.Services
 
         private static string GetDanishSearchQuery(string ingredient)
         {
-            var searchTerm = NormalizeSearchTerm(ingredient);
-            return DanishIngredientQueries.TryGetValue(searchTerm, out var translated) ? translated : searchTerm;
+            return NormalizeSearchTerm(ingredient);
         }
 
-        private static string GetSearchQuery(string ingredient, string category)
+        private static string GetSearchQuery(string ingredient, string category, string translatedIngredient = null)
         {
-            var broadQuery = GetBroadDanishSearchQuery(ingredient);
+            var broadQuery = GetBroadDanishSearchQuery(ingredient, translatedIngredient);
             return category switch
             {
                 "chocolate" when broadQuery == "æg" => "chokoladeæg",
                 "chocolate" => $"{broadQuery} chokolade",
                 "candy" => broadQuery,
-                _ => GetDanishSearchQuery(ingredient)
+                _ => translatedIngredient ?? GetDanishSearchQuery(ingredient)
             };
         }
 
-        private static string GetBroadDanishSearchQuery(string ingredient)
+        private static string GetBroadDanishSearchQuery(string ingredient, string translatedIngredient = null)
         {
             return NormalizeSearchTerm(ingredient).ToLowerInvariant() switch
             {
                 "egg" or "eggs" => "æg",
                 "milk" => "mælk",
-                _ => GetDanishSearchQuery(ingredient)
+                _ => translatedIngredient ?? GetDanishSearchQuery(ingredient)
             };
         }
 
@@ -426,6 +563,8 @@ namespace RecipeHub.Api.Services
             var value = parenthesisIndex >= 0 ? ingredient.Substring(0, parenthesisIndex) : ingredient;
             return value.Trim();
         }
+
+        private static string NormalizeFeedbackValue(string value) => string.Join(' ', (value ?? string.Empty).Trim().ToLowerInvariant().Split(' ', StringSplitOptions.RemoveEmptyEntries));
 
         private static string NormalizeComparisonText(string value)
         {
@@ -480,6 +619,46 @@ namespace RecipeHub.Api.Services
             public List<MadprisProduct> Products { get; set; } = new List<MadprisProduct>();
         }
 
+        private class MadprisMergedProductSearchResponse
+        {
+            public List<MadprisMergedProduct> Products { get; set; } = new List<MadprisMergedProduct>();
+        }
+
+        private class MadprisMergedProduct
+        {
+            [JsonPropertyName("group_id")]
+            public int GroupId { get; set; }
+            public string Name { get; set; }
+            public string Brand { get; set; }
+            [JsonPropertyName("desc")]
+            public string Description { get; set; }
+            public string Category { get; set; }
+            [JsonPropertyName("img")]
+            public string ImageUrl { get; set; }
+            public List<MadprisMergedStore> Stores { get; set; } = new List<MadprisMergedStore>();
+        }
+
+        private class MadprisMergedStore
+        {
+            public string Store { get; set; }
+            public string Name { get; set; }
+            public string Brand { get; set; }
+            [JsonPropertyName("desc")]
+            public string Description { get; set; }
+            public decimal Price { get; set; }
+            [JsonPropertyName("old_price")]
+            public decimal? OldPrice { get; set; }
+            [JsonPropertyName("img")]
+            public string ImageUrl { get; set; }
+            public string Url { get; set; }
+        }
+
+        private class MadprisFilters
+        {
+            public List<string> Categories { get; set; } = new List<string>();
+            public Dictionary<string, List<string>> Subcategories { get; set; } = new Dictionary<string, List<string>>();
+        }
+
         private class MadprisProduct
         {
             public string Name { get; set; }
@@ -494,6 +673,7 @@ namespace RecipeHub.Api.Services
             [JsonPropertyName("img")]
             public string ImageUrl { get; set; }
             public string Url { get; set; }
+            public int GroupId { get; set; }
         }
 
         private class ShelfAtlasEnvelope<T>

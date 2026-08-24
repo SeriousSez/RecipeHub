@@ -1,6 +1,7 @@
 import { Image } from "./image.interface";
 
 export interface Ingredient {
+    id?: string;
     name: string;
     displayName?: string;
     description: string;

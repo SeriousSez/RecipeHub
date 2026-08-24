@@ -6,6 +6,7 @@ namespace RecipeHub.Domain.Models
     public class GroceryOfferSearchViewModel
     {
         public List<string> IngredientNames { get; set; } = new List<string>();
+        public Dictionary<string, string> IngredientContexts { get; set; } = new Dictionary<string, string>();
         public Dictionary<string, string> IngredientCategories { get; set; } = new Dictionary<string, string>();
         public string ShoppingPreference { get; set; } = "balanced";
         public string CountryCode { get; set; } = "DK";
@@ -20,6 +21,8 @@ namespace RecipeHub.Domain.Models
         public List<GroceryNearbyStoreViewModel> Stores { get; set; } = new List<GroceryNearbyStoreViewModel>();
         public List<GroceryIngredientOfferViewModel> Offers { get; set; } = new List<GroceryIngredientOfferViewModel>();
         public List<string> UnmatchedIngredients { get; set; } = new List<string>();
+        public List<string> AvailableCategories { get; set; } = new List<string>();
+        public Dictionary<string, string> IngredientDisplayNames { get; set; } = new Dictionary<string, string>();
         public DateTime GeneratedAtUtc { get; set; }
     }
 
@@ -39,6 +42,7 @@ namespace RecipeHub.Domain.Models
     public class GroceryIngredientOfferViewModel
     {
         public string IngredientName { get; set; }
+        public string ProductCategory { get; set; }
         public string ProductName { get; set; }
         public string ProductId { get; set; }
         public string OfferId { get; set; }

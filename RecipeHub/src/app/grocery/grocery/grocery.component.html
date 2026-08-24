@@ -66,6 +66,10 @@
     <div class="grocery-offers-message is-error" role="alert">{{ nearbyOfferErrorKey | translate }}</div>
     }
 
+    @if (hasOldOfferData) {
+    <div class="grocery-offers-message is-warning" role="status">{{ 'grocery.oldOfferDataWarning' | translate }}</div>
+    }
+
     @if (nearbyOfferResults && !dealsCollapsed) {
     <div id="grocery-deals-results">
       @if (nearbyOfferGroups.length > 0) {
@@ -76,8 +80,8 @@
             <h3>{{ getIngredientDisplayNameByName(group.ingredientName) }}</h3>
             <div class="grocery-offer-refine">
               <span>{{ 'grocery.matchesFound' | translate:{ count: group.offers.length } }}</span>
-              <app-taxonomy-select [ngModel]="getOfferCategory(group.ingredientName)" (ngModelChange)="setOfferCategory(group.ingredientName, $event)" [options]="offerCategories" [optionLabels]="offerCategoryLabels" [multiple]="false" [allowCustom]="false" [compact]="true"
-                [placeholder]="'grocery.offerCategories.auto' | translate" [ariaLabel]="'grocery.offerCategoryLabel' | translate"></app-taxonomy-select>
+              <app-taxonomy-select [ngModel]="getOfferCategory(group.ingredientName)" (ngModelChange)="setOfferCategory(group.ingredientName, $event)" [options]="getOfferCategories(group.ingredientName)" [optionLabels]="getOfferCategoryLabels(group.ingredientName)" [multiple]="false"
+                [allowCustom]="false" [compact]="true" [placeholder]="'grocery.offerCategories.auto' | translate" [ariaLabel]="'grocery.offerCategoryLabel' | translate"></app-taxonomy-select>
               <button type="button" class="btn btn-outline-brand" [disabled]="searchingNearbyOffers || isRetryingIngredient(group.ingredientName)" (click)="retryIngredientOffers(group.ingredientName)" [attr.aria-label]="'grocery.retryIngredient' | translate:{ ingredient: group.ingredientName }"
                 [title]="'grocery.retryIngredient' | translate:{ ingredient: group.ingredientName }">
                 <i class="fas fa-sync-alt" [class.fa-spin]="isRetryingIngredient(group.ingredientName)" aria-hidden="true"></i>
@@ -112,12 +116,23 @@
                   {{ offer.productName }}
                   }
                 </h4>
+                @if (offer.productCategory && isOfferCategoryRatingVisible(offer.ingredientName, offer.productCategory)) {
+                <div class="grocery-product-category" role="group" [attr.aria-label]="'grocery.rateProductMatch' | translate">
+                  <span class="grocery-product-category-label">{{ offer.productCategory }}</span>
+                  <span class="grocery-product-category-prompt">{{ 'grocery.rateProductMatch' | translate }}</span>
+                  <button type="button" class="grocery-category-rating-button is-positive" (click)="rateOfferCategory(offer.ingredientName, offer.productCategory, 1)" [disabled]="savingCategoryFeedback.has(offer.ingredientName + '|' + offer.productCategory)"
+                    [attr.aria-label]="'grocery.categoryGoodMatch' | translate:{ category: offer.productCategory }"><i class="fas fa-thumbs-up" aria-hidden="true"></i></button>
+                  <button type="button" class="grocery-category-rating-button is-negative" (click)="rateOfferCategory(offer.ingredientName, offer.productCategory, -1)" [disabled]="savingCategoryFeedback.has(offer.ingredientName + '|' + offer.productCategory)"
+                    [attr.aria-label]="'grocery.categoryBadMatch' | translate:{ category: offer.productCategory }"><i class="fas fa-thumbs-down" aria-hidden="true"></i></button>
+                </div>
+                }
                 <p><strong>{{ offer.chainName }}</strong> · {{ offer.storeName }} · {{ offer.distanceKm | number:'1.0-1' }} km</p>
                 <p class="grocery-offer-address">{{ offer.storeAddress }}, {{ offer.storePostalCode }} {{ offer.storeCity }}</p>
               </div>
               <div class="grocery-offer-price">
                 @if (offer.originalPrice && offer.originalPrice > offer.price) { <del>{{ offer.originalPrice | currency:offer.currency:'symbol-narrow':'1.2-2' }}</del> }
                 <strong>{{ offer.price | currency:offer.currency:'symbol-narrow':'1.2-2' }}</strong>
+                @if (offer.validFrom) { <span class="grocery-offer-date" [class.is-old]="isOldOffer(offer)">{{ 'grocery.priceFrom' | translate }} {{ offer.validFrom | date:'mediumDate' }}</span> }
                 @if (offer.validTo) { <span>{{ 'grocery.validUntil' | translate }} {{ offer.validTo | date:'mediumDate' }}</span> }
               </div>
             </article>
@@ -256,7 +271,7 @@
           <th scope="row">
             <input class="form-check-input me-1 cursor-pointer" type="checkbox" [checked]="isIngredientSelected(ingredient)" (click)="$event.stopPropagation(); toggleIngredientSelected(ingredient)">
           </th>
-          <td>{{ getIngredientDisplayName(ingredient) }}</td>
+          <td>@if (translatingLocalIngredients) { <span class="grocery-translation-skeleton" aria-label="Loading translation"></span> } @else { {{ getIngredientDisplayName(ingredient) }} }</td>
           <td>{{ ingredient.amount }} {{ ingredient.amountType }}</td>
           <td>{{ displayDateOnly(ingredient.created) }}</td>
           <td class="grocery-row-action">
@@ -292,7 +307,8 @@
             </div>
           </td>
           } @else {
-          <td class="cursor-pointer" (click)="handleIngredientClick(ingredient, 'accordion' + group.recipeTitle + '-' + i, 'table-row' + group.recipeTitle + '-' + i)">{{ getIngredientDisplayName(ingredient) }}</td>
+          <td class="cursor-pointer" (click)="handleIngredientClick(ingredient, 'accordion' + group.recipeTitle + '-' + i, 'table-row' + group.recipeTitle + '-' + i)">@if (translatingLocalIngredients) { <span class="grocery-translation-skeleton" aria-label="Loading translation"></span> } @else { {{
+            getIngredientDisplayName(ingredient) }} }</td>
           <td class="cursor-pointer" (click)="handleIngredientClick(ingredient, 'accordion' + group.recipeTitle + '-' + i, 'table-row' + group.recipeTitle + '-' + i)">{{ingredient.amount}} {{ingredient.amountType}}</td>
           }
           <td class="cursor-pointer" (click)="handleIngredientClick(ingredient, 'accordion' + group.recipeTitle + '-' + i, 'table-row' + group.recipeTitle + '-' + i)">

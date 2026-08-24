@@ -1,63 +1,68 @@
-<div class="button-group mb-3">
-  <button class="btn btn-danger" type="button" data-bs-toggle="offcanvas" data-bs-target="#deleteModal" aria-controls="deleteModal" [disabled]="selectedUsers.length == 0" #deleteButton>{{ 'dashboard.deleteButton' | translate }}</button>
+<section class="dashboard-card">
+  <header class="dashboard-card-header">
+    <div>
+      <p class="dashboard-section-kicker">{{ 'dashboard.usersKicker' | translate }}</p>
+      <h2>{{ 'dashboard.usersTitle' | translate }}</h2>
+      <p>{{ 'dashboard.usersSubtitle' | translate }}</p>
+    </div>
+    <div class="dashboard-card-header-actions">
+      <span class="dashboard-count">{{ users ? users.length : 0 }}</span>
+      <div class="dashboard-actions">
+        <button class="btn btn-outline-danger" type="button" data-bs-toggle="offcanvas" data-bs-target="#deleteModal" aria-controls="deleteModal" [disabled]="selectedUsers.length == 0" #deleteButton>{{ 'dashboard.deleteButton' | translate }}</button>
+        <button class="btn btn-outline-brand" type="button" data-bs-toggle="modal" data-bs-target="#customerModal">{{ 'dashboard.createUserButton' | translate }}</button>
+        <button class="btn btn-outline-brand-alt test-button" type="button" (click)="createTestUser()">{{ 'dashboard.createTestUserButton' | translate }}</button>
+        <button class="btn btn-outline-secondary" type="button" (click)="deleteTestUsers()" [disabled]="noTestUsers">{{ 'dashboard.deleteTestUsersButton' | translate }}</button>
+      </div>
+    </div>
+  </header>
 
-  <button class="btn btn-outline-dark ms-3" type="button" data-bs-toggle="modal" data-bs-target="#customerModal">{{ 'dashboard.createUserButton' | translate }}</button>
-
-  <span class="float-end">
-    <button class="btn btn-warning ms-3 test-button" type="button" (click)="createTestUser()">{{ 'dashboard.createTestUserButton' | translate }}</button>
-    <button class="btn btn-secondary ms-3" type="button" (click)="deleteTestUsers()" [disabled]="noTestUsers">{{ 'dashboard.deleteTestUsersButton' | translate }}</button>
-  </span>
-</div>
-
-<table class="table table-hover caption-top">
-  <caption>{{ 'dashboard.tableCaptionUsers' | translate }}</caption>
-  <thead>
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col" class="cursor-pointer fullname" (click)="sort('fullname')">{{ 'dashboard.fullNameColumn' | translate }} @if (sortSetting == 'fullname') {
-        <i class="fas fa-sort"></i>
-        }
-      </th>
-      <th scope="col" class="cursor-pointer" (click)="sort('email')">{{ 'dashboard.emailColumn' | translate }} @if (sortSetting == 'email') {
-        <i class="fas fa-sort"></i>
-        }
-      </th>
-      <th scope="col" class="cursor-pointer" (click)="sort('username')">{{ 'dashboard.usernameColumn' | translate }} @if (sortSetting == 'username') {
-        <i class="fas fa-sort"></i>
-        }
-      </th>
-      <th scope="col" class="cursor-pointer" (click)="sort('role')">{{ 'dashboard.roleColumn' | translate }} @if (sortSetting == 'role') {
-        <i class="fas fa-sort"></i>
-        }
-      </th>
-    </tr>
-  </thead>
-  <tbody>
-    @for (user of users; track user) {
-    <tr>
-      <th scope="row">
-        <input class="form-check-input me-1" type="checkbox" value="" (click)="toggleUserSelected(user)">
-      </th>
-      <td class="fullname" [attr.data-label]="'dashboard.fullNameColumn' | translate">
-        {{user.fullName}}
-      </td>
-      <td class="cursor-copy" [attr.data-label]="'dashboard.emailColumn' | translate" (click)="copyText(user.email)" [attr.recipe-hub-title]="'dashboard.copyTooltip' | translate">
-        {{user.email}}
-      </td>
-      <td [attr.data-label]="'dashboard.usernameColumn' | translate">
-        {{user.userName}}
-      </td>
-      <td [attr.data-label]="'dashboard.roleColumn' | translate">
-        <select class="select" name="role" [(ngModel)]="user.role" (ngModelChange)="updateRole(user, $event)">
-          @for (role of roles; track role) {
-          <option class="select-items" [ngValue]="role" selected="user.role === role">{{role}}</option>
+  <table class="table table-hover caption-top dashboard-table">
+    <caption>{{ 'dashboard.tableCaptionUsers' | translate }}</caption>
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col" class="cursor-pointer fullname" (click)="sort('fullname')">{{ 'dashboard.fullNameColumn' | translate }} @if (sortSetting == 'fullname') {
+          <i class="fas fa-sort"></i>
           }
-        </select>
-      </td>
-    </tr>
-    }
-  </tbody>
-</table>
+        </th>
+        <th scope="col" class="cursor-pointer" (click)="sort('email')">{{ 'dashboard.emailColumn' | translate }} @if (sortSetting == 'email') {
+          <i class="fas fa-sort"></i>
+          }
+        </th>
+        <th scope="col" class="cursor-pointer" (click)="sort('username')">{{ 'dashboard.usernameColumn' | translate }} @if (sortSetting == 'username') {
+          <i class="fas fa-sort"></i>
+          }
+        </th>
+        <th scope="col" class="cursor-pointer" (click)="sort('role')">{{ 'dashboard.roleColumn' | translate }} @if (sortSetting == 'role') {
+          <i class="fas fa-sort"></i>
+          }
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (user of users; track user) {
+      <tr>
+        <th scope="row">
+          <input class="form-check-input me-1" type="checkbox" value="" (click)="toggleUserSelected(user)">
+        </th>
+        <td class="fullname" [attr.data-label]="'dashboard.fullNameColumn' | translate">
+          {{user.fullName}}
+        </td>
+        <td class="cursor-copy" [attr.data-label]="'dashboard.emailColumn' | translate" (click)="copyText(user.email)" [attr.recipe-hub-title]="'dashboard.copyTooltip' | translate">
+          {{user.email}}
+        </td>
+        <td [attr.data-label]="'dashboard.usernameColumn' | translate">
+          {{user.userName}}
+        </td>
+        <td [attr.data-label]="'dashboard.roleColumn' | translate">
+          <app-taxonomy-select class="role-select" [name]="'role-' + user.id" [ngModel]="user.role" (ngModelChange)="updateRole(user, $event)" [options]="roles" [multiple]="false" [allowCustom]="false" [compact]="true" [placeholder]="'dashboard.roleColumn' | translate"
+            [ariaLabel]="'dashboard.roleColumn' | translate"></app-taxonomy-select>
+        </td>
+      </tr>
+      }
+    </tbody>
+  </table>
+</section>
 
 <div class="offcanvas offcanvas-bottom" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="deleteModal" aria-labelledby="deleteModalLabel" #deleteModal>
   <div class="offcanvas-header">

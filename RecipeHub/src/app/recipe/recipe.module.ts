@@ -18,7 +18,6 @@ import { SafeService } from '../shared/utils/safe.service';
 import { FavoriteService } from '../shared/services/favorite.service';
 import { PrettyComponent } from './overview/pretty/pretty.component';
 import { UtilityService } from '../shared/utils/utility.service';
-import { TaxonomySelectComponent } from './taxonomy-select/taxonomy-select.component';
 
 @NgModule({
   imports: [
@@ -35,10 +34,9 @@ import { TaxonomySelectComponent } from './taxonomy-select/taxonomy-select.compo
     OverviewComponent,
     PrettyComponent,
     CreateComponent,
-    RecipeComponent,
-    TaxonomySelectComponent
+    RecipeComponent
   ],
-  exports: [TaxonomySelectComponent],
+  exports: [],
   providers: [AuthGuard, RecipeService, IngredientService, DatePipe, SafeService, FavoriteService, UtilityService]
 })
 

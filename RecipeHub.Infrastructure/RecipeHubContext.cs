@@ -38,12 +38,14 @@ namespace RecipeHub.Infrastructure
         public DbSet<RecipeIngredient> RecipeIngredients { get; set; }
         public DbSet<RecipeRating> RecipeRatings { get; set; }
         public DbSet<Ingredient> Ingredients { get; set; }
+        public DbSet<IngredientTranslation> IngredientTranslations { get; set; }
         public DbSet<Favorites> Favorites { get; set; }
 
         public DbSet<GroceryPlan> GroceryPlans { get; set; }
 
         public DbSet<GroceryList> GroceryLists { get; set; }
         public DbSet<GroceryIngredient> GroceryIngredients { get; set; }
+        public DbSet<GroceryCategoryFeedback> GroceryCategoryFeedback { get; set; }
 
         public DbSet<Fridge> Fridges { get; set; }
         public DbSet<FridgeGrocery> FridgeGroceries { get; set; }
@@ -90,6 +92,14 @@ namespace RecipeHub.Infrastructure
                 .HasForeignKey(rating => rating.UserId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<GroceryCategoryFeedback>()
+                .HasIndex(feedback => new { feedback.IngredientName, feedback.Category })
+                .IsUnique();
+
+            modelBuilder.Entity<IngredientTranslation>()
+                .HasIndex(translation => new { translation.IngredientName, translation.Language })
+                .IsUnique();
 
             var stringListComparer = new ValueComparer<List<string>>(
                 (left, right) => left != null && right != null && left.SequenceEqual(right),

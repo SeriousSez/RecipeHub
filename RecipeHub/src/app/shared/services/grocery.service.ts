@@ -137,6 +137,10 @@ export class GroceryService extends BaseService {
         return this.http.post<GroceryOfferSearchResponse>(this.baseUrl + "/grocery/nearbyoffers", model, this.httpOptions);
     }
 
+    saveCategoryFeedback(ingredientName: string, category: string, rating: 1 | -1) {
+        return this.http.post(this.baseUrl + "/grocery/categoryfeedback", { ingredientName, category, rating }, this.httpOptions);
+    }
+
     getRecipeList() {
         return this.recipeList;
     }

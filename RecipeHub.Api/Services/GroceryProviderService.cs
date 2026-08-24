@@ -43,8 +43,23 @@ namespace RecipeHub.Api.Services
 
         private bool TryGetProvider(GroceryOfferSearchViewModel model, out IGroceryProvider provider)
         {
-            var countryCode = string.IsNullOrWhiteSpace(model?.CountryCode) ? "DK" : model.CountryCode.Trim();
+            var countryCode = ResolveCountryCode(model);
             return _providers.TryGetValue(countryCode, out provider);
+        }
+
+        private static string ResolveCountryCode(GroceryOfferSearchViewModel model)
+        {
+            if (model != null)
+            {
+                if (model.Latitude >= 54.5 && model.Latitude <= 57.8 && model.Longitude >= 8.0 && model.Longitude <= 15.2)
+                    return "DK";
+                if (model.Latitude >= 57.5 && model.Latitude <= 59.8 && model.Longitude >= 21.5 && model.Longitude <= 28.3)
+                    return "EE";
+                if (model.Latitude >= 35.8 && model.Latitude <= 42.2 && model.Longitude >= 25.5 && model.Longitude <= 45.1)
+                    return "TR";
+            }
+
+            return string.IsNullOrWhiteSpace(model?.CountryCode) ? "DK" : model.CountryCode.Trim();
         }
     }
 }

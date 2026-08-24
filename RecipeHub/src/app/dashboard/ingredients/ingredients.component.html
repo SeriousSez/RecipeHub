@@ -1,101 +1,98 @@
-<div class="button-group mb-3">
-  <button class="btn btn-danger" type="button" data-bs-toggle="offcanvas" data-bs-target="#deleteModal" aria-controls="deleteModal" [disabled]="selectedIngredients.length == 0" #deleteButton>{{ 'dashboard.deleteButton' | translate }}</button>
+<section class="dashboard-card">
+  <header class="dashboard-card-header">
+    <div>
+      <p class="dashboard-section-kicker">{{ 'dashboard.ingredientsKicker' | translate }}</p>
+      <h2>{{ 'dashboard.ingredientsTitle' | translate }}</h2>
+      <p>{{ 'dashboard.ingredientsSubtitle' | translate }}</p>
+    </div>
+    <div class="dashboard-card-header-actions">
+      <span class="dashboard-count">{{ ingredients ? ingredients.length : 0 }}</span>
+      <div class="dashboard-actions">
+        <button class="btn btn-outline-danger" type="button" [disabled]="selectedIngredients.length == 0" (click)="requestDelete()">{{ 'dashboard.deleteButton' | translate }}</button>
+        <button class="btn btn-outline-brand" type="button" data-bs-toggle="modal" data-bs-target="#ingredientModal" (click)="startCreateIngredient()">{{ 'dashboard.createIngredientButton' | translate }}</button>
+      </div>
+    </div>
+  </header>
 
-  <button class="btn btn-outline-dark ms-3" type="button" data-bs-toggle="modal" data-bs-target="#ingredientModal">{{ 'dashboard.createIngredientButton' | translate }}</button>
-</div>
+  <table class="table table-hover caption-top dashboard-table">
+    <caption>{{ 'dashboard.tableCaptionIngredients' | translate }}</caption>
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col" class="cursor-pointer" (click)="sort('name')">{{ 'dashboard.ingredientColumn' | translate }} @if (sortSetting == 'name') {
+          <i class="fas fa-sort"></i>
+          }
+        </th>
+        <th scope="col">{{ 'dashboard.languageColumn' | translate }}</th>
+        <th scope="col" class="cursor-pointer" (click)="sort('created')">{{ 'dashboard.createdColumn' | translate }} @if (sortSetting == 'created') {
+          <i class="fas fa-sort"></i>
+          }
+        </th>
+        <th scope="col"><span class="visually-hidden">{{ 'dashboard.actionsColumn' | translate }}</span></th>
+      </tr>
+    </thead>
+    @for (ingredient of ingredients; track ingredient; let i = $index) {
+    <tbody>
+      <tr id="table-row{{i}}" tabindex="1" class="clickable collapsed" [class.ingredient-disabled]="isIngredientBusy(ingredient)">
+        <th scope="row">
+          <input class="form-check-input me-1 cursor-pointer" type="checkbox" value="" [disabled]="isIngredientBusy(ingredient)" (click)="toggleIngredientSelected(ingredient)">
+        </th>
+        <td class="cursor-pointer" [attr.data-label]="'dashboard.ingredientColumn' | translate" (click)="toggleAccordionIfAvailable(ingredient, 'accordion' + i, 'table-row' + i)">
+          {{ingredient.name}}
+        </td>
+        <td class="cursor-pointer" [attr.data-label]="'dashboard.languageColumn' | translate" (click)="toggleAccordionIfAvailable(ingredient, 'accordion' + i, 'table-row' + i)">
+          {{ingredient.language || defaultLanguage}}
+        </td>
+        <td class="cursor-pointer" [attr.data-label]="'dashboard.createdColumn' | translate" (click)="toggleAccordionIfAvailable(ingredient, 'accordion' + i, 'table-row' + i)">
+          {{displayDateOnly(ingredient.created)}}
+        </td>
+        <td class="dashboard-row-actions">
+          <button class="btn btn-outline-brand btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#ingredientModal" (click)="$event.stopPropagation(); startEditIngredient(ingredient)" [attr.aria-label]="('dashboard.editButton' | translate) + ': ' + ingredient.name"
+            [attr.title]="'dashboard.editButton' | translate">
+            <i class="fas fa-pen" aria-hidden="true"></i>
+          </button>
+          <button class="btn btn-outline-danger btn-sm" type="button" (click)="$event.stopPropagation(); prepareSingleDelete(ingredient)" [attr.aria-label]="('dashboard.deleteIngredientButton' | translate) + ': ' + ingredient.name" [attr.title]="'dashboard.deleteIngredientButton' | translate">
+            <i class="fas fa-trash-alt" aria-hidden="true"></i>
+          </button>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="12" id="accordion{{i}}" class="accordion-collapse collapse tr" [class.ingredient-disabled]="isIngredientBusy(ingredient)">
+          @if (isIngredientDetailsLoading(ingredient)) {
+          <div class="col-3 figure-img img-fluid rounded ingredient-image-skeleton"></div>
+          }
+          @if (ingredient.image && !isIngredientDetailsLoading(ingredient)) {
+          <img [src]="ingredient.image.url" class="col-3 figure-img img-fluid rounded" [alt]="ingredient.image.caption">
+          }
+          <div class="col-9 list-group list-group-flush float-end ps-3">
+            <h5>
+              {{ 'dashboard.descriptionHeading' | translate }}
+              <button class="btn btn-outline-brand btn-sm float-end" type="button" [disabled]="isIngredientBusy(ingredient)" (click)="regenerateIngredientImage(ingredient)">
+                @if (isIngredientBusy(ingredient)) {
+                {{ 'dashboard.regeneratingButton' | translate }}
+                } @else {
+                {{ 'dashboard.regenerateImageButton' | translate }}
+                }
+              </button>
+            </h5>
+            {{ingredient.description}}
+          </div>
+        </td>
+      </tr>
+    </tbody>
+    }
+  </table>
+</section>
 
-<table class="table table-hover caption-top">
-  <caption>{{ 'dashboard.tableCaptionIngredients' | translate }}</caption>
-  <thead>
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col" class="cursor-pointer" (click)="sort('name')">{{ 'dashboard.ingredientColumn' | translate }} @if (sortSetting == 'name') {
-        <i class="fas fa-sort"></i>
-        }
-      </th>
-      <th scope="col">{{ 'dashboard.languageColumn' | translate }}</th>
-      <th scope="col" class="cursor-pointer" (click)="sort('created')">{{ 'dashboard.createdColumn' | translate }} @if (sortSetting == 'created') {
-        <i class="fas fa-sort"></i>
-        }
-      </th>
-    </tr>
-  </thead>
-  @for (ingredient of ingredients; track ingredient; let i = $index) {
-  <tbody>
-    <tr id="table-row{{i}}" tabindex="1" class="clickable collapsed" [class.ingredient-disabled]="isIngredientBusy(ingredient)">
-      <th scope="row">
-        <input class="form-check-input me-1 cursor-pointer" type="checkbox" value="" [disabled]="isIngredientBusy(ingredient)" (click)="toggleIngredientSelected(ingredient)">
-      </th>
-      <td class="cursor-pointer" [attr.data-label]="'dashboard.ingredientColumn' | translate" (click)="toggleAccordionIfAvailable(ingredient, 'accordion' + i, 'table-row' + i)">
-        {{ingredient.name}}
-      </td>
-      <td class="cursor-pointer" [attr.data-label]="'dashboard.languageColumn' | translate" (click)="toggleAccordionIfAvailable(ingredient, 'accordion' + i, 'table-row' + i)">
-        {{ingredient.language || defaultLanguage}}
-      </td>
-      <td class="cursor-pointer" [attr.data-label]="'dashboard.createdColumn' | translate" (click)="toggleAccordionIfAvailable(ingredient, 'accordion' + i, 'table-row' + i)">
-        {{displayDateOnly(ingredient.created)}}
-      </td>
-    </tr>
-    <tr>
-      <td colspan="12" id="accordion{{i}}" class="accordion-collapse collapse tr" [class.ingredient-disabled]="isIngredientBusy(ingredient)">
-        @if (isIngredientDetailsLoading(ingredient)) {
-        <div class="col-3 figure-img img-fluid rounded ingredient-image-skeleton"></div>
-        }
-        @if (ingredient.image && !isIngredientDetailsLoading(ingredient)) {
-        <img [src]="ingredient.image.url" class="col-3 figure-img img-fluid rounded" [alt]="ingredient.image.caption">
-        }
-        <div class="col-9 list-group list-group-flush float-end ps-3">
-          <h5>
-            {{ 'dashboard.descriptionHeading' | translate }}
-            <button class="btn btn-outline-dark btn-sm float-end" type="button" [disabled]="isIngredientBusy(ingredient)" (click)="regenerateIngredientImage(ingredient)">
-              @if (isIngredientBusy(ingredient)) {
-              {{ 'dashboard.regeneratingButton' | translate }}
-              } @else {
-              {{ 'dashboard.regenerateImageButton' | translate }}
-              }
-            </button>
-          </h5>
-          {{ingredient.description}}
-        </div>
-      </td>
-    </tr>
-  </tbody>
-  }
-</table>
-
-<div class="offcanvas offcanvas-bottom" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="deleteModal" aria-labelledby="deleteModalLabel" #deleteModal>
-  <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="deleteModalLabel">
-      {{ 'dashboard.deletePrefix' | translate }}
-      @for (ingredient of selectedIngredients; track ingredient; let isLast = $last) {
-      <small>
-        {{ingredient.name}}
-        @if (!isLast) {
-        <small>, </small>
-        }
-      </small>
-      }
-      @if (selectedIngredients.length == 0) {
-      <small>{{ 'dashboard.noIngredientsSelected' | translate }}</small>
-      }
-    </h5>
-    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-  </div>
-  <div class="offcanvas-body">
-    <button class="btn btn-danger me-1" type="button" (click)="deleteIngredients()" [disabled]="selectedIngredients.length == 0">{{ 'dashboard.confirmButton' | translate }}</button>
-    <button class="btn btn-link text-reset" type="button" data-bs-dismiss="offcanvas" aria-label="Close">{{ 'dashboard.cancelButton' | translate }}</button>
-  </div>
-</div>
+<app-confirmation [visible]="showDeleteConfirmation" [title]="getDeleteConfirmationTitle()" [message]="selectedIngredients.length ? getDeleteConfirmationMessage() : ('dashboard.noIngredientsSelected' | translate)" [confirmLabel]="'dashboard.confirmButton' | translate"
+  [loadingLabel]="'dashboard.deletingButton' | translate" [cancelLabel]="'dashboard.cancelButton' | translate" [doneLabel]="'dashboard.doneButton' | translate" [successMessage]="'dashboard.deletionSuccess' | translate" [loading]="deletingIngredients" [completed]="deleteCompleted" [danger]="true"
+  (confirmed)="deleteIngredients()" (cancelled)="cancelDelete()"></app-confirmation>
 
 <!-- Modal -->
 <div class="modal fade" id="ingredientModal" tabindex="-1" aria-labelledby="ingredientModalLabel" aria-hidden="true" #ingredientModal>
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-body" #container>
-        @if (ingredients) {
-        <app-ingredient-modal [ingredients]="ingredients" (finish)="closeIngredientModal($event)"></app-ingredient-modal>
-        }
-      </div>
-    </div>
+    @if (ingredients) {
+    <app-ingredient-modal [ingredients]="ingredients" [ingredient]="editingIngredient" [editMode]="!!editingIngredient" (finish)="closeIngredientModal($event)"></app-ingredient-modal>
+    }
   </div>
 </div>

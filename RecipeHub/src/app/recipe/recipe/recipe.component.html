@@ -439,7 +439,7 @@
                                                         required="required" id="amount" #amount>
                                                 </td>
                                                 <td class="editor-ingredient-measurement-cell" [attr.data-label]="'recipe.measurementColumn' | translate">
-                                                    <app-taxonomy-select name="measurement" [(ngModel)]="newIngredient.amountType" [groups]="measurementGroups" [multiple]="false" [allowCustom]="true" [placeholder]="'recipe.measurementColumn' | translate"
+                                                    <app-taxonomy-select name="measurement" [(ngModel)]="newIngredient.amountType" [groups]="measurementGroups" [optionLabels]="measurementLabels" [multiple]="false" [allowCustom]="true" [placeholder]="'recipe.measurementColumn' | translate"
                                                         [ariaLabel]="'recipe.measurementColumn' | translate" (ngModelChange)="selectMeasurement($event)"></app-taxonomy-select>
                                                 </td>
                                                 <td colspan="2" class="editor-ingredient-add-cell">
@@ -470,7 +470,7 @@
                                                         [placeholder]="'recipe.amountPlaceholder' | translate" [attr.aria-label]="'recipe.amountColumn' | translate" autocomplete="off" data-lpignore="true">
                                                 </td>
                                                 <td class="editor-ingredient-measurement-cell" [attr.data-label]="'recipe.measurementColumn' | translate">
-                                                    <app-taxonomy-select [(ngModel)]="ingredient.amountType" [name]="'existing-amountType-' + groupIndex + '-' + ingredientIndex" [groups]="measurementGroups" [multiple]="false" [allowCustom]="true"
+                                                    <app-taxonomy-select [(ngModel)]="ingredient.amountType" [name]="'existing-amountType-' + groupIndex + '-' + ingredientIndex" [groups]="measurementGroups" [optionLabels]="measurementLabels" [multiple]="false" [allowCustom]="true"
                                                         [placeholder]="'recipe.measurementColumn' | translate" [ariaLabel]="'recipe.measurementColumn' | translate" (ngModelChange)="ingredient.amount = $event === 'To taste' ? 0 : ingredient.amount"></app-taxonomy-select>
                                                 </td>
                                                 <td class="editor-ingredient-group-cell" [attr.data-label]="'recipe.ingredientGroupColumn' | translate">

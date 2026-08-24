@@ -1,5 +1,7 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { AbstractControl, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { of, forkJoin } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { ImageCroppedEvent } from 'ngx-image-cropper';
 import { Ingredient } from 'src/app/recipe/models/ingredient.interface';
@@ -13,12 +15,18 @@ import { UserService } from 'src/app/shared/services/user.service';
     styleUrls: ['./ingredient.modal.css'],
     standalone: false
 })
-export class ingredientModal implements OnInit {
+export class ingredientModal implements OnChanges, OnInit {
     @Input() ingredients: Ingredient[] = [];
+    @Input() ingredient: Ingredient | null = null;
+    @Input() editMode = false;
 
     @Output() finish = new EventEmitter();
 
-    public languages: string[] = ['Danish', 'English', 'Estonian', 'Turkish']
+    public readonly translationFields = [
+        { language: 'Danish', control: 'danishName' },
+        { language: 'Estonian', control: 'estonianName' },
+        { language: 'Turkish', control: 'turkishName' }
+    ];
 
     public ingredientForm: UntypedFormGroup;
 
@@ -33,6 +41,7 @@ export class ingredientModal implements OnInit {
     public imageChangedEvent: any = '';
     public croppedImage: any = '';
     public showCropOverlay = false;
+    public get isEditMode(): boolean { return this.editMode; }
 
     constructor(private ingredientService: IngredientService, private userService: UserService, private router: Router, private formBuilder: UntypedFormBuilder) { }
 
@@ -40,10 +49,42 @@ export class ingredientModal implements OnInit {
         this.imageUrl = this.defaultImageUrl;
 
         this.ingredientForm = this.formBuilder.group({
-            name: ['', Validators.required],
-            description: ['', Validators.required],
-            language: [this.userService.getUserLanguage(), Validators.required],
+            name: [this.ingredient?.name ?? '', Validators.required],
+            description: [this.ingredient?.description ?? ''],
+            danishName: [''],
+            estonianName: [''],
+            turkishName: [''],
             imageCaption: ['']
+        });
+        this.applyIngredientToForm();
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['ingredient'] && this.ingredientForm) {
+            this.applyIngredientToForm();
+        }
+    }
+
+    private applyIngredientToForm(): void {
+        this.ingredientForm.patchValue({
+            name: this.ingredient?.name ?? '',
+            description: this.ingredient?.description ?? '',
+            danishName: '',
+            estonianName: '',
+            turkishName: '',
+            imageCaption: this.ingredient?.image?.caption ?? ''
+        });
+        this.imageUrl = this.ingredient?.image?.url || this.defaultImageUrl;
+        this.submitted = false;
+        this.errors = '';
+        if (this.ingredient) this.loadTranslations(this.ingredient.name);
+    }
+
+    private loadTranslations(ingredientName: string): void {
+        this.ingredientService.getTranslations(ingredientName).subscribe(translations => {
+            this.translationFields.forEach(field => this.ingredientForm.patchValue({
+                [field.control]: translations?.[field.language] ?? ''
+            }));
         });
     }
 
@@ -52,7 +93,7 @@ export class ingredientModal implements OnInit {
         this.isRequesting = true;
         this.errors = '';
 
-        if (this.checkForExisting(value)) {
+        if (!this.isEditMode && this.checkForExisting(value)) {
             this.isRequesting = false;
             this.errors = 'This ingredient exists already!';
             return;
@@ -65,9 +106,15 @@ export class ingredientModal implements OnInit {
         }
 
         if (valid) {
-            this.ingredientService.create(value)
+            const request = this.isEditMode
+                ? { ...this.ingredient, ...value, language: 'English', image: value.image ?? this.ingredient?.image }
+                : { ...value, language: 'English' };
+            const saveRequest = this.isEditMode
+                ? this.ingredientService.update(request as Ingredient)
+                : this.ingredientService.create(request as IngredientCreation);
+            saveRequest.pipe(switchMap(() => this.saveTranslations(request.name, value)))
                 .subscribe(result => {
-                    this.finish.next(this.createIngredientModel());
+                    this.finish.next(this.isEditMode ? request : this.createIngredientModel());
                     this.resetForm();
                     this.router.navigate(['dashboard/ingredients']);
                 }, errors => {
@@ -77,11 +124,19 @@ export class ingredientModal implements OnInit {
         }
     }
 
+    private saveTranslations(ingredientName: string, value: IngredientCreation) {
+        const requests = this.translationFields
+            .map(field => ({ language: field.language, name: (value as any)[field.control] as string }))
+            .filter(translation => !!translation.name?.trim())
+            .map(translation => this.ingredientService.updateTranslation(ingredientName, translation.language, translation.name.trim()));
+        return requests.length > 0 ? forkJoin(requests) : of(null);
+    }
+
     createIngredientModel() {
         var model: Ingredient = {
             name: this.ingredientForm.controls['name'].value,
             description: this.ingredientForm.controls['description'].value,
-            language: this.ingredientForm.controls['language'].value,
+            language: 'English',
             image: { id: '', url: this.imageUrl || this.defaultImageUrl, caption: this.ingredientForm.controls['imageCaption'].value },
             amount: 0,
             amountType: '',

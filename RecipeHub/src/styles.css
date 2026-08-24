@@ -1,11 +1,11 @@
 /* EXTERNAL FILES */
 @import "bootstrap/dist/css/bootstrap.css";
 
-html{
+html {
   height: 100%;
 }
 
-body{
+body {
   height: 100vh;
 }
 
@@ -18,10 +18,82 @@ body{
 }
 
 ::-webkit-scrollbar-thumb {
-  background: lightgrey; 
+  background: lightgrey;
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: gray; 
+  background: gray;
+}
+
+.dashboard-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+  backdrop-filter: blur(10px);
+  padding: 1.25rem;
+}
+
+body:has(#ingredientModal.show) .modal-backdrop.show {
+  background-color: rgba(15, 23, 42, 0.48);
+  backdrop-filter: blur(4px);
+  opacity: 1;
+}
+
+.dashboard-table .form-check-input {
+  display: inline-grid;
+  width: 1.15rem;
+  height: 1.15rem;
+  margin: 0;
+  place-content: center;
+  border: 2px solid #94a3b8;
+  border-radius: .35rem;
+  background-color: #fff;
+  cursor: pointer;
+  appearance: none;
+}
+
+.dashboard-table .form-check-input::before {
+  width: .55rem;
+  height: .55rem;
+  content: '';
+  transform: scale(0);
+  clip-path: polygon(14% 44%, 0 59%, 39% 100%, 100% 19%, 84% 5%, 38% 67%);
+  background: #fff;
+}
+
+.dashboard-table .form-check-input:checked {
+  border-color: #0f766e;
+  background-color: #0f766e;
+}
+
+.dashboard-table .form-check-input:checked::before {
+  transform: scale(1);
+}
+
+.dashboard-table .form-check-input:hover:not(:disabled) {
+  border-color: #0f766e;
+}
+
+.dashboard-table .form-check-input:focus-visible {
+  border-color: #0f766e;
+  outline: 0;
+  box-shadow: 0 0 0 .2rem rgba(95, 186, 175, .2);
+}
+
+.dashboard-table .form-check-input:disabled {
+  cursor: not-allowed;
+  opacity: .55;
+}
+
+.dashboard-table>tbody>tr>th,
+.dashboard-table>tbody>tr>td {
+  vertical-align: middle;
+}
+
+.dashboard-table .dashboard-row-actions .btn {
+  vertical-align: middle;
 }

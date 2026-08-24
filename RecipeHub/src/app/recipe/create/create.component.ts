@@ -34,6 +34,12 @@ export class CreateComponent implements OnInit, OnDestroy {
     { id: 'imperial', labelKey: 'recipe.measurementGroups.imperial', values: ['Ounce', 'Pound'] },
     { id: 'other', labelKey: 'recipe.measurementGroups.other', values: ['Pinch or dash', 'Clove', 'To taste'] }
   ];
+  public get measurementLabels(): Record<string, string> {
+    return this.measurements.reduce((labels, measurement) => {
+      labels[measurement] = this.translateService.instant(`pantry.units.${measurement}`);
+      return labels;
+    }, {} as Record<string, string>);
+  }
   public languages: string[] = ['Danish', 'English', 'Estonian', 'Turkish']
 
   @ViewChild("select", { static: true }) select: ElementRef;

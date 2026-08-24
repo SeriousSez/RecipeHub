@@ -259,6 +259,9 @@ ServiceFabricBackup/
 
 # Microsoft Fakes
 
+# Local validation folders
+.validation-api
+
 # Local development secrets/config overrides
 RecipeHub.Api/appsettings.Development.local.json
 FakesAssemblies/

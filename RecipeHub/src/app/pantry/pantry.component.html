@@ -7,7 +7,7 @@
         </div>
         <div class="pantry-header-actions">
             <span class="pantry-count">{{ pantryItems.length }} {{ (pantryItems.length === 1 ? 'pantry.itemSingular' : 'pantry.itemPlural') | translate }}</span>
-            <button type="button" class="pantry-primary-button" [disabled]="pantryItems.length === 0" (click)="findRecipes()"><i class="fas fa-search" aria-hidden="true"></i>{{ 'pantry.findRecipes' | translate }}</button>
+            <button type="button" class="btn btn-brand-alt pantry-primary-button" [disabled]="pantryItems.length === 0" (click)="findRecipes()"><i class="fas fa-search" aria-hidden="true"></i>{{ 'pantry.findRecipes' | translate }}</button>
         </div>
     </header>
 
@@ -25,10 +25,10 @@
                     [placeholder]="'pantry.ingredientPlaceholder' | translate" [ariaLabel]="'pantry.ingredientLabel' | translate"></app-taxonomy-select></div>
             <div class="pantry-field"><label for="pantry-amount">{{ 'pantry.quantityLabel' | translate }}</label><input id="pantry-amount" type="number" min="0" step="any" class="form-control" [(ngModel)]="draftAmount" [placeholder]="'pantry.quantityPlaceholder' | translate"></div>
             <div class="pantry-field"><label for="pantry-unit">{{ 'pantry.unitLabel' | translate }}</label><select id="pantry-unit" class="form-select" [(ngModel)]="draftUnit">
-                    <option *ngFor="let unit of units" [value]="unit">{{ unit }}</option>
+                    <option *ngFor="let unit of units" [value]="unit">{{ ('pantry.units.' + unit) | translate }}</option>
                 </select></div>
             <div class="pantry-field"><label for="pantry-expiry">{{ 'pantry.expiryLabel' | translate }}</label><input id="pantry-expiry" type="date" class="form-control" [(ngModel)]="draftExpirationDate"></div>
-            <button type="button" class="pantry-primary-button" [disabled]="!draftName.trim()" (click)="addItem()"><i class="fas fa-plus" aria-hidden="true"></i>{{ 'pantry.addButton' | translate }}</button>
+            <button type="button" class="btn btn-brand pantry-primary-button" [disabled]="!draftName.trim()" (click)="addItem()"><i class="fas fa-plus" aria-hidden="true"></i>{{ 'pantry.addButton' | translate }}</button>
         </div>
     </section>
 
@@ -40,7 +40,7 @@
             </div>
             <div class="pantry-toolbar-actions">
                 <div class="pantry-search"><i class="fas fa-search" aria-hidden="true"></i><input type="search" [placeholder]="'pantry.searchPlaceholder' | translate" [(ngModel)]="searchTerm" [attr.aria-label]="'pantry.searchLabel' | translate"></div>
-                <button type="button" class="pantry-clear-button" [disabled]="pantryItems.length === 0" (click)="confirmClear = true"><i class="fas fa-trash-alt" aria-hidden="true"></i>{{ 'pantry.clearAll' | translate }}</button>
+                <button type="button" class="btn btn-outline-danger pantry-clear-button" [disabled]="pantryItems.length === 0" (click)="confirmClear = true"><i class="fas fa-trash-alt" aria-hidden="true"></i>{{ 'pantry.clearAll' | translate }}</button>
             </div>
         </div>
         <div class="pantry-confirm" *ngIf="confirmClear"><span>{{ 'pantry.clearConfirm' | translate }}</span><button type="button" (click)="clearAll()">{{ 'pantry.confirmButton' | translate }}</button><button type="button" (click)="confirmClear = false">{{ 'pantry.cancelButton' | translate
@@ -60,11 +60,12 @@
                 </thead>
                 <tbody>
                     <tr *ngFor="let item of filteredPantryItems" [class.is-expired]="isExpired(item)" [class.is-expiring]="isExpiringSoon(item)">
-                        <td [attr.data-label]="'pantry.ingredientLabel' | translate"><input type="text" [(ngModel)]="item.name" (change)="updateItem(item)" [attr.aria-label]="'pantry.ingredientLabel' | translate"><span class="pantry-expiry-state" *ngIf="isExpired(item)">{{ 'pantry.expired' |
+                        <td [attr.data-label]="'pantry.ingredientLabel' | translate"><span class="pantry-translation-skeleton" *ngIf="translatingLocalIngredients" aria-label="Loading translation"></span><input *ngIf="!translatingLocalIngredients" type="text" [value]="getItemDisplayName(item)"
+                                readonly [attr.aria-label]="'pantry.ingredientLabel' | translate"><span class="pantry-expiry-state" *ngIf="isExpired(item)">{{ 'pantry.expired' |
                                 translate }}</span><span class="pantry-expiry-state" *ngIf="isExpiringSoon(item)">{{ 'pantry.expiringSoon' | translate }}</span></td>
                         <td [attr.data-label]="'pantry.quantityLabel' | translate"><input type="number" min="0" step="any" [(ngModel)]="item.amount" (change)="updateItem(item)" [attr.aria-label]="'pantry.quantityLabel' | translate"></td>
                         <td [attr.data-label]="'pantry.unitLabel' | translate"><select [(ngModel)]="item.amountType" (change)="updateItem(item)" [attr.aria-label]="'pantry.unitLabel' | translate">
-                                <option *ngFor="let unit of units" [value]="unit">{{ unit }}</option>
+                                <option *ngFor="let unit of units" [value]="unit">{{ ('pantry.units.' + unit) | translate }}</option>
                             </select></td>
                         <td [attr.data-label]="'pantry.expiryLabel' | translate"><input type="date" [(ngModel)]="item.expirationDate" (change)="updateItem(item)" [attr.aria-label]="'pantry.expiryLabel' | translate"></td>
                         <td class="pantry-row-action"><button type="button" (click)="removeItem(item)" [attr.aria-label]="'pantry.removeIngredientAria' | translate"><i class="fas fa-times" aria-hidden="true"></i></button></td>

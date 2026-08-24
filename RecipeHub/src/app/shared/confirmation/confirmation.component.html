@@ -1,0 +1,18 @@
+<div class="confirmation-backdrop" *ngIf="visible" role="presentation" (click)="cancel()">
+    <section class="confirmation-dialog" role="alertdialog" aria-modal="true" [attr.aria-label]="title" (click)="$event.stopPropagation()">
+        <div class="confirmation-icon" [class.is-danger]="danger && !completed" [class.is-success]="completed" aria-hidden="true">
+            <i class="fas" [class.fa-trash-alt]="danger && !completed" [class.fa-circle-question]="!danger && !completed" [class.fa-check]="completed"></i>
+        </div>
+        <div class="confirmation-content">
+            <h2>{{ title }}</h2>
+            <p>{{ completed ? successMessage : message }}</p>
+            <div class="confirmation-actions">
+                <button *ngIf="!completed" type="button" class="btn btn-link confirmation-cancel" [disabled]="loading" (click)="cancel()">{{ cancelLabel }}</button>
+                <button type="button" class="btn confirmation-confirm" [class.btn-danger]="danger && !completed" [class.btn-brand]="!danger || completed" [disabled]="loading" (click)="completed ? cancel() : confirm()">
+                    <span *ngIf="loading" class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                    {{ loading ? loadingLabel : completed ? doneLabel : confirmLabel }}
+                </button>
+            </div>
+        </div>
+    </section>
+</div>

@@ -1,6 +1,7 @@
 export interface GroceryOfferSearchRequest {
     ingredientNames: string[];
-    ingredientCategories?: Record<string, GroceryOfferCategory>;
+    ingredientContexts?: Record<string, string>;
+    ingredientCategories?: Record<string, string>;
     shoppingPreference?: GroceryShoppingPreference;
     countryCode: 'DK' | 'EE' | 'TR';
     forceRefresh?: boolean;
@@ -9,13 +10,15 @@ export interface GroceryOfferSearchRequest {
     radiusKm: number;
 }
 
-export type GroceryOfferCategory = 'auto' | 'produce' | 'dairy' | 'meat' | 'bakery' | 'pantry' | 'candy' | 'chocolate' | 'beverages';
+export type GroceryOfferCategory = string;
 export type GroceryShoppingPreference = 'balanced' | 'budget' | 'deals' | 'organic' | 'premium';
 
 export interface GroceryOfferSearchResponse {
     stores: GroceryNearbyStore[];
     offers: GroceryIngredientOffer[];
     unmatchedIngredients: string[];
+    availableCategories?: string[];
+    ingredientDisplayNames?: Record<string, string>;
     generatedAtUtc: string;
 }
 
@@ -33,6 +36,7 @@ export interface GroceryNearbyStore {
 
 export interface GroceryIngredientOffer {
     ingredientName: string;
+    productCategory?: string;
     productName: string;
     productId: string;
     offerId: string;

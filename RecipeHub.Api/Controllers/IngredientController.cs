@@ -82,6 +82,40 @@ namespace RecipeHub.Api.Controllers
             return new OkObjectResult(ingredients);
         }
 
+        [HttpPost("translate")]
+        public async Task<IActionResult> Translate([FromBody] IngredientTranslationRequest request)
+        {
+            if (request?.Names == null || request.Names.Count == 0 || request.Names.Count > 200 ||
+                request.Names.Any(name => string.IsNullOrWhiteSpace(name) || name.Length > 200))
+            {
+                return BadRequest();
+            }
+
+            var translations = await _recipeTranslationService.TranslateIngredientNamesAsync(request.Names, request.Language, request.Contexts);
+            return new OkObjectResult(translations ?? new Dictionary<string, string>());
+        }
+
+        [HttpPost("updatetranslation")]
+        public async Task<IActionResult> UpdateTranslation([FromBody] IngredientTranslationUpdateRequest request)
+        {
+            if (request == null || string.IsNullOrWhiteSpace(request.IngredientName) ||
+                string.IsNullOrWhiteSpace(request.Language) || string.IsNullOrWhiteSpace(request.TranslatedName))
+            {
+                return BadRequest();
+            }
+
+            await _recipeTranslationService.SaveIngredientTranslationAsync(
+                request.IngredientName, request.Language, request.TranslatedName);
+            return Ok();
+        }
+
+        [HttpGet("translations")]
+        public async Task<IActionResult> GetTranslations(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return BadRequest();
+            return Ok(await _recipeTranslationService.GetIngredientTranslationsAsync(name));
+        }
+
         [HttpGet("getbyname")]
         public async Task<IActionResult> GetByName(string name)
         {
@@ -97,12 +131,13 @@ namespace RecipeHub.Api.Controllers
         [HttpPost("update")]
         public async Task<IActionResult> Update([FromBody] IngredientResponse ingredient)
         {
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid || ingredient == null || ingredient.Id == System.Guid.Empty)
             {
                 return BadRequest(ModelState);
             }
 
             var result = await _ingredientService.Update(ingredient);
+            if (result == null) return NotFound();
 
             _logger.LogTrace("Ingredient has been updated! Ingredient: {@Ingredient}", result);
 

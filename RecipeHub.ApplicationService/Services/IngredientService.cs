@@ -111,16 +111,22 @@ namespace RecipeHub.ApplicationService.Services
 
         public async Task<Ingredient> Update(IngredientResponse model)
         {
-            var ingredient = await _ingredientRepository.GetByName(model.Name);
+            var ingredient = await _ingredientRepository.Get(model.Id);
+            if (ingredient == null)
+                return null;
+
             ingredient.Name = model.Name;
             ingredient.Description = model.Description;
 
-            var image = await _imageRepository.GetByUrl(model.Image.Url);
-            if (image == null)
+            if (model.Image != null)
             {
-                await _imageRepository.Delete(ingredient.Image);
-                var newImage = _mapper.Map<Image>(model);
-                await _imageRepository.Create(newImage);
+                var image = await _imageRepository.GetByUrl(model.Image.Url);
+                if (image == null)
+                {
+                    if (ingredient.Image != null) await _imageRepository.Delete(ingredient.Image);
+                    var newImage = _mapper.Map<Image>(model.Image);
+                    await _imageRepository.Create(newImage);
+                }
             }
 
             await _ingredientRepository.Update(ingredient);

@@ -43,6 +43,18 @@ export class IngredientService extends BaseService {
       ));
   }
 
+  translate(names: string[], language: string, contexts?: Record<string, string>): Observable<Record<string, string>> {
+    return this.http.post<Record<string, string>>(this.baseUrl + "/ingredient/translate", { names, language, contexts }, this.httpOptions);
+  }
+
+  updateTranslation(ingredientName: string, language: string, translatedName: string): Observable<void> {
+    return this.http.post<void>(this.baseUrl + "/ingredient/updatetranslation", { ingredientName, language, translatedName }, this.httpOptions);
+  }
+
+  getTranslations(ingredientName: string): Observable<Record<string, string>> {
+    return this.http.get<Record<string, string>>(this.baseUrl + `/ingredient/translations?name=${encodeURIComponent(ingredientName)}`, this.httpOptions);
+  }
+
   getIngredientByName(name: string): Observable<Ingredient> {
     const encodedName = encodeURIComponent(name ?? '');
     return this.http.get<Ingredient>(this.baseUrl + `/ingredient/getbyname?name=${encodedName}`, this.httpOptions)
@@ -58,6 +70,10 @@ export class IngredientService extends BaseService {
         return details;
       }, (error: any) => console.log(error, "fails")
       ));
+  }
+
+  update(ingredient: Ingredient): Observable<Ingredient> {
+    return this.http.post<Ingredient>(this.baseUrl + "/ingredient/update", ingredient, this.httpOptions);
   }
 
   deleteIngredients(ingredients: Ingredient[]): Observable<Ingredient[]> {

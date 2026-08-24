@@ -16,6 +16,8 @@ import { ImageCropperComponent } from 'ngx-image-cropper';
 import { CKEditorModule } from 'ckeditor4-angular';
 import { ListOverlay } from '../overlays/list-overlay/list.overlay';
 import { TranslateModule } from '@ngx-translate/core';
+import { ConfirmationComponent } from '../confirmation/confirmation.component';
+import { TaxonomySelectComponent } from '../../recipe/taxonomy-select/taxonomy-select.component';
 
 
 @NgModule({
@@ -25,7 +27,9 @@ import { TranslateModule } from '@ngx-translate/core';
     AlertComponent,
     RegistrationModal,
     ingredientModal,
-    ListOverlay
+    ListOverlay,
+    ConfirmationComponent,
+    TaxonomySelectComponent
   ],
   imports: [
     CommonModule,
@@ -42,6 +46,8 @@ import { TranslateModule } from '@ngx-translate/core';
     RegistrationModal,
     ingredientModal,
     ListOverlay,
+    ConfirmationComponent,
+    TaxonomySelectComponent,
     ImageCropperComponent,
     TranslateModule
   ],

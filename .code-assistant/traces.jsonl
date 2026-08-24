@@ -30,3 +30,10 @@
 {"ts":1787454647919,"traceId":"tr-1787454647919-qtle72","type":"complete","filePath":"RecipeHub/src/app/recipe/create/create.component.css","result":{"completionLength":50,"latencyMs":1438,"localHits":3}}
 {"ts":1787454648151,"traceId":"tr-1787454648151-habebj","type":"complete","filePath":"RecipeHub/src/app/recipe/create/create.component.css","result":{"completionLength":17,"latencyMs":1187,"localHits":3}}
 {"ts":1787454652551,"traceId":"tr-1787454652551-ltnmar","type":"complete","filePath":"RecipeHub/src/app/recipe/create/create.component.css","result":{"completionLength":17,"latencyMs":1371,"localHits":3}}
+{"ts":1787536781086,"traceId":"tr-1787536781086-pkg6mf","type":"complete","filePath":".gitignore","result":{"completionLength":38,"latencyMs":3899,"localHits":3}}
+{"ts":1787536786492,"traceId":"tr-1787536786492-80vh4r","type":"complete","filePath":".gitignore","result":{"completionLength":1365,"latencyMs":8684,"localHits":3}}
+{"ts":1787536908862,"traceId":"tr-1787536908862-ggy2t3","type":"complete","filePath":".gitignore","result":{"completionLength":59,"latencyMs":119599,"localHits":3}}
+{"ts":1787536910100,"traceId":"tr-1787536910100-u0lnen","type":"complete","filePath":".gitignore","result":{"completionLength":96,"latencyMs":123489,"localHits":3}}
+{"ts":1787536911203,"traceId":"tr-1787536911203-8r1e5r","type":"complete","filePath":".gitignore","result":{"completionLength":186,"latencyMs":123650,"localHits":3}}
+{"ts":1787536911826,"traceId":"tr-1787536911826-53c82t","type":"complete","filePath":".gitignore","result":{"completionLength":115,"latencyMs":123397,"localHits":3}}
+{"ts":1787550071275,"traceId":"tr-1787550071275-zdus6w","type":"complete","filePath":"RecipeHub/src/app/shared/modals/ingredient/ingredient.modal.ts","result":{"completionLength":532,"latencyMs":11289,"localHits":3}}

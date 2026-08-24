@@ -108,6 +108,11 @@ namespace RecipeHub
                 client.BaseAddress = new Uri(Configuration["CamGoz:BaseUrl"] ?? "https://camgoz.jojapi.net/");
                 client.Timeout = TimeSpan.FromSeconds(30);
             });
+            services.AddHttpClient("MarketFiyati", client =>
+            {
+                client.BaseAddress = new Uri(Configuration["MarketFiyati:BaseUrl"] ?? "https://api.marketfiyati.org.tr/api/v2/");
+                client.Timeout = TimeSpan.FromSeconds(30);
+            });
             services.AddHttpClient("OpenPrices", client =>
             {
                 client.BaseAddress = new Uri(Configuration["OpenPrices:BaseUrl"] ?? "https://prices.openfoodfacts.org/");

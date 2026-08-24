@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RecipeHub.Infrastructure;
 
@@ -10,9 +11,10 @@ using RecipeHub.Infrastructure;
 namespace RecipeHub.Infrastructure.Migrations
 {
     [DbContext(typeof(RecipeHubContext))]
-    partial class RecipeHubContextModelSnapshot : ModelSnapshot
+    [Migration("20260824030230_AddGroceryCategoryFeedback")]
+    partial class AddGroceryCategoryFeedback
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -226,9 +228,6 @@ namespace RecipeHub.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<int>("ApprovalCount")
-                        .HasColumnType("int");
-
                     b.Property<string>("Category")
                         .HasColumnType("varchar(255)");
 
@@ -405,35 +404,6 @@ namespace RecipeHub.Infrastructure.Migrations
                     b.HasIndex("ImageId");
 
                     b.ToTable("Ingredients");
-                });
-
-            modelBuilder.Entity("RecipeHub.Domain.Entities.Recipe.IngredientTranslation", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("IngredientName")
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<string>("Language")
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<string>("Source")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("TranslatedName")
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IngredientName", "Language")
-                        .IsUnique();
-
-                    b.ToTable("IngredientTranslations");
                 });
 
             modelBuilder.Entity("RecipeHub.Domain.Entities.Recipe.Recipe", b =>

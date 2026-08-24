@@ -4,6 +4,7 @@ import { IngredientService } from '../recipe/services/ingredient.service';
 import { UserService } from '../shared/services/user.service';
 import { PantryItem } from './pantry-item.interface';
 import { PantryService } from './pantry.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-pantry',
@@ -25,13 +26,17 @@ export class PantryComponent implements OnInit {
     public confirmClear = false;
     public syncing = false;
     public syncFailed = false;
+    public translatingLocalIngredients = false;
+    private ingredientNameLabels: Record<string, string> = {};
 
-    constructor(private pantryService?: PantryService, private ingredientService?: IngredientService, private userService?: UserService, private router?: Router) { }
+    constructor(private pantryService?: PantryService, private ingredientService?: IngredientService, private userService?: UserService, private router?: Router, private translateService?: TranslateService) { }
 
     public ngOnInit(): void {
         this.loadLocalItems();
         this.loadIngredientOptions();
         this.loadAccountItems();
+        this.translateLocalItems();
+        this.translateService?.onLangChange.subscribe(() => this.translateLocalItems());
     }
 
     public get filteredPantryItems(): PantryItem[] {
@@ -40,6 +45,12 @@ export class PantryComponent implements OnInit {
     }
 
     public get isAuthenticated(): boolean { return this.userService?.isAuthenticated() === true; }
+
+    public getItemDisplayName(item: PantryItem): string {
+        const lookupKey = item.name?.trim();
+        if (!lookupKey) return item.name;
+        return this.ingredientNameLabels[lookupKey.toLowerCase()] ?? item.name;
+    }
 
     public addItem(): void {
         const name = this.normalizeName(this.draftName);
@@ -71,6 +82,30 @@ export class PantryComponent implements OnInit {
         this.ingredientService?.getIngredientsLite().subscribe({ next: items => this.ingredientOptions = items.map(item => item.name).sort((a, b) => a.localeCompare(b)), error: () => this.ingredientOptions = [] });
     }
 
+    private getRequestedLanguage(): string {
+        const languageCode = this.translateService?.currentLang || 'en';
+        return { da: 'Danish', et: 'Estonian', tr: 'Turkish' }[languageCode] ?? 'English';
+    }
+
+    private translateLocalItems(): void {
+        const language = this.getRequestedLanguage();
+        if (language === 'English' || this.pantryItems.length === 0) {
+            this.translatingLocalIngredients = false;
+            return;
+        }
+        this.translatingLocalIngredients = true;
+        const names = this.pantryItems.map(item => item.name);
+        this.ingredientService?.translate(names, language).subscribe({
+            next: translations => {
+                Object.entries(translations ?? {}).forEach(([name, displayName]) => {
+                    if (displayName) this.ingredientNameLabels[name.toLowerCase()] = displayName;
+                });
+                this.translatingLocalIngredients = false;
+            },
+            error: () => { this.translatingLocalIngredients = false; }
+        });
+    }
+
     private loadAccountItems(): void {
         if (!this.isAuthenticated) return;
         const userId = this.userService?.getUserId() ?? '';
@@ -81,6 +116,7 @@ export class PantryComponent implements OnInit {
                 if (items.length === 0 && this.pantryItems.length > 0) this.persistItems();
                 else { this.pantryItems = items.map(item => ({ ...item, expirationDate: item.expirationDate?.slice(0, 10) ?? null })); this.sortItems(); this.persistLocalItems(); }
                 this.syncing = false;
+                this.translateLocalItems();
             },
             error: () => { this.syncFailed = true; this.syncing = false; }
         });
