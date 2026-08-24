@@ -279,7 +279,11 @@ image-cropper {
     background: #be185d;
 }
 
-.recipe-tag-features {
+.recipe-tag-flavorCharacter {
+    background: #c2410c;
+}
+
+.recipe-tag-cookingMethod {
     background: #7c3aed;
 }
 
