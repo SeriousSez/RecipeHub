@@ -114,8 +114,6 @@ namespace RecipeHub.Api.Services
                 InstructionSegments = ExtractInstructionSegments(recipe.Instructions),
                 Portions = recipe.Portions,
                 ImageCaption = recipe.Image?.Caption,
-                Categories = new List<string>(recipe.Categories ?? new List<string>()),
-                Tags = new List<string>(recipe.Tags ?? new List<string>()),
                 Ingredients = (recipe.Ingredients ?? new List<IngredientResponse>()).Select(ingredient => new IngredientTranslation
                 {
                     Name = ingredient.Name,
@@ -139,7 +137,7 @@ namespace RecipeHub.Api.Services
                 messages = new[]
                 {
                     new { role = "system", content = "You translate recipes accurately. Return valid JSON only. Never alter numbers, array order, or add content." },
-                    new { role = "user", content = $"Translate every string value in this recipe JSON from English to {language}, including the Categories and Tags arrays. Keep taxonomy values concise, preserve their meaning, keep empty values empty, and return the identical JSON shape: {sourceJson}" }
+                    new { role = "user", content = $"Translate every string value in this recipe JSON from English to {language}. Keep empty values empty, and return the identical JSON shape: {sourceJson}" }
                 }
             };
 
@@ -160,8 +158,6 @@ namespace RecipeHub.Api.Services
                 var content = document.RootElement.GetProperty("choices")[0].GetProperty("message").GetProperty("content").GetString();
                 var translation = JsonSerializer.Deserialize<TranslationPayload>(content ?? string.Empty, JsonOptions);
                 if (translation?.Ingredients == null || translation.Ingredients.Count != source.Ingredients.Count ||
-                    translation.Categories == null || translation.Categories.Count != source.Categories.Count ||
-                    translation.Tags == null || translation.Tags.Count != source.Tags.Count ||
                     translation.InstructionSegments == null || translation.InstructionSegments.Count != source.InstructionSegments.Count ||
                     translation.InstructionSegments.Select((segment, index) => segment.Index != index).Any(invalid => invalid)) return recipe;
 
@@ -170,8 +166,6 @@ namespace RecipeHub.Api.Services
                 translatedRecipe.Description = translation.Description ?? recipe.Description;
                 translatedRecipe.Instructions = ApplyInstructionTranslation(recipe.Instructions, translation.InstructionSegments);
                 translatedRecipe.Portions = translation.Portions ?? recipe.Portions;
-                translatedRecipe.Categories = translation.Categories.Select(value => value ?? string.Empty).ToList();
-                translatedRecipe.Tags = translation.Tags.Select(value => value ?? string.Empty).ToList();
                 if (translatedRecipe.Image != null) translatedRecipe.Image.Caption = translation.ImageCaption ?? translatedRecipe.Image.Caption;
                 translatedRecipe.Language = language;
                 var savedIngredientTranslations = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -612,8 +606,6 @@ namespace RecipeHub.Api.Services
             public List<InstructionTranslationSegment> InstructionSegments { get; set; } = new List<InstructionTranslationSegment>();
             public string Portions { get; set; }
             public string ImageCaption { get; set; }
-            public List<string> Categories { get; set; } = new List<string>();
-            public List<string> Tags { get; set; } = new List<string>();
             public List<IngredientTranslation> Ingredients { get; set; } = new List<IngredientTranslation>();
         }
 

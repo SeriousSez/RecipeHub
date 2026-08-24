@@ -28,7 +28,11 @@ export class LanguageService {
     }
 
     getCurrentLanguage(): string {
-        return localStorage.getItem(STORAGE_KEY) ?? 'en';
+        const storedLanguage = localStorage.getItem(STORAGE_KEY);
+        if (storedLanguage) return storedLanguage;
+
+        const browserLanguage = (this.translateService.getBrowserLang() ?? '').toLowerCase();
+        return this.languages.some(language => language.code === browserLanguage) ? browserLanguage : 'en';
     }
 
     setLanguage(code: string): void {

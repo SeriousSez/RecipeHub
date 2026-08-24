@@ -123,7 +123,7 @@
                       </div>
                       <div class="suggestion-pills" role="tabpanel">
                         <button type="button" class="suggestion-pill" [class.is-active]="isPresetSelected('category', category)" *ngFor="let category of getActiveTaxonomyValues('category')" (click)="addPresetValue('category', category)">
-                          {{ category }}
+                          {{ getTaxonomyValueDisplayLabel(category) }}
                         </button>
                       </div>
                     </div>
@@ -140,7 +140,7 @@
                       </div>
                       <div class="suggestion-pills" role="tabpanel">
                         <button type="button" class="suggestion-pill" [class.is-active]="isPresetSelected('tag', tag)" *ngFor="let tag of getActiveTaxonomyValues('tag')" (click)="addPresetValue('tag', tag)">
-                          {{ tag }}
+                          {{ getTaxonomyValueDisplayLabel(tag) }}
                         </button>
                       </div>
                     </div>
@@ -523,10 +523,10 @@
 
         <div *ngIf="getPreviewCategoryBadges().length > 0 || getPreviewTagBadges().length > 0" class="preview-detail-badges-wrap">
           <div class="preview-category-list">
-            <span *ngFor="let badge of getPreviewCategoryBadges()" [ngClass]="badge.cssClass" [attr.title]="badge.label" [attr.aria-label]="badge.label">{{ badge.value }}</span>
+            <span *ngFor="let badge of getPreviewCategoryBadges()" [ngClass]="badge.cssClass" [attr.title]="badge.label" [attr.aria-label]="badge.label">{{ badge.displayValue }}</span>
           </div>
           <div class="preview-tag-list mt-2">
-            <span *ngFor="let badge of getPreviewTagBadges()" [ngClass]="badge.cssClass" [attr.title]="badge.label" [attr.aria-label]="badge.label">{{ badge.value }}</span>
+            <span *ngFor="let badge of getPreviewTagBadges()" [ngClass]="badge.cssClass" [attr.title]="badge.label" [attr.aria-label]="badge.label">{{ badge.displayValue }}</span>
           </div>
         </div>
       </article>

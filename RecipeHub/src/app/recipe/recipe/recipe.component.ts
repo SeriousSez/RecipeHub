@@ -13,7 +13,7 @@ import { SafeService } from 'src/app/shared/utils/safe.service';
 import { Ingredient } from '../models/ingredient.interface';
 import { RecipeUpdate } from '../models/recipe-update.interface';
 import { Recipe } from '../models/recipe.interface';
-import { RecipeTaxonomyGroup, RECIPE_CATEGORY_GROUPS, RECIPE_TAG_GROUPS, sortRecipeTaxonomyValues } from '../models/recipe-taxonomy';
+import { RecipeTaxonomyGroup, RECIPE_CATEGORY_GROUPS, RECIPE_TAG_GROUPS, sortRecipeTaxonomyValues, getTaxonomyValueLabel } from '../models/recipe-taxonomy';
 import { IngredientService } from '../services/ingredient.service';
 import { RecipeService } from '../services/recipe.service';
 import { TaxonomySelectComponent } from '../taxonomy-select/taxonomy-select.component';
@@ -654,6 +654,10 @@ export class RecipeComponent implements OnInit {
     return this.translateService.instant('recipe.categoryBadgeTooltip', { value: category, group: groupLabel });
   }
 
+  getCategoryDisplayLabel(category: string): string {
+    return getTaxonomyValueLabel(category, this.translateService);
+  }
+
   get sortedCategories(): string[] {
     return sortRecipeTaxonomyValues(this.recipe?.categories ?? [], RECIPE_CATEGORY_GROUPS);
   }
@@ -674,6 +678,10 @@ export class RecipeComponent implements OnInit {
     );
     const groupLabel = this.translateService.instant(group?.labelKey ?? 'recipe.taxonomyGroups.custom');
     return this.translateService.instant('recipe.tagBadgeTooltip', { value: tag, group: groupLabel });
+  }
+
+  getTagDisplayLabel(tag: string): string {
+    return getTaxonomyValueLabel(tag, this.translateService);
   }
 
   get sortedTags(): string[] {
@@ -923,6 +931,10 @@ export class RecipeComponent implements OnInit {
     const groups = type === 'category' ? this.categoryGroups : this.tagGroups;
     const activeGroupId = type === 'category' ? this.activeCategoryGroupId : this.activeTagGroupId;
     return groups.find(group => group.id === activeGroupId)?.values ?? [];
+  }
+
+  getTaxonomyValueDisplayLabel(value: string): string {
+    return getTaxonomyValueLabel(value, this.translateService);
   }
 
   setActiveTaxonomyGroup(type: 'category' | 'tag', groupId: string): void {

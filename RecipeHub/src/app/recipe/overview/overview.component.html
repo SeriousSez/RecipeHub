@@ -112,12 +112,12 @@
         </div>
         <div class="recipe-filter-group recipe-sort-group">
           <label for="recipe-category" class="recipe-filter-label">{{ 'recipe.categoryLabel' | translate }}</label>
-          <app-taxonomy-select id="recipe-category" [(ngModel)]="categoryFilter" [options]="availableCategories" [multiple]="true" [allowCustom]="false" [compactSelection]="true" [selectedCountLabel]="'recipe.selectedSuffix' | translate" [placeholder]="'recipe.categoryLabel' | translate"
-            [ariaLabel]="'recipe.categoryLabel' | translate" (ngModelChange)="applyFiltersAndSort()"></app-taxonomy-select>
+          <app-taxonomy-select id="recipe-category" [(ngModel)]="categoryFilter" [options]="availableCategories" [optionLabels]="categoryOptionLabels" [multiple]="true" [allowCustom]="false" [compactSelection]="true" [selectedCountLabel]="'recipe.selectedSuffix' | translate"
+            [placeholder]="'recipe.categoryLabel' | translate" [ariaLabel]="'recipe.categoryLabel' | translate" (ngModelChange)="applyFiltersAndSort()"></app-taxonomy-select>
         </div>
         <div class="recipe-filter-group recipe-sort-group">
           <label for="recipe-tag" class="recipe-filter-label">{{ 'recipe.tagLabel' | translate }}</label>
-          <app-taxonomy-select id="recipe-tag" [(ngModel)]="tagFilter" [options]="availableTags" [multiple]="true" [allowCustom]="false" [compactSelection]="true" [selectedCountLabel]="'recipe.selectedSuffix' | translate" [placeholder]="'recipe.tagLabel' | translate"
+          <app-taxonomy-select id="recipe-tag" [(ngModel)]="tagFilter" [options]="availableTags" [optionLabels]="tagOptionLabels" [multiple]="true" [allowCustom]="false" [compactSelection]="true" [selectedCountLabel]="'recipe.selectedSuffix' | translate" [placeholder]="'recipe.tagLabel' | translate"
             [ariaLabel]="'recipe.tagLabel' | translate" (ngModelChange)="applyFiltersAndSort()"></app-taxonomy-select>
         </div>
         <div class="recipe-filter-group recipe-sort-group">
@@ -170,13 +170,13 @@
           </div>
           <div class="recipe-filter-group recipe-sort-group">
             <label for="recipe-category-mobile" class="recipe-filter-label">{{ 'recipe.categoryLabel' | translate }}</label>
-            <app-taxonomy-select id="recipe-category-mobile" [(ngModel)]="categoryFilter" [options]="availableCategories" [multiple]="true" [allowCustom]="false" [compactSelection]="true" [selectedCountLabel]="'recipe.selectedSuffix' | translate" [placeholder]="'recipe.categoryLabel' | translate"
-              [ariaLabel]="'recipe.categoryLabel' | translate" (ngModelChange)="applyFiltersAndSort()"></app-taxonomy-select>
+            <app-taxonomy-select id="recipe-category-mobile" [(ngModel)]="categoryFilter" [options]="availableCategories" [optionLabels]="categoryOptionLabels" [multiple]="true" [allowCustom]="false" [compactSelection]="true" [selectedCountLabel]="'recipe.selectedSuffix' | translate"
+              [placeholder]="'recipe.categoryLabel' | translate" [ariaLabel]="'recipe.categoryLabel' | translate" (ngModelChange)="applyFiltersAndSort()"></app-taxonomy-select>
           </div>
           <div class="recipe-filter-group recipe-sort-group">
             <label for="recipe-tag-mobile" class="recipe-filter-label">{{ 'recipe.tagLabel' | translate }}</label>
-            <app-taxonomy-select id="recipe-tag-mobile" [(ngModel)]="tagFilter" [options]="availableTags" [multiple]="true" [allowCustom]="false" [compactSelection]="true" [selectedCountLabel]="'recipe.selectedSuffix' | translate" [placeholder]="'recipe.tagLabel' | translate"
-              [ariaLabel]="'recipe.tagLabel' | translate" (ngModelChange)="applyFiltersAndSort()"></app-taxonomy-select>
+            <app-taxonomy-select id="recipe-tag-mobile" [(ngModel)]="tagFilter" [options]="availableTags" [optionLabels]="tagOptionLabels" [multiple]="true" [allowCustom]="false" [compactSelection]="true" [selectedCountLabel]="'recipe.selectedSuffix' | translate"
+              [placeholder]="'recipe.tagLabel' | translate" [ariaLabel]="'recipe.tagLabel' | translate" (ngModelChange)="applyFiltersAndSort()"></app-taxonomy-select>
           </div>
           <div class="recipe-filter-group recipe-sort-group">
             <label for="recipe-sort-mobile" class="recipe-filter-label">{{ 'recipe.sortByLabel' | translate }}</label>

@@ -12,7 +12,7 @@ import { GroceryService } from 'src/app/shared/services/grocery.service';
 import { UserSettings } from 'src/app/account/models/user-settings.interface';
 import { UtilityService } from 'src/app/shared/utils/utility.service';
 import { TranslateService } from '@ngx-translate/core';
-import { getRecipeNutritionHighlights, RecipeNutritionHighlight } from '../models/recipe-taxonomy';
+import { getRecipeNutritionHighlights, RecipeNutritionHighlight, getTaxonomyValueLabel } from '../models/recipe-taxonomy';
 import { LanguageService } from 'src/app/shared/services/language.service';
 
 @Component({
@@ -140,6 +140,14 @@ export class OverviewComponent implements OnInit {
   }
 
   public sortSetting: string = 'created';
+
+  public get categoryOptionLabels(): Record<string, string> {
+    return Object.fromEntries(this.availableCategories.map(category => [category, getTaxonomyValueLabel(category, this.translateService)]));
+  }
+
+  public get tagOptionLabels(): Record<string, string> {
+    return Object.fromEntries(this.availableTags.map(tag => [tag, getTaxonomyValueLabel(tag, this.translateService)]));
+  }
 
   public get sortOptions(): string[] {
     return ['created', 'rating', 'popularity', 'title', 'creator', 'protein', 'carbohydrates', 'fiber'];

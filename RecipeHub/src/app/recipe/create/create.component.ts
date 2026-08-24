@@ -9,7 +9,7 @@ import { RecipeCreation } from 'src/app/shared/models/recipe.creation.interface'
 import { UserService } from 'src/app/shared/services/user.service';
 import { UtilityService } from 'src/app/shared/utils/utility.service';
 import { Ingredient } from '../models/ingredient.interface';
-import { RecipeTaxonomyGroup, RECIPE_CATEGORY_GROUPS, RECIPE_TAG_GROUPS, sortRecipeTaxonomyValues } from '../models/recipe-taxonomy';
+import { RecipeTaxonomyGroup, RECIPE_CATEGORY_GROUPS, RECIPE_TAG_GROUPS, sortRecipeTaxonomyValues, getTaxonomyValueLabel } from '../models/recipe-taxonomy';
 import { IngredientService } from '../services/ingredient.service';
 import { RecipeService } from '../services/recipe.service';
 import { TaxonomySelectComponent } from '../taxonomy-select/taxonomy-select.component';
@@ -281,17 +281,17 @@ export class CreateComponent implements OnInit, OnDestroy {
     return this.parseCsv(rawValue);
   }
 
-  public getPreviewCategoryBadges(): Array<{ value: string; cssClass: string; label: string }> {
+  public getPreviewCategoryBadges(): Array<{ value: string; cssClass: string; label: string; displayValue: string }> {
     return sortRecipeTaxonomyValues(this.getSelectedValues(this.recipeForm.get('categories')?.value), RECIPE_CATEGORY_GROUPS)
       .map(category => this.getPreviewBadge(category, 'category'));
   }
 
-  public getPreviewTagBadges(): Array<{ value: string; cssClass: string; label: string }> {
+  public getPreviewTagBadges(): Array<{ value: string; cssClass: string; label: string; displayValue: string }> {
     return sortRecipeTaxonomyValues(this.getSelectedValues(this.recipeForm.get('tags')?.value), RECIPE_TAG_GROUPS)
       .map(tag => this.getPreviewBadge(tag, 'tag'));
   }
 
-  public getPreviewBadges(): Array<{ value: string; cssClass: string; label: string }> {
+  public getPreviewBadges(): Array<{ value: string; cssClass: string; label: string; displayValue: string }> {
     const seen = new Set<string>();
     return [...this.getPreviewCategoryBadges(), ...this.getPreviewTagBadges()].filter(badge => {
       const normalizedValue = badge.value.toLowerCase();
@@ -368,13 +368,17 @@ export class CreateComponent implements OnInit, OnDestroy {
     return `${dayNumber}${suffix}${this.datepipe.transform(new Date(), ' MMMM, yyyy')}`;
   }
 
-  private getPreviewBadge(value: string, type: 'category' | 'tag'): { value: string; cssClass: string; label: string } {
+  private getPreviewBadge(value: string, type: 'category' | 'tag'): { value: string; cssClass: string; label: string; displayValue: string } {
     const groups = type === 'category' ? RECIPE_CATEGORY_GROUPS : RECIPE_TAG_GROUPS;
     const normalizedValue = value.toLowerCase();
     const group = groups.find(item => item.values.some(groupValue => groupValue.toLowerCase() === normalizedValue));
     const groupLabel = this.translateService.instant(group?.labelKey ?? 'recipe.taxonomyGroups.custom');
     const label = this.translateService.instant(type === 'category' ? 'recipe.categoryBadgeTooltip' : 'recipe.tagBadgeTooltip', { value, group: groupLabel });
-    return { value, cssClass: `recipe-${type} recipe-${type}-${group?.id ?? 'other'}`, label };
+    return { value, cssClass: `recipe-${type} recipe-${type}-${group?.id ?? 'other'}`, label, displayValue: getTaxonomyValueLabel(value, this.translateService) };
+  }
+
+  public getTaxonomyValueDisplayLabel(value: string): string {
+    return getTaxonomyValueLabel(value, this.translateService);
   }
 
   public isPresetSelected(type: 'category' | 'tag', value: string): boolean {

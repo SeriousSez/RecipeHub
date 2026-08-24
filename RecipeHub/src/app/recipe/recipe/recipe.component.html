@@ -166,10 +166,10 @@
 
         <div *ngIf="(recipe.categories ?? []).length > 0 || (recipe.tags ?? []).length > 0" class="recipe-detail-badges-wrap">
             <div *ngIf="(recipe.categories ?? []).length > 0" class="recipe-category-list">
-                <span *ngFor="let category of sortedCategories" [ngClass]="getCategoryCssClass(category)" [attr.title]="getCategoryBadgeLabel(category)" [attr.aria-label]="getCategoryBadgeLabel(category)">{{ category }}</span>
+                <span *ngFor="let category of sortedCategories" [ngClass]="getCategoryCssClass(category)" [attr.title]="getCategoryBadgeLabel(category)" [attr.aria-label]="getCategoryBadgeLabel(category)">{{ getCategoryDisplayLabel(category) }}</span>
             </div>
             <div *ngIf="(recipe.tags ?? []).length > 0" class="recipe-tag-list mt-2">
-                <span *ngFor="let tag of sortedTags" [ngClass]="getTagCssClass(tag)" [attr.title]="getTagBadgeLabel(tag)" [attr.aria-label]="getTagBadgeLabel(tag)">{{ tag }}</span>
+                <span *ngFor="let tag of sortedTags" [ngClass]="getTagCssClass(tag)" [attr.title]="getTagBadgeLabel(tag)" [attr.aria-label]="getTagBadgeLabel(tag)">{{ getTagDisplayLabel(tag) }}</span>
             </div>
         </div>
 
@@ -329,7 +329,7 @@
                                         </div>
                                         <div class="suggestion-pills" role="tabpanel">
                                             <button type="button" class="suggestion-pill" [class.is-active]="isPresetSelected('category', category)" *ngFor="let category of getActiveTaxonomyValues('category')" (click)="addPresetValue('category', category)">
-                                                {{ category }}
+                                                {{ getTaxonomyValueDisplayLabel(category) }}
                                             </button>
                                         </div>
                                     </div>
@@ -345,7 +345,7 @@
                                         </div>
                                         <div class="suggestion-pills" role="tabpanel">
                                             <button type="button" class="suggestion-pill" [class.is-active]="isPresetSelected('tag', tag)" *ngFor="let tag of getActiveTaxonomyValues('tag')" (click)="addPresetValue('tag', tag)">
-                                                {{ tag }}
+                                                {{ getTaxonomyValueDisplayLabel(tag) }}
                                             </button>
                                         </div>
                                     </div>

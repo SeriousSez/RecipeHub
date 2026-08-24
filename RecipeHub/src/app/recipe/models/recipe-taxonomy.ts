@@ -37,6 +37,34 @@ export function sortRecipeTaxonomyValues(values: string[], groups: RecipeTaxonom
         .map(item => item.value);
 }
 
+// Maps each canonical (English) taxonomy value to its static i18n key under recipe.taxonomyValues.
+const RECIPE_TAXONOMY_VALUE_KEYS: Record<string, string> = {
+    'breakfast': 'breakfast', 'lunch': 'lunch', 'dinner': 'dinner', 'dessert': 'dessert', 'snack': 'snack',
+    'side dish': 'sideDish', 'appetizer': 'appetizer', 'soup': 'soup', 'salad': 'salad', 'beverage': 'beverage',
+    'danish': 'danish', 'turkish': 'turkish', 'italian': 'italian', 'asian-inspired': 'asianInspired', 'mexican': 'mexican',
+    'mediterranean': 'mediterranean', 'american': 'american', 'french': 'french', 'greek': 'greek', 'indian': 'indian', 'middle eastern': 'middleEastern',
+    'vegetarian': 'vegetarian', 'vegan': 'vegan', 'gluten free': 'glutenFree', 'dairy free': 'dairyFree',
+    'winter': 'winter', 'spring': 'spring', 'summer': 'summer', 'autumn': 'autumn',
+    'quick': 'quick', 'easy': 'easy', 'meal prep': 'mealPrep', 'make ahead': 'makeAhead', 'budget': 'budget',
+    'family friendly': 'familyFriendly', 'kid friendly': 'kidFriendly', 'one pot': 'onePot', 'one pan': 'onePan', 'no cook': 'noCook',
+    'healthy': 'healthy', 'high protein': 'highProtein', 'low carb': 'lowCarb', 'high fiber': 'highFiber',
+    'christmas': 'christmas', 'easter': 'easter', 'traditional': 'traditional', 'comfort food': 'comfortFood', 'everyday': 'everyday', 'party': 'party',
+    'alcohol': 'alcohol', 'caffeine': 'caffeine', 'spicy': 'spicy', 'sweet': 'sweet', 'savory': 'savory', 'sour': 'sour',
+    'creamy': 'creamy', 'grilled': 'grilled', 'baked': 'baked', 'deep-fried': 'deepFried', 'pan-fried': 'panFried', 'roasted': 'roasted', 'steamed': 'steamed'
+};
+
+export interface TranslateLike {
+    instant(key: string): string;
+}
+
+export function getTaxonomyValueLabel(value: string, translateService: TranslateLike): string {
+    const key = RECIPE_TAXONOMY_VALUE_KEYS[value.trim().toLowerCase()];
+    if (!key) return value;
+    const label = translateService.instant(`recipe.taxonomyValues.${key}`);
+    return label && label !== `recipe.taxonomyValues.${key}` ? label : value;
+}
+
+
 export const RECIPE_CATEGORY_GROUPS: RecipeTaxonomyGroup[] = [
     {
         id: 'mealType',

@@ -8,7 +8,7 @@ import { Ingredient } from 'src/app/recipe/models/ingredient.interface';
 import { RecipeService } from 'src/app/recipe/services/recipe.service';
 import { UtilityService } from 'src/app/shared/utils/utility.service';
 import { TranslateService } from '@ngx-translate/core';
-import { getRecipeNutritionHighlights, RecipeNutritionHighlight, RECIPE_CATEGORY_GROUPS, RECIPE_TAG_GROUPS, sortRecipeTaxonomyValues } from '../../models/recipe-taxonomy';
+import { getRecipeNutritionHighlights, RecipeNutritionHighlight, RECIPE_CATEGORY_GROUPS, RECIPE_TAG_GROUPS, sortRecipeTaxonomyValues, getTaxonomyValueLabel } from '../../models/recipe-taxonomy';
 
 @Component({
   selector: 'app-pretty',
@@ -89,11 +89,11 @@ export class PrettyComponent implements OnInit {
     return this.utilityService.displayDateOnly(created);
   }
 
-  getVisibleBadges(recipe: Recipe): Array<{ value: string, cssClass: string, label: string }> {
+  getVisibleBadges(recipe: Recipe): Array<{ value: string, cssClass: string, label: string, displayValue: string }> {
     const categories = sortRecipeTaxonomyValues((recipe.categories ?? []).map(item => item.trim()).filter(Boolean), RECIPE_CATEGORY_GROUPS);
     const tags = sortRecipeTaxonomyValues((recipe.tags ?? []).map(item => item.trim()).filter(Boolean), RECIPE_TAG_GROUPS);
     const seen = new Set<string>();
-    const badges: Array<{ value: string, cssClass: string, label: string }> = [];
+    const badges: Array<{ value: string, cssClass: string, label: string, displayValue: string }> = [];
 
     categories.forEach(category => {
       const normalized = category.toLowerCase();
@@ -104,7 +104,7 @@ export class PrettyComponent implements OnInit {
         );
         const groupLabel = this.translateService.instant(group?.labelKey ?? 'recipe.taxonomyGroups.custom');
         const label = this.translateService.instant('recipe.categoryBadgeTooltip', { group: groupLabel });
-        badges.push({ value: category, cssClass: `recipe-category recipe-category-${group?.id ?? 'other'}`, label });
+        badges.push({ value: category, cssClass: `recipe-category recipe-category-${group?.id ?? 'other'}`, label, displayValue: getTaxonomyValueLabel(category, this.translateService) });
       }
     });
 
@@ -117,7 +117,7 @@ export class PrettyComponent implements OnInit {
         );
         const groupLabel = this.translateService.instant(group?.labelKey ?? 'recipe.taxonomyGroups.custom');
         const label = this.translateService.instant('recipe.tagBadgeTooltip', { group: groupLabel });
-        badges.push({ value: tag, cssClass: `recipe-tag recipe-tag-${group?.id ?? 'other'}`, label });
+        badges.push({ value: tag, cssClass: `recipe-tag recipe-tag-${group?.id ?? 'other'}`, label, displayValue: getTaxonomyValueLabel(tag, this.translateService) });
       }
     });
 
