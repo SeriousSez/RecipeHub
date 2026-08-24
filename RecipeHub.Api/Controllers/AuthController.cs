@@ -28,6 +28,14 @@ namespace RecipeHub.Api.Controllers
             if (response == null)
                 return BadRequest(("Login Failure", "Invalid username or password.", ModelState));
 
+            if (!response.EmailConfirmed)
+                return StatusCode(403, new
+                {
+                    Code = "email_confirmation_required",
+                    Email = response.Email,
+                    Message = "Please confirm your email address before logging in."
+                });
+
             //var json = JsonConvert.SerializeObject(response, _serializerSettings);
             return new OkObjectResult(response);
         }
@@ -60,6 +68,39 @@ namespace RecipeHub.Api.Controllers
                 return BadRequest(result.Errors);
 
             return new OkResult();
+        }
+
+        [HttpGet("confirmemail")]
+        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        {
+            if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(token))
+                return BadRequest("The confirmation link is incomplete.");
+
+            var result = await _authService.ConfirmEmail(userId, token);
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
+
+            return Ok();
+        }
+
+        [HttpPost("resendconfirmation")]
+        public async Task<IActionResult> ResendConfirmation([FromBody] ForgotPasswordViewModel model)
+        {
+            if (!ModelState.IsValid || string.IsNullOrWhiteSpace(model?.Email))
+                return BadRequest(ModelState);
+
+            var result = await _authService.SendEmailConfirmation(model.Email);
+            if (!result.Succeeded)
+                return StatusCode(503, new
+                {
+                    Code = "confirmation_email_unavailable",
+                    Message = "We could not send the confirmation email. Please try again later."
+                });
+
+            return Ok(new
+            {
+                Message = "A new confirmation email has been sent."
+            });
         }
     }
 }

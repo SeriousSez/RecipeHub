@@ -18,6 +18,11 @@ export class LoginComponent implements OnInit, OnDestroy {
   public loginForm: UntypedFormGroup;
 
   brandNew: boolean = false;
+  emailConfirmationPending: boolean = false;
+  public requiresEmailConfirmation = false;
+  public confirmationEmail = '';
+  public isResendingConfirmation = false;
+  public confirmationResent = false;
   errors: string = "";
   isRequesting: boolean = false;;
   submitted: boolean = false;
@@ -36,6 +41,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.subscription = this.activatedRoute.queryParams.subscribe(
       (param: any) => {
         this.brandNew = param['brandNew'];
+        this.emailConfirmationPending = param['emailConfirmationPending'];
         this.credentials.identity = param['identity'];
       });
   }
@@ -51,6 +57,8 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     this.submitted = true;
     this.errors = '';
+    this.requiresEmailConfirmation = false;
+    this.confirmationResent = false;
 
     if (valid) {
       this.isRequesting = true;
@@ -60,13 +68,46 @@ export class LoginComponent implements OnInit, OnDestroy {
           this.isRequesting = false;
         }, errors => {
           this.isRequesting = false;
-          this.errors = errors.error.Item2;
+          if (errors.status === 403 && errors.error?.code === 'email_confirmation_required') {
+            this.requiresEmailConfirmation = true;
+            this.confirmationEmail = errors.error.email || value.identity;
+            this.errors = errors.error.message;
+            return;
+          }
+          this.errors = this.extractError(errors);
         }
         );
     }
   }
 
+  resendConfirmation() {
+    if (this.isResendingConfirmation || !this.confirmationEmail) return;
+
+    this.isResendingConfirmation = true;
+    this.confirmationResent = false;
+    this.userService.resendEmailConfirmation(this.confirmationEmail).subscribe({
+      next: () => {
+        this.isResendingConfirmation = false;
+        this.confirmationResent = true;
+      },
+      error: (error: any) => {
+        this.isResendingConfirmation = false;
+        this.errors = this.extractError(error);
+      }
+    });
+  }
+
   get f(): { [key: string]: AbstractControl } {
     return this.loginForm.controls;
+  }
+
+  private extractError(error: any): string {
+    const raw = error?.error ?? error;
+    if (typeof raw === 'string') return raw;
+    if (Array.isArray(raw)) {
+      return raw.map((item: any) => item?.description ?? item?.Description ?? 'Unable to log in.').join(' ');
+    }
+
+    return raw?.Item2 ?? raw?.item2 ?? raw?.message ?? raw?.Message ?? 'Unable to log in.';
   }
 }

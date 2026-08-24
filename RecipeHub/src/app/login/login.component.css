@@ -157,6 +157,27 @@
     color: #991b1b;
 }
 
+.auth-alert-action {
+    margin-left: auto;
+    padding: .35rem .6rem;
+    border: 1px solid rgba(153, 27, 27, .22);
+    border-radius: .6rem;
+    background: rgba(255, 255, 255, .7);
+    color: #991b1b;
+    font-size: .78rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.auth-alert-action:hover:not(:disabled) {
+    background: #fff;
+}
+
+.auth-alert-action:disabled {
+    cursor: wait;
+    opacity: .65;
+}
+
 :host-context([data-theme='dark']) .auth-card {
     background: rgba(15, 23, 42, 0.82);
     border-color: rgba(148, 163, 184, 0.16);
@@ -184,6 +205,12 @@
 
 :host-context([data-theme='dark']) .form-control::placeholder {
     color: #94a3b8;
+}
+
+:host-context([data-theme='dark']) .auth-alert-action {
+    border-color: rgba(254, 202, 202, .28);
+    background: rgba(127, 29, 29, .18);
+    color: #fecaca;
 }
 
 @media only screen and (max-device-width: 1350px) {

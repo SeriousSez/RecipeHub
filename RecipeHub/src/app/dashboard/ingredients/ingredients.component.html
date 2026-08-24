@@ -7,17 +7,19 @@
     </div>
     <div class="dashboard-card-header-actions">
       <span class="dashboard-count">{{ ingredients ? ingredients.length : 0 }}</span>
-      <div class="dashboard-actions">
-        <button class="btn btn-outline-danger" type="button" [disabled]="selectedIngredients.length == 0" (click)="requestDelete()">{{ 'dashboard.deleteButton' | translate }}</button>
-        <button class="btn btn-outline-brand" type="button" data-bs-toggle="modal" data-bs-target="#ingredientModal" (click)="startCreateIngredient()">{{ 'dashboard.createIngredientButton' | translate }}</button>
-      </div>
     </div>
   </header>
 
-  <div class="dashboard-search">
-    <label class="visually-hidden" for="ingredient-search">{{ 'dashboard.searchIngredients' | translate }}</label>
-    <i class="fas fa-search" aria-hidden="true"></i>
-    <input id="ingredient-search" class="form-control" type="search" [(ngModel)]="ingredientSearch" [placeholder]="'dashboard.searchIngredients' | translate" autocomplete="off">
+  <div class="dashboard-toolbar">
+    <div class="dashboard-search">
+      <label class="visually-hidden" for="ingredient-search">{{ 'dashboard.searchIngredients' | translate }}</label>
+      <i class="fas fa-search" aria-hidden="true"></i>
+      <input id="ingredient-search" class="form-control" type="search" [(ngModel)]="ingredientSearch" [placeholder]="'dashboard.searchIngredients' | translate" autocomplete="off">
+    </div>
+    <div class="dashboard-actions">
+      <button class="btn btn-outline-danger" type="button" [disabled]="selectedIngredients.length == 0" (click)="requestDelete()">{{ 'dashboard.deleteButton' | translate }}</button>
+      <button class="btn btn-outline-brand" type="button" data-bs-toggle="modal" data-bs-target="#ingredientModal" (click)="startCreateIngredient()">{{ 'dashboard.createIngredientButton' | translate }}</button>
+    </div>
   </div>
 
   <table class="table table-hover caption-top dashboard-table">

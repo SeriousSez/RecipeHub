@@ -54,10 +54,10 @@ export class RegistrationModal implements OnInit {
         .subscribe(result => {
           this.finish.next(this.createUserModel());
           this.resetForm();
-          this.router.navigate(['/' + this.navigationUrl.replace(/^\/+/, '')], { queryParams: { brandNew: true, email: value.email } });
+          this.router.navigate(['/' + this.navigationUrl.replace(/^\/+/, '')], { queryParams: { brandNew: true, emailConfirmationPending: true, email: value.email } });
         }, errors => {
           this.isRequesting = false;
-          this.errors = errors.error.Item1.Errors[0].Description;
+          this.errors = this.extractError(errors);
         });
     }
   }
@@ -83,5 +83,20 @@ export class RegistrationModal implements OnInit {
 
   get f(): { [key: string]: AbstractControl } {
     return this.registerForm.controls;
+  }
+
+  private extractError(error: any): string {
+    const raw = error?.error ?? error;
+    if (Array.isArray(raw)) {
+      return raw.map((item: any) => item?.description ?? item?.Description ?? 'Registration failed.').join(' ');
+    }
+
+    if (typeof raw === 'string') return raw;
+
+    if (raw?.errors && Array.isArray(raw.errors)) {
+      return raw.errors.join(' ');
+    }
+
+    return raw?.message ?? raw?.Message ?? raw?.detail ?? raw?.Detail ?? 'Registration failed.';
   }
 }

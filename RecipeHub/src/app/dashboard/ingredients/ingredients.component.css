@@ -72,6 +72,14 @@
     font-weight: 850;
 }
 
+.dashboard-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
 .dashboard-actions {
     display: flex;
     flex-wrap: wrap;
@@ -87,8 +95,9 @@
 
 .dashboard-search {
     position: relative;
+    flex: 1 1 28rem;
     max-width: 28rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0;
 }
 
 .dashboard-search .fa-search {
@@ -159,6 +168,11 @@
     .dashboard-card-header-actions {
         width: 100%;
         align-items: stretch;
+    }
+
+    .dashboard-toolbar {
+        align-items: stretch;
+        flex-direction: column;
     }
 
     .dashboard-actions {

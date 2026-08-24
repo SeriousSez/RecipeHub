@@ -7,7 +7,12 @@
 
     @if (brandNew) {
     <div class="auth-alert-success" role="alert">
-      <strong>{{ 'auth.allSet' | translate }}</strong> {{ 'auth.pleaseLoginMessage' | translate }}
+      <strong>{{ 'auth.allSet' | translate }}</strong>
+      @if (emailConfirmationPending) {
+      {{ 'auth.emailConfirmationPendingMessage' | translate }}
+      } @else {
+      {{ 'auth.pleaseLoginMessage' | translate }}
+      }
     </div>
     }
 
@@ -51,6 +56,20 @@
       @if (errors) {
       <div class="auth-alert-error" role="alert">
         <strong>{{ 'auth.oops' | translate }}</strong> {{errors}}
+        @if (requiresEmailConfirmation) {
+        <button type="button" class="auth-alert-action" (click)="resendConfirmation()" [disabled]="isResendingConfirmation">
+          @if (isResendingConfirmation) {
+          <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+          }
+          {{ 'auth.resendConfirmation' | translate }}
+        </button>
+        }
+      </div>
+      }
+
+      @if (confirmationResent) {
+      <div class="auth-alert-success" role="status">
+        {{ 'auth.confirmationEmailSent' | translate }}
       </div>
       }
     </form>

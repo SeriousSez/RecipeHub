@@ -73,9 +73,7 @@ namespace RecipeHub.ApplicationService.Services
 
             await EnsureSettingsExists(userIdentity);
 
-            var newUser = await _favoriteRepository.Create(new Favorites { User = userIdentity });
-
-            await _fridgeService.AddHomeFridge(newUser.User);
+            await _favoriteRepository.Create(new Favorites { UserId = userIdentity.Id });
 
             return result;
         }
@@ -118,7 +116,6 @@ namespace RecipeHub.ApplicationService.Services
 
             _logger.LogTrace("Deleted UserIdentity. Result: {@Result}", result);
 
-            await _userRepository.Delete(userIdentity);
             _logger.LogTrace("User Deleted! User: {@User}", userIdentity);
 
             return result;
@@ -349,7 +346,7 @@ namespace RecipeHub.ApplicationService.Services
 
         private async Task DeleteUserForeignEntities(User user)
         {
-            var favorites = await _favoriteRepository.GetByUserFull(user);
+            var favorites = await _favoriteRepository.GetByUserForDeletion(user);
             if (favorites != null)
             {
                 if (favorites.Recipes.Count > 0)

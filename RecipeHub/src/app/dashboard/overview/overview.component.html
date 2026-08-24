@@ -7,31 +7,33 @@
     </div>
     <div class="dashboard-card-header-actions">
       <span class="dashboard-count">{{ users ? users.length : 0 }}</span>
-      <div class="dashboard-actions">
-        <button class="btn btn-outline-danger" type="button" [disabled]="selectedUsers.length == 0 || deletingSelectedUsers" #deleteButton (click)="requestDeleteUsers()">
-          @if (deletingSelectedUsers) {
-          <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
-          } {{ 'dashboard.deleteButton' | translate }}
-        </button>
-        <button class="btn btn-outline-brand" type="button" data-bs-toggle="modal" data-bs-target="#customerModal">{{ 'dashboard.createUserButton' | translate }}</button>
-        <button class="btn btn-outline-brand-alt test-button" type="button" (click)="createTestUser()" [disabled]="creatingTestUser">
-          @if (creatingTestUser) {
-          <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
-          } {{ 'dashboard.createTestUserButton' | translate }}
-        </button>
-        <button class="btn btn-outline-secondary" type="button" (click)="requestDeleteTestUsers()" [disabled]="noTestUsers || deletingTestUsers">
-          @if (deletingTestUsers) {
-          <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
-          } {{ 'dashboard.deleteTestUsersButton' | translate }}
-        </button>
-      </div>
     </div>
   </header>
 
-  <div class="dashboard-search">
-    <label class="visually-hidden" for="user-search">{{ 'dashboard.searchUsers' | translate }}</label>
-    <i class="fas fa-search" aria-hidden="true"></i>
-    <input id="user-search" class="form-control" type="search" [(ngModel)]="userSearch" [placeholder]="'dashboard.searchUsers' | translate" autocomplete="off">
+  <div class="dashboard-toolbar">
+    <div class="dashboard-search">
+      <label class="visually-hidden" for="user-search">{{ 'dashboard.searchUsers' | translate }}</label>
+      <i class="fas fa-search" aria-hidden="true"></i>
+      <input id="user-search" class="form-control" type="search" [(ngModel)]="userSearch" [placeholder]="'dashboard.searchUsers' | translate" autocomplete="off">
+    </div>
+    <div class="dashboard-actions">
+      <button class="btn btn-outline-danger" type="button" [disabled]="selectedUsers.length == 0 || deletingSelectedUsers" #deleteButton (click)="requestDeleteUsers()">
+        @if (deletingSelectedUsers) {
+        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+        } {{ 'dashboard.deleteButton' | translate }}
+      </button>
+      <button class="btn btn-outline-brand" type="button" data-bs-toggle="modal" data-bs-target="#customerModal">{{ 'dashboard.createUserButton' | translate }}</button>
+      <button class="btn btn-outline-brand-alt test-button" type="button" (click)="createTestUser()" [disabled]="creatingTestUser">
+        @if (creatingTestUser) {
+        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+        } {{ 'dashboard.createTestUserButton' | translate }}
+      </button>
+      <button class="btn btn-outline-secondary" type="button" (click)="requestDeleteTestUsers()" [disabled]="noTestUsers || deletingTestUsers">
+        @if (deletingTestUsers) {
+        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+        } {{ 'dashboard.deleteTestUsersButton' | translate }}
+      </button>
+    </div>
   </div>
 
   <table class="table table-hover caption-top dashboard-table">

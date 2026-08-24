@@ -25,6 +25,7 @@ import { JwtModule } from '@auth0/angular-jwt';
 import { FridgesComponent } from './fridges/fridges.component';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
+import { ConfirmEmailComponent } from './confirm-email/confirm-email.component';
 import { FridgeService } from './fridges/fridge.service';
 import { PantryComponent } from './pantry/pantry.component';
 import { TranslateModule } from '@ngx-translate/core';
@@ -48,6 +49,7 @@ export function tokenGetter() {
     FridgesComponent,
     ForgotPasswordComponent,
     ResetPasswordComponent,
+    ConfirmEmailComponent,
     PantryComponent
   ],
   bootstrap: [AppComponent], imports: [BrowserModule,

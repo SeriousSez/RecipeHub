@@ -1,0 +1,31 @@
+<div class="auth-page">
+    <div class="auth-card">
+        @if (isConfirming) {
+        <div class="auth-state">
+            <div class="auth-icon" aria-hidden="true"><i class="fas fa-envelope-open-text"></i></div>
+            <p class="auth-kicker">{{ 'auth.emailConfirmation' | translate }}</p>
+            <h1>{{ 'auth.confirmingEmail' | translate }}</h1>
+        </div>
+        }
+
+        @if (confirmed) {
+        <div class="auth-state">
+            <div class="auth-icon auth-icon-success" aria-hidden="true"><i class="fas fa-check"></i></div>
+            <p class="auth-kicker">{{ 'auth.emailConfirmation' | translate }}</p>
+            <h1>{{ 'auth.emailConfirmedTitle' | translate }}</h1>
+            <p>{{ 'auth.emailConfirmedMessage' | translate }}</p>
+            <a class="btn btn-primary" routerLink="/login">{{ 'auth.goToLogin' | translate }}</a>
+        </div>
+        }
+
+        @if (error) {
+        <div class="auth-state">
+            <div class="auth-icon auth-icon-error" aria-hidden="true"><i class="fas fa-exclamation"></i></div>
+            <p class="auth-kicker">{{ 'auth.emailConfirmation' | translate }}</p>
+            <h1>{{ 'auth.emailConfirmationFailedTitle' | translate }}</h1>
+            <p>{{ error }}</p>
+            <a class="auth-link" routerLink="/login">{{ 'auth.backToLogin' | translate }}</a>
+        </div>
+        }
+    </div>
+</div>

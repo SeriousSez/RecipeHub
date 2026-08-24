@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Hosting;
 using RecipeHub.ApplicationService.Services;
 using RecipeHub.Domain.Models;
 using RecipeHub.Domain.Responses;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace RecipeHub.Api.Controllers
@@ -16,11 +18,15 @@ namespace RecipeHub.Api.Controllers
     {
         private readonly ILogger<AccountController> _logger;
         private readonly IUserService _userService;
+        private readonly IAuthService _authService;
+        private readonly IWebHostEnvironment _environment;
 
-        public AccountController(ILogger<AccountController> logger, IUserService userService)
+        public AccountController(ILogger<AccountController> logger, IUserService userService, IAuthService authService, IWebHostEnvironment environment)
         {
             _logger = logger;
             _userService = userService;
+            _authService = authService;
+            _environment = environment;
         }
 
         [HttpGet("get")]
@@ -49,11 +55,45 @@ namespace RecipeHub.Api.Controllers
             if (string.IsNullOrWhiteSpace(model.Role))
                 model.Role = "User";
 
-            var identityResult = await _userService.Create(model);
-            if (identityResult.Succeeded == false)
-                return new BadRequestObjectResult((identityResult, ModelState));
+            try
+            {
+                var identityResult = await _userService.Create(model);
+                if (identityResult.Succeeded == false)
+                {
+                    return BadRequest(new
+                    {
+                        Code = "registration_invalid",
+                        Message = "The account could not be created.",
+                        Errors = identityResult.Errors.Select(error => error.Description).ToArray()
+                    });
+                }
 
-            return new OkResult();
+                var confirmationResult = await _authService.SendEmailConfirmation(model.Email);
+                if (!confirmationResult.Succeeded)
+                {
+                    return StatusCode(503, new
+                    {
+                        Code = "confirmation_email_unavailable",
+                        Message = "Your account was created, but we could not send the confirmation email.",
+                        Errors = confirmationResult.Errors.Select(error => error.Description).ToArray()
+                    });
+                }
+
+                return new OkResult();
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Registration failed for {Email}.", model.Email);
+
+                return StatusCode(500, new
+                {
+                    Code = "registration_failed",
+                    Message = "Registration could not be completed.",
+                    Detail = string.Equals(_environment.EnvironmentName, "Development", StringComparison.OrdinalIgnoreCase)
+                        ? exception.GetBaseException().Message
+                        : null
+                });
+            }
         }
 
         [HttpPost("update")]

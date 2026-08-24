@@ -119,6 +119,16 @@ export class UserService extends BaseService {
       .pipe(map(response => response, (error: any) => console.log(error, "fails")));
   }
 
+  confirmEmail(userId: string, token: string): Observable<void> {
+    return this.http.get<void>(this.baseUrl + '/auth/confirmemail', {
+      params: { userId, token }
+    });
+  }
+
+  resendEmailConfirmation(email: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(this.baseUrl + '/auth/resendconfirmation', { email });
+  }
+
   get(username: string): Observable<User> {
     return this.http.get<User>(this.baseUrl + `/account/get?username=${username}`).pipe(map(response => {
       return response;

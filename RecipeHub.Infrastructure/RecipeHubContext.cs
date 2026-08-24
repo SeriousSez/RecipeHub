@@ -80,6 +80,13 @@ namespace RecipeHub.Infrastructure
                 .Property(rating => rating.RecipeId)
                 .UseCollation("utf8mb4_unicode_ci");
 
+            modelBuilder.Entity<Favorites>()
+                .HasOne(favorites => favorites.User)
+                .WithMany()
+                .HasForeignKey(favorites => favorites.UserId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<RecipeRating>()
                 .HasOne(rating => rating.Recipe)
                 .WithMany(recipe => recipe.Ratings)

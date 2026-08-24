@@ -9,6 +9,7 @@ import { AdminGuard } from './shared/guards/admin.guard';
 import { FridgesComponent } from './fridges/fridges.component';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
+import { ConfirmEmailComponent } from './confirm-email/confirm-email.component';
 import { PantryComponent } from './pantry/pantry.component';
 
 const routes: Routes = [
@@ -23,6 +24,7 @@ const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
+  { path: 'confirm-email', component: ConfirmEmailComponent },
   { path: 'recipe/:id/:slug', component: RecipeComponent },
   { path: 'recipe/:title/:creator', component: RecipeComponent },
   { path: 'recipe/:key', component: RecipeComponent },

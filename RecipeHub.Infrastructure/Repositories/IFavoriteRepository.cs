@@ -10,5 +10,6 @@ namespace RecipeHub.Infrastructure.Repositories
         Task<bool> IngredientFavoriteExists(User user, Ingredient ingredient);
         Task<Favorites> GetByUser(User user);
         Task<Favorites> GetByUserFull(User user);
+        Task<Favorites> GetByUserForDeletion(User user);
     }
 }

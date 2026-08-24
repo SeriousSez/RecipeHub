@@ -19,7 +19,7 @@ namespace RecipeHub.Infrastructure.Repositories
 
             return await _context.Favorites
                 .Include(f => f.Recipes)
-                .AnyAsync(f => f.User.Id == user.Id && f.Recipes.Any(r => r.Id == recipe.Id));
+                .AnyAsync(f => f.UserId == user.Id && f.Recipes.Any(r => r.Id == recipe.Id));
         }
 
         public async Task<bool> IngredientFavoriteExists(User user, Ingredient ingredient)
@@ -29,7 +29,7 @@ namespace RecipeHub.Infrastructure.Repositories
 
             return await _context.Favorites
                 .Include(f => f.Ingredients)
-                .AnyAsync(f => f.User.Id == user.Id && f.Ingredients.Any(i => i.Id == ingredient.Id));
+                .AnyAsync(f => f.UserId == user.Id && f.Ingredients.Any(i => i.Id == ingredient.Id));
         }
 
         public async Task<Favorites> GetByUser(User user)
@@ -37,7 +37,7 @@ namespace RecipeHub.Infrastructure.Repositories
             if (user == null)
                 return null;
 
-            return await _context.Favorites.FirstOrDefaultAsync(f => f.User.Id == user.Id);
+            return await _context.Favorites.FirstOrDefaultAsync(f => f.UserId == user.Id);
         }
 
         public async Task<Favorites> GetByUserFull(User user)
@@ -52,7 +52,18 @@ namespace RecipeHub.Infrastructure.Repositories
                 .Include(f => f.Recipes)
                     .ThenInclude(r => r.Image)
                 .Include(f => f.Ingredients)
-                .FirstOrDefaultAsync(f => f.User.Id == user.Id);
+                .FirstOrDefaultAsync(f => f.UserId == user.Id);
+        }
+
+        public async Task<Favorites> GetByUserForDeletion(User user)
+        {
+            if (user == null)
+                return null;
+
+            return await _context.Favorites
+                .Include(f => f.Recipes)
+                .Include(f => f.Ingredients)
+                .FirstOrDefaultAsync(f => f.UserId == user.Id);
         }
     }
 }

@@ -7,5 +7,6 @@ namespace RecipeHub.Domain.Responses
         public string Email { get; set; }
         public string AuthToken { get; set; }
         public int ExpiresIn { get; set; }
+        public bool EmailConfirmed { get; set; } = true;
     }
 }

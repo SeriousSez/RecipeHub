@@ -14,5 +14,7 @@ namespace RecipeHub.ApplicationService.Services
         Task<ClaimsIdentity> CheckCredentials(User userToVerify, CredentialsViewModel credentials);
         Task<PasswordResetRequestResponse> GeneratePasswordResetToken(ForgotPasswordViewModel request);
         Task<IdentityResult> ResetPassword(ResetPasswordViewModel request);
+        Task<IdentityResult> SendEmailConfirmation(string email);
+        Task<IdentityResult> ConfirmEmail(string userId, string token);
     }
 }
