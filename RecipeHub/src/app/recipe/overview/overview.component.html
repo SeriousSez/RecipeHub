@@ -25,7 +25,7 @@
       </div>
 
       @if (isAuthenticated) {
-      <div class="recipe-side-section recipe-side-personal">
+      <div class="recipe-side-section recipe-side-personal recipe-mobile-hidden">
         <div class="recipe-side-panel-header">{{ 'recipe.personalHeader' | translate }}</div>
 
         <div class="recipe-side-actions">
@@ -140,7 +140,7 @@
       <div class="recipe-toolbar-mobile">
         <button class="recipe-mobile-filter-toggle" type="button" (click)="toggleMobileFilters()">
           <i class="fas fa-filter" aria-hidden="true"></i>
-          <span>{{ 'recipe.filtersToggle' | translate }}</span>
+          <span class="recipe-mobile-filter-label">{{ 'recipe.filtersToggle' | translate }}</span>
           <span class="recipe-mobile-filter-count">{{ activeFilterCount }}</span>
         </button>
       </div>
@@ -166,6 +166,21 @@
               {{ matchingLoading ? ('recipe.findingMatches' | translate) : pantryButtonLabel }}
             </button>
           </div>
+          @if (isAuthenticated) {
+          <div class="recipe-filter-group recipe-mobile-personal-filters">
+            <label class="recipe-filter-label">{{ 'recipe.personalHeader' | translate }}</label>
+            <div class="recipe-mobile-personal-actions">
+              <button type="button" class="btn recipe-filter-input personal-filter-button" [class.active]="showFavorites" (click)="toggleDisplay()" [attr.aria-pressed]="showFavorites">
+                <i class="fas fa-heart" aria-hidden="true"></i>
+                {{ showFavorites ? ('recipe.showAllRecipesToggle' | translate) : ('recipe.showFavoritesToggle' | translate) }}
+              </button>
+              <button type="button" class="btn recipe-filter-input personal-filter-button" [class.active]="showMyRecipes" (click)="toggleMyRecipes()" [attr.aria-pressed]="showMyRecipes">
+                <i class="fas fa-user" aria-hidden="true"></i>
+                {{ showMyRecipes ? ('recipe.allRecipesToggle' | translate) : ('recipe.myRecipesToggle' | translate) }}
+              </button>
+            </div>
+          </div>
+          }
           <div class="recipe-filter-group recipe-sort-group recipe-freezer-filter">
             <label for="recipe-category-mobile" class="recipe-filter-label">{{ 'recipe.categoryLabel' | translate }}</label>
             <app-taxonomy-select id="recipe-category-mobile" [(ngModel)]="categoryFilter" [groups]="availableCategoryGroups" [optionLabels]="categoryOptionLabels" [multiple]="true" [allowCustom]="false" [compactSelection]="true" [selectedCountLabel]="'recipe.selectedSuffix' | translate"

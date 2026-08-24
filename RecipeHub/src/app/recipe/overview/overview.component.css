@@ -248,7 +248,7 @@ button:focus {
 }
 
 .recipe-page-kicker {
-    margin: 0 0 0.35rem;
+    margin: 0.35rem 0 0.35rem;
     color: #1d4ed8;
     font-size: 0.76rem;
     font-weight: 800;
@@ -396,12 +396,16 @@ button:focus {
 }
 
 .recipe-mobile-filter-toggle {
+    position: relative;
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 0.55rem;
-    padding: 0.55rem 0.8rem;
+    min-height: 2.75rem;
+    height: 2.75rem;
+    padding: 0 .8rem;
+    line-height: 1;
     border: 1px solid rgba(15, 23, 42, 0.12);
     border-radius: 0.8rem;
     background: rgba(255, 255, 255, 0.9);
@@ -412,12 +416,21 @@ button:focus {
     min-height: 2.3rem;
 }
 
+.recipe-mobile-filter-label {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    line-height: 1;
+    transform: translate(-50%, -50%);
+}
+
 .recipe-mobile-filter-count {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     min-width: 2.3rem;
-    padding: 0.3rem 0.55rem;
+    min-height: 1.7rem;
+    padding: 0 .55rem;
     border-radius: 999px;
     background: rgba(37, 99, 235, 0.08);
     color: #1d4ed8;
@@ -562,6 +575,28 @@ button:focus {
 .recipe-mobile-filter-body .recipe-filter-group {
     flex: 0 0 auto;
     min-width: 0;
+}
+
+.recipe-mobile-personal-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .6rem;
+}
+
+.personal-filter-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+    padding: .55rem .6rem !important;
+    font-size: .76rem;
+    font-weight: 700;
+}
+
+.personal-filter-button.active {
+    border-color: #2563eb;
+    background: #dbeafe;
+    color: #1e3a8a;
 }
 
 .recipe-mobile-filter-body .recipe-sort-group,
@@ -880,6 +915,7 @@ button:focus {
     }
 
     .recipe-page-sidebar {
+        display: none;
         width: 100%;
         min-width: 0;
         padding: 0.9rem 0.8rem 0.8rem;
@@ -934,12 +970,13 @@ button:focus {
 
 @media only screen and (max-device-width : 600px) {
     .recipe-page-shell {
+        padding-top: .5rem;
         padding-left: 0.6rem;
         padding-right: 0.6rem;
     }
 
     .recipe-page {
-        padding-top: 1.25rem;
+        padding-top: 0;
     }
 
     .recipe-page-header {
@@ -966,6 +1003,11 @@ button:focus {
     span {
         float: left !important;
         margin-top: .5rem;
+    }
+
+    .recipe-mobile-filter-toggle span {
+        float: none !important;
+        margin-top: 0 !important;
     }
 
     .btn-mobile {
@@ -1050,7 +1092,7 @@ button:focus {
 
 @media only screen and (max-device-width : 600px) {
     .recipe-page {
-        padding-top: 1.25rem;
+        padding-top: 0;
     }
 
     .recipe-page-header {
@@ -1247,6 +1289,12 @@ button:focus {
     border-color: #566170;
     background: #252c34;
     color: #f1f5f9;
+}
+
+:host-context([data-theme='dark']) .personal-filter-button.active {
+    border-color: #6d9fc8;
+    background: #263f58;
+    color: #d7ecff;
 }
 
 .recipe-side-filter-count {
