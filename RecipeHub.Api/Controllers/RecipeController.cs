@@ -204,6 +204,17 @@ namespace RecipeHub.Api.Controllers
                          string.IsNullOrWhiteSpace(getLanguage(ingredient)) ? fallbackLanguage : getLanguage(ingredient),
                          StringComparer.OrdinalIgnoreCase))
             {
+                if (string.Equals(languageGroup.Key, "English", StringComparison.OrdinalIgnoreCase))
+                {
+                    foreach (var ingredient in languageGroup)
+                    {
+                        setName(ingredient, getName(ingredient).Trim());
+                        setLanguage(ingredient, "English");
+                    }
+
+                    continue;
+                }
+
                 var canonicalNames = await _recipeTranslationService.CanonicalizeIngredientNamesAsync(
                     languageGroup.Select(getName), languageGroup.Key);
                 if (canonicalNames == null) return false;

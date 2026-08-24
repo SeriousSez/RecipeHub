@@ -64,6 +64,33 @@
     gap: .4rem;
 }
 
+.dashboard-search {
+    position: relative;
+    max-width: 28rem;
+    margin-bottom: 1rem;
+}
+
+.dashboard-search .fa-search {
+    position: absolute;
+    top: 50%;
+    left: .85rem;
+    color: #64748b;
+    pointer-events: none;
+    transform: translateY(-50%);
+}
+
+.dashboard-search .form-control {
+    min-height: 42px;
+    padding-left: 2.35rem;
+    border-color: #cbd5e1;
+    border-radius: .65rem;
+}
+
+.dashboard-search .form-control:focus {
+    border-color: #5fbaaf;
+    box-shadow: 0 0 0 .2rem rgba(95, 186, 175, .16);
+}
+
 .dashboard-table {
     margin-bottom: 0;
     --bs-table-hover-bg: #fffaf0;

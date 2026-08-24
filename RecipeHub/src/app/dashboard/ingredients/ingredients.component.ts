@@ -24,6 +24,7 @@ export class IngredientsComponent implements OnInit {
   loadedIngredientDetails: Set<string> = new Set<string>();
 
   selectedIngredients: Ingredient[] = [];
+  public ingredientSearch: string = '';
   showDeleteConfirmation = false;
   deletingIngredients = false;
   deleteCompleted = false;
@@ -70,6 +71,16 @@ export class IngredientsComponent implements OnInit {
         this.deletingIngredients = false;
         //this.notificationService.printErrorMessage(error);
       });
+  }
+
+  get filteredIngredients(): Ingredient[] {
+    const search = this.ingredientSearch.trim().toLocaleLowerCase();
+    if (!search) return this.ingredients ?? [];
+
+    return (this.ingredients ?? []).filter(ingredient =>
+      [ingredient.name, ingredient.language, ingredient.description]
+        .some(value => value?.toLocaleLowerCase().includes(search))
+    );
   }
 
   toggleIngredientSelected(ingredient: Ingredient) {

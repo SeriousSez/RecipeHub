@@ -531,7 +531,6 @@ export class RecipeComponent implements OnInit {
     if (this.ingredientsToDelete.length > 0) {
       this.recipeService.deleteRecipeIngredient(this.ingredientsToDelete).subscribe(result => {
         this.ingredientsToDelete = [];
-        this.isRequesting = false;
       }, errors => {
         this.isRequesting = false;
         this.errors = errors.error;
@@ -541,7 +540,6 @@ export class RecipeComponent implements OnInit {
     if (this.newIngredients.length > 0) {
       this.recipeService.addIngredients(this.recipe, this.newIngredients).subscribe(result => {
         this.newIngredients = [];
-        this.isRequesting = false;
       }, errors => {
         this.isRequesting = false;
         this.errors = errors.error;
@@ -551,13 +549,15 @@ export class RecipeComponent implements OnInit {
     this.recipeService.update(this.createRecipeUpgradeModel(this.recipe)).subscribe(result => {
       this.router.navigate([
         `recipe/${this.recipe.id}/${this.utilityService.toSlug(this.recipe.title)}`
-      ], { replaceUrl: true });
-
-      this.title = this.recipe.title;
-      this.creator = this.recipe.creator;
-      this.recipeId = this.recipe.id;
-      this.edit = false;
-      this.isRequesting = false;
+      ], { replaceUrl: true }).then(() => {
+        this.title = this.recipe.title;
+        this.creator = this.recipe.creator;
+        this.recipeId = this.recipe.id;
+        this.edit = false;
+        this.isRequesting = false;
+      }, () => {
+        this.isRequesting = false;
+      });
     }, errors => {
       this.isRequesting = false;
       this.errors = errors.error;
@@ -989,6 +989,7 @@ export class RecipeComponent implements OnInit {
       creator: recipe.creator,
       description: recipe.description,
       instructions: recipe.instructions,
+      language: this.getRecipeLanguage(),
       portions: recipe.portions,
       preparationMinutes: recipe.preparationMinutes,
       cookingMinutes: recipe.cookingMinutes,

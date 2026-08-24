@@ -16,6 +16,12 @@
     </div>
   </header>
 
+  <div class="dashboard-search">
+    <label class="visually-hidden" for="user-search">{{ 'dashboard.searchUsers' | translate }}</label>
+    <i class="fas fa-search" aria-hidden="true"></i>
+    <input id="user-search" class="form-control" type="search" [(ngModel)]="userSearch" [placeholder]="'dashboard.searchUsers' | translate" autocomplete="off">
+  </div>
+
   <table class="table table-hover caption-top dashboard-table">
     <caption>{{ 'dashboard.tableCaptionUsers' | translate }}</caption>
     <thead>
@@ -40,7 +46,7 @@
       </tr>
     </thead>
     <tbody>
-      @for (user of users; track user) {
+      @for (user of filteredUsers; track user) {
       <tr>
         <th scope="row">
           <input class="form-check-input me-1" type="checkbox" value="" (click)="toggleUserSelected(user)">

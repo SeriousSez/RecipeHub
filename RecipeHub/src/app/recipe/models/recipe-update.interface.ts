@@ -7,6 +7,7 @@ export interface RecipeUpdate {
     creator: string;
     description: string;
     instructions: string;
+    language: string;
     portions: string;
     preparationMinutes?: number | null;
     cookingMinutes?: number | null;

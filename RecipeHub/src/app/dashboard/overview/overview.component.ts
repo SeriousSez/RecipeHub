@@ -9,26 +9,27 @@ import { DashboardService } from '../services/dashboard.service';
 import { DatePipe } from '@angular/common';
 
 @Component({
-    selector: 'app-overview',
-    templateUrl: './overview.component.html',
-    styleUrls: ['./overview.component.css'],
-    standalone: false
+  selector: 'app-overview',
+  templateUrl: './overview.component.html',
+  styleUrls: ['./overview.component.css'],
+  standalone: false
 })
 export class OverviewComponent implements OnInit {
   @ViewChild('customerModal') private customerModal: ElementRef;
   @ViewChild('deleteButton') private deleteButton: ElementRef;
 
   targetUrl: string = '/dashboard/createuser';
-  
+
   users: User[];
   roles: string[];
 
   selectedUsers: User[] = [];
+  public userSearch: string = '';
   noTestUsers: boolean = true;
 
   public sortSetting: string = 'role';
   public ascending: boolean = true;
-  
+
   constructor(private clipboardApi: ClipboardService, private dashboardService: DashboardService, private userService: UserService, private datepipe: DatePipe) { }
 
   ngOnInit() {
@@ -36,7 +37,7 @@ export class OverviewComponent implements OnInit {
     this.getRoles();
   }
 
-  getUsers(){
+  getUsers() {
     this.dashboardService.getUsers()
       .subscribe((users: User[]) => {
         this.users = users;
@@ -44,92 +45,102 @@ export class OverviewComponent implements OnInit {
         this.checkForTestUsers();
         this.sort(this.sortSetting);
       },
-      error => {
-        //this.notificationService.printErrorMessage(error);
-      });
+        error => {
+          //this.notificationService.printErrorMessage(error);
+        });
   }
-  
-  setFullName(){
+
+  get filteredUsers(): User[] {
+    const search = this.userSearch.trim().toLocaleLowerCase();
+    if (!search) return this.users ?? [];
+
+    return (this.users ?? []).filter(user =>
+      [user.fullName, user.firstName, user.lastName, user.email, user.userName, user.role]
+        .some(value => value?.toLocaleLowerCase().includes(search))
+    );
+  }
+
+  setFullName() {
     this.users.forEach(user => {
       user.fullName = `${user.firstName} ${user.lastName}`
     });
   }
 
-  getRoles(){
+  getRoles() {
     this.dashboardService.getRoles()
       .subscribe((roles: string[]) => {
         this.roles = roles;
       },
-      error => {
-        //this.notificationService.printErrorMessage(error);
-      });
+        error => {
+          //this.notificationService.printErrorMessage(error);
+        });
   }
 
-  createTestUser(){
+  createTestUser() {
     var model: UserRegistration = {
       username: uuidv4().toString(),
       email: uuidv4().toString() + "@test.com",
       password: 'Test1!',
       firstName: uuidv4().toString(),
-      lastName:  '',
+      lastName: '',
       role: 'Test'
     };
 
-    this.userService.register(model, this.targetUrl).subscribe(result  => {
+    this.userService.register(model, this.targetUrl).subscribe(result => {
       this.users.push(this.createUserModel(model));
       this.setFullName();
       this.checkForTestUsers();
     }, errors => {
-      
+
     });
   }
 
-  updateRole(user: User, role: string){
+  updateRole(user: User, role: string) {
     user.role = role;
-    
+
     this.dashboardService.addRole(user).subscribe();
   }
 
-  deleteUsers(){
+  deleteUsers() {
     this.dashboardService.deleteUsers(this.selectedUsers).subscribe((users: User[]) => {
       this.selectedUsers.forEach((user: User) => {
         this.removeUserFromList(user);
       });
-      
+
       this.selectedUsers = [];
       this.closeDeleteModal();
     },
-    error => {
-      //this.notificationService.printErrorMessage(error);
-    });
+      error => {
+        //this.notificationService.printErrorMessage(error);
+      });
   }
 
-  deleteTestUsers(){
+  deleteTestUsers() {
     var testUsers = this.users.filter(u => u.role === 'Test');
     this.dashboardService.deleteUsers(testUsers).subscribe((users: User[]) => {
       testUsers.forEach((user: User) => {
         this.removeUserFromList(user);
       });
     },
-    error => {
-      //this.notificationService.printErrorMessage(error);
-    });
+      error => {
+        //this.notificationService.printErrorMessage(error);
+      });
   }
 
-  toggleUserSelected(user: User){
+  toggleUserSelected(user: User) {
     var index = this.selectedUsers.indexOf(user, 0);
     if (index > -1) {
       this.selectedUsers.splice(index, 1);
-    }else{
+    } else {
       this.selectedUsers.push(user);
     }
   }
 
-  removeUserFromList(user: User){
+  removeUserFromList(user: User) {
     var index = this.users.indexOf(user, 0);
     if (index > -1) {
       this.users.splice(index, 1);
-    }else{
+    } else {
       this.users.push(user);
     }
 
@@ -146,7 +157,7 @@ export class OverviewComponent implements OnInit {
     this.deleteButton.nativeElement.click();
   }
 
-  checkForTestUsers(){
+  checkForTestUsers() {
     this.noTestUsers = this.users.every(x => x.role !== 'Test')
   }
 
@@ -154,15 +165,15 @@ export class OverviewComponent implements OnInit {
     this.clipboardApi.copyFromContent(text)
   }
 
-  displayDateOnly(created: string){
+  displayDateOnly(created: string) {
     return this.datepipe.transform(created, 'dd-MM-yyyy');
   }
 
-  sort(sortSetting: string){
-    if(this.sortSetting != sortSetting) this.ascending = true;
+  sort(sortSetting: string) {
+    if (this.sortSetting != sortSetting) this.ascending = true;
     this.sortSetting = sortSetting;
 
-    switch(sortSetting){
+    switch (sortSetting) {
       case 'fullname':
         this.users.sort((a, b) => this.ascending == true ? a.fullName.localeCompare(b.fullName) : -a.fullName.localeCompare(b.fullName));
         this.ascending = !this.ascending;
@@ -182,7 +193,7 @@ export class OverviewComponent implements OnInit {
     }
   }
 
-  createUserModel(user: UserRegistration){
+  createUserModel(user: UserRegistration) {
     var model: User = {
       id: '',
       userName: user.username,
