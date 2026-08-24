@@ -4,7 +4,9 @@
             <i class="fas" [class.fa-trash-alt]="danger && !completed" [class.fa-circle-question]="!danger && !completed" [class.fa-check]="completed"></i>
         </div>
         <div class="confirmation-content">
-            <h2>{{ title }}</h2>
+            <div class="confirmation-header">
+                <h2>{{ title }}</h2>
+            </div>
             <p>{{ completed ? successMessage : message }}</p>
             <div class="confirmation-actions">
                 <button *ngIf="!completed" type="button" class="btn btn-link confirmation-cancel" [disabled]="loading" (click)="cancel()">{{ cancelLabel }}</button>

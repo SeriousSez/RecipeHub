@@ -7,6 +7,7 @@ import { UserService } from 'src/app/shared/services/user.service';
 
 import { DashboardService } from '../services/dashboard.service';
 import { DatePipe } from '@angular/common';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-overview',
@@ -26,11 +27,22 @@ export class OverviewComponent implements OnInit {
   selectedUsers: User[] = [];
   public userSearch: string = '';
   noTestUsers: boolean = true;
+  public creatingTestUser = false;
+  public deletingSelectedUsers = false;
+  public deletingTestUsers = false;
+  public showDeleteConfirmation = false;
+  public showDeleteTestUsersConfirmation = false;
 
   public sortSetting: string = 'role';
   public ascending: boolean = true;
 
-  constructor(private clipboardApi: ClipboardService, private dashboardService: DashboardService, private userService: UserService, private datepipe: DatePipe) { }
+  constructor(
+    private clipboardApi: ClipboardService,
+    private dashboardService: DashboardService,
+    private userService: UserService,
+    private datepipe: DatePipe,
+    private translateService: TranslateService
+  ) { }
 
   ngOnInit() {
     this.getUsers();
@@ -77,6 +89,9 @@ export class OverviewComponent implements OnInit {
   }
 
   createTestUser() {
+    if (this.creatingTestUser) return;
+
+    this.creatingTestUser = true;
     var model: UserRegistration = {
       username: uuidv4().toString(),
       email: uuidv4().toString() + "@test.com",
@@ -90,8 +105,9 @@ export class OverviewComponent implements OnInit {
       this.users.push(this.createUserModel(model));
       this.setFullName();
       this.checkForTestUsers();
+      this.creatingTestUser = false;
     }, errors => {
-
+      this.creatingTestUser = false;
     });
   }
 
@@ -101,28 +117,62 @@ export class OverviewComponent implements OnInit {
     this.dashboardService.addRole(user).subscribe();
   }
 
+  requestDeleteUsers() {
+    if (this.selectedUsers.length === 0) return;
+    this.showDeleteConfirmation = true;
+  }
+
+  cancelDeleteUsers() {
+    this.showDeleteConfirmation = false;
+    this.deletingSelectedUsers = false;
+  }
+
   deleteUsers() {
+    if (this.selectedUsers.length === 0 || this.deletingSelectedUsers) return;
+
+    this.deletingSelectedUsers = true;
     this.dashboardService.deleteUsers(this.selectedUsers).subscribe((users: User[]) => {
       this.selectedUsers.forEach((user: User) => {
         this.removeUserFromList(user);
       });
 
       this.selectedUsers = [];
+      this.showDeleteConfirmation = false;
+      this.deletingSelectedUsers = false;
       this.closeDeleteModal();
     },
       error => {
+        this.deletingSelectedUsers = false;
+        this.showDeleteConfirmation = false;
         //this.notificationService.printErrorMessage(error);
       });
   }
 
+  requestDeleteTestUsers() {
+    if (this.noTestUsers) return;
+    this.showDeleteTestUsersConfirmation = true;
+  }
+
+  cancelDeleteTestUsers() {
+    this.showDeleteTestUsersConfirmation = false;
+    this.deletingTestUsers = false;
+  }
+
   deleteTestUsers() {
+    if (this.noTestUsers || this.deletingTestUsers) return;
+
+    this.deletingTestUsers = true;
     var testUsers = this.users.filter(u => u.role === 'Test');
     this.dashboardService.deleteUsers(testUsers).subscribe((users: User[]) => {
       testUsers.forEach((user: User) => {
         this.removeUserFromList(user);
       });
+      this.showDeleteTestUsersConfirmation = false;
+      this.deletingTestUsers = false;
     },
       error => {
+        this.deletingTestUsers = false;
+        this.showDeleteTestUsersConfirmation = false;
         //this.notificationService.printErrorMessage(error);
       });
   }
@@ -151,6 +201,28 @@ export class OverviewComponent implements OnInit {
     this.users.push(user);
     this.checkForTestUsers();
     this.customerModal.nativeElement.click();
+  }
+
+  public get deleteUsersTitle(): string {
+    if (this.selectedUsers.length === 0) {
+      return `${this.translateService.instant('dashboard.deletePrefix')} ${this.translateService.instant('dashboard.noUsersSelected')}`;
+    }
+
+    return `${this.translateService.instant('dashboard.deletePrefix')} ${this.selectedUsers.map(user => user.userName).join(', ')}`;
+  }
+
+  public get deleteUsersMessage(): string {
+    return this.selectedUsers.length > 0
+      ? this.translateService.instant('dashboard.deleteSelectedUsersMessage')
+      : this.translateService.instant('dashboard.noUsersSelected');
+  }
+
+  public get deleteTestUsersTitle(): string {
+    return this.translateService.instant('dashboard.deleteTestUsersButton');
+  }
+
+  public get deleteTestUsersMessage(): string {
+    return this.translateService.instant('dashboard.deleteTestUsersMessage');
   }
 
   public closeDeleteModal() {

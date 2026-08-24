@@ -1,6 +1,11 @@
 <div class="auth-header">
-  <p class="auth-kicker">{{ 'auth.createAccount' | translate }}</p>
-  <h1>{{title}}</h1>
+  <div class="auth-icon" aria-hidden="true">
+    <i class="fas fa-user-plus"></i>
+  </div>
+  <div class="auth-header-copy">
+    <p class="auth-kicker">{{ 'auth.createAccount' | translate }}</p>
+    <h1>{{title}}</h1>
+  </div>
 </div>
 
 <form (ngSubmit)="register()" [formGroup]="registerForm" novalidate class="auth-form">

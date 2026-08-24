@@ -6,7 +6,7 @@
 .navbar {
   display: none !important;
   width: 100%;
-  color: #fff;
+  color: #475569;
   top: 0;
   left: 0;
   right: 0;
@@ -23,14 +23,15 @@
 
   .menu {
     display: grid;
-    width: 44px;
-    height: 44px;
+    width: 42px;
+    height: 42px;
     margin-left: auto;
     padding: 0;
     place-items: center;
-    border: 0;
-    background: transparent;
-    color: #fff;
+    border: 1px solid rgba(148, 163, 184, 0.32);
+    border-radius: 999px;
+    background: #f8fafc;
+    color: #0f172a;
   }
 
   .menu-btn {
@@ -42,6 +43,7 @@
     position: relative;
     width: 22px;
     height: 2px;
+    background: #0f172a;
     box-shadow: none;
     transition: background-color .18s ease;
   }
@@ -51,6 +53,7 @@
     left: 0;
     width: 22px;
     height: 2px;
+    background: #0f172a;
     box-shadow: none;
     transition: transform .18s ease;
   }
@@ -86,6 +89,10 @@
     display: block !important;
     width: 100%;
     padding: 0;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.04);
   }
 
   .navbar>.container {
@@ -111,7 +118,9 @@
     display: inline-flex;
     align-items: center;
     gap: .55rem;
-    font-weight: 700;
+    color: #0f172a;
+    font-weight: 800;
+    letter-spacing: -0.05em;
   }
 
   .navbar-brand-link app-recipe-hub {
@@ -130,9 +139,11 @@
       padding: .75rem 1rem 1rem;
       overflow-y: auto;
       flex: none !important;
-      color: #fff;
-      border-top: 1px solid rgba(255, 255, 255, .14);
-      box-shadow: 0 14px 28px rgba(15, 23, 42, .28);
+      color: #475569;
+      background: #fff;
+      backdrop-filter: none;
+      border-top: 1px solid rgba(15, 23, 42, 0.08);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
     }
   }
 
@@ -140,7 +151,7 @@
     display: grid;
     gap: .5rem;
     padding-bottom: .75rem;
-    border-bottom: 1px solid rgba(255, 255, 255, .14);
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
   }
 
   .mobile-setting-row {
@@ -153,7 +164,7 @@
 
   .mobile-setting-row label {
     margin: 0;
-    color: #dbe3eb;
+    color: #475569;
     font-size: .86rem;
     font-weight: 700;
   }
@@ -167,10 +178,10 @@
     width: 38px;
     height: 38px;
     place-items: center;
-    border: 1px solid #8290a0;
-    border-radius: 6px;
-    background: transparent;
-    color: #fff;
+    border: 1px solid rgba(148, 163, 184, 0.32);
+    border-radius: 999px;
+    background: #f8fafc;
+    color: #0f172a;
   }
 
   .mobile-nav-links {
@@ -188,9 +199,9 @@
     gap: .8rem;
     padding: .65rem .75rem;
     border: 0;
-    border-radius: 6px;
+    border-radius: 999px;
     background: transparent;
-    color: #f8fafc;
+    color: #475569;
     font: inherit;
     text-align: left;
     text-decoration: none;
@@ -198,28 +209,95 @@
 
   .mobile-nav-links i {
     width: 1.25rem;
-    color: #91a4b8;
+    color: #64748b;
     text-align: center;
   }
 
   .mobile-nav-links a:hover,
   .mobile-nav-links button:hover {
-    background: rgba(255, 255, 255, .08);
+    background: #f1f5f9;
+    color: #0f172a;
   }
 
   .mobile-nav-links .sign-out {
     margin-top: .5rem;
     padding-top: .85rem;
-    border-top: 1px solid rgba(255, 255, 255, .14);
+    border-top: 1px solid rgba(15, 23, 42, 0.08);
     border-radius: 0;
   }
 
   a.active {
-    background-color: rgba(242, 93, 156, .12);
-    color: #f25d9c !important;
+    background: #eff6ff;
+    color: #1d4ed8 !important;
   }
 
   a.active i {
-    color: #f25d9c;
+    color: #1d4ed8;
+  }
+
+  :host-context([data-theme='dark']) .navbar {
+    background: rgba(29, 33, 39, 0.92);
+    border-bottom-color: rgba(148, 163, 184, 0.16);
+    box-shadow: 0 10px 28px rgba(2, 6, 23, 0.18);
+  }
+
+  :host-context([data-theme='dark']) .navbar-brand-link {
+    color: #f8fafc;
+  }
+
+  :host-context([data-theme='dark']) .menu,
+  :host-context([data-theme='dark']) .theme-toggle {
+    border-color: #566170;
+    background: #252c34;
+    color: #dbe5ef;
+  }
+
+  :host-context([data-theme='dark']) .menu-btn__burger,
+  :host-context([data-theme='dark']) .menu-btn__burger::before,
+  :host-context([data-theme='dark']) .menu-btn__burger::after {
+    background: #dbe5ef;
+  }
+
+  :host-context([data-theme='dark']) .navbar-opened:host .top-navbar {
+    color: #e5e7eb;
+    background: #1d2127;
+    border-top-color: #46505d;
+    box-shadow: 0 18px 40px rgba(2, 6, 23, 0.38);
+  }
+
+  :host-context([data-theme='dark']) .mobile-settings {
+    border-bottom-color: #46505d;
+  }
+
+  :host-context([data-theme='dark']) .mobile-setting-row label {
+    color: #cbd5e1;
+  }
+
+  :host-context([data-theme='dark']) .mobile-nav-links a,
+  :host-context([data-theme='dark']) .mobile-nav-links button {
+    color: #cbd5e1;
+  }
+
+  :host-context([data-theme='dark']) .mobile-nav-links i {
+    color: #94a3b8;
+  }
+
+  :host-context([data-theme='dark']) .mobile-nav-links a:hover,
+  :host-context([data-theme='dark']) .mobile-nav-links button:hover {
+    background: rgba(148, 163, 184, 0.12);
+    color: #f8fafc;
+  }
+
+  :host-context([data-theme='dark']) .mobile-nav-links .sign-out {
+    border-top-color: #46505d;
+  }
+
+  :host-context([data-theme='dark']) a.active {
+    background: rgba(96, 165, 250, 0.16);
+    color: #93c5fd !important;
+  }
+
+  :host-context([data-theme='dark']) a.active i {
+    color: #93c5fd;
   }
 }

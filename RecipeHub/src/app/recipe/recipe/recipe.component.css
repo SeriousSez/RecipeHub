@@ -2131,8 +2131,7 @@
 
 @media (max-width: 640px) {
     .recipe-detail-shell {
-        padding-right: .4rem;
-        padding-left: .4rem;
+        padding: 0.4rem;
     }
 
     .recipe-edit-card {

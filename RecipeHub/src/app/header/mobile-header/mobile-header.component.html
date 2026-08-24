@@ -1,8 +1,8 @@
-<header class="navbar bg-dark mb-4" [ngClass]="{'navbar-fixed': isFixedNavbar}">
+<header class="navbar mb-4" [ngClass]="{'navbar-fixed': isFixedNavbar}">
   <div class="container" fxLayout="row wrap" fxLayoutAlign="start center">
     <div class="navbar-mobile-top d-c" fxLayout="row" fxLayoutWrap="wrap" fxLayoutAlign="start center">
       <div class="navbar-logo">
-        <a class="navbar-brand-link text-light text-decoration-none" routerLink="/" (click)="closeNavbar()">
+        <a class="navbar-brand-link text-decoration-none" routerLink="/" (click)="closeNavbar()">
           <app-recipe-hub></app-recipe-hub>
           RecipeHub
         </a>
@@ -13,7 +13,7 @@
         </div>
       </button>
     </div>
-    <div id="mobile-navigation" fxFlex class="top-navbar bg-dark">
+    <div id="mobile-navigation" fxFlex class="top-navbar">
       <div class="mobile-settings">
         <div class="mobile-setting-row">
           <label for="mobile-theme-toggle">{{ 'nav.toggleTheme' | translate }}</label>

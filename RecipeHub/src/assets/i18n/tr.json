@@ -307,6 +307,8 @@
         "copyTooltip": "Kopyala",
         "deletePrefix": "Sil -",
         "noUsersSelected": "Seçili kullanıcı yok",
+        "deleteSelectedUsersMessage": "Seçili kullanıcıları silmek istediğinizden emin misiniz?",
+        "deleteTestUsersMessage": "Tüm test kullanıcılarını silmek istediğinizden emin misiniz?",
         "confirmButton": "Onayla",
         "cancelButton": "İptal",
         "createUserModalTitle": "Kullanıcı oluştur",

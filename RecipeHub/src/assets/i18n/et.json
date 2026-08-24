@@ -307,6 +307,8 @@
         "copyTooltip": "Kopeeri",
         "deletePrefix": "Kustuta -",
         "noUsersSelected": "Ühtegi kasutajat pole valitud",
+        "deleteSelectedUsersMessage": "Kas soovid valitud kasutajad kindlasti kustutada?",
+        "deleteTestUsersMessage": "Kas soovid kindlasti kõik testkasutajad kustutada?",
         "confirmButton": "Kinnita",
         "cancelButton": "Tühista",
         "createUserModalTitle": "Loo kasutaja",

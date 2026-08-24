@@ -8,10 +8,22 @@
     <div class="dashboard-card-header-actions">
       <span class="dashboard-count">{{ users ? users.length : 0 }}</span>
       <div class="dashboard-actions">
-        <button class="btn btn-outline-danger" type="button" data-bs-toggle="offcanvas" data-bs-target="#deleteModal" aria-controls="deleteModal" [disabled]="selectedUsers.length == 0" #deleteButton>{{ 'dashboard.deleteButton' | translate }}</button>
+        <button class="btn btn-outline-danger" type="button" [disabled]="selectedUsers.length == 0 || deletingSelectedUsers" #deleteButton (click)="requestDeleteUsers()">
+          @if (deletingSelectedUsers) {
+          <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+          } {{ 'dashboard.deleteButton' | translate }}
+        </button>
         <button class="btn btn-outline-brand" type="button" data-bs-toggle="modal" data-bs-target="#customerModal">{{ 'dashboard.createUserButton' | translate }}</button>
-        <button class="btn btn-outline-brand-alt test-button" type="button" (click)="createTestUser()">{{ 'dashboard.createTestUserButton' | translate }}</button>
-        <button class="btn btn-outline-secondary" type="button" (click)="deleteTestUsers()" [disabled]="noTestUsers">{{ 'dashboard.deleteTestUsersButton' | translate }}</button>
+        <button class="btn btn-outline-brand-alt test-button" type="button" (click)="createTestUser()" [disabled]="creatingTestUser">
+          @if (creatingTestUser) {
+          <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+          } {{ 'dashboard.createTestUserButton' | translate }}
+        </button>
+        <button class="btn btn-outline-secondary" type="button" (click)="requestDeleteTestUsers()" [disabled]="noTestUsers || deletingTestUsers">
+          @if (deletingTestUsers) {
+          <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+          } {{ 'dashboard.deleteTestUsersButton' | translate }}
+        </button>
       </div>
     </div>
   </header>
@@ -70,34 +82,16 @@
   </table>
 </section>
 
-<div class="offcanvas offcanvas-bottom" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="deleteModal" aria-labelledby="deleteModalLabel" #deleteModal>
-  <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="deleteModalLabel">
-      {{ 'dashboard.deletePrefix' | translate }}
-      @for (user of selectedUsers; track user; let isLast = $last) {
-      <small>
-        {{user.userName}}
-        @if (!isLast) {
-        <small>, </small>
-        }
-      </small>
-      }
-      @if (selectedUsers.length == 0) {
-      <small>{{ 'dashboard.noUsersSelected' | translate }}</small>
-      }
-    </h5>
-    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-  </div>
-  <div class="offcanvas-body">
-    <button class="btn btn-danger me-1" type="button" (click)="deleteUsers()" [disabled]="selectedUsers.length == 0">{{ 'dashboard.confirmButton' | translate }}</button>
-    <button class="btn btn-link text-reset" type="button" data-bs-dismiss="offcanvas" aria-label="Close">{{ 'dashboard.cancelButton' | translate }}</button>
-  </div>
-</div>
+<app-confirmation [visible]="showDeleteConfirmation" [title]="deleteUsersTitle" [message]="deleteUsersMessage" [confirmLabel]="'dashboard.confirmButton' | translate" [loadingLabel]="'dashboard.deletingButton' | translate" [cancelLabel]="'dashboard.cancelButton' | translate"
+  [doneLabel]="'dashboard.doneButton' | translate" [successMessage]="'dashboard.deletionSuccess' | translate" [loading]="deletingSelectedUsers" [danger]="true" (confirmed)="deleteUsers()" (cancelled)="cancelDeleteUsers()"></app-confirmation>
+
+<app-confirmation [visible]="showDeleteTestUsersConfirmation" [title]="deleteTestUsersTitle" [message]="deleteTestUsersMessage" [confirmLabel]="'dashboard.confirmButton' | translate" [loadingLabel]="'dashboard.deletingButton' | translate" [cancelLabel]="'dashboard.cancelButton' | translate"
+  [doneLabel]="'dashboard.doneButton' | translate" [successMessage]="'dashboard.deletionSuccess' | translate" [loading]="deletingTestUsers" [danger]="true" (confirmed)="deleteTestUsers()" (cancelled)="cancelDeleteTestUsers()"></app-confirmation>
 
 <!-- Modal -->
 <div class="modal fade" id="customerModal" tabindex="-1" aria-labelledby="customerModalLabel" aria-hidden="true" #customerModal>
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
+    <div class="modal-content customer-modal-content">
       <div class="modal-body" #container>
         @if (roles) {
         <app-registration-modal [title]="'dashboard.createUserModalTitle' | translate" [confirmButton]="'dashboard.createUserModalConfirm' | translate" [baseUrl]="targetUrl" [navigationUrl]="'dashboard'" [roles]="roles" (finish)="closeCustomerModal($event)"></app-registration-modal>

@@ -61,7 +61,66 @@
 .dashboard-actions .btn {
     display: inline-flex;
     align-items: center;
-    gap: .4rem;
+    justify-content: center;
+    gap: .45rem;
+    min-height: 2.7rem;
+    padding: .65rem 1rem;
+    border-radius: .8rem;
+    font-weight: 700;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.dashboard-actions .btn:hover:not(:disabled),
+.dashboard-actions .btn:focus-visible:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px rgba(15, 23, 42, 0.12);
+}
+
+.dashboard-actions .btn-outline-brand:hover:not(:disabled),
+.dashboard-actions .btn-outline-brand:focus-visible:not(:disabled) {
+    background-color: rgba(242, 93, 156, 0.08) !important;
+    box-shadow: 0 10px 22px rgba(242, 93, 156, 0.18);
+}
+
+.dashboard-actions .btn-outline-brand-alt:hover:not(:disabled),
+.dashboard-actions .btn-outline-brand-alt:focus-visible:not(:disabled) {
+    background-color: rgba(95, 186, 175, 0.08) !important;
+    box-shadow: 0 10px 22px rgba(95, 186, 175, 0.18);
+}
+
+.dashboard-actions .btn-outline-danger:hover:not(:disabled),
+.dashboard-actions .btn-outline-danger:focus-visible:not(:disabled) {
+    background-color: rgba(220, 53, 69, 0.08) !important;
+    box-shadow: 0 10px 22px rgba(220, 53, 69, 0.16);
+}
+
+.dashboard-actions .btn-outline-secondary:hover:not(:disabled),
+.dashboard-actions .btn-outline-secondary:focus-visible:not(:disabled) {
+    background-color: rgba(108, 117, 125, 0.08) !important;
+    box-shadow: 0 10px 22px rgba(108, 117, 125, 0.15);
+}
+
+.dashboard-actions .btn .spinner-border {
+    width: .85rem;
+    height: .85rem;
+    border-width: 0.12rem;
+}
+
+#customerModal .modal-dialog {
+    max-width: 42rem;
+}
+
+#customerModal .modal-content {
+    overflow: hidden;
+    border: 1px solid rgba(15, 23, 42, .08);
+    border-radius: 1.5rem;
+    background: rgba(255, 255, 255, .96);
+    box-shadow: 0 28px 80px rgba(15, 23, 42, .18);
+}
+
+#customerModal .modal-backdrop {
+    background: rgba(91, 104, 117, 0.38);
+    backdrop-filter: blur(4px);
 }
 
 .dashboard-search {

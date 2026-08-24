@@ -307,6 +307,8 @@
         "copyTooltip": "Kopier",
         "deletePrefix": "Slet -",
         "noUsersSelected": "Ingen brugere valgt",
+        "deleteSelectedUsersMessage": "Er du sikker på, at du vil slette de valgte brugere?",
+        "deleteTestUsersMessage": "Er du sikker på, at du vil slette alle testbrugere?",
         "confirmButton": "Bekræft",
         "cancelButton": "Annuller",
         "createUserModalTitle": "Opret en bruger",

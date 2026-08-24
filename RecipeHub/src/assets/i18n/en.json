@@ -307,6 +307,8 @@
         "copyTooltip": "Copy",
         "deletePrefix": "Delete -",
         "noUsersSelected": "No users selected",
+        "deleteSelectedUsersMessage": "Are you sure you want to delete the selected users?",
+        "deleteTestUsersMessage": "Are you sure you want to delete all test users?",
         "confirmButton": "Confirm",
         "cancelButton": "Cancel",
         "createUserModalTitle": "Create a user",
