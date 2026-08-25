@@ -404,6 +404,7 @@
         "creatorRecipesTitle": "Recipes by {{creator}}",
         "backToOverview": "Back to overview",
         "unableToLoad": "Unable to load recipes right now. Please refresh the page.",
+        "translationUnavailable": "This recipe could not be translated into the selected language. Please try again later.",
         "filterLabel": "Filter",
         "searchPlaceholder": "Search by title, creator, tags, or text",
         "pantryLabel": "Pantry",

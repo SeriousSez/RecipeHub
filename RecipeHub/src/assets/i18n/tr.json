@@ -384,6 +384,7 @@
         "creatorRecipesTitle": "{{creator}} tarifleri",
         "backToOverview": "Genel bakışa dön",
         "unableToLoad": "Tarifler şu anda yüklenemiyor. Lütfen sayfayı yenileyin.",
+        "translationUnavailable": "Bu tarif seçilen dile çevrilemedi. Lütfen daha sonra tekrar deneyin.",
         "filterLabel": "Filtrele",
         "searchPlaceholder": "Başlık, oluşturan, etiket veya metne göre ara",
         "pantryLabel": "Kiler",

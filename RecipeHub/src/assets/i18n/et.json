@@ -384,6 +384,7 @@
         "creatorRecipesTitle": "Kasutaja {{creator}} retseptid",
         "backToOverview": "Tagasi ülevaate juurde",
         "unableToLoad": "Retsepte ei õnnestu praegu laadida. Palun värskenda lehte.",
+        "translationUnavailable": "Seda retsepti ei saanud valitud keelde tõlkida. Proovi hiljem uuesti.",
         "filterLabel": "Filter",
         "searchPlaceholder": "Otsi pealkirja, looja, siltide või teksti järgi",
         "pantryLabel": "Sahver",

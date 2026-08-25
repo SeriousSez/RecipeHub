@@ -2644,3 +2644,20 @@
     background: #30495f;
     color: #eef8ff;
 }
+
+.recipe-translation-error {
+    width: min(100%, 560px);
+    margin: 3rem auto;
+    padding: 1rem 1.2rem;
+    border: 1px solid rgba(239, 68, 68, .2);
+    border-radius: .9rem;
+    background: rgba(239, 68, 68, .08);
+    color: #991b1b;
+    text-align: center;
+}
+
+:host-context([data-theme='dark']) .recipe-translation-error {
+    border-color: rgba(252, 165, 165, .25);
+    background: rgba(127, 29, 29, .2);
+    color: #fecaca;
+}

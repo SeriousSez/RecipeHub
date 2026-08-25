@@ -2,6 +2,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using RecipeHub.Domain.Responses;
+using RecipeHub.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +23,9 @@ namespace RecipeHub.Api.Services
     {
         Task<RecipeResponse> TranslateAsync(RecipeResponse recipe, string targetLanguage);
         Task<List<RecipeResponse>> TranslateSummariesAsync(List<RecipeResponse> recipes, string targetLanguage);
+        Task<RecipeResponse> GetStoredTranslationAsync(RecipeResponse recipe, string targetLanguage);
+        Task<List<RecipeResponse>> GetStoredTranslationsAsync(List<RecipeResponse> recipes, string targetLanguage);
+        Task<Dictionary<Guid, RecipeResponse>> GetAvailableStoredTranslationsAsync(List<RecipeResponse> recipes, string targetLanguage);
         Task<IReadOnlyDictionary<string, string>> CanonicalizeIngredientNamesAsync(IEnumerable<string> names, string sourceLanguage);
         Task<IReadOnlyDictionary<string, string>> TranslateIngredientNamesAsync(IEnumerable<string> names, string targetLanguage, IReadOnlyDictionary<string, string> contexts = null);
         Task<IReadOnlyDictionary<string, string>> GetIngredientTranslationsAsync(string ingredientName);
@@ -91,11 +95,14 @@ namespace RecipeHub.Api.Services
         public async Task<RecipeResponse> TranslateAsync(RecipeResponse recipe, string targetLanguage)
         {
             var language = SupportedLanguages.FirstOrDefault(item => item.Equals(targetLanguage?.Trim(), StringComparison.OrdinalIgnoreCase));
-            if (recipe == null || language == null || language.Equals("English", StringComparison.OrdinalIgnoreCase) ||
-                language.Equals(recipe.Language, StringComparison.OrdinalIgnoreCase))
+            if (recipe == null || language == null || language.Equals(recipe.Language, StringComparison.OrdinalIgnoreCase))
             {
                 return recipe;
             }
+
+            var storedTranslation = await GetStoredTranslationAsync(recipe, language);
+            if (storedTranslation != null)
+                return storedTranslation;
 
             var apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY")
                 ?? _configuration["RecipeTranslation:OpenAIApiKey"]
@@ -123,6 +130,7 @@ namespace RecipeHub.Api.Services
                 }).ToList()
             };
             var sourceJson = JsonSerializer.Serialize(source);
+            var sourceLanguage = string.IsNullOrWhiteSpace(recipe.Language) ? "English" : recipe.Language.Trim();
             var sourceHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(sourceJson)));
             var cacheKey = $"recipe-translation:{recipe.Id}:{language.ToLowerInvariant()}:{sourceHash}";
             if (_cache.TryGetValue(cacheKey, out RecipeResponse cachedRecipe)) return cachedRecipe;
@@ -137,7 +145,7 @@ namespace RecipeHub.Api.Services
                 messages = new[]
                 {
                     new { role = "system", content = "You translate recipes accurately. Return valid JSON only. Never alter numbers, array order, or add content." },
-                    new { role = "user", content = $"Translate every string value in this recipe JSON from English to {language}. Keep empty values empty, and return the identical JSON shape: {sourceJson}" }
+                    new { role = "user", content = $"Translate every string value in this recipe JSON from {sourceLanguage} to {language}. Keep empty values empty, and return the identical JSON shape: {sourceJson}" }
                 }
             };
 
@@ -185,6 +193,15 @@ namespace RecipeHub.Api.Services
 
                 try
                 {
+                    await SaveRecipeTranslationAsync(translatedRecipe, language, recipe.LastUpdated);
+                }
+                catch (Exception exception)
+                {
+                    _logger.LogWarning(exception, "Recipe translation could not be persisted for recipe {RecipeId} and language {Language}", recipe.Id, language);
+                }
+
+                try
+                {
                     await SaveIngredientTranslationsAsync(savedIngredientTranslations, language);
                 }
                 catch (Exception exception)
@@ -204,10 +221,19 @@ namespace RecipeHub.Api.Services
         public async Task<List<RecipeResponse>> TranslateSummariesAsync(List<RecipeResponse> recipes, string targetLanguage)
         {
             var language = SupportedLanguages.FirstOrDefault(item => item.Equals(targetLanguage?.Trim(), StringComparison.OrdinalIgnoreCase));
-            if (recipes == null || recipes.Count == 0 || language == null || language.Equals("English", StringComparison.OrdinalIgnoreCase))
+            if (recipes == null || recipes.Count == 0 || language == null)
             {
                 return recipes;
             }
+
+            if (recipes.All(recipe => language.Equals(recipe.Language?.Trim(), StringComparison.OrdinalIgnoreCase)))
+            {
+                return recipes;
+            }
+
+            var storedSummaries = await GetStoredTranslationsAsync(recipes, language);
+            if (storedSummaries != null)
+                return storedSummaries;
 
             var apiKey = GetApiKey();
             if (string.IsNullOrWhiteSpace(apiKey)) return recipes;
@@ -218,13 +244,16 @@ namespace RecipeHub.Api.Services
                 Title = recipe.Title,
                 Description = recipe.Description
             }).ToList();
+            var sourceLanguages = recipes.Select(recipe => string.IsNullOrWhiteSpace(recipe.Language) ? "English" : recipe.Language.Trim()).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+            if (sourceLanguages.Count != 1 || language.Equals(sourceLanguages[0], StringComparison.OrdinalIgnoreCase))
+                return recipes;
             var sourceJson = JsonSerializer.Serialize(source);
             var sourceHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(sourceJson)));
             var cacheKey = $"recipe-summary-translations:{language.ToLowerInvariant()}:{sourceHash}";
             if (_cache.TryGetValue(cacheKey, out List<RecipeResponse> cachedRecipes)) return cachedRecipes;
 
             var requestBody = CreateRequestBody(
-                $"Translate the title and description values in this JSON array from English to {language}. Keep each id unchanged and return the identical JSON array inside an object with a recipes property: {sourceJson}",
+                $"Translate the title and description values in this JSON array from {sourceLanguages[0]} to {language}. Keep each id unchanged and return the identical JSON array inside an object with a recipes property: {sourceJson}",
                 "You translate recipe summaries accurately. Return valid JSON only. Never alter IDs, numbers, array order, or add content.");
 
             try
@@ -256,6 +285,76 @@ namespace RecipeHub.Api.Services
                 _logger.LogWarning(exception, "Recipe summary translation failed for language {Language}", language);
                 return recipes;
             }
+        }
+
+        public async Task<List<RecipeResponse>> GetStoredTranslationsAsync(List<RecipeResponse> recipes, string language)
+        {
+            var recipeIds = recipes.Select(recipe => recipe.Id).ToList();
+            var stored = await _context.RecipeTranslations
+                .AsNoTracking()
+                .Where(translation => recipeIds.Contains(translation.RecipeId) && translation.Language == language)
+                .ToDictionaryAsync(translation => translation.RecipeId);
+
+            var translated = new List<RecipeResponse>();
+            foreach (var recipe in recipes)
+            {
+                if (!stored.TryGetValue(recipe.Id, out var translation) || translation.SourceLastUpdated != recipe.LastUpdated)
+                    return null;
+
+                var translatedRecipe = JsonSerializer.Deserialize<RecipeResponse>(translation.PayloadJson, JsonOptions);
+                if (translatedRecipe == null)
+                    return null;
+                translated.Add(translatedRecipe);
+            }
+
+            return translated;
+        }
+
+        public async Task<Dictionary<Guid, RecipeResponse>> GetAvailableStoredTranslationsAsync(List<RecipeResponse> recipes, string language)
+        {
+            var recipeIds = recipes.Select(recipe => recipe.Id).ToList();
+            var stored = await _context.RecipeTranslations
+                .AsNoTracking()
+                .Where(translation => recipeIds.Contains(translation.RecipeId) && translation.Language == language)
+                .ToListAsync();
+
+            return stored
+                .Where(translation => recipes.Any(recipe => recipe.Id == translation.RecipeId && recipe.LastUpdated == translation.SourceLastUpdated))
+                .Select(translation => JsonSerializer.Deserialize<RecipeResponse>(translation.PayloadJson, JsonOptions))
+                .Where(translation => translation != null)
+                .ToDictionary(translation => translation.Id);
+        }
+
+        public async Task<RecipeResponse> GetStoredTranslationAsync(RecipeResponse recipe, string language)
+        {
+            var translation = await _context.RecipeTranslations
+                .AsNoTracking()
+                .FirstOrDefaultAsync(item => item.RecipeId == recipe.Id && item.Language == language && item.SourceLastUpdated == recipe.LastUpdated);
+
+            return translation == null
+                ? null
+                : JsonSerializer.Deserialize<RecipeResponse>(translation.PayloadJson, JsonOptions);
+        }
+
+        private async Task SaveRecipeTranslationAsync(RecipeResponse recipe, string language, DateTime? sourceLastUpdated)
+        {
+            var translation = await _context.RecipeTranslations
+                .FirstOrDefaultAsync(item => item.RecipeId == recipe.Id && item.Language == language);
+
+            if (translation == null)
+            {
+                translation = new RecipeTranslation
+                {
+                    Id = Guid.NewGuid(),
+                    RecipeId = recipe.Id,
+                    Language = language
+                };
+                _context.RecipeTranslations.Add(translation);
+            }
+
+            translation.SourceLastUpdated = sourceLastUpdated;
+            translation.PayloadJson = JsonSerializer.Serialize(recipe);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<IReadOnlyDictionary<string, string>> CanonicalizeIngredientNamesAsync(IEnumerable<string> names, string sourceLanguage)
@@ -547,6 +646,7 @@ namespace RecipeHub.Api.Services
             Categories = new List<string>(recipe.Categories ?? new List<string>()),
             Tags = new List<string>(recipe.Tags ?? new List<string>()),
             Created = recipe.Created,
+            LastUpdated = recipe.LastUpdated,
             Image = recipe.Image == null ? null : new ImageResponse
             {
                 Id = recipe.Image.Id,

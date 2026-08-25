@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
@@ -24,6 +25,7 @@ namespace RecipeHub.Api.Controllers
     public class RecipeController : Controller
     {
         private const string RecipeCacheVersionKey = "recipes:cache:version";
+        private const string EngagementCacheVersionKey = "recipes:engagement:cache:version";
         private static readonly ConcurrentDictionary<string, byte> RefreshInProgress = new ConcurrentDictionary<string, byte>();
         private static readonly TimeSpan CacheTtl = TimeSpan.FromSeconds(30);
         private static readonly TimeSpan RefreshAfter = TimeSpan.FromSeconds(10);
@@ -36,8 +38,9 @@ namespace RecipeHub.Api.Controllers
         private readonly RecipeHubContext _context;
         private readonly IRecipeNutritionEstimator _nutritionEstimator;
         private readonly IRecipeTranslationService _recipeTranslationService;
+        private readonly IRecipeTranslationQueue _translationQueue;
 
-        public RecipeController(ILogger<RecipeController> logger, IRecipeService recipeService, IMemoryCache memoryCache, IServiceScopeFactory scopeFactory, IHostEnvironment hostEnvironment, RecipeHubContext context, IRecipeNutritionEstimator nutritionEstimator, IRecipeTranslationService recipeTranslationService)
+        public RecipeController(ILogger<RecipeController> logger, IRecipeService recipeService, IMemoryCache memoryCache, IServiceScopeFactory scopeFactory, IHostEnvironment hostEnvironment, RecipeHubContext context, IRecipeNutritionEstimator nutritionEstimator, IRecipeTranslationService recipeTranslationService, IRecipeTranslationQueue translationQueue)
         {
             _logger = logger;
             _recipeService = recipeService;
@@ -47,6 +50,7 @@ namespace RecipeHub.Api.Controllers
             _context = context;
             _nutritionEstimator = nutritionEstimator;
             _recipeTranslationService = recipeTranslationService;
+            _translationQueue = translationQueue;
         }
 
         [HttpPost("estimate-nutrition")]
@@ -85,6 +89,7 @@ namespace RecipeHub.Api.Controllers
                 return BadRequest("Failed to create recipe!");
 
             TriggerIngredientImageGeneration(model?.Ingredients?.Select(i => i?.Name));
+            TriggerTranslationRefresh(recipe.Id);
 
             BumpRecipeCacheVersion();
 
@@ -112,6 +117,8 @@ namespace RecipeHub.Api.Controllers
             BumpRecipeCacheVersion();
 
             _logger.LogTrace("Recipe has been updated! Recipe: {@Recipe}", result);
+            if (result != null)
+                TriggerTranslationRefresh(result.Id);
 
             return new OkObjectResult(result);
         }
@@ -321,12 +328,77 @@ namespace RecipeHub.Api.Controllers
         [HttpGet("getbyid/{id}")]
         public async Task<IActionResult> GetById(string id)
         {
+            var recipe = await GetCachedRecipeByIdAsync(id);
+
+            if (recipe == null)
+            {
+                _logger.LogError("Failed to fetch recipe by id! Id: {RecipeId}", id);
+                return new NotFoundObjectResult("Failed to fetch recipe!");
+            }
+
+            _logger.LogTrace("Recipe fetched by id! Recipe: {@Recipe}", recipe);
+            return new OkObjectResult(recipe);
+        }
+
+        [HttpGet("getbyid/{id}/translation")]
+        [EnableRateLimiting("RecipeTranslations")]
+        public async Task<IActionResult> GetTranslation(Guid id, string language)
+        {
+            var requestTimer = Stopwatch.StartNew();
+            var recipe = await GetCachedRecipeByIdAsync(id.ToString());
+            var sourceLoadMilliseconds = requestTimer.ElapsedMilliseconds;
+            if (recipe == null) return NotFound();
+
+            if (string.IsNullOrWhiteSpace(language) ||
+                language.Equals(recipe.Language, StringComparison.OrdinalIgnoreCase))
+            {
+                _translationQueue.EnqueueRemaining(new[] { id }, language);
+                return Ok(recipe);
+            }
+
+            var translationCacheKey = $"recipes:translation:{id}:{language.ToLowerInvariant()}:v{recipe.LastUpdated?.Ticks.ToString() ?? "initial"}";
+            if (_memoryCache.TryGetValue(translationCacheKey, out RecipeResponse cachedTranslation))
+                return Ok(cachedTranslation);
+
+            var storedTranslation = await _recipeTranslationService.GetStoredTranslationAsync(recipe, language);
+            var translationLookupMilliseconds = requestTimer.ElapsedMilliseconds - sourceLoadMilliseconds;
+            if (storedTranslation != null)
+            {
+                _memoryCache.Set(translationCacheKey, storedTranslation, new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = CacheTtl
+                });
+                _logger.LogInformation("Recipe translation served from database. RecipeId: {RecipeId}; Language: {Language}; SourceLoadMs: {SourceLoadMs}; TranslationLookupMs: {TranslationLookupMs}; TotalMs: {TotalMs}", id, language, sourceLoadMilliseconds, translationLookupMilliseconds, requestTimer.ElapsedMilliseconds);
+                return Ok(storedTranslation);
+            }
+
+            _logger.LogInformation("Recipe translation missing or stale. RecipeId: {RecipeId}; Language: {Language}; SourceLoadMs: {SourceLoadMs}; TranslationLookupMs: {TranslationLookupMs}", id, language, sourceLoadMilliseconds, translationLookupMilliseconds);
+            var translatedRecipe = await _recipeTranslationService.TranslateAsync(recipe, language);
+            var generationMilliseconds = requestTimer.ElapsedMilliseconds - sourceLoadMilliseconds - translationLookupMilliseconds;
+            if (translatedRecipe == null || !string.Equals(translatedRecipe.Language, language, StringComparison.OrdinalIgnoreCase))
+            {
+                return StatusCode(503, new
+                {
+                    Code = "recipe_translation_unavailable",
+                    Message = "This recipe is not available in the selected language yet."
+                });
+            }
+
+            _memoryCache.Set(translationCacheKey, translatedRecipe, new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = CacheTtl
+            });
+            _translationQueue.EnqueueRemaining(new[] { id }, language);
+            _logger.LogInformation("Recipe translation generated. RecipeId: {RecipeId}; Language: {Language}; SourceLoadMs: {SourceLoadMs}; TranslationLookupMs: {TranslationLookupMs}; GenerationMs: {GenerationMs}; TotalMs: {TotalMs}", id, language, sourceLoadMilliseconds, translationLookupMilliseconds, generationMilliseconds, requestTimer.ElapsedMilliseconds);
+            return Ok(translatedRecipe);
+        }
+
+        private async Task<RecipeResponse> GetCachedRecipeByIdAsync(string id)
+        {
             var cacheVersion = GetRecipeCacheVersion();
             var cacheKey = $"recipes:getbyid:{id}:v{cacheVersion}";
             if (_memoryCache.TryGetValue(cacheKey, out RecipeResponse cachedRecipe))
-            {
-                return new OkObjectResult(cachedRecipe);
-            }
+                return cachedRecipe;
 
             RecipeResponse recipe;
             if (Guid.TryParse(id, out var recipeId))
@@ -339,29 +411,15 @@ namespace RecipeHub.Api.Controllers
                 recipe = await _recipeService.GetByShortId(shortId);
             }
 
-            if (recipe == null)
+            if (recipe != null)
             {
-                _logger.LogError("Failed to fetch recipe by id! Id: {RecipeId}", id);
-                return new NotFoundObjectResult("Failed to fetch recipe!");
+                _memoryCache.Set(cacheKey, recipe, new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = CacheTtl
+                });
             }
 
-            _memoryCache.Set(cacheKey, recipe, new MemoryCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = CacheTtl
-            });
-
-            _logger.LogTrace("Recipe fetched by id! Recipe: {@Recipe}", recipe);
-            return new OkObjectResult(recipe);
-        }
-
-        [HttpGet("getbyid/{id}/translation")]
-        [EnableRateLimiting("RecipeTranslations")]
-        public async Task<IActionResult> GetTranslation(Guid id, string language)
-        {
-            var recipe = await _recipeService.Get(id);
-            if (recipe == null) return NotFound();
-
-            return Ok(await _recipeTranslationService.TranslateAsync(recipe, language));
+            return recipe;
         }
 
         [HttpGet("getallbycreator")]
@@ -489,6 +547,10 @@ namespace RecipeHub.Api.Controllers
                 page = page < 1 ? 1 : page;
                 pageSize = pageSize < 1 ? 9 : pageSize;
 
+                var pagedCacheKey = $"recipes:paged:{GetRecipeCacheVersion()}:{page}:{pageSize}:{search}:{category}:{tag}:{sortBy}:{ascending}:{creator}:{favoriteIds}:{language}:{canBeFrozen}";
+                if (_memoryCache.TryGetValue(pagedCacheKey, out RecipePagedResponse cachedPage))
+                    return Ok(cachedPage);
+
                 var allRecipes = await GetAllRecipesCachedAsync();
                 var engagementByRecipe = await GetRecipeEngagementStatsAsync();
 
@@ -581,7 +643,19 @@ namespace RecipeHub.Api.Controllers
                     .Take(pageSize)
                     .Select(recipe => CreatePagedRecipeResponse(recipe, GetEngagement(recipe.Id, engagementByRecipe)))
                     .ToList();
-                pageItems = await _recipeTranslationService.TranslateSummariesAsync(pageItems, language);
+                var storedPageTranslations = string.IsNullOrWhiteSpace(language) || language.Equals("English", StringComparison.OrdinalIgnoreCase)
+                    ? new Dictionary<Guid, RecipeResponse>()
+                    : await _recipeTranslationService.GetAvailableStoredTranslationsAsync(pageItems, language);
+                if (storedPageTranslations.Count > 0)
+                {
+                    pageItems = pageItems.Select(item => storedPageTranslations.TryGetValue(item.Id, out var translated) ? translated : item).ToList();
+                }
+
+                if (!string.IsNullOrWhiteSpace(language) && !language.Equals("English", StringComparison.OrdinalIgnoreCase) &&
+                    pageItems.Any(item => !language.Equals(item.Language, StringComparison.OrdinalIgnoreCase)))
+                {
+                    TriggerTranslationRefresh(pageItems.Select(item => item.Id), language);
+                }
 
                 var response = new RecipePagedResponse
                 {
@@ -592,6 +666,11 @@ namespace RecipeHub.Api.Controllers
                     AvailableCategories = availableCategories,
                     AvailableTags = availableTags
                 };
+
+                _memoryCache.Set(pagedCacheKey, response, new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = CacheTtl
+                });
 
                 return new OkObjectResult(response);
             }
@@ -714,13 +793,19 @@ namespace RecipeHub.Api.Controllers
                 Categories = recipe.Categories,
                 Tags = recipe.Tags,
                 Created = recipe.Created,
+                LastUpdated = recipe.LastUpdated,
                 Image = image
             };
         }
 
         private async Task<Dictionary<Guid, RecipeEngagementResponse>> GetRecipeEngagementStatsAsync()
         {
-            return await _context.RecipeRatings
+            var cacheVersion = GetRecipeCacheVersion();
+            var cacheKey = $"recipes:engagement:{cacheVersion}";
+            if (_memoryCache.TryGetValue(cacheKey, out Dictionary<Guid, RecipeEngagementResponse> cachedStats))
+                return cachedStats;
+
+            var stats = await _context.RecipeRatings
                 .AsNoTracking()
                 .GroupBy(item => item.RecipeId)
                 .Select(group => new
@@ -736,6 +821,12 @@ namespace RecipeHub.Api.Controllers
                     RatingCount = item.RatingCount,
                     AverageRating = item.AverageRating
                 });
+
+            _memoryCache.Set(cacheKey, stats, new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = CacheTtl
+            });
+            return stats;
         }
 
         private async Task<RecipeEngagementResponse> GetRecipeEngagementAsync(Guid recipeId, string userEmail)
@@ -874,6 +965,16 @@ namespace RecipeHub.Api.Controllers
                     RefreshInProgress.TryRemove(cacheKey, out _);
                 }
             });
+        }
+
+        private void TriggerTranslationRefresh(Guid recipeId)
+        {
+            TriggerTranslationRefresh(new[] { recipeId });
+        }
+
+        private void TriggerTranslationRefresh(IEnumerable<Guid> recipeIds, string language = null)
+        {
+            _translationQueue.Enqueue(recipeIds, language);
         }
 
         private sealed class RecipeCacheEntry

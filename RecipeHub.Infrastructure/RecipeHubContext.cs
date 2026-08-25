@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -34,6 +35,7 @@ namespace RecipeHub.Infrastructure
         public DbSet<UserSeeker> UserSeekers { get; set; }
         public DbSet<UserSettings> UserSettings { get; set; }
         public DbSet<PublicProfile> PublicProfiles { get; set; }
+        public DbSet<RecipeTranslation> RecipeTranslations { get; set; }
 
         public DbSet<Recipe> Recipes { get; set; }
         public DbSet<RecipeIngredient> RecipeIngredients { get; set; }
@@ -62,6 +64,16 @@ namespace RecipeHub.Infrastructure
                 .WithMany()
                 .HasForeignKey("CreatorId")
                 .IsRequired(false);
+
+            modelBuilder.Entity<RecipeTranslation>()
+                .HasOne(translation => translation.Recipe)
+                .WithMany()
+                .HasForeignKey(translation => translation.RecipeId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<RecipeTranslation>()
+                .HasIndex(translation => new { translation.RecipeId, translation.Language })
+                .IsUnique();
 
             modelBuilder.Entity<PublicProfile>()
                 .HasOne(profile => profile.User)
@@ -189,6 +201,35 @@ namespace RecipeHub.Infrastructure
 #else
                 optionsBuilder.UseMySql(Configuration.GetConnectionString("MySql"), new MySqlServerVersion(new Version(8, 0, 11)));
 #endif
+            }
+        }
+
+        public override int SaveChanges(bool acceptAllChangesOnSuccess)
+        {
+            UpdateLastUpdatedValues();
+            return base.SaveChanges(acceptAllChangesOnSuccess);
+        }
+
+        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, System.Threading.CancellationToken cancellationToken = default)
+        {
+            UpdateLastUpdatedValues();
+            return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        }
+
+        private void UpdateLastUpdatedValues()
+        {
+            var now = DateTime.Now;
+            foreach (var entry in ChangeTracker.Entries<BaseEntity>())
+            {
+                if (entry.State == EntityState.Added)
+                {
+                    if (entry.Entity.Created == default)
+                        entry.Entity.Created = now;
+                }
+                else if (entry.State == EntityState.Modified)
+                {
+                    entry.Entity.LastUpdated = now;
+                }
             }
         }
     }

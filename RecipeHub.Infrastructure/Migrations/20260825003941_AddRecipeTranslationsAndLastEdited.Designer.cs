@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RecipeHub.Infrastructure;
 
@@ -10,9 +11,10 @@ using RecipeHub.Infrastructure;
 namespace RecipeHub.Infrastructure.Migrations
 {
     [DbContext(typeof(RecipeHubContext))]
-    partial class RecipeHubContextModelSnapshot : ModelSnapshot
+    [Migration("20260825003941_AddRecipeTranslationsAndLastEdited")]
+    partial class AddRecipeTranslationsAndLastEdited
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -156,7 +158,7 @@ namespace RecipeHub.Infrastructure.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<DateTime?>("LastUpdated")
+                    b.Property<DateTime>("LastEdited")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Name")
@@ -208,7 +210,7 @@ namespace RecipeHub.Infrastructure.Migrations
                     b.Property<string>("Language")
                         .HasColumnType("longtext");
 
-                    b.Property<DateTime?>("LastUpdated")
+                    b.Property<DateTime>("LastEdited")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Name")
@@ -244,7 +246,7 @@ namespace RecipeHub.Infrastructure.Migrations
                     b.Property<string>("IngredientName")
                         .HasColumnType("varchar(255)");
 
-                    b.Property<DateTime?>("LastUpdated")
+                    b.Property<DateTime>("LastEdited")
                         .HasColumnType("datetime(6)");
 
                     b.Property<int>("RejectionCount")
@@ -285,7 +287,7 @@ namespace RecipeHub.Infrastructure.Migrations
                     b.Property<string>("Language")
                         .HasColumnType("longtext");
 
-                    b.Property<DateTime?>("LastUpdated")
+                    b.Property<DateTime>("LastEdited")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Name")
@@ -309,7 +311,7 @@ namespace RecipeHub.Infrastructure.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<DateTime?>("LastUpdated")
+                    b.Property<DateTime>("LastEdited")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("UserId")
@@ -334,7 +336,7 @@ namespace RecipeHub.Infrastructure.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("longtext");
 
-                    b.Property<DateTime?>("LastUpdated")
+                    b.Property<DateTime>("LastEdited")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Name")
@@ -368,7 +370,7 @@ namespace RecipeHub.Infrastructure.Migrations
                     b.Property<bool>("IsPublic")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<DateTime?>("LastUpdated")
+                    b.Property<DateTime>("LastEdited")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("ProfileTheme")
@@ -394,7 +396,7 @@ namespace RecipeHub.Infrastructure.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<DateTime?>("LastUpdated")
+                    b.Property<DateTime>("LastEdited")
                         .HasColumnType("datetime(6)");
 
                     b.Property<Guid?>("RecipeId")
@@ -423,7 +425,7 @@ namespace RecipeHub.Infrastructure.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<DateTime?>("LastUpdated")
+                    b.Property<DateTime>("LastEdited")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Url")
@@ -455,7 +457,7 @@ namespace RecipeHub.Infrastructure.Migrations
                     b.Property<string>("Language")
                         .HasColumnType("longtext");
 
-                    b.Property<DateTime?>("LastUpdated")
+                    b.Property<DateTime>("LastEdited")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Name")
@@ -485,7 +487,7 @@ namespace RecipeHub.Infrastructure.Migrations
                     b.Property<string>("Language")
                         .HasColumnType("varchar(255)");
 
-                    b.Property<DateTime?>("LastUpdated")
+                    b.Property<DateTime>("LastEdited")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Source")
@@ -559,7 +561,7 @@ namespace RecipeHub.Infrastructure.Migrations
                     b.Property<string>("Language")
                         .HasColumnType("longtext");
 
-                    b.Property<DateTime?>("LastUpdated")
+                    b.Property<DateTime>("LastEdited")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Portions")
@@ -635,7 +637,7 @@ namespace RecipeHub.Infrastructure.Migrations
                     b.Property<int>("IngredientOrder")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("LastUpdated")
+                    b.Property<DateTime>("LastEdited")
                         .HasColumnType("datetime(6)");
 
                     b.Property<Guid?>("RecipeId")
@@ -659,7 +661,7 @@ namespace RecipeHub.Infrastructure.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<DateTime?>("LastUpdated")
+                    b.Property<DateTime>("LastEdited")
                         .HasColumnType("datetime(6)");
 
                     b.Property<int?>("Rating")
@@ -696,7 +698,7 @@ namespace RecipeHub.Infrastructure.Migrations
                     b.Property<string>("Language")
                         .HasColumnType("varchar(255)");
 
-                    b.Property<DateTime?>("LastUpdated")
+                    b.Property<DateTime>("LastEdited")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("PayloadJson")
@@ -705,7 +707,7 @@ namespace RecipeHub.Infrastructure.Migrations
                     b.Property<Guid>("RecipeId")
                         .HasColumnType("char(36)");
 
-                    b.Property<DateTime?>("SourceLastUpdated")
+                    b.Property<DateTime>("SourceLastEdited")
                         .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
@@ -814,7 +816,7 @@ namespace RecipeHub.Infrastructure.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<DateTime?>("LastUpdated")
+                    b.Property<DateTime>("LastEdited")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("MyRecipesTheme")

@@ -384,6 +384,7 @@
         "creatorRecipesTitle": "Opskrifter af {{creator}}",
         "backToOverview": "Tilbage til oversigt",
         "unableToLoad": "Kan ikke indlæse opskrifter lige nu. Genindlæs siden.",
+        "translationUnavailable": "Opskriften kunne ikke oversættes til det valgte sprog. Prøv igen senere.",
         "filterLabel": "Filter",
         "searchPlaceholder": "Søg efter titel, ophavsmand, tags eller tekst",
         "pantryLabel": "Spisekammer",

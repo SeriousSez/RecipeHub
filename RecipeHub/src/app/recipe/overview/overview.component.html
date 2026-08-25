@@ -225,7 +225,7 @@
         }
         <table class="table table-hover caption-top">
           <caption>{{ showMyRecipes ? ('recipe.myRecipesCaption' | translate) : (showFavorites ? ('recipe.favoriteRecipesCaption' | translate) : ('recipe.allRecipesCaption' | translate)) }}</caption>
-          @if (settings.recipesTheme === 'Pretty') {
+          @if (settings.recipesTheme !== 'List') {
           <app-pretty [recipes]="visibleRecipes" [favoredRecipes]="favoredRecipes" [selectedRecipes]="selectedRecipes" [pantryIngredients]="showPantryMatches ? getPantryIngredientList() : []" [bestMatchScore]="bestMatchScore" [activeTagFilters]="nutritionHighlightTags"
             [showEngagement]="sortSetting === 'rating' || sortSetting === 'popularity'" (selectRecipe)="toggleRecipeSelected($event)"></app-pretty>
           }

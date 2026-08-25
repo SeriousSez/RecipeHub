@@ -34,7 +34,11 @@
     </div>
 </section>
 
-<div *ngIf="recipe && !translationLoading" class="recipe-detail-shell">
+<div *ngIf="translationError && !translationLoading" class="recipe-translation-error" role="alert">
+    {{ 'recipe.translationUnavailable' | translate }}
+</div>
+
+<div *ngIf="recipe && !translationLoading && !translationError" class="recipe-detail-shell">
     <article *ngIf="edit == false" class="recipe-detail-page">
         <header class="recipe-detail-header">
             <div class="recipe-detail-heading-group">

@@ -40,6 +40,9 @@ namespace RecipeHub.ApplicationService.Services
             var user = await _userRepository.GetByUserName(username);
             var favorites = await _favoriteRepository.GetByUserFull(user);
 
+            if (favorites != null)
+                favorites.User = user;
+
             return _mapper.Map<FavoritesResponse>(favorites);
         }
 

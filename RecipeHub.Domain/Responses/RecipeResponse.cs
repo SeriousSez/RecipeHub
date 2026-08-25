@@ -33,6 +33,7 @@ namespace RecipeHub.Domain.Responses
         public List<string> Categories { get; set; } = new List<string>();
         public List<string> Tags { get; set; } = new List<string>();
         public DateTime Created { get; set; }
+        public DateTime? LastUpdated { get; set; }
         public ImageResponse Image { get; set; }
         public List<IngredientResponse> Ingredients { get; set; }
     }

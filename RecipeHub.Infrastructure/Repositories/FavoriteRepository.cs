@@ -46,7 +46,6 @@ namespace RecipeHub.Infrastructure.Repositories
                 return null;
 
             return await _context.Favorites
-                .Include(f => f.User)
                 .Include(f => f.Recipes)
                     .ThenInclude(r => r.Creator)
                 .Include(f => f.Recipes)
