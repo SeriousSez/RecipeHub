@@ -59,7 +59,7 @@ namespace RecipeHub.Api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var currentUser = await _userService.GetByUserName(User.Identity?.Name);
+            var currentUser = await _userService.GetByEmail(User.Identity?.Name);
             if (currentUser == null || currentUser.Id != model.UserId)
                 return Forbid();
 
