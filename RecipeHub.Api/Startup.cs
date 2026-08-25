@@ -71,6 +71,7 @@ namespace RecipeHub
             });
 
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IPublicProfileRepository, PublicProfileRepository>();
             services.AddScoped<IRecipeRepository, RecipeRepository>();
             services.AddScoped<IIngredientRepository, IngredientRepository>();
             services.AddScoped<IRecipeIngredientRepository, RecipeIngredientRepository>();

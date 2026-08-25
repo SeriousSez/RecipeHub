@@ -1,0 +1,227 @@
+.account-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 92px);
+    padding: 2.5rem 1rem 3rem;
+}
+
+.account-panel {
+    width: min(100%, 720px);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.account-card {
+    padding: 1.5rem;
+    border: 1px solid rgba(15, 23, 42, .08);
+    border-radius: 1.2rem;
+    background: rgba(255, 255, 255, .8);
+    box-shadow: 0 20px 40px rgba(15, 23, 42, .06);
+    backdrop-filter: blur(10px);
+}
+
+.account-card-header {
+    margin-bottom: 1.25rem;
+}
+
+.account-kicker {
+    margin: 0 0 .35rem;
+    color: #1d4ed8;
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.account-card-header h1 {
+    margin: 0;
+    color: #0f172a;
+    font-size: clamp(2rem, 3vw, 2.6rem);
+    letter-spacing: -.05em;
+}
+
+.account-subtitle {
+    margin: .45rem 0 0;
+    color: #64748b;
+}
+
+.account-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.field-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem 1.25rem;
+}
+
+.field-group {
+    display: flex;
+    flex-direction: column;
+    gap: .45rem;
+}
+
+.field-group label {
+    color: #334155;
+    font-size: .78rem;
+    font-weight: 700;
+}
+
+.form-control,
+.form-select {
+    min-height: 46px;
+    border: 1px solid rgba(148, 163, 184, .55);
+    border-radius: .8rem;
+    background: rgba(255, 255, 255, .9);
+    color: #0f172a;
+}
+
+.account-actions {
+    display: flex;
+    align-items: center;
+    gap: .9rem;
+    flex-wrap: wrap;
+}
+
+.btn-primary {
+    min-height: 46px;
+    padding-inline: 1.1rem;
+    border: 0;
+    border-radius: .8rem;
+    background: linear-gradient(135deg, #1d4ed8, #2563eb);
+    box-shadow: 0 12px 22px rgba(37, 99, 235, .22);
+    font-weight: 700;
+}
+
+.btn-primary:disabled {
+    opacity: .65;
+    cursor: not-allowed;
+}
+
+.account-alert-success,
+.account-alert-error {
+    padding: .65rem .85rem;
+    border-radius: .7rem;
+    font-size: .82rem;
+}
+
+.account-alert-success {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.account-alert-error {
+    background: #fff1f2;
+    color: #be123c;
+}
+
+.settings-list {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+}
+
+.setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem .25rem;
+    border-top: 1px solid rgba(15, 23, 42, .08);
+    cursor: pointer;
+}
+
+.setting-row:first-child {
+    border-top: 0;
+}
+
+.setting-row span {
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+}
+
+.setting-row strong {
+    color: #172033;
+    font-size: .9rem;
+}
+
+.setting-row small {
+    color: #64748b;
+    font-size: .78rem;
+}
+
+.modern-select {
+    width: 12rem;
+    min-height: 42px;
+}
+
+.account-alert-success,
+.account-alert-error {
+    padding: .65rem .85rem;
+    border-radius: .7rem;
+    font-size: .82rem;
+}
+
+.account-alert-success {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.account-alert-error {
+    background: #fff1f2;
+    color: #be123c;
+}
+
+:host-context([data-theme='dark']) .account-subtitle,
+:host-context([data-theme='dark']) .setting-row small {
+    color: #94a3b8;
+}
+
+:host-context([data-theme='dark']) .setting-row strong {
+    color: #f8fafc;
+}
+
+:host-context([data-theme='dark']) .setting-row {
+    border-color: #46505d;
+}
+
+:host-context([data-theme='dark']) .modern-select {
+    border-color: #566170;
+    background: #252c34;
+    color: #f8fafc;
+}
+
+:host-context([data-theme='dark']) .account-card {
+    border-color: rgba(148, 163, 184, .16);
+    background: rgba(15, 23, 42, .82);
+}
+
+:host-context([data-theme='dark']) .account-card-header h1,
+:host-context([data-theme='dark']) .field-group label {
+    color: #f8fafc;
+}
+
+@media (max-width: 640px) {
+    .account-page {
+        min-height: auto;
+        padding: 1.5rem 1rem 2rem;
+    }
+
+    .setting-row {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .modern-select {
+        width: 100%;
+    }
+
+    .field-grid {
+        grid-template-columns: 1fr;
+    }
+}

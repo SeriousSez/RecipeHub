@@ -21,6 +21,7 @@ namespace RecipeHub.Api
             CreateMap<UserSettingsUpdateViewModel, UserSettings>();
             CreateMap<UserSettings, UserSettingsResponse>();
             CreateMap<UserSettingsResponse, UserSettings>();
+            CreateMap<PublicProfile, PublicProfileResponse>();
 
             CreateMap<Recipe, RecipeViewModel>().ForPath(dest => dest.Creator, opt => opt.MapFrom(x => x.Creator == null ? null : x.Creator.UserName)).ForMember(dest => dest.Image, opt => opt.MapFrom(x => x.Image));
             CreateMap<RecipeViewModel, Recipe>().ForPath(dest => dest.Creator.UserName, opt => opt.MapFrom(x => x.Creator)).ForMember(dest => dest.Image, opt => opt.MapFrom(x => x.Image));

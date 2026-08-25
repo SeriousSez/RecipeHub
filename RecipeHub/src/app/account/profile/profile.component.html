@@ -1,76 +1,60 @@
-@if (user) {
 <div class="account-page">
-  <div class="account-panel">
-    <div class="account-card">
-      <div class="account-card-header">
-        <p class="account-kicker">{{ 'account.kicker' | translate }}</p>
-        <h1>{{ 'account.accountInformation' | translate }}</h1>
-      </div>
-
-      <form (ngSubmit)="update(profileForm)" [formGroup]="profileForm" (change)="formCheck(profileForm)" class="account-form">
-        <div class="field-grid">
-          <div class="field-group">
-            <label for="user-name">{{ 'account.usernameLabel' | translate }}</label>
-            <input id="user-name" type="text" name="user-name" class="form-control" [ngClass]="{ 'is-invalid': f.UserName.touched && f.UserName.errors }" placeholder="{{ 'account.usernamePlaceholder' | translate }}" formControlName="UserName" autocomplete="off">
-            @if (f.UserName.touched && f.UserName.errors) {
-            <div class="invalid-feedback">
-              @if (f.UserName.errors.required) {
-              <div>{{ 'account.usernameRequired' | translate }}</div>
-              }
+    <div class="account-panel">
+        <section class="account-card public-profile-card">
+            <div class="account-card-header">
+                <p class="account-kicker">{{ 'profile.publicKicker' | translate }}</p>
+                <h1>{{ 'profile.publicHeading' | translate }}</h1>
+                <p>{{ 'profile.publicSubtitle' | translate }}</p>
             </div>
-            }
-          </div>
 
-          <div class="field-group">
-            <label for="first-name">{{ 'account.firstNameLabel' | translate }}</label>
-            <input id="first-name" type="text" name="firstName" class="form-control" [ngClass]="{ 'is-invalid': f.FirstName.touched && f.FirstName.errors }" placeholder="{{ 'account.firstNamePlaceholder' | translate }}" formControlName="FirstName" autocomplete="off">
-            @if (f.FirstName.touched && f.FirstName.errors) {
-            <div class="invalid-feedback">
-              @if (f.FirstName.errors.required) {
-              <div>{{ 'account.firstNameRequired' | translate }}</div>
-              }
-            </div>
+            @if (publicProfile) {
+            <form class="account-form" (ngSubmit)="savePublicProfile()">
+                <div class="public-profile-preview-link">
+                    <a class="auth-link" [routerLink]="['/profile', username]">{{ 'profile.viewPublic' | translate }}</a>
+                </div>
+                <div class="field-group">
+                    <label for="profile-bio">{{ 'profile.bioLabel' | translate }}</label>
+                    <textarea id="profile-bio" class="form-control" rows="4" maxlength="500" [(ngModel)]="publicProfile.bio" name="bio" [placeholder]="'profile.bioPlaceholder' | translate"></textarea>
+                </div>
+                <div class="field-group">
+                    <label for="profile-theme">{{ 'profile.themeLabel' | translate }}</label>
+                    <select id="profile-theme" class="form-select" [(ngModel)]="publicProfile.profileTheme" name="profileTheme">
+                        <option value="Garden">{{ 'profile.themeGarden' | translate }}</option>
+                        <option value="Midnight">{{ 'profile.themeMidnight' | translate }}</option>
+                        <option value="Citrus">{{ 'profile.themeCitrus' | translate }}</option>
+                    </select>
+                </div>
+                <label class="profile-visibility-toggle">
+                    <input type="checkbox" [(ngModel)]="publicProfile.isPublic" name="isPublic">
+                    <span>{{ 'profile.publicVisibility' | translate }}</span>
+                </label>
+                <div class="field-group">
+                    <label>{{ 'profile.featuredLabel' | translate }}</label>
+                    <p class="profile-selection-hint">{{ 'profile.featuredHint' | translate }}</p>
+                    <div class="featured-recipe-list">
+                        @for (recipe of profileRecipes; track recipe.id) {
+                        <label class="featured-recipe-option" [class.is-selected]="featuredRecipeIds.includes(recipe.id)">
+                            <input type="checkbox" [checked]="featuredRecipeIds.includes(recipe.id)" (change)="toggleFeaturedRecipe(recipe)">
+                            <span>{{ recipe.title }}</span>
+                        </label>
+                        }
+                        @if (profileRecipes.length === 0) { <span class="profile-selection-hint">{{ 'profile.noRecipes' | translate }}</span> }
+                    </div>
+                </div>
+                <div class="account-actions">
+                    <button type="submit" class="btn btn-primary" [disabled]="isSavingPublicProfile">
+                        @if (isSavingPublicProfile) { <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span> }
+                        {{ 'profile.savePublicProfile' | translate }}
+                    </button>
+                    @if (profileSaved) { <span class="account-alert-success">{{ 'profile.saved' | translate }}</span> }
+                    @if (error) { <span class="account-alert-error">{{ error }}</span> }
+                </div>
+            </form>
+            } @else if (error) {
+            <div class="account-alert-error" role="alert">{{ error }}</div>
+            } @else {
+            <div class="profile-loading" role="status"><span class="spinner-border" aria-hidden="true"></span></div>
             }
-          </div>
-
-          <div class="field-group">
-            <label for="last-name">{{ 'account.lastNameLabel' | translate }}</label>
-            <input id="last-name" type="text" name="lastName" class="form-control" [ngClass]="{ 'is-invalid': f.LastName.touched && f.LastName.errors }" placeholder="{{ 'account.lastNamePlaceholder' | translate }}" formControlName="LastName" autocomplete="off">
-            @if (f.LastName.touched && f.LastName.errors) {
-            <div class="invalid-feedback">
-              @if (f.LastName.errors.required) {
-              <div>{{ 'account.lastNameRequired' | translate }}</div>
-              }
-            </div>
-            }
-          </div>
-
-          <div class="field-group">
-            <label for="email">{{ 'account.emailLabel' | translate }}</label>
-            <input id="email" type="text" name="email" class="form-control" [ngClass]="{ 'is-invalid': f.Email.touched && f.Email.errors }" placeholder="{{ 'account.emailLabel' | translate }}" formControlName="Email" [attr.disabled]="true">
-            @if (f.Email.touched && f.Email.errors) {
-            <div class="invalid-feedback">
-              @if (f.Email.errors.required) {
-              <div>{{ 'account.emailRequired' | translate }}</div>
-              }
-              @if (f.Email.errors.email) {
-              <div>{{ 'account.emailInvalid' | translate }}</div>
-              }
-            </div>
-            }
-          </div>
-        </div>
-
-        <div class="account-actions">
-          <button type="submit" class="btn btn-primary" [disabled]="isRequesting || formHasChanged === false" (click)="update(profileForm)">{{ 'account.updateButton' | translate }}</button>
-          @if (errors) {
-          <div class="account-alert-error" role="alert">
-            <strong>{{ 'auth.oops' | translate }}</strong> {{errors}}
-          </div>
-          }
-        </div>
-      </form>
+        </section>
     </div>
-  </div>
 </div>
-}

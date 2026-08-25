@@ -34,6 +34,7 @@
         }
         <a routerLinkActive="active" routerLink="/pantry" (click)="closeNavbar()"><i class="fas fa-box" aria-hidden="true"></i>{{ 'nav.pantry' | translate }}</a>
         <a routerLinkActive="active" routerLink="account/profile" (click)="closeNavbar()"><i class="fas fa-user" aria-hidden="true"></i>{{ 'nav.profile' | translate }}</a>
+        <a routerLinkActive="active" routerLink="account/settings" (click)="closeNavbar()"><i class="fas fa-cog" aria-hidden="true"></i>{{ 'nav.settings' | translate }}</a>
         <button type="button" class="sign-out" (click)="logout()"><i class="fas fa-sign-out-alt" aria-hidden="true"></i>{{ 'nav.signOut' | translate }}</button>
       </nav>
       }

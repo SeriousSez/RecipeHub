@@ -8,6 +8,7 @@
         "signUp": "Kaydol",
         "profile": "Profil",
         "myRecipes": "Tariflerim",
+        "settings": "Ayarlar",
         "signOut": "Çıkış yap",
         "language": "Dil",
         "toggleTheme": "Karanlık modu değiştir"
@@ -117,6 +118,21 @@
         "accountSettingsHeading": "Hesap ayarları",
         "languageLabel": "Dil",
         "darkModeLabel": "Karanlık mod"
+    },
+    "settings": {
+        "kicker": "Tercihler",
+        "heading": "Ayarlar",
+        "subtitle": "RecipeHub'ın sizin için nasıl görüneceğini ve çalışacağını belirleyin.",
+        "language": "Dil",
+        "languageHint": "Tercih ettiğiniz dili seçin.",
+        "appTheme": "Uygulama teması",
+        "appThemeHint": "Açık veya koyu modu seçin.",
+        "recipesTheme": "Tarif tarama teması",
+        "recipesThemeHint": "Tarif keşfinin görünümünü seçin.",
+        "myRecipesTheme": "Tariflerim teması",
+        "myRecipesThemeHint": "Tarif yöneticinizin görünümünü seçin.",
+        "save": "Ayarları kaydet",
+        "saved": "Ayarlar kaydedildi."
     },
     "myRecipes": {
         "kicker": "Mutfağınız",

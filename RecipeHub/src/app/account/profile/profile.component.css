@@ -55,6 +55,65 @@
     font-size: 1.6rem;
 }
 
+.account-card-header p:last-child {
+    margin: .45rem 0 0;
+    color: #64748b;
+}
+
+.public-profile-card {
+    margin-top: 1rem;
+}
+
+.public-profile-preview-link {
+    margin-top: -.5rem;
+    text-align: right;
+}
+
+.profile-visibility-toggle {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    color: #334155;
+    font-size: .84rem;
+    font-weight: 700;
+}
+
+.profile-visibility-toggle input,
+.featured-recipe-option input {
+    width: 1rem;
+    height: 1rem;
+}
+
+.profile-selection-hint {
+    margin: -.15rem 0 .35rem;
+    color: #64748b;
+    font-size: .78rem;
+}
+
+.featured-recipe-list {
+    display: grid;
+    gap: .45rem;
+}
+
+.featured-recipe-option {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .65rem .75rem;
+    border: 1px solid rgba(15, 23, 42, .08);
+    border-radius: .7rem;
+    background: #f8fafc;
+    color: #334155;
+    cursor: pointer;
+}
+
+.featured-recipe-option.is-selected {
+    border-color: rgba(37, 99, 235, .3);
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-weight: 700;
+}
+
 :host-context([data-theme='dark']) .account-card-header h1,
 :host-context([data-theme='dark']) .account-card-header h2 {
     color: #f8fafc;
@@ -62,6 +121,24 @@
 
 :host-context([data-theme='dark']) .account-kicker {
     color: #93c5fd;
+}
+
+:host-context([data-theme='dark']) .account-card-header p:last-child,
+:host-context([data-theme='dark']) .profile-selection-hint,
+:host-context([data-theme='dark']) .profile-visibility-toggle {
+    color: #cbd5e1;
+}
+
+:host-context([data-theme='dark']) .featured-recipe-option {
+    border-color: #46505d;
+    background: #252c34;
+    color: #cbd5e1;
+}
+
+:host-context([data-theme='dark']) .featured-recipe-option.is-selected {
+    border-color: #6d9fc8;
+    background: #263f58;
+    color: #d7ecff;
 }
 
 .account-form {

@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Text.Json;
+using System.Linq;
 
 namespace RecipeHub.ApplicationService.Services
 {
@@ -26,6 +27,7 @@ namespace RecipeHub.ApplicationService.Services
         private readonly IRecipeRepository _recipeRepository;
         private readonly IIngredientRepository _ingredientRepository;
         private readonly IFridgeService _fridgeService;
+        private readonly IPublicProfileRepository _publicProfileRepository;
 
         public UserService(
             ILogger<UserService> logger,
@@ -36,7 +38,8 @@ namespace RecipeHub.ApplicationService.Services
             IFavoriteRepository favoriteRepository,
             IRecipeRepository recipeRepository,
             IIngredientRepository ingredientRepository,
-            IFridgeService fridgeService)
+            IFridgeService fridgeService,
+            IPublicProfileRepository publicProfileRepository)
         {
             _logger = logger;
             _mapper = mapper;
@@ -47,6 +50,7 @@ namespace RecipeHub.ApplicationService.Services
             _recipeRepository = recipeRepository;
             _ingredientRepository = ingredientRepository;
             _fridgeService = fridgeService;
+            _publicProfileRepository = publicProfileRepository;
         }
 
         public async Task<IdentityResult> Create(RegistrationViewModel model)
@@ -103,6 +107,87 @@ namespace RecipeHub.ApplicationService.Services
             _logger.LogTrace("User created! User: {@User}", user);
 
             return _mapper.Map<UserResponse>(user);
+        }
+
+        public async Task<PublicProfileResponse> GetPublicProfile(string username)
+        {
+            var user = await _userRepository.GetByUserName(username);
+            if (user == null)
+                return null;
+
+            var profile = await GetOrCreatePublicProfile(user);
+            if (!profile.IsPublic)
+                return null;
+
+            return await BuildPublicProfileResponse(user, profile);
+        }
+
+        public async Task<PublicProfileResponse> UpdatePublicProfile(PublicProfileUpdateViewModel model)
+        {
+            var user = await _userRepository.GetByUserId(model.UserId);
+            if (user == null)
+                return null;
+
+            var profile = await GetOrCreatePublicProfile(user);
+            profile.Bio = (model.Bio ?? string.Empty).Trim();
+            if (profile.Bio.Length > 500)
+                profile.Bio = profile.Bio[..500];
+
+            profile.IsPublic = model.IsPublic;
+            profile.ProfileTheme = new[] { "Garden", "Midnight", "Citrus" }.Contains(model.ProfileTheme) ? model.ProfileTheme : "Garden";
+
+            var ownedRecipes = (await _recipeRepository.GetAllByCreatorId(user.Id)).Select(recipe => recipe.Id).ToHashSet();
+            var featuredIds = (model.FeaturedRecipeIds ?? new List<Guid>())
+                .Where(ownedRecipes.Contains)
+                .Distinct()
+                .Take(3)
+                .ToList();
+            profile.FeaturedRecipeIds = JsonSerializer.Serialize(featuredIds);
+
+            await _publicProfileRepository.Update(profile);
+            return await BuildPublicProfileResponse(user, profile);
+        }
+
+        private async Task<PublicProfile> GetOrCreatePublicProfile(User user)
+        {
+            var profile = await _publicProfileRepository.GetByUserId(user.Id);
+            if (profile != null)
+                return profile;
+
+            profile = new PublicProfile
+            {
+                UserId = user.Id,
+                Bio = string.Empty,
+                IsPublic = true,
+                ProfileTheme = "Garden",
+                FeaturedRecipeIds = "[]"
+            };
+            await _publicProfileRepository.Create(profile);
+            return profile;
+        }
+
+        private async Task<PublicProfileResponse> BuildPublicProfileResponse(User user, PublicProfile profile)
+        {
+            var featuredIds = JsonSerializer.Deserialize<List<Guid>>(profile.FeaturedRecipeIds ?? "[]") ?? new List<Guid>();
+            var recipes = await _recipeRepository.GetAllByCreatorId(user.Id);
+            var recipesById = recipes.ToDictionary(recipe => recipe.Id);
+
+            return new PublicProfileResponse
+            {
+                User = _mapper.Map<UserResponse>(user),
+                Bio = profile.Bio,
+                IsPublic = profile.IsPublic,
+                ProfileTheme = profile.ProfileTheme,
+                FeaturedRecipes = featuredIds
+                    .Where(recipesById.ContainsKey)
+                    .Select(id =>
+                    {
+                        var response = _mapper.Map<RecipeResponse>(recipesById[id]);
+                        response.Creator = user.UserName;
+                        return response;
+                    })
+                    .ToList()
+            };
         }
 
         public async Task<IdentityResult> Delete(UserResponse model)

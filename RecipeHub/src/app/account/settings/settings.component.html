@@ -1,0 +1,24 @@
+<div class="account-page">
+    <div class="account-panel">
+        @if (profileForm) {
+        <section class="account-card">
+            <div class="account-card-header">
+                <p class="account-kicker">{{ 'account.kicker' | translate }}</p>
+                <h1>{{ 'account.accountInformation' | translate }}</h1>
+            </div>
+            <form class="account-form" [formGroup]="profileForm" (ngSubmit)="updateProfile()" (change)="profileChanged()">
+                <div class="field-grid">
+                    <div class="field-group"><label for="settings-user-name">{{ 'account.usernameLabel' | translate }}</label><input id="settings-user-name" class="form-control" formControlName="UserName" autocomplete="off"></div>
+                    <div class="field-group"><label for="settings-first-name">{{ 'account.firstNameLabel' | translate }}</label><input id="settings-first-name" class="form-control" formControlName="FirstName" autocomplete="off"></div>
+                    <div class="field-group"><label for="settings-last-name">{{ 'account.lastNameLabel' | translate }}</label><input id="settings-last-name" class="form-control" formControlName="LastName" autocomplete="off"></div>
+                    <div class="field-group"><label for="settings-email">{{ 'account.emailLabel' | translate }}</label><input id="settings-email" class="form-control" formControlName="Email" [disabled]="true"></div>
+                </div>
+                <div class="account-actions">
+                    <button type="submit" class="btn btn-primary" [disabled]="!formHasChanged || isUpdatingProfile">{{ 'account.updateButton' | translate }}</button>
+                    @if (profileError) { <span class="account-alert-error">{{ profileError }}</span> }
+                </div>
+            </form>
+        </section>
+        }
+    </div>
+</div>

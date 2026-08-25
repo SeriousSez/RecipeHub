@@ -44,6 +44,29 @@ namespace RecipeHub.Api.Controllers
             return new OkObjectResult(user);
         }
 
+        [AllowAnonymous]
+        [HttpGet("public/{username}")]
+        public async Task<IActionResult> GetPublicProfile(string username)
+        {
+            var profile = await _userService.GetPublicProfile(username);
+            return profile == null ? NotFound() : Ok(profile);
+        }
+
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [HttpPut("public-profile")]
+        public async Task<IActionResult> UpdatePublicProfile([FromBody] PublicProfileUpdateViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var currentUser = await _userService.GetByUserName(User.Identity?.Name);
+            if (currentUser == null || currentUser.Id != model.UserId)
+                return Forbid();
+
+            var profile = await _userService.UpdatePublicProfile(model);
+            return profile == null ? NotFound() : Ok(profile);
+        }
+
         [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] RegistrationViewModel model)
         {

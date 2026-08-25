@@ -8,6 +8,7 @@
         "signUp": "Registreeru",
         "profile": "Profiil",
         "myRecipes": "Minu retseptid",
+        "settings": "Seaded",
         "signOut": "Logi välja",
         "language": "Keel",
         "toggleTheme": "Lülita tume režiim"
@@ -117,6 +118,21 @@
         "accountSettingsHeading": "Konto seaded",
         "languageLabel": "Keel",
         "darkModeLabel": "Tume režiim"
+    },
+    "settings": {
+        "kicker": "Eelistused",
+        "heading": "Seaded",
+        "subtitle": "Kohanda, kuidas RecipeHub sinu jaoks välja näeb ja töötab.",
+        "language": "Keel",
+        "languageHint": "Vali eelistatud keel.",
+        "appTheme": "Rakenduse teema",
+        "appThemeHint": "Vali hele või tume režiim.",
+        "recipesTheme": "Retseptide sirvimise teema",
+        "recipesThemeHint": "Vali retseptide avastamise välimus.",
+        "myRecipesTheme": "Minu retseptide teema",
+        "myRecipesThemeHint": "Vali oma retseptide halduri välimus.",
+        "save": "Salvesta seaded",
+        "saved": "Seaded salvestatud."
     },
     "myRecipes": {
         "kicker": "Sinu köök",

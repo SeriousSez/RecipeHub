@@ -33,6 +33,7 @@ namespace RecipeHub.Infrastructure
 
         public DbSet<UserSeeker> UserSeekers { get; set; }
         public DbSet<UserSettings> UserSettings { get; set; }
+        public DbSet<PublicProfile> PublicProfiles { get; set; }
 
         public DbSet<Recipe> Recipes { get; set; }
         public DbSet<RecipeIngredient> RecipeIngredients { get; set; }
@@ -61,6 +62,13 @@ namespace RecipeHub.Infrastructure
                 .WithMany()
                 .HasForeignKey("CreatorId")
                 .IsRequired(false);
+
+            modelBuilder.Entity<PublicProfile>()
+                .HasOne(profile => profile.User)
+                .WithMany()
+                .HasForeignKey(profile => profile.UserId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Recipe>()
                 .HasOne(recipe => recipe.Image)

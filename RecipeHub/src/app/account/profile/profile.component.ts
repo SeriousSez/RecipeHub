@@ -1,85 +1,71 @@
 import { Component, OnInit } from '@angular/core';
-import { AbstractControl, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
-import { UserService } from 'src/app/shared/services/user.service';
-import { UserUpdate } from '../models/user-update.interface';
-import { User } from '../models/user.interface';
+import { Recipe } from '../../recipe/models/recipe.interface';
+import { RecipeService } from '../../recipe/services/recipe.service';
+import { PublicProfile } from '../models/public-profile.interface';
+import { PublicProfileUpdate } from '../models/public-profile-update.interface';
+import { UserService } from '../../shared/services/user.service';
 
 @Component({
-  selector: 'app-profile',
-  templateUrl: './profile.component.html',
-  styleUrls: ['./profile.component.css'],
-  standalone: false
+    selector: 'app-profile',
+    templateUrl: './profile.component.html',
+    styleUrls: ['./profile.component.css'],
+    standalone: false
 })
 export class ProfileComponent implements OnInit {
+    public username = '';
+    public publicProfile: PublicProfile;
+    public profileRecipes: Recipe[] = [];
+    public featuredRecipeIds: string[] = [];
+    public isSavingPublicProfile = false;
+    public profileSaved = false;
+    public error = '';
 
-  public username: string;
-  public email: string;
-
-  public user: User;
-
-  public profileForm: UntypedFormGroup;
-  public formHasChanged: boolean = false;
-
-  public errors: string = '';
-  public isRequesting: boolean = false;
-
-  constructor(private userService: UserService, private formBuilder: UntypedFormBuilder) {
-    this.username = this.userService.getUserName();
-    this.email = this.userService.getEmail();
-  }
-
-  ngOnInit(): void {
-    this.getUser();
-  }
-
-  getUser() {
-    this.userService.get(this.username).subscribe(user => {
-      this.user = user;
-      this.profileForm = this.formBuilder.group({
-        UserName: [user.userName, Validators.required],
-        Email: [user.email, [Validators.required, Validators.email]],
-        FirstName: [user.firstName, Validators.required],
-        LastName: [user.lastName]
-      });
-    });
-  }
-
-  update({ value, valid }: { value: User, valid: boolean }) {
-    this.isRequesting = true;
-
-    if (valid) {
-      this.userService.update(this.createUserUpdateModel()).subscribe(result => {
-        this.isRequesting = false;
-      }, error => {
-        this.isRequesting = false;
-        this.errors = error;
-      });
+    constructor(private userService: UserService, private recipeService: RecipeService) {
+        this.username = this.userService.getUserName();
     }
-  }
 
-  createUserUpdateModel() {
-    var model: UserUpdate = {
-      oldUserName: this.username,
-      userName: this.profileForm.controls['UserName'].value,
-      oldEmail: this.email,
-      email: this.profileForm.controls['Email'].value,
-      firstName: this.profileForm.controls['FirstName'].value,
-      lastName: this.profileForm.controls['LastName'].value,
-      role: this.user.role
-    };
-
-    return model;
-  }
-
-  formCheck({ value, valid }: { value: User, valid: boolean }) {
-    if (value.userName == this.user.userName && value.firstName == this.user.firstName && value.lastName == this.user.lastName && value.email == this.user.email) {
-      this.formHasChanged = false;
-    } else {
-      this.formHasChanged = true;
+    ngOnInit(): void {
+        this.userService.getPublicProfile(this.username).subscribe({
+            next: profile => {
+                this.publicProfile = profile;
+                this.featuredRecipeIds = profile.featuredRecipes.map(recipe => recipe.id);
+            },
+            error: () => this.error = 'Unable to load your public profile.'
+        });
+        this.recipeService.getRecipesByCreator(this.username).subscribe(recipes => this.profileRecipes = recipes);
     }
-  }
 
-  get f(): { [key: string]: AbstractControl } {
-    return this.profileForm.controls;
-  }
+    toggleFeaturedRecipe(recipe: Recipe): void {
+        if (this.featuredRecipeIds.includes(recipe.id)) {
+            this.featuredRecipeIds = this.featuredRecipeIds.filter(id => id !== recipe.id);
+        } else if (this.featuredRecipeIds.length < 3) {
+            this.featuredRecipeIds = [...this.featuredRecipeIds, recipe.id];
+        }
+    }
+
+    savePublicProfile(): void {
+        if (!this.publicProfile) return;
+        this.isSavingPublicProfile = true;
+        this.profileSaved = false;
+        this.error = '';
+        const update: PublicProfileUpdate = {
+            userId: this.userService.getUserId(),
+            bio: this.publicProfile.bio,
+            isPublic: this.publicProfile.isPublic,
+            profileTheme: this.publicProfile.profileTheme,
+            featuredRecipeIds: this.featuredRecipeIds
+        };
+        this.userService.updatePublicProfile(update).subscribe({
+            next: profile => {
+                this.publicProfile = profile;
+                this.featuredRecipeIds = profile.featuredRecipes.map(recipe => recipe.id);
+                this.isSavingPublicProfile = false;
+                this.profileSaved = true;
+            },
+            error: () => {
+                this.isSavingPublicProfile = false;
+                this.error = 'Unable to save your public profile.';
+            }
+        });
+    }
 }

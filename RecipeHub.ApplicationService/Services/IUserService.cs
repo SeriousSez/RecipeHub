@@ -26,5 +26,7 @@ namespace RecipeHub.ApplicationService.Services
         Task<(int Created, int Existing)> BackfillMissingSettings();
         List<string> GetRoles();
         Task AddRoleToUser(UserResponse user);
+        Task<PublicProfileResponse> GetPublicProfile(string username);
+        Task<PublicProfileResponse> UpdatePublicProfile(PublicProfileUpdateViewModel model);
     }
 }

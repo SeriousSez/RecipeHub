@@ -9,21 +9,23 @@ import { ProfileComponent } from './profile/profile.component';
 import { RecipesComponent } from './recipes/recipes.component';
 import { RecipeService } from '../recipe/services/recipe.service';
 import { HeaderComponent } from '../header/header.component';
+import { SettingsComponent } from './settings/settings.component';
 
 @NgModule({
   declarations: [
     ProfileComponent,
-    RecipesComponent
+    RecipesComponent,
+    SettingsComponent
   ],
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    
+
     AccountRoutingModule,
     SharedModule
   ],
-  providers: [ UserService, RecipeService, HeaderComponent ],
+  providers: [UserService, RecipeService, HeaderComponent],
   bootstrap: []
 })
 export class AccountModule { }

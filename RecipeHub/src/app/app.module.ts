@@ -28,6 +28,7 @@ import { ResetPasswordComponent } from './reset-password/reset-password.componen
 import { ConfirmEmailComponent } from './confirm-email/confirm-email.component';
 import { FridgeService } from './fridges/fridge.service';
 import { PantryComponent } from './pantry/pantry.component';
+import { PublicProfileComponent } from './public-profile/public-profile.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
@@ -50,7 +51,8 @@ export function tokenGetter() {
     ForgotPasswordComponent,
     ResetPasswordComponent,
     ConfirmEmailComponent,
-    PantryComponent
+    PantryComponent,
+    PublicProfileComponent
   ],
   bootstrap: [AppComponent], imports: [BrowserModule,
     FormsModule,

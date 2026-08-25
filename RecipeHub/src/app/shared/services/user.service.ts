@@ -20,6 +20,8 @@ import { JwtHelperService } from '@auth0/angular-jwt';
 import { ForgotPasswordRequest } from '../models/forgot-password.interface';
 import { PasswordResetRequestResponse } from '../responses/password-reset-request.interface';
 import { ResetPasswordRequest } from '../models/reset-password.interface';
+import { PublicProfile } from 'src/app/account/models/public-profile.interface';
+import { PublicProfileUpdate } from 'src/app/account/models/public-profile-update.interface';
 
 @Injectable()
 
@@ -131,6 +133,14 @@ export class UserService extends BaseService {
 
   resendEmailConfirmation(email: string): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(this.baseUrl + '/auth/resendconfirmation', { email });
+  }
+
+  getPublicProfile(username: string): Observable<PublicProfile> {
+    return this.http.get<PublicProfile>(this.baseUrl + `/account/public/${encodeURIComponent(username)}`);
+  }
+
+  updatePublicProfile(profile: PublicProfileUpdate): Observable<PublicProfile> {
+    return this.http.put<PublicProfile>(this.baseUrl + '/account/public-profile', profile, this.httpOptions);
   }
 
   get(username: string): Observable<User> {

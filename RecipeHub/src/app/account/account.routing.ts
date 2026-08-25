@@ -2,10 +2,12 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { ProfileComponent } from './profile/profile.component';
 import { RecipesComponent } from './recipes/recipes.component';
+import { SettingsComponent } from './settings/settings.component';
 
 const routes: Routes = ([
-  { path: 'profile',  component: ProfileComponent },
-  { path: 'recipes',  component: RecipesComponent }
+  { path: 'profile', component: ProfileComponent },
+  { path: 'recipes', component: RecipesComponent }
+  , { path: 'settings', component: SettingsComponent }
 ]);
 
 @NgModule({

@@ -8,6 +8,7 @@
         "signUp": "Opret dig",
         "profile": "Profil",
         "myRecipes": "Mine opskrifter",
+        "settings": "Indstillinger",
         "signOut": "Log ud",
         "language": "Sprog",
         "toggleTheme": "Skift mørk tilstand"
@@ -117,6 +118,21 @@
         "accountSettingsHeading": "Kontoindstillinger",
         "languageLabel": "Sprog",
         "darkModeLabel": "Mørk tilstand"
+    },
+    "settings": {
+        "kicker": "Præferencer",
+        "heading": "Indstillinger",
+        "subtitle": "Tilpas hvordan RecipeHub ser ud og fungerer for dig.",
+        "language": "Sprog",
+        "languageHint": "Vælg dit foretrukne sprog.",
+        "appTheme": "Appens tema",
+        "appThemeHint": "Vælg lys eller mørk tilstand.",
+        "recipesTheme": "Tema for opskriftsvisning",
+        "recipesThemeHint": "Vælg udseendet for opskriftsopdagelse.",
+        "myRecipesTheme": "Tema for Mine opskrifter",
+        "myRecipesThemeHint": "Vælg udseendet for din opskriftsadministration.",
+        "save": "Gem indstillinger",
+        "saved": "Indstillinger gemt."
     },
     "myRecipes": {
         "kicker": "Dit køkken",
