@@ -1,0 +1,29 @@
+@if (profile) {
+<main class="public-profile-page" [class.theme-midnight]="profile.profileTheme === 'Midnight'" [class.theme-citrus]="profile.profileTheme === 'Citrus'">
+    <section class="public-profile-hero">
+        <p class="public-profile-kicker">{{ 'profile.publicKicker' | translate }}</p>
+        <h1>{{ profile.user.firstName }} {{ profile.user.lastName }}</h1>
+        <p class="public-profile-username">@{{ profile.user.userName }}</p>
+        @if (profile.bio) { <p class="public-profile-bio">{{ profile.bio }}</p> }
+    </section>
+    <section class="public-profile-featured">
+        <div class="public-profile-section-heading">
+            <p class="public-profile-kicker">{{ 'profile.featuredLabel' | translate }}</p>
+            <h2>{{ 'profile.featuredHeading' | translate }}</h2>
+        </div>
+        @if (profile.featuredRecipes.length > 0) {
+        <div class="public-profile-recipe-grid">
+            @for (recipe of profile.featuredRecipes; track recipe.id) {
+            <a class="public-profile-recipe" [routerLink]="recipeUrl(recipe)">
+                @if (recipe.image) { <img [src]="recipe.image.url" [alt]="recipe.title" loading="lazy"> }
+                <div>
+                    <h3>{{ recipe.title }}</h3>
+                    <p>{{ recipe.description }}</p>
+                </div>
+            </a>
+            }
+        </div>
+        } @else { <p class="public-profile-empty">{{ 'profile.noFeaturedRecipes' | translate }}</p> }
+    </section>
+</main>
+} @else if (error) { <div class="public-profile-error">{{ error }}</div> }
