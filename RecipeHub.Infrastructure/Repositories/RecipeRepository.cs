@@ -141,6 +141,7 @@ namespace RecipeHub.Infrastructure.Repositories
         {
             var recipes = await _context.Recipes
                 .AsNoTracking()
+                .AsSplitQuery()
                 .Include(r => r.RecipeIngredients)
                     .ThenInclude(ri => ri.Ingredient)
                 .Include(r => r.Creator)

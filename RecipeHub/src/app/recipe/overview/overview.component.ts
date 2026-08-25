@@ -376,10 +376,13 @@ export class OverviewComponent implements OnInit {
       ? (this.favoredRecipes ?? []).map(recipe => recipe.id).join(',')
       : undefined;
     const creatorParam = this.showMyRecipes ? this.userService.getUserName() : (this.creatorFilter || undefined);
+    const effectivePageSize = reset && this.shownRecipes.length > this.pageSize
+      ? Math.max(this.pageSize, this.shownRecipes.length)
+      : this.pageSize;
 
     this.recipeService.getRecipesPaged({
       page: this.currentPage,
-      pageSize: this.pageSize,
+      pageSize: effectivePageSize,
       search: this.searchTerm || undefined,
       category: this.selectedCategoryFilters.join(',') || undefined,
       tag: this.selectedTagFilters.join(',') || undefined,
