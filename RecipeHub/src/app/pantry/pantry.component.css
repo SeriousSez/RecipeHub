@@ -81,7 +81,7 @@ button:disabled {
 
 .pantry-section {
     position: relative;
-    overflow: hidden;
+    overflow: visible;
     margin-top: 1.25rem;
     padding: 1.25rem;
     border: 1px solid rgba(15, 23, 42, .08);
@@ -89,6 +89,10 @@ button:disabled {
     background: rgba(255, 255, 255, .78);
     box-shadow: 0 18px 40px rgba(15, 23, 42, .06);
     backdrop-filter: blur(10px);
+}
+
+.pantry-section:has(app-date-picker.date-picker-host-open) {
+    z-index: 40;
 }
 
 .pantry-section-heading,
@@ -206,7 +210,19 @@ button:disabled {
 }
 
 .pantry-table-wrap {
-    overflow-x: auto;
+    overflow: visible;
+}
+
+.pantry-field app-date-picker,
+.pantry-table app-date-picker {
+    position: relative;
+    z-index: 5;
+}
+
+.pantry-field app-date-picker ::ng-deep .date-picker-popover,
+.pantry-table app-date-picker ::ng-deep .date-picker-popover {
+    right: 0;
+    left: auto;
 }
 
 .pantry-table {
@@ -279,6 +295,11 @@ button:disabled {
 
 .pantry-table tr.is-expiring {
     background: #fffbeb;
+}
+
+.pantry-table tr:has(app-date-picker.date-picker-host-open) {
+    position: relative;
+    z-index: 20;
 }
 
 .pantry-expiry-state {

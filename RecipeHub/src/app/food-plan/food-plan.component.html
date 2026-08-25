@@ -1,0 +1,95 @@
+<main class="food-plan-page">
+    <header class="food-plan-header">
+        <div>
+            <p class="food-plan-kicker">{{ 'foodPlan.kicker' | translate }}</p>
+            <h1>{{ 'foodPlan.heading' | translate }}</h1>
+            <p>{{ 'foodPlan.description' | translate }}</p>
+            <div class="food-plan-metrics" aria-label="Food plan summary">
+                <span><strong>{{ plannedCount }}</strong> {{ 'foodPlan.plannedCountLabel' | translate }}</span>
+                <span><strong>{{ recipes.length }}</strong> {{ 'foodPlan.recipesAvailableLabel' | translate }}</span>
+            </div>
+        </div>
+        <div class="food-plan-week-actions">
+            <button type="button" class="btn btn-outline-secondary" (click)="previousWeek()"><i class="fas fa-chevron-left" aria-hidden="true"></i></button>
+            <strong>{{ weekLabel }}</strong>
+            <button type="button" class="btn btn-outline-secondary" (click)="nextWeek()"><i class="fas fa-chevron-right" aria-hidden="true"></i></button>
+            <button type="button" class="btn btn-brand-alt" (click)="currentWeek()">{{ 'foodPlan.todayButton' | translate }}</button>
+        </div>
+    </header>
+
+    <section class="food-plan-panel" aria-labelledby="food-plan-add-heading">
+        <div class="food-plan-panel-heading">
+            <div>
+                <h2 id="food-plan-add-heading">{{ 'foodPlan.planRecipeHeading' | translate }}</h2>
+                <p>{{ 'foodPlan.planRecipeHint' | translate }}</p>
+            </div>
+            <span class="food-plan-status" *ngIf="loading"><i class="fas fa-sync-alt" aria-hidden="true"></i>{{ 'foodPlan.loading' | translate }}</span>
+        </div>
+        <form class="food-plan-form" (ngSubmit)="addEntry()">
+            <label class="food-plan-recipe-field">
+                <span>{{ 'foodPlan.recipeLabel' | translate }}</span>
+                <button class="food-plan-recipe-picker" type="button" (click)="openRecipeSelectionModal()" [class.has-selection]="selectedRecipe">
+                    <span>
+                        <ng-container *ngIf="selectedRecipe as recipe; else noRecipeSelected">
+                            <strong>{{ recipe.title }}</strong>
+                        </ng-container>
+                        <ng-template #noRecipeSelected>
+                            <strong>{{ 'foodPlan.chooseRecipe' | translate }}</strong>
+                        </ng-template>
+                    </span>
+                    <i class="fas fa-th-large" aria-hidden="true"></i>
+                </button>
+            </label>
+            <label class="food-plan-date-field">
+                <span>{{ 'foodPlan.dateLabel' | translate }}</span>
+                <app-date-picker name="plannedDate" [(ngModel)]="draft.plannedDate" placeholder="dd/mm/yyyy" [ariaLabel]="'foodPlan.dateLabel' | translate"></app-date-picker>
+            </label>
+            <label class="food-plan-meal-field">
+                <span>{{ 'foodPlan.mealLabel' | translate }}</span>
+                <app-taxonomy-select class="food-plan-select" name="mealSlot" [(ngModel)]="draft.mealSlot" [options]="mealSlots" [optionLabels]="mealSlotLabels" [multiple]="false" [allowCustom]="false" [placeholder]="'foodPlan.chooseMeal' | translate"
+                    [ariaLabel]="'foodPlan.mealLabel' | translate"></app-taxonomy-select>
+            </label>
+            <label class="food-plan-repeat-until-field">
+                <span>{{ 'foodPlan.repeatUntilLabel' | translate }}</span>
+                <app-date-picker name="repeatUntil" [(ngModel)]="draft.repeatUntil" [disabled]="!draft.repeatWeekly" placeholder="dd/mm/yyyy" [ariaLabel]="'foodPlan.repeatUntilLabel' | translate"></app-date-picker>
+            </label>
+            <label class="food-plan-repeat">
+                <input class="form-check-input" name="repeatWeekly" type="checkbox" [(ngModel)]="draft.repeatWeekly">
+                <span><i class="fas fa-redo" aria-hidden="true"></i>{{ 'foodPlan.repeatWeekly' | translate }}</span>
+            </label>
+            <label class="food-plan-notes">
+                <span>{{ 'foodPlan.notesLabel' | translate }}</span>
+                <input class="form-control" name="notes" type="text" [(ngModel)]="draft.notes" [placeholder]="'foodPlan.notesPlaceholder' | translate">
+            </label>
+            <button type="submit" class="btn btn-brand food-plan-submit" [disabled]="saving || !draft.recipeId || !draft.plannedDate"><i class="fas fa-plus" aria-hidden="true"></i>{{ (saving ? 'foodPlan.saving' : 'foodPlan.addToPlan') | translate }}</button>
+        </form>
+        <p class="food-plan-error" *ngIf="error">{{ error }}</p>
+    </section>
+
+    <section class="food-plan-week" [attr.aria-label]="'foodPlan.weekAria' | translate">
+        <article class="food-plan-day" *ngFor="let day of weekDays" [class.is-today]="isToday(day)" [class.has-entries]="entriesForDay(day).length > 0">
+            <header>
+                <span>{{ formatDayName(day) }}</span>
+                <strong>{{ formatDayNumber(day) }}</strong>
+                <button type="button" (click)="planForDay(day)" [attr.aria-label]="'foodPlan.planForDayAria' | translate"><i class="fas fa-plus" aria-hidden="true"></i></button>
+            </header>
+            <div class="food-plan-entry-list" *ngIf="entriesForDay(day).length > 0; else emptyDay">
+                <button type="button" class="food-plan-entry" *ngFor="let entry of entriesForDay(day); trackBy: trackEntry" (click)="openRecipe(entry)">
+                    <span class="food-plan-meal">{{ entry.mealSlot }}</span>
+                    <strong>{{ entry.recipe?.title || 'Recipe' }}</strong>
+                    <span class="food-plan-entry-notes" *ngIf="entry.notes">{{ entry.notes }}</span>
+                    <span class="food-plan-repeat-badge" *ngIf="entry.repeatWeekly"><i class="fas fa-redo" aria-hidden="true"></i>{{ 'foodPlan.weeklyBadge' | translate }}</span>
+                    <i class="fas fa-times food-plan-remove" aria-hidden="true" (click)="removeEntry(entry); $event.stopPropagation()"></i>
+                </button>
+            </div>
+            <ng-template #emptyDay>
+                <button type="button" class="food-plan-empty" (click)="planForDay(day)">
+                    <i class="fas fa-utensils" aria-hidden="true"></i>
+                    <span>{{ 'foodPlan.noRecipePlanned' | translate }}</span>
+                </button>
+            </ng-template>
+        </article>
+    </section>
+
+    <app-recipe-selection-modal [visible]="showRecipeSelectionModal" [recipes]="recipes" [selectedRecipeId]="draft.recipeId" (selected)="selectPlanRecipe($event)" (closed)="closeRecipeSelectionModal()"></app-recipe-selection-modal>
+</main>

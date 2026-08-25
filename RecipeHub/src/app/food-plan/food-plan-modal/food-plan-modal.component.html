@@ -1,0 +1,78 @@
+@if (visible) {
+<div class="food-plan-modal-backdrop" (click)="close()"></div>
+<section class="food-plan-modal" role="dialog" aria-modal="true" [attr.aria-label]="'recipe.addToFoodPlanTitle' | translate">
+    <header class="food-plan-modal-header">
+        <div>
+            <p>{{ plannedRecipes.length }} {{ 'recipe.selectedSuffix' | translate }}</p>
+            <h3>{{ 'recipe.addToFoodPlanTitle' | translate }}</h3>
+        </div>
+        <button type="button" class="food-plan-modal-close" (click)="close()" [attr.aria-label]="'recipe.closeFoodPlanModalAria' | translate">
+            <i class="fas fa-times" aria-hidden="true"></i>
+        </button>
+    </header>
+
+    <div class="food-plan-modal-body">
+        <div class="food-plan-modal-summary">
+            <span class="food-plan-modal-label">{{ 'recipe.selectedRecipesLabel' | translate }}</span>
+            <div class="food-plan-selected-list" aria-label="Selected recipes">
+                @for (recipe of plannedRecipes; track recipe.id) {
+                <span>{{ recipe.title }}</span>
+                }
+            </div>
+        </div>
+
+        <div class="food-plan-modal-field">
+            <div class="food-plan-day-heading">
+                <span class="food-plan-modal-label">{{ 'recipe.choosePlanDays' | translate }}</span>
+                <div class="food-plan-week-switcher">
+                    <button type="button" (click)="previousWeek()" [attr.aria-label]="'recipe.previousWeekAria' | translate"><i class="fas fa-chevron-left" aria-hidden="true"></i></button>
+                    <strong>{{ weekLabel }}</strong>
+                    <button type="button" (click)="nextWeek()" [attr.aria-label]="'recipe.nextWeekAria' | translate"><i class="fas fa-chevron-right" aria-hidden="true"></i></button>
+                    <button type="button" class="food-plan-week-today" (click)="currentWeek()">{{ 'recipe.todayButton' | translate }}</button>
+                </div>
+            </div>
+            <div class="food-plan-day-grid">
+                @for (day of weekDays; track day) {
+                <button type="button" class="food-plan-day-option" [class.active]="isDateSelected(toPlanDate(day))" (click)="toggleDate(toPlanDate(day))" [attr.aria-pressed]="isDateSelected(toPlanDate(day))">
+                    <i class="fas" [ngClass]="isDateSelected(toPlanDate(day)) ? 'fa-check' : 'fa-plus'" aria-hidden="true"></i>
+                    <strong>{{ displayDayName(day) }}</strong>
+                    <span>{{ displayDayDate(day) }}</span>
+                </button>
+                }
+            </div>
+        </div>
+
+        <div class="food-plan-options">
+            <label class="food-plan-modal-field">
+                <span class="food-plan-modal-label">{{ 'recipe.mealSlotLabel' | translate }}</span>
+                <app-taxonomy-select [(ngModel)]="mealSlot" [options]="mealSlots" [optionLabels]="mealSlotLabels" [multiple]="false" [allowCustom]="false" [placeholder]="'recipe.mealSlotLabel' | translate" [ariaLabel]="'recipe.mealSlotLabel' | translate"></app-taxonomy-select>
+            </label>
+            <label class="food-plan-modal-field">
+                <span class="food-plan-modal-label">{{ 'recipe.repeatUntilLabel' | translate }}</span>
+                <app-date-picker [(ngModel)]="repeatUntil" [disabled]="!repeatWeekly" [placeholder]="'dd/mm/yyyy'" [ariaLabel]="'recipe.repeatUntilLabel' | translate"></app-date-picker>
+            </label>
+            <label class="food-plan-repeat-option">
+                <input class="form-check-input" type="checkbox" [(ngModel)]="repeatWeekly">
+                <span><i class="fas fa-redo" aria-hidden="true"></i>{{ 'recipe.repeatWeekly' | translate }}</span>
+            </label>
+        </div>
+
+        <label class="food-plan-modal-field">
+            <span class="food-plan-modal-label">{{ 'recipe.planNotesLabel' | translate }}</span>
+            <input class="form-control" type="text" [(ngModel)]="notes" [placeholder]="'recipe.planNotesPlaceholder' | translate">
+        </label>
+
+        @if (feedbackMessage) {
+        <div class="alert alert-{{ feedbackType }} mb-0" role="alert">{{ feedbackMessage }}</div>
+        }
+    </div>
+
+    <footer class="food-plan-modal-footer">
+        <button type="button" class="food-plan-modal-action food-plan-modal-action-muted" (click)="close()">{{ 'recipe.cancelButton' | translate }}</button>
+        <button type="button" class="food-plan-modal-action food-plan-modal-action-primary" [disabled]="saving || selectedDates.length === 0" (click)="save()">
+            <i class="fas fa-calendar-plus" aria-hidden="true"></i>
+            <span>{{ saving ? ('recipe.savingFoodPlan' | translate) : ('recipe.addToFoodPlanConfirm' | translate) }}</span>
+        </button>
+    </footer>
+</section>
+}

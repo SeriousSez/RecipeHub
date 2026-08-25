@@ -264,8 +264,11 @@ export class RecipeComponent implements OnInit {
   public isRequesting: boolean = false;
   public shareDialogOpen: boolean = false;
   public shareCopied: boolean = false;
+  public showFoodPlanModal: boolean = false;
+  public savingFavorite: boolean = false;
   public get canUseNativeShare(): boolean { return typeof navigator !== 'undefined' && !!navigator.share; }
   public get shareUrl(): string { return window.location.href; }
+  public get foodPlanRecipes(): Recipe[] { return this.recipe ? [this.recipe] : []; }
 
   public originalImageUrl: string;
   public imageUrl: string;
@@ -359,9 +362,13 @@ export class RecipeComponent implements OnInit {
   }
 
   toggleFavorite() {
-    if (!this.userService.isAuthenticated()) {
+    if (!this.userService.isAuthenticated() || this.savingFavorite) {
       return;
     }
+
+    const previousFavoriteState = this.favored;
+    this.favored = !this.favored;
+    this.savingFavorite = true;
 
     var model: FavoriteRecipe = {
       username: this.userService.getUserName(),
@@ -371,8 +378,14 @@ export class RecipeComponent implements OnInit {
       } as Recipe
     };
 
-    this.favoriteService.favoriteRecipe(model).subscribe(result => {
-      this.favored = !this.favored;
+    this.favoriteService.favoriteRecipe(model).subscribe({
+      next: () => {
+        this.savingFavorite = false;
+      },
+      error: () => {
+        this.favored = previousFavoriteState;
+        this.savingFavorite = false;
+      }
     });
   }
 
@@ -398,6 +411,19 @@ export class RecipeComponent implements OnInit {
   public closeShareDialog(): void {
     this.shareDialogOpen = false;
     this.shareCopied = false;
+  }
+
+  public openFoodPlanModal(): void {
+    if (!this.userService.isAuthenticated() || !this.recipe) return;
+    this.showFoodPlanModal = true;
+  }
+
+  public closeFoodPlanModal(): void {
+    this.showFoodPlanModal = false;
+  }
+
+  public handleFoodPlanSaved(): void {
+    // Keep the dialog open so the saved confirmation remains visible.
   }
 
   public async copyRecipeLink(): Promise<void> {

@@ -2,6 +2,7 @@ using AutoMapper;
 using RecipeHub.Domain.Entities;
 using RecipeHub.Domain.Entities.Fridge;
 using RecipeHub.Domain.Entities.Grocery;
+using RecipeHub.Domain.Entities.Plan;
 using RecipeHub.Domain.Entities.Recipe;
 using RecipeHub.Domain.Models;
 using RecipeHub.Domain.Responses;
@@ -61,6 +62,9 @@ namespace RecipeHub.Api
             CreateMap<FridgeGrocery, FridgeGroceryResponse>();
             CreateMap<FridgeGroceryResponse, FridgeGrocery>();
             CreateMap<FridgeGroceryModel, FridgeGrocery>();
+
+            CreateMap<PlannedRecipe, FoodPlanEntryResponse>()
+                .ForMember(dest => dest.Recipe, opt => opt.MapFrom(x => x.Recipe));
         }
     }
 }

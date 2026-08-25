@@ -1,0 +1,47 @@
+@if (visible) {
+<div class="recipe-selection-backdrop" (click)="close()"></div>
+<section class="recipe-selection-modal" role="dialog" aria-modal="true" [attr.aria-label]="'recipe.chooseRecipeTitle' | translate">
+    <header class="recipe-selection-header">
+        <div>
+            <p>{{ 'recipe.recipePickerKicker' | translate }}</p>
+            <h3>{{ 'recipe.chooseRecipeTitle' | translate }}</h3>
+        </div>
+        <span class="recipe-selection-count">{{ 'recipe.recipePickerCount' | translate:{ shown: filteredRecipes.length, total: recipes.length } }}</span>
+        <button type="button" class="recipe-selection-close" (click)="close()" [attr.aria-label]="'recipe.closeRecipePickerAria' | translate">
+            <i class="fas fa-times" aria-hidden="true"></i>
+        </button>
+    </header>
+
+    <div class="recipe-selection-toolbar">
+        <i class="fas fa-search" aria-hidden="true"></i>
+        <input type="search" [(ngModel)]="searchTerm" [placeholder]="'recipe.searchPlaceholder' | translate" [attr.aria-label]="'recipe.searchPlaceholder' | translate" autocomplete="off">
+    </div>
+
+    <div class="recipe-selection-grid" *ngIf="filteredRecipes.length > 0; else noRecipes">
+        <button type="button" class="recipe-selection-card" *ngFor="let recipe of filteredRecipes; trackBy: trackRecipe" [class.is-selected]="recipe.id === selectedRecipeId" (click)="chooseRecipe(recipe)">
+            <span class="recipe-selection-image">
+                <img [src]="recipe.image?.url || '../assets/images/food.png'" [alt]="recipe.title">
+            </span>
+            <span class="recipe-selection-body">
+                <span class="recipe-selection-meta">
+                    <span *ngIf="recipe.creator"><i class="fas fa-user" aria-hidden="true"></i>{{ recipe.creator }}</span>
+                    <span *ngIf="formatTotalTime(recipe)"><i class="far fa-clock" aria-hidden="true"></i>{{ formatTotalTime(recipe) }}</span>
+                </span>
+                <span class="recipe-selection-title">{{ recipe.title }}</span>
+                <span class="recipe-selection-description" *ngIf="recipe.description">{{ recipe.description }}</span>
+                <span class="recipe-selection-badges" *ngIf="getRecipeBadges(recipe).length > 0">
+                    <span *ngFor="let badge of getRecipeBadges(recipe)">{{ badge }}</span>
+                </span>
+            </span>
+            <i class="fas" [ngClass]="recipe.id === selectedRecipeId ? 'fa-check-circle' : 'fa-plus-circle'" aria-hidden="true"></i>
+        </button>
+    </div>
+
+    <ng-template #noRecipes>
+        <div class="recipe-selection-empty">
+            <i class="fas fa-search" aria-hidden="true"></i>
+            <strong>{{ 'recipe.noRecipes' | translate }}</strong>
+        </div>
+    </ng-template>
+</section>
+}

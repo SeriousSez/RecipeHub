@@ -62,6 +62,7 @@
     </form>
 
     <div class="ingredient-editor-footer">
+      <button type="button" class="btn btn-outline-secondary" [disabled]="isRequesting" (click)="cancel()">Cancel</button>
       <button type="submit" class="btn btn-brand" [disabled]="ingredientForm.invalid || isRequesting" (click)="create(ingredientForm)">{{ isEditMode ? 'Update ingredient' : 'Create ingredient' }}</button>
     </div>
 

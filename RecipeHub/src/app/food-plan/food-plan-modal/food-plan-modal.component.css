@@ -1,0 +1,426 @@
+.food-plan-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    background: rgba(15, 23, 42, .42);
+    backdrop-filter: blur(4px);
+}
+
+.food-plan-modal {
+    position: fixed;
+    z-index: 1101;
+    top: 50%;
+    left: 50%;
+    width: min(940px, calc(100vw - 2rem));
+    max-height: min(760px, calc(100vh - 2rem));
+    display: flex;
+    flex-direction: column;
+    overflow: visible;
+    border: 1px solid rgba(15, 23, 42, .1);
+    border-radius: .9rem;
+    background: #fff;
+    box-shadow: 0 24px 70px rgba(15, 23, 42, .28);
+    transform: translate(-50%, -50%);
+}
+
+.food-plan-modal-header,
+.food-plan-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.1rem 1.25rem;
+    background: #f8fafc;
+}
+
+.food-plan-modal-header {
+    border-bottom: 1px solid rgba(15, 23, 42, .08);
+}
+
+.food-plan-modal-header p {
+    margin: 0 0 .2rem;
+    color: #0f766e;
+    font-size: .7rem;
+    font-weight: 800;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.food-plan-modal-header h3 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 1.55rem;
+    font-weight: 850;
+}
+
+.food-plan-modal-close {
+    width: 2.1rem;
+    height: 2.1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(15, 23, 42, .1);
+    border-radius: 999px;
+    background: #fff;
+    color: #334155;
+}
+
+.food-plan-modal-body {
+    display: grid;
+    gap: 1rem;
+    overflow: visible;
+    padding: 1.15rem 1.25rem;
+}
+
+.food-plan-modal-summary {
+    display: grid;
+    gap: .55rem;
+    min-width: 0;
+    padding: .75rem;
+    border: 1px solid rgba(15, 23, 42, .08);
+    border-radius: .8rem;
+    background: linear-gradient(135deg, #f8fafc, #eef7ff);
+}
+
+.food-plan-selected-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem;
+}
+
+.food-plan-selected-list span {
+    max-width: 100%;
+    padding: .35rem .6rem;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: .75rem;
+    font-weight: 800;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.food-plan-modal-field {
+    display: grid;
+    gap: .4rem;
+    min-width: 0;
+}
+
+.food-plan-modal-label {
+    color: #17324d;
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+.food-plan-day-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.food-plan-week-switcher {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+}
+
+.food-plan-week-switcher button,
+.food-plan-week-switcher strong {
+    min-height: 2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: .5rem;
+    font-size: .75rem;
+    font-weight: 800;
+}
+
+.food-plan-week-switcher button {
+    min-width: 2rem;
+    border: 1px solid rgba(15, 23, 42, .1);
+    background: #fff;
+    color: #334155;
+}
+
+.food-plan-week-switcher strong {
+    padding: 0 .55rem;
+    background: #f8fafc;
+    color: #0f172a;
+}
+
+.food-plan-week-switcher .food-plan-week-today {
+    padding: 0 .65rem;
+    color: #0f766e;
+}
+
+.food-plan-day-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: .65rem;
+}
+
+.food-plan-day-option {
+    min-width: 0;
+    min-height: 4.6rem;
+    display: grid;
+    place-items: center;
+    gap: .2rem;
+    padding: .6rem .45rem;
+    border: 1px solid rgba(15, 23, 42, .1);
+    border-radius: .65rem;
+    background: #fff;
+    color: #334155;
+    font-size: .72rem;
+    font-weight: 800;
+}
+
+.food-plan-day-option strong {
+    color: inherit;
+    font-size: .78rem;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+.food-plan-day-option span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+}
+
+.food-plan-day-option.active {
+    border-color: rgba(15, 118, 110, .4);
+    background: #ecfdf5;
+    color: #0f766e;
+}
+
+.food-plan-options {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(180px, auto);
+    align-items: end;
+    gap: .75rem;
+}
+
+.food-plan-repeat-option {
+    min-height: 2.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    padding: .55rem .75rem;
+    border: 1px solid rgba(15, 118, 110, .16);
+    border-radius: .7rem;
+    background: #f0fdfa;
+    color: #115e59;
+    font-size: .78rem;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.food-plan-repeat-option span {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+}
+
+.food-plan-modal-footer {
+    border-top: 1px solid rgba(15, 23, 42, .08);
+}
+
+.food-plan-modal-action {
+    min-width: 9rem;
+    min-height: 2.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .45rem;
+    padding: .68rem .85rem;
+    border-radius: .7rem;
+    font-size: .77rem;
+    font-weight: 800;
+}
+
+.food-plan-modal-action-primary {
+    border: 1px solid rgba(37, 99, 235, .15);
+    background: rgba(37, 99, 235, .04);
+    color: #2459d3;
+}
+
+.food-plan-modal-action-muted {
+    border: 1px solid rgba(15, 23, 42, .08);
+    background: rgba(15, 23, 42, .02);
+    color: #334155;
+}
+
+.food-plan-modal-action:disabled {
+    border-color: rgba(148, 163, 184, .15);
+    background: rgba(148, 163, 184, .06);
+    color: #94a3b8;
+    cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+    .food-plan-modal {
+        top: auto;
+        bottom: .5rem;
+        left: .5rem;
+        width: calc(100vw - 1rem);
+        max-height: calc(100dvh - 1rem);
+        border-radius: 1rem;
+        overflow: hidden;
+        transform: none;
+    }
+
+    .food-plan-modal-header,
+    .food-plan-modal-footer {
+        padding: .9rem 1rem;
+    }
+
+    .food-plan-modal-header h3 {
+        font-size: 1.35rem;
+    }
+
+    .food-plan-modal-body {
+        min-height: 0;
+        overflow-y: auto;
+        padding: .9rem 1rem;
+    }
+
+    .food-plan-modal-summary {
+        padding: .65rem;
+    }
+
+    .food-plan-day-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: .65rem;
+    }
+
+    .food-plan-week-switcher {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 2.25rem minmax(0, 1fr) 2.25rem auto;
+    }
+
+    .food-plan-week-switcher strong {
+        min-width: 0;
+    }
+
+    .food-plan-day-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .55rem;
+    }
+
+    .food-plan-day-option {
+        min-height: 3.25rem;
+        grid-template-columns: auto 1fr;
+        place-items: center start;
+        gap: .1rem .45rem;
+        padding: .55rem .7rem;
+        text-align: left;
+    }
+
+    .food-plan-day-option i {
+        grid-row: 1 / span 2;
+        width: 1rem;
+        text-align: center;
+    }
+
+    .food-plan-options {
+        grid-template-columns: 1fr;
+    }
+
+    .food-plan-repeat-option {
+        justify-content: flex-start;
+    }
+
+    .food-plan-modal-footer {
+        flex-direction: column-reverse;
+        flex: 0 0 auto;
+    }
+
+    .food-plan-modal-action {
+        width: 100%;
+    }
+}
+
+:host-context([data-theme='dark']) .food-plan-modal {
+    border-color: rgba(148, 163, 184, .22);
+    background: #111827;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, .45);
+}
+
+:host-context([data-theme='dark']) .food-plan-modal-header,
+:host-context([data-theme='dark']) .food-plan-modal-footer {
+    background: #182234;
+}
+
+:host-context([data-theme='dark']) .food-plan-modal-header,
+:host-context([data-theme='dark']) .food-plan-modal-footer,
+:host-context([data-theme='dark']) .food-plan-modal-summary {
+    border-color: rgba(148, 163, 184, .18);
+}
+
+:host-context([data-theme='dark']) .food-plan-modal-header h3,
+:host-context([data-theme='dark']) .food-plan-modal-label,
+:host-context([data-theme='dark']) .food-plan-week-switcher strong {
+    color: #e2e8f0;
+}
+
+:host-context([data-theme='dark']) .food-plan-modal-header p,
+:host-context([data-theme='dark']) .food-plan-week-switcher .food-plan-week-today,
+:host-context([data-theme='dark']) .food-plan-repeat-option {
+    color: #5eead4;
+}
+
+:host-context([data-theme='dark']) .food-plan-modal-close,
+:host-context([data-theme='dark']) .food-plan-week-switcher button,
+:host-context([data-theme='dark']) .food-plan-week-switcher strong,
+:host-context([data-theme='dark']) .food-plan-day-option,
+:host-context([data-theme='dark']) .food-plan-modal-field .form-control {
+    border-color: rgba(148, 163, 184, .24);
+    background: #1f2937;
+    color: #e2e8f0;
+}
+
+:host-context([data-theme='dark']) .food-plan-modal-summary {
+    background: linear-gradient(135deg, #182234, #142538);
+}
+
+:host-context([data-theme='dark']) .food-plan-selected-list span {
+    background: rgba(96, 165, 250, .16);
+    color: #bfdbfe;
+}
+
+:host-context([data-theme='dark']) .food-plan-day-option.active {
+    border-color: rgba(94, 234, 212, .55);
+    background: rgba(20, 184, 166, .16);
+    color: #99f6e4;
+}
+
+:host-context([data-theme='dark']) .food-plan-repeat-option {
+    border-color: rgba(94, 234, 212, .24);
+    background: rgba(20, 184, 166, .12);
+}
+
+:host-context([data-theme='dark']) .food-plan-modal-action-primary {
+    border-color: rgba(96, 165, 250, .28);
+    background: rgba(96, 165, 250, .14);
+    color: #bfdbfe;
+}
+
+:host-context([data-theme='dark']) .food-plan-modal-action-muted {
+    border-color: rgba(148, 163, 184, .2);
+    background: rgba(148, 163, 184, .08);
+    color: #cbd5e1;
+}
+
+:host-context([data-theme='dark']) .food-plan-modal-action:disabled {
+    border-color: rgba(148, 163, 184, .12);
+    background: rgba(148, 163, 184, .06);
+    color: #64748b;
+}

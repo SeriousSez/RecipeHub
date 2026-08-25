@@ -8,6 +8,8 @@
             <span></span>
             <span></span>
             <span></span>
+            <span></span>
+            <span></span>
         </div>
     </div>
     <div class="recipe-detail-skeleton-meta">
@@ -47,14 +49,18 @@
             </div>
 
             <div *ngIf="status" class="recipe-detail-actions">
+                <button type="button" class="recipe-detail-icon-button" (click)="shareRecipe()" [attr.aria-label]="'recipe.shareRecipeAria' | translate" [title]="'recipe.shareRecipeAria' | translate">
+                    <i class="fas fa-share-alt" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="recipe-detail-icon-button" [class.is-favored]="favored" [class.is-saving]="savingFavorite" [disabled]="savingFavorite" (click)="toggleFavorite()"
+                    [attr.aria-label]="favored ? ('recipe.removeFavoriteAria' | translate) : ('recipe.addFavoriteAria' | translate)">
+                    <i [ngClass]="favored ? 'fas fa-star' : 'far fa-star'" aria-hidden="true"></i>
+                </button>
                 <button type="button" class="recipe-detail-icon-button" [class.is-in-groceries]="inGroceries" (click)="toggleGroceries()" [attr.aria-label]="inGroceries ? ('recipe.removeFromGroceriesAria' | translate) : ('recipe.addToGroceriesAria' | translate)">
                     <i [ngClass]="inGroceries ? 'fas fa-cart-arrow-down' : 'fas fa-cart-plus'" aria-hidden="true"></i>
                 </button>
-                <button type="button" class="recipe-detail-icon-button" [class.is-favored]="favored" (click)="toggleFavorite()" [attr.aria-label]="favored ? ('recipe.removeFavoriteAria' | translate) : ('recipe.addFavoriteAria' | translate)">
-                    <i [ngClass]="favored ? 'fas fa-star' : 'far fa-star'" aria-hidden="true"></i>
-                </button>
-                <button type="button" class="recipe-detail-icon-button" (click)="shareRecipe()" [attr.aria-label]="'recipe.shareRecipeAria' | translate" [title]="'recipe.shareRecipeAria' | translate">
-                    <i class="fas fa-share-alt" aria-hidden="true"></i>
+                <button type="button" class="recipe-detail-icon-button recipe-detail-plan-button" (click)="openFoodPlanModal()" [attr.aria-label]="'recipe.addToFoodPlan' | translate" [title]="'recipe.addToFoodPlan' | translate">
+                    <i class="fas fa-calendar-plus" aria-hidden="true"></i>
                 </button>
                 <button *ngIf="canEdit" type="button" class="recipe-detail-icon-button" (click)="startEditing()" [attr.aria-label]="'recipe.editRecipeAria' | translate">
                     <i class="fas fa-pen" aria-hidden="true"></i>
@@ -720,3 +726,5 @@
         </div>
     </section>
 </div>
+
+<app-food-plan-modal [visible]="showFoodPlanModal" [recipes]="foodPlanRecipes" (closed)="closeFoodPlanModal()" (saved)="handleFoodPlanSaved()"></app-food-plan-modal>

@@ -13,6 +13,9 @@
       <a routerLink="dashboard/users" routerLinkActive="active">{{ 'nav.dashboard' | translate }}</a>
       }
       <a routerLink="/pantry" routerLinkActive="active">{{ 'nav.pantry' | translate }}</a>
+      @if (isAuthenticated) {
+      <a routerLink="/food-plan" routerLinkActive="active">{{ 'nav.foodPlan' | translate }}</a>
+      }
       <a routerLink="/grocery" routerLinkActive="active">{{ 'nav.grocery' | translate }}</a>
     </nav>
 
@@ -48,6 +51,7 @@
         <ul class="dropdown-menu dropdown-menu-end text-small" aria-labelledby="profileDropdown">
           <li><a class="dropdown-item" routerLink="account/profile">{{ 'nav.profile' | translate }}</a></li>
           <li><a class="dropdown-item" routerLink="account/recipes">{{ 'nav.myRecipes' | translate }}</a></li>
+          <li><a class="dropdown-item" routerLink="/food-plan">{{ 'nav.foodPlan' | translate }}</a></li>
           <li><a class="dropdown-item" routerLink="account/settings">{{ 'nav.settings' | translate }}</a></li>
           <li>
             <hr class="dropdown-divider">

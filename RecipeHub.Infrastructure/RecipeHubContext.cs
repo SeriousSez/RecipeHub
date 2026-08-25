@@ -45,6 +45,7 @@ namespace RecipeHub.Infrastructure
         public DbSet<Favorites> Favorites { get; set; }
 
         public DbSet<GroceryPlan> GroceryPlans { get; set; }
+        public DbSet<PlannedRecipe> PlannedRecipes { get; set; }
 
         public DbSet<GroceryList> GroceryLists { get; set; }
         public DbSet<GroceryIngredient> GroceryIngredients { get; set; }
@@ -106,6 +107,23 @@ namespace RecipeHub.Infrastructure
                 .HasForeignKey(favorites => favorites.UserId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PlannedRecipe>()
+                .HasOne(plan => plan.User)
+                .WithMany()
+                .HasForeignKey(plan => plan.UserId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PlannedRecipe>()
+                .HasOne(plan => plan.Recipe)
+                .WithMany()
+                .HasForeignKey(plan => plan.RecipeId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PlannedRecipe>()
+                .HasIndex(plan => new { plan.UserId, plan.PlannedDate });
 
             modelBuilder.Entity<RecipeRating>()
                 .HasOne(rating => rating.Recipe)

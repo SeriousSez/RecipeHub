@@ -31,6 +31,8 @@ import { PantryComponent } from './pantry/pantry.component';
 import { PublicProfileComponent } from './public-profile/public-profile.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+import { FoodPlanComponent } from './food-plan/food-plan.component';
+import { FoodPlanService } from './food-plan/food-plan.service';
 
 export function tokenGetter() {
   return localStorage.getItem("token");
@@ -52,7 +54,8 @@ export function tokenGetter() {
     ResetPasswordComponent,
     ConfirmEmailComponent,
     PantryComponent,
-    PublicProfileComponent
+    PublicProfileComponent,
+    FoodPlanComponent
   ],
   bootstrap: [AppComponent], imports: [BrowserModule,
     FormsModule,
@@ -73,6 +76,6 @@ export function tokenGetter() {
     AngularEditorModule,
     TranslateModule.forRoot({
       fallbackLang: 'en'
-    })], providers: [HttpClient, ConfigService, UserService, FridgeService, provideHttpClient(withInterceptorsFromDi()), provideTranslateHttpLoader({ prefix: './assets/i18n/', suffix: '.json' })]
+    })], providers: [HttpClient, ConfigService, UserService, FridgeService, FoodPlanService, provideHttpClient(withInterceptorsFromDi()), provideTranslateHttpLoader({ prefix: './assets/i18n/', suffix: '.json' })]
 })
 export class AppModule { }

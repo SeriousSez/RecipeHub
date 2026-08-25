@@ -18,6 +18,9 @@ import { ListOverlay } from '../overlays/list-overlay/list.overlay';
 import { TranslateModule } from '@ngx-translate/core';
 import { ConfirmationComponent } from '../confirmation/confirmation.component';
 import { TaxonomySelectComponent } from '../../recipe/taxonomy-select/taxonomy-select.component';
+import { FoodPlanModalComponent } from '../../food-plan/food-plan-modal/food-plan-modal.component';
+import { DatePickerComponent } from '../date-picker/date-picker.component';
+import { RecipeSelectionModalComponent } from '../recipe-selection-modal/recipe-selection-modal.component';
 
 
 @NgModule({
@@ -29,7 +32,10 @@ import { TaxonomySelectComponent } from '../../recipe/taxonomy-select/taxonomy-s
     ingredientModal,
     ListOverlay,
     ConfirmationComponent,
-    TaxonomySelectComponent
+    TaxonomySelectComponent,
+    FoodPlanModalComponent,
+    DatePickerComponent,
+    RecipeSelectionModalComponent
   ],
   imports: [
     CommonModule,
@@ -48,6 +54,9 @@ import { TaxonomySelectComponent } from '../../recipe/taxonomy-select/taxonomy-s
     ListOverlay,
     ConfirmationComponent,
     TaxonomySelectComponent,
+    FoodPlanModalComponent,
+    DatePickerComponent,
+    RecipeSelectionModalComponent,
     ImageCropperComponent,
     TranslateModule
   ],

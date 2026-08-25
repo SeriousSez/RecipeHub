@@ -12,6 +12,7 @@ import { ResetPasswordComponent } from './reset-password/reset-password.componen
 import { ConfirmEmailComponent } from './confirm-email/confirm-email.component';
 import { PantryComponent } from './pantry/pantry.component';
 import { PublicProfileComponent } from './public-profile/public-profile.component';
+import { FoodPlanComponent } from './food-plan/food-plan.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -19,6 +20,7 @@ const routes: Routes = [
   { path: 'dashboard', loadChildren: () => import('./dashboard/dashboard.module').then(m => m.DashboardModule), canActivate: [AuthGuard, AdminGuard] },
   { path: 'recipes', loadChildren: () => import('./recipe/recipe.module').then(m => m.RecipeModule) },
   { path: 'grocery', loadChildren: () => import('./grocery/grocery.module').then(m => m.GroceryModule) },
+  { path: 'food-plan', component: FoodPlanComponent, canActivate: [AuthGuard] },
   { path: 'pantry', component: PantryComponent },
   { path: 'fridges', component: FridgesComponent },
   { path: 'profile/:username', component: PublicProfileComponent },

@@ -150,6 +150,11 @@ export class ingredientModal implements OnChanges, OnInit {
         this.ingredientForm.reset();
     }
 
+    cancel() {
+        this.finish.next(null);
+        this.resetForm();
+    }
+
     checkForExisting(ingredient: IngredientCreation) {
         return this.ingredients.some(i => i.name.toLowerCase() == ingredient.name.toLowerCase());
     }

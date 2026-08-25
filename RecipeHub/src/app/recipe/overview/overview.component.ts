@@ -251,6 +251,7 @@ export class OverviewComponent implements OnInit {
   private activatePantryMatchesWhenReady: boolean = false;
   public groceryFeedbackMessage: string = '';
   public groceryFeedbackType: 'success' | 'danger' = 'success';
+  public showFoodPlanModal: boolean = false;
   isAuthenticated: boolean = false;
   settings: UserSettings = { preferredLanguage: 'English', theme: 'Light', recipesTheme: 'Pretty', myRecipesTheme: 'Pretty' };
   subscription?: Subscription;
@@ -491,6 +492,20 @@ export class OverviewComponent implements OnInit {
       error => {
         this.showGroceryFeedback(this.translateService.instant('recipe.addToGroceriesError'), 'danger');
       });
+  }
+
+  openFoodPlanModal(): void {
+    if (!this.isAuthenticated || this.selectedRecipes.length === 0) return;
+
+    this.showFoodPlanModal = true;
+  }
+
+  closeFoodPlanModal(): void {
+    this.showFoodPlanModal = false;
+  }
+
+  handleFoodPlanSaved(): void {
+    this.clearSelectedRecipes();
   }
 
   isRecipeSelected(recipe: Recipe): boolean {

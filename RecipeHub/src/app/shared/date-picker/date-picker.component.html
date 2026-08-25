@@ -1,0 +1,35 @@
+<div class="date-picker" [class.is-open]="isOpen" [class.is-disabled]="disabled">
+    <button type="button" class="date-picker-control" (click)="toggle()" [disabled]="disabled" [attr.aria-expanded]="isOpen" [attr.aria-label]="ariaLabel">
+        <span [class.is-placeholder]="!value">{{ displayValue || placeholder }}</span>
+        <i class="far fa-calendar-alt" aria-hidden="true"></i>
+    </button>
+
+    @if (isOpen) {
+    <div class="date-picker-popover" role="dialog" [attr.aria-label]="ariaLabel">
+        <div class="date-picker-header">
+            <button type="button" (click)="previousMonth()" [attr.aria-label]="'datePicker.previousMonth' | translate"><i class="fas fa-chevron-left" aria-hidden="true"></i></button>
+            <strong>{{ monthLabel }}</strong>
+            <button type="button" (click)="nextMonth()" [attr.aria-label]="'datePicker.nextMonth' | translate"><i class="fas fa-chevron-right" aria-hidden="true"></i></button>
+        </div>
+
+        <div class="date-picker-weekdays" aria-hidden="true">
+            @for (weekday of weekdayLabels; track weekday) {
+            <span>{{ weekday }}</span>
+            }
+        </div>
+
+        <div class="date-picker-days">
+            @for (day of calendarDays; track trackDay($index, day)) {
+            <button type="button" [class.is-muted]="!day.inMonth" [class.is-today]="day.isToday" [class.is-selected]="day.isSelected" (click)="selectDate(day.value)">
+                {{ day.label }}
+            </button>
+            }
+        </div>
+
+        <div class="date-picker-footer">
+            <button type="button" (click)="clear($event)">{{ 'datePicker.clear' | translate }}</button>
+            <button type="button" (click)="selectToday($event)">{{ 'datePicker.today' | translate }}</button>
+        </div>
+    </div>
+    }
+</div>

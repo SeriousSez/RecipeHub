@@ -22,6 +22,7 @@ using RecipeHub.Infrastructure.Managers;
 using RecipeHub.Infrastructure.Repositories;
 using RecipeHub.Infrastructure.Repositories.Fridge;
 using RecipeHub.Infrastructure.Repositories.Grocery;
+using RecipeHub.Infrastructure.Repositories.Plan;
 using System;
 using System.Data.Common;
 using System.Text;
@@ -80,6 +81,7 @@ namespace RecipeHub
             services.AddScoped<IGroceryRepository, GroceryRepository>();
             services.AddScoped<IFridgeRepository, FridgeRepository>();
             services.AddScoped<IFridgeGroceryRepository, FridgeGroceryRepository>();
+            services.AddScoped<IPlanRepository, PlanRepository>();
 
             services.AddScoped<IIdentityManager, IdentityManager>();
             services.AddSingleton<RecipeTranslationQueue>();
@@ -133,6 +135,7 @@ namespace RecipeHub
             services.AddScoped<IFavoriteService, FavoriteService>();
             services.AddScoped<IGroceryService, GroceryService>();
             services.AddScoped<IFridgeService, FridgeService>();
+            services.AddScoped<IFoodPlanService, FoodPlanService>();
 
             SetupDatabase(services);
 
