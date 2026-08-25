@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 import { Recipe } from '../recipe/models/recipe.interface';
 import { RecipeService } from '../recipe/services/recipe.service';
@@ -10,6 +11,7 @@ import { FoodPlanEntry, FoodPlanEntryRequest } from './food-plan-entry.interface
 import { FoodPlanService } from './food-plan.service';
 import { LanguageService } from '../shared/services/language.service';
 import { getTaxonomyValueLabel } from '../recipe/models/recipe-taxonomy';
+import { GroceryService } from '../shared/services/grocery.service';
 
 @Component({
     selector: 'app-food-plan',
@@ -24,13 +26,16 @@ export class FoodPlanComponent implements OnInit, OnDestroy {
     public weekDays: Date[] = [];
     public loading = true;
     public saving = false;
+    public addingWeekToGroceries = false;
     public error = '';
+    public groceryFeedbackMessage = '';
+    public groceryFeedbackType: 'success' | 'danger' = 'success';
     public showRecipeSelectionModal = false;
     public draft: FoodPlanEntryRequest;
     private languageSubscription?: Subscription;
     private weekStart = this.getWeekStart(new Date());
 
-    constructor(private foodPlanService: FoodPlanService, private recipeService: RecipeService, private userService: UserService, private router: Router, private utilityService: UtilityService, private languageService: LanguageService, private translateService: TranslateService) {
+    constructor(private foodPlanService: FoodPlanService, private recipeService: RecipeService, private userService: UserService, private groceryService: GroceryService, private router: Router, private utilityService: UtilityService, private languageService: LanguageService, private translateService: TranslateService) {
         this.draft = this.createDraft();
     }
 
@@ -92,6 +97,28 @@ export class FoodPlanComponent implements OnInit, OnDestroy {
                 this.error = 'Could not save this meal plan entry.';
             }
         });
+    }
+
+    public addWeekToGroceries(): void {
+        if (this.entries.length === 0 || this.addingWeekToGroceries) return;
+
+        const recipeIds = this.entries.map(entry => entry.recipeId);
+        this.addingWeekToGroceries = true;
+        this.groceryFeedbackMessage = '';
+
+        forkJoin(recipeIds.map(recipeId => this.recipeService.getRecipeById(recipeId)))
+            .pipe(finalize(() => this.addingWeekToGroceries = false))
+            .subscribe({
+                next: recipes => {
+                    recipes.filter(recipe => !!recipe?.ingredients?.length).forEach(recipe => this.groceryService.addRecipeToList(recipe));
+                    this.groceryFeedbackType = 'success';
+                    this.groceryFeedbackMessage = this.translateService.instant('foodPlan.addedWeekToGroceries', { count: recipes.length });
+                },
+                error: () => {
+                    this.groceryFeedbackType = 'danger';
+                    this.groceryFeedbackMessage = this.translateService.instant('foodPlan.addWeekToGroceriesError');
+                }
+            });
     }
 
     public get selectedRecipe(): Recipe | undefined {

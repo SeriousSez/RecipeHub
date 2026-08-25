@@ -14,8 +14,14 @@
             <strong>{{ weekLabel }}</strong>
             <button type="button" class="btn btn-outline-secondary" (click)="nextWeek()"><i class="fas fa-chevron-right" aria-hidden="true"></i></button>
             <button type="button" class="btn btn-brand-alt" (click)="currentWeek()">{{ 'foodPlan.todayButton' | translate }}</button>
+            <button type="button" class="btn btn-outline-brand food-plan-grocery-button" [disabled]="entries.length === 0 || addingWeekToGroceries" (click)="addWeekToGroceries()">
+                <i class="fas" [ngClass]="addingWeekToGroceries ? 'fa-spinner fa-spin' : 'fa-shopping-cart'" aria-hidden="true"></i>
+                {{ (addingWeekToGroceries ? 'foodPlan.addingWeekToGroceries' : 'foodPlan.addWeekToGroceries') | translate }}
+            </button>
         </div>
     </header>
+
+    <div class="alert alert-{{ groceryFeedbackType }} food-plan-feedback" *ngIf="groceryFeedbackMessage" role="alert">{{ groceryFeedbackMessage }}</div>
 
     <section class="food-plan-panel" aria-labelledby="food-plan-add-heading">
         <div class="food-plan-panel-heading">

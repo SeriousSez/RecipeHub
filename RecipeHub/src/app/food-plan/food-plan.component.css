@@ -75,6 +75,7 @@
     display: flex;
     align-items: center;
     gap: .5rem;
+    flex-wrap: wrap;
     white-space: nowrap;
 }
 
@@ -93,6 +94,17 @@
     min-height: 42px;
     border-radius: 8px;
     font-weight: 800;
+}
+
+.food-plan-grocery-button {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+}
+
+.food-plan-feedback {
+    margin: 1rem 0 0;
+    border-radius: 8px;
 }
 
 .food-plan-panel {
@@ -378,12 +390,16 @@
 .food-plan-entry-list {
     display: grid;
     gap: .55rem;
+    min-width: 0;
     padding: .65rem;
 }
 
 .food-plan-entry,
 .food-plan-empty {
+    box-sizing: border-box;
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
     border: 1px solid rgba(15, 23, 42, .08);
     border-radius: 9px;
     background: #fdfdf9;
@@ -397,6 +413,7 @@
     padding: .7rem 2rem .7rem .75rem;
     color: #0f172a;
     box-shadow: 0 8px 18px rgba(15, 23, 42, .04);
+    overflow: hidden;
 }
 
 .food-plan-entry:hover {
@@ -412,13 +429,17 @@
 }
 
 .food-plan-entry strong {
+    min-width: 0;
     font-size: .95rem;
     line-height: 1.2;
+    overflow-wrap: anywhere;
 }
 
 .food-plan-entry-notes {
+    min-width: 0;
     color: #64748b;
     font-size: .8rem;
+    overflow-wrap: anywhere;
 }
 
 .food-plan-repeat-badge .fas {

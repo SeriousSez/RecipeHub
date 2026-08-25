@@ -168,10 +168,18 @@ export class GroceryService extends BaseService {
         if (this.recipeList.some(r => r.title == recipe.title && r.creator == recipe.creator)) {
             this.removeRecipeFromList(recipe);
         } else {
-            this.recipeList.push(recipe);
-            this.addIngredientsFromRecipeToList(recipe);
+            this.addRecipeToList(recipe);
         }
 
+        this.persistState();
+    }
+
+    addRecipeToList(recipe: Recipe) {
+        if (!this.recipeList.some(r => r.title == recipe.title && r.creator == recipe.creator)) {
+            this.recipeList.push(recipe);
+        }
+
+        this.addIngredientsFromRecipeToList(recipe);
         this.persistState();
     }
 
