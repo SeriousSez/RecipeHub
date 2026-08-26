@@ -13,6 +13,7 @@ export class RecipeSelectionModalComponent {
     @Input() visible = false;
     @Input() recipes: Recipe[] = [];
     @Input() selectedRecipeId = '';
+    @Input() loading = false;
 
     @Output() selected = new EventEmitter<Recipe>();
     @Output() closed = new EventEmitter<void>();
@@ -31,10 +32,12 @@ export class RecipeSelectionModalComponent {
     }
 
     public close(): void {
+        if (this.loading) return;
         this.closed.emit();
     }
 
     public chooseRecipe(recipe: Recipe): void {
+        if (this.loading) return;
         this.selected.emit(recipe);
     }
 

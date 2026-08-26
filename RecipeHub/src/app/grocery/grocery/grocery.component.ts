@@ -2,7 +2,9 @@ import { DatePipe } from '@angular/common';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { Ingredient } from 'src/app/recipe/models/ingredient.interface';
+import { Recipe } from 'src/app/recipe/models/recipe.interface';
 import { IngredientService } from 'src/app/recipe/services/ingredient.service';
+import { RecipeService } from 'src/app/recipe/services/recipe.service';
 import { GroceryService } from 'src/app/shared/services/grocery.service';
 import { finalize } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
@@ -59,8 +61,14 @@ export class GroceryComponent implements OnInit {
   readonly offerCategories: GroceryOfferCategory[] = ['auto', 'produce', 'dairy', 'meat', 'bakery', 'pantry', 'candy', 'chocolate', 'beverages'];
   private lastOfferLocation: { latitude: number; longitude: number } | null = null;
   confirmClearList: boolean = false;
+  showRecipeSelectionModal: boolean = false;
+  loadingRecipes: boolean = false;
+  addingRecipeToList: boolean = false;
+  selectedRecipeId: string = '';
+  recipes: Recipe[] = [];
   showAddIngredient: boolean = false;
   ingredientOptions: string[] = [];
+  ingredientOptionLabels: Record<string, string> = {};
   private ingredientNameLabels: Record<string, string> = {};
   translatingLocalIngredients: boolean = false;
   draftIngredientName: string = '';
@@ -77,12 +85,16 @@ export class GroceryComponent implements OnInit {
   public sortSetting: string = 'name';
   public ascending: boolean = true;
 
-  constructor(private groceryService: GroceryService, private ingredientService: IngredientService, private datepipe: DatePipe, private router: Router, private translateService: TranslateService, private pantryService: PantryService, private userService: UserService) { }
+  constructor(private groceryService: GroceryService, private ingredientService: IngredientService, private recipeService: RecipeService, private datepipe: DatePipe, private router: Router, private translateService: TranslateService, private pantryService: PantryService, private userService: UserService) { }
 
   ngOnInit() {
     this.getIngredients(false);
     this.loadIngredientTranslations();
-    this.translateService.onLangChange.subscribe(() => this.loadIngredientTranslations());
+    this.loadRecipes();
+    this.translateService.onLangChange.subscribe(() => {
+      this.loadIngredientTranslations();
+      this.loadRecipes();
+    });
   }
 
   getIngredients(refreshTranslations: boolean = true) {
@@ -153,20 +165,71 @@ export class GroceryComponent implements OnInit {
 
   private loadIngredientTranslations() {
     const requestedLanguage = this.getRequestedLanguage();
+    const languageCode = this.translateService.currentLang || 'en';
 
     this.ingredientService.getIngredientsLite(requestedLanguage).subscribe({
       next: ingredients => {
-        this.ingredientNameLabels = Object.fromEntries(
-          (ingredients ?? []).map(ingredient => [ingredient.name.toLowerCase(), ingredient.displayName ?? ingredient.name])
-        );
-        this.ingredientOptions = ingredients.map(ingredient => ingredient.name).sort((first, second) => first.localeCompare(second));
+        const collator = new Intl.Collator(languageCode, { sensitivity: 'base', numeric: true });
+        const sortedIngredients = (ingredients ?? []).slice().sort((first, second) => collator.compare(
+          first.displayName ?? first.name,
+          second.displayName ?? second.name
+        ));
+        this.ingredientNameLabels = Object.fromEntries(sortedIngredients.map(ingredient => [ingredient.name.toLowerCase(), ingredient.displayName ?? ingredient.name]));
+        this.ingredientOptionLabels = Object.fromEntries(sortedIngredients.map(ingredient => [ingredient.name, ingredient.displayName ?? ingredient.name]));
+        this.ingredientOptions = sortedIngredients.map(ingredient => ingredient.name);
         this.translateLocalIngredients();
       },
       error: () => {
         this.ingredientNameLabels = {};
+        this.ingredientOptionLabels = {};
         this.ingredientOptions = [];
         this.translateLocalIngredients();
       }
+    });
+  }
+
+  openRecipeSelectionModal() {
+    this.showRecipeSelectionModal = true;
+    if (this.recipes.length === 0 && !this.loadingRecipes) {
+      this.loadRecipes();
+    }
+  }
+
+  closeRecipeSelectionModal() {
+    this.showRecipeSelectionModal = false;
+    this.selectedRecipeId = '';
+  }
+
+  addRecipeToGroceryList(recipe: Recipe) {
+    if (!recipe?.id || this.addingRecipeToList) return;
+
+    this.addingRecipeToList = true;
+    this.selectedRecipeId = recipe.id;
+    this.recipeService.getRecipeById(recipe.id).pipe(finalize(() => this.addingRecipeToList = false)).subscribe({
+      next: selectedRecipe => {
+        this.groceryService.addRecipeToList(selectedRecipe);
+        this.getIngredients();
+        this.closeRecipeSelectionModal();
+      },
+      error: () => this.selectedRecipeId = ''
+    });
+  }
+
+  private loadRecipes() {
+    const languageCode = this.translateService.currentLang || 'en';
+    this.loadingRecipes = true;
+    this.recipeService.getRecipesPaged({
+      page: 1,
+      pageSize: 500,
+      sortBy: 'title',
+      ascending: true,
+      language: this.getRequestedLanguage()
+    }).pipe(finalize(() => this.loadingRecipes = false)).subscribe({
+      next: result => {
+        const collator = new Intl.Collator(languageCode, { sensitivity: 'base', numeric: true });
+        this.recipes = (result?.items ?? []).slice().sort((first, second) => collator.compare(first.title, second.title));
+      },
+      error: () => this.recipes = []
     });
   }
 

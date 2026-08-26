@@ -1,6 +1,6 @@
 @if (visible) {
 <div class="recipe-selection-backdrop" (click)="close()"></div>
-<section class="recipe-selection-modal" role="dialog" aria-modal="true" [attr.aria-label]="'recipe.chooseRecipeTitle' | translate">
+<section class="recipe-selection-modal" [class.is-loading]="loading" role="dialog" aria-modal="true" [attr.aria-label]="'recipe.chooseRecipeTitle' | translate" [attr.aria-busy]="loading">
     <header class="recipe-selection-header">
         <div>
             <p>{{ 'recipe.recipePickerKicker' | translate }}</p>
@@ -17,8 +17,12 @@
         <input type="search" [(ngModel)]="searchTerm" [placeholder]="'recipe.searchPlaceholder' | translate" [attr.aria-label]="'recipe.searchPlaceholder' | translate" autocomplete="off">
     </div>
 
+    <div class="recipe-selection-progress" *ngIf="loading" [attr.aria-label]="'recipe.loading' | translate">
+        <span></span>
+    </div>
+
     <div class="recipe-selection-grid" *ngIf="filteredRecipes.length > 0; else noRecipes">
-        <button type="button" class="recipe-selection-card" *ngFor="let recipe of filteredRecipes; trackBy: trackRecipe" [class.is-selected]="recipe.id === selectedRecipeId" (click)="chooseRecipe(recipe)">
+        <button type="button" class="recipe-selection-card" *ngFor="let recipe of filteredRecipes; trackBy: trackRecipe" [class.is-selected]="recipe.id === selectedRecipeId" [class.is-loading]="loading && recipe.id === selectedRecipeId" [disabled]="loading" (click)="chooseRecipe(recipe)">
             <span class="recipe-selection-image">
                 <img [src]="recipe.image?.url || '../assets/images/food.png'" [alt]="recipe.title">
             </span>
@@ -33,7 +37,7 @@
                     <span *ngFor="let badge of getRecipeBadges(recipe)">{{ badge }}</span>
                 </span>
             </span>
-            <i class="fas" [ngClass]="recipe.id === selectedRecipeId ? 'fa-check-circle' : 'fa-plus-circle'" aria-hidden="true"></i>
+            <i class="fas" [ngClass]="loading && recipe.id === selectedRecipeId ? 'fa-spinner fa-spin' : recipe.id === selectedRecipeId ? 'fa-check-circle' : 'fa-plus-circle'" aria-hidden="true"></i>
         </button>
     </div>
 

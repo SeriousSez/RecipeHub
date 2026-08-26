@@ -7,7 +7,10 @@
     </div>
 
     <div class="grocery-hero-actions">
-      <button class="btn btn-brand-alt" type="button" routerLink="/recipes">{{ 'grocery.addRecipe' | translate }}</button>
+      <button class="btn btn-brand-alt" type="button" [disabled]="loadingRecipes || addingRecipeToList" (click)="openRecipeSelectionModal()">
+        <i class="fas" [ngClass]="loadingRecipes || addingRecipeToList ? 'fa-spinner fa-spin' : 'fa-th-large'" aria-hidden="true"></i>
+        {{ 'grocery.addRecipe' | translate }}
+      </button>
       <button class="btn btn-brand-secondary" type="button" (click)="openAddIngredient()">{{ 'grocery.addIngredient' | translate }}</button>
       <button class="btn btn-brand-secondary" type="button" [disabled]="!hasIngredients || searchingNearbyOffers" (click)="findNearbyOffers()">
         <i class="fas" [ngClass]="searchingNearbyOffers ? 'fa-spinner fa-spin' : 'fa-store'" aria-hidden="true"></i>
@@ -196,7 +199,8 @@
     <div class="grocery-add-grid">
       <div class="grocery-add-field grocery-add-name">
         <label>{{ 'grocery.ingredientColumn' | translate }}</label>
-        <app-taxonomy-select name="groceryIngredientName" [(ngModel)]="draftIngredientName" [options]="ingredientOptions" [multiple]="false" [allowCustom]="true" [placeholder]="'grocery.ingredientPlaceholder' | translate" [ariaLabel]="'grocery.ingredientColumn' | translate"></app-taxonomy-select>
+        <app-taxonomy-select name="groceryIngredientName" [(ngModel)]="draftIngredientName" [options]="ingredientOptions" [optionLabels]="ingredientOptionLabels" [multiple]="false" [allowCustom]="true" [placeholder]="'grocery.ingredientPlaceholder' | translate"
+          [ariaLabel]="'grocery.ingredientColumn' | translate"></app-taxonomy-select>
       </div>
       <div class="grocery-add-field">
         <label for="grocery-ingredient-amount">{{ 'grocery.amountColumn' | translate }}</label>
@@ -235,14 +239,6 @@
         {{ 'grocery.byRecipe' | translate }}
       </button>
     </div>
-
-    @if (confirmClearList) {
-    <div class="grocery-clear-confirm" role="alert">
-      <span>{{ 'grocery.clearListConfirm' | translate }}</span>
-      <button class="btn btn-danger btn-sm" type="button" (click)="clearGroceryList()">{{ 'grocery.confirmClear' | translate }}</button>
-      <button class="btn btn-outline-secondary btn-sm" type="button" (click)="confirmClearList = false">{{ 'grocery.cancelClear' | translate }}</button>
-    </div>
-    }
 
     <table class="table table-hover align-middle caption-top grocery-table mb-0">
       <caption>{{ 'grocery.tableCaption' | translate }}</caption>
@@ -307,8 +303,8 @@
           </th>
           @if (isEditingIngredient(ingredient)) {
           <td class="grocery-edit-name">
-            <app-taxonomy-select [name]="'edit-grocery-ingredient-' + group.recipeTitle + '-' + i" [(ngModel)]="editIngredientName" [options]="ingredientOptions" [multiple]="false" [allowCustom]="true" [placeholder]="'grocery.ingredientPlaceholder' | translate"
-              [ariaLabel]="'grocery.ingredientColumn' | translate"></app-taxonomy-select>
+            <app-taxonomy-select [name]="'edit-grocery-ingredient-' + group.recipeTitle + '-' + i" [(ngModel)]="editIngredientName" [options]="ingredientOptions" [optionLabels]="ingredientOptionLabels" [multiple]="false" [allowCustom]="true"
+              [placeholder]="'grocery.ingredientPlaceholder' | translate" [ariaLabel]="'grocery.ingredientColumn' | translate"></app-taxonomy-select>
           </td>
           <td>
             <div class="grocery-edit-amount">
@@ -368,11 +364,19 @@
     <h2 class="mt-3 mb-2">{{ 'grocery.emptyHeading' | translate }}</h2>
     <p class="mb-4">{{ 'grocery.emptyDescription' | translate }}</p>
     <div class="grocery-empty-actions">
-      <button class="btn btn-brand-alt" type="button" routerLink="/recipes">{{ 'grocery.addRecipe' | translate }}</button>
+      <button class="btn btn-brand-alt" type="button" [disabled]="loadingRecipes || addingRecipeToList" (click)="openRecipeSelectionModal()">
+        <i class="fas" [ngClass]="loadingRecipes || addingRecipeToList ? 'fa-spinner fa-spin' : 'fa-th-large'" aria-hidden="true"></i>
+        {{ 'grocery.addRecipe' | translate }}
+      </button>
       <button class="btn btn-brand-secondary" type="button" (click)="openAddIngredient()">{{ 'grocery.addIngredient' | translate }}</button>
     </div>
   </section>
   }
 </div>
+
+<app-confirmation [visible]="confirmClearList" [title]="'grocery.clearList' | translate" [message]="'grocery.clearListConfirm' | translate" [confirmLabel]="'grocery.confirmClear' | translate" [cancelLabel]="'grocery.cancelClear' | translate" [danger]="true" (confirmed)="clearGroceryList()"
+  (cancelled)="confirmClearList = false"></app-confirmation>
+
+<app-recipe-selection-modal [visible]="showRecipeSelectionModal" [recipes]="recipes" [selectedRecipeId]="selectedRecipeId" [loading]="addingRecipeToList" (selected)="addRecipeToGroceryList($event)" (closed)="closeRecipeSelectionModal()"></app-recipe-selection-modal>
 
 <app-list-overlay [title]="groceryListOverlayTitle"></app-list-overlay>
