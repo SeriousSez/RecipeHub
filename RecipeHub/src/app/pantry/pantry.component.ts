@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { IngredientService } from '../recipe/services/ingredient.service';
 import { UserService } from '../shared/services/user.service';
 import { PantryItem } from './pantry-item.interface';
 import { PantryService } from './pantry.service';
 import { TranslateService } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-pantry',
@@ -12,12 +13,13 @@ import { TranslateService } from '@ngx-translate/core';
     styleUrls: ['./pantry.component.css'],
     standalone: false
 })
-export class PantryComponent implements OnInit {
+export class PantryComponent implements OnInit, OnDestroy {
     private readonly pantryNamesStorageKey = 'recipehub-pantry-ingredients';
     private readonly pantryItemsStorageKey = 'recipehub-pantry-items';
     public readonly units = ['Piece', 'Gram', 'Kilogram', 'Milliliter', 'Liter', 'Teaspoon', 'Tablespoon', 'Cup', 'Ounce', 'Pound'];
     public pantryItems: PantryItem[] = [];
     public ingredientOptions: string[] = [];
+    public ingredientOptionLabels: Record<string, string> = {};
     public searchTerm = '';
     public draftName = '';
     public draftAmount: number | null = null;
@@ -30,6 +32,8 @@ export class PantryComponent implements OnInit {
     public sortColumn: 'name' | 'amount' | 'unit' | 'expirationDate' = 'name';
     public sortAscending = true;
     private ingredientNameLabels: Record<string, string> = {};
+    private languageSubscription?: Subscription;
+    private ingredientRequestId = 0;
 
     constructor(private pantryService?: PantryService, private ingredientService?: IngredientService, private userService?: UserService, private router?: Router, private translateService?: TranslateService) { }
 
@@ -37,8 +41,11 @@ export class PantryComponent implements OnInit {
         this.loadLocalItems();
         this.loadIngredientOptions();
         this.loadAccountItems();
-        this.translateLocalItems();
-        this.translateService?.onLangChange.subscribe(() => this.translateLocalItems());
+        this.languageSubscription = this.translateService?.onLangChange.subscribe(event => this.loadIngredientOptions(event.lang));
+    }
+
+    public ngOnDestroy(): void {
+        this.languageSubscription?.unsubscribe();
     }
 
     public get filteredPantryItems(): PantryItem[] {
@@ -91,18 +98,41 @@ export class PantryComponent implements OnInit {
         return new Date(`${item.expirationDate}T00:00:00`).getTime() <= Date.now() + (3 * 24 * 60 * 60 * 1000);
     }
 
-    private loadIngredientOptions(): void {
-        this.ingredientService?.getIngredientsLite().subscribe({ next: items => this.ingredientOptions = items.map(item => item.name).sort((a, b) => a.localeCompare(b)), error: () => this.ingredientOptions = [] });
+    private loadIngredientOptions(languageCode: string = this.translateService?.currentLang || 'en'): void {
+        const requestId = ++this.ingredientRequestId;
+        const requestedLanguage = this.mapUiLanguage(languageCode);
+        this.ingredientService?.getIngredientsLite(requestedLanguage).subscribe({
+            next: items => {
+                if (requestId !== this.ingredientRequestId) return;
+                const collator = new Intl.Collator(languageCode, { sensitivity: 'base', numeric: true });
+                const sortedItems = items.slice().sort((first, second) => collator.compare(first.displayName ?? first.name, second.displayName ?? second.name));
+                this.ingredientOptions = sortedItems.map(item => item.name);
+                this.ingredientOptionLabels = Object.fromEntries(sortedItems.map(item => [item.name, item.displayName ?? item.name]));
+                this.ingredientNameLabels = { ...this.ingredientOptionLabels };
+                this.translateLocalItems();
+            },
+            error: () => {
+                this.ingredientOptions = [];
+                this.ingredientOptionLabels = {};
+                this.ingredientNameLabels = {};
+                this.translateLocalItems();
+            }
+        });
     }
 
     private getRequestedLanguage(): string {
         const languageCode = this.translateService?.currentLang || 'en';
+        return this.mapUiLanguage(languageCode);
+    }
+
+    private mapUiLanguage(languageCode: string): string {
         return { da: 'Danish', et: 'Estonian', tr: 'Turkish' }[languageCode] ?? 'English';
     }
 
     private translateLocalItems(): void {
         const language = this.getRequestedLanguage();
         if (language === 'English' || this.pantryItems.length === 0) {
+            this.ingredientNameLabels = { ...this.ingredientOptionLabels };
             this.translatingLocalIngredients = false;
             return;
         }

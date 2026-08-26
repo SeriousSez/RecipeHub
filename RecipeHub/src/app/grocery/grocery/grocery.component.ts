@@ -79,16 +79,13 @@ export class GroceryComponent implements OnInit {
   constructor(private groceryService: GroceryService, private ingredientService: IngredientService, private datepipe: DatePipe, private router: Router, private translateService: TranslateService, private pantryService: PantryService, private userService: UserService) { }
 
   ngOnInit() {
-    this.getIngredients();
+    this.getIngredients(false);
     this.loadIngredientTranslations();
     this.translateService.onLangChange.subscribe(() => this.loadIngredientTranslations());
   }
 
-  getIngredients() {
+  getIngredients(refreshTranslations: boolean = true) {
     this.ingredients = this.groceryService.getIngredientList();
-    if (this.getRequestedLanguage() !== 'English' && this.ingredients.length > 0) {
-      this.translatingLocalIngredients = true;
-    }
     const summaries = new Map<string, GroceryIngredientSummary>();
 
     this.ingredients.forEach(ingredient => {
@@ -106,6 +103,9 @@ export class GroceryComponent implements OnInit {
     });
 
     this.consolidatedIngredients = Array.from(summaries.values());
+    if (refreshTranslations) {
+      this.translateLocalIngredients();
+    }
   }
 
   private getRequestedLanguage(): string {
@@ -329,7 +329,9 @@ export class GroceryComponent implements OnInit {
 
   removeSelectedFromIngredients() {
     [...this.selectedIngredients].forEach(ingredient => {
-      this.groceryService.removeIngredientFromList(ingredient);
+      this.getSourceIngredients(ingredient).forEach(sourceIngredient => {
+        this.groceryService.removeIngredientFromList(sourceIngredient);
+      });
     });
     this.selectedIngredients = [];
     this.getIngredients();
@@ -344,9 +346,7 @@ export class GroceryComponent implements OnInit {
       name: ingredient.name,
       amount: ingredient.amount,
       amountType: ingredient.amountType
-    })), userId || undefined).pipe(finalize(() => this.addingToPantry = false)).subscribe({
-      next: () => this.clearSelection()
-    });
+    })), userId || undefined).pipe(finalize(() => this.addingToPantry = false)).subscribe({});
   }
 
   findNearbyOffers() {
@@ -592,8 +592,7 @@ export class GroceryComponent implements OnInit {
 
   removeIngredient(ingredient: Ingredient) {
     if (this.editingIngredient === ingredient) this.cancelEditingIngredient();
-    const summary = ingredient as Partial<GroceryIngredientSummary>;
-    (summary.sourceIngredients ?? [ingredient]).forEach(sourceIngredient => {
+    this.getSourceIngredients(ingredient).forEach(sourceIngredient => {
       this.groceryService.removeIngredientFromList(sourceIngredient);
     });
     this.selectedIngredients = this.selectedIngredients.filter(item => item !== ingredient);
@@ -619,7 +618,12 @@ export class GroceryComponent implements OnInit {
   }
 
   isIngredientSelected(ingredient: Ingredient) {
-    return this.selectedIngredients.indexOf(ingredient, 0) > -1;
+    return this.selectedIngredients.some(selectedIngredient => selectedIngredient === ingredient || this.getSourceIngredients(selectedIngredient).includes(ingredient));
+  }
+
+  private getSourceIngredients(ingredient: Ingredient) {
+    const summary = ingredient as Partial<GroceryIngredientSummary>;
+    return summary.sourceIngredients ?? [ingredient];
   }
 
   clearSelection() {

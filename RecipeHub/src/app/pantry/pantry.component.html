@@ -21,8 +21,8 @@
                 isAuthenticated ? 'pantry.synced' : 'pantry.savedLocally') | translate }}</span>
         </div>
         <div class="pantry-add-grid">
-            <div class="pantry-field pantry-name-field"><label for="pantry-name">{{ 'pantry.ingredientLabel' | translate }}</label><app-taxonomy-select id="pantry-name" name="pantryName" [(ngModel)]="draftName" [options]="ingredientOptions" [multiple]="false" [allowCustom]="true"
-                    [placeholder]="'pantry.ingredientPlaceholder' | translate" [ariaLabel]="'pantry.ingredientLabel' | translate"></app-taxonomy-select></div>
+            <div class="pantry-field pantry-name-field"><label for="pantry-name">{{ 'pantry.ingredientLabel' | translate }}</label><app-taxonomy-select id="pantry-name" name="pantryName" [(ngModel)]="draftName" [options]="ingredientOptions" [optionLabels]="ingredientOptionLabels" [multiple]="false"
+                    [allowCustom]="true" [placeholder]="'pantry.ingredientPlaceholder' | translate" [ariaLabel]="'pantry.ingredientLabel' | translate"></app-taxonomy-select></div>
             <div class="pantry-field"><label for="pantry-amount">{{ 'pantry.quantityLabel' | translate }}</label><input id="pantry-amount" type="number" min="0" step="any" class="form-control" [(ngModel)]="draftAmount" [placeholder]="'pantry.quantityPlaceholder' | translate"></div>
             <div class="pantry-field"><label for="pantry-unit">{{ 'pantry.unitLabel' | translate }}</label><select id="pantry-unit" class="form-select" [(ngModel)]="draftUnit">
                     <option *ngFor="let unit of units" [value]="unit">{{ ('pantry.units.' + unit) | translate }}</option>

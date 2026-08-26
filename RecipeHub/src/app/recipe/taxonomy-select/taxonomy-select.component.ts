@@ -1,4 +1,4 @@
-import { Component, ElementRef, forwardRef, HostListener, Input, ViewChild } from '@angular/core';
+import { Component, ElementRef, forwardRef, HostBinding, HostListener, Input, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { RecipeTaxonomyGroup } from '../models/recipe-taxonomy';
 
@@ -16,6 +16,7 @@ import { RecipeTaxonomyGroup } from '../models/recipe-taxonomy';
 export class TaxonomySelectComponent implements ControlValueAccessor {
     @ViewChild('searchInput') private searchInput?: ElementRef<HTMLInputElement>;
     @ViewChild('dropdown') private dropdown?: ElementRef<HTMLElement>;
+    @HostBinding('class.taxonomy-select-host-open') public get hostOpen(): boolean { return this.isOpen; }
 
     @Input() groups: RecipeTaxonomyGroup[] = [];
     @Input() options: string[] = [];

@@ -95,6 +95,10 @@ button:disabled {
     z-index: 40;
 }
 
+.pantry-section:has(app-taxonomy-select.taxonomy-select-host-open) {
+    z-index: 50;
+}
+
 .pantry-section-heading,
 .pantry-inventory-toolbar {
     display: flex;
