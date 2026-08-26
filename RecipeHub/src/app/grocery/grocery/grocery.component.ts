@@ -13,6 +13,7 @@ import { GroceryIngredientOffer, GroceryNearbyStore, GroceryOfferCategory, Groce
 interface GroceryIngredientGroup {
   recipeTitle: string;
   recipeId: string | null;
+  isRecipeGroup: boolean;
   ingredients: Ingredient[];
 }
 
@@ -220,6 +221,7 @@ export class GroceryComponent implements OnInit {
       const group: GroceryIngredientGroup = groups.get(recipeKey) ?? {
         recipeTitle,
         recipeId: ingredient.sourceRecipeId ?? null,
+        isRecipeGroup: !!(ingredient.sourceRecipeId || ingredient.sourceRecipeTitle?.trim()),
         ingredients: []
       };
 
@@ -617,8 +619,30 @@ export class GroceryComponent implements OnInit {
     }
   }
 
+  toggleIngredientGroupSelected(group: GroceryIngredientGroup) {
+    if (this.isIngredientGroupSelected(group)) {
+      this.selectedIngredients = this.selectedIngredients.filter(selectedIngredient =>
+        !group.ingredients.some(ingredient => selectedIngredient === ingredient || this.getSourceIngredients(selectedIngredient).includes(ingredient)));
+      return;
+    }
+
+    group.ingredients.forEach(ingredient => {
+      if (!this.isIngredientSelected(ingredient)) {
+        this.selectedIngredients.push(ingredient);
+      }
+    });
+  }
+
   isIngredientSelected(ingredient: Ingredient) {
     return this.selectedIngredients.some(selectedIngredient => selectedIngredient === ingredient || this.getSourceIngredients(selectedIngredient).includes(ingredient));
+  }
+
+  isIngredientGroupSelected(group: GroceryIngredientGroup) {
+    return group.ingredients.length > 0 && group.ingredients.every(ingredient => this.isIngredientSelected(ingredient));
+  }
+
+  isIngredientGroupPartiallySelected(group: GroceryIngredientGroup) {
+    return group.ingredients.some(ingredient => this.isIngredientSelected(ingredient)) && !this.isIngredientGroupSelected(group);
   }
 
   private getSourceIngredients(ingredient: Ingredient) {

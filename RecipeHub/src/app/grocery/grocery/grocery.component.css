@@ -298,6 +298,40 @@
     width: 3rem;
 }
 
+.grocery-group-header th,
+.grocery-group-header td {
+    border-top: 1px solid rgba(15, 118, 110, .22);
+    border-bottom: 1px solid rgba(15, 118, 110, .14);
+    background: linear-gradient(90deg, rgba(240, 253, 250, .95), rgba(248, 250, 252, .95));
+    color: #334155;
+    font-weight: 800;
+}
+
+.grocery-recipe-group-title {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+}
+
+.grocery-recipe-group-title strong {
+    color: #0f172a;
+}
+
+.grocery-recipe-group-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .25rem .45rem;
+    border-radius: 6px;
+    background: #e6fffb;
+    color: #0f766e;
+    font-size: .68rem;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
 .grocery-table .form-check-input {
     width: 1.2rem;
     height: 1.2rem;

@@ -286,8 +286,18 @@
       @for (group of groupedIngredients; track group.recipeTitle) {
       <tbody>
         <tr class="grocery-group-header">
-          <td colspan="5">
-            <strong>{{ group.recipeTitle }}</strong>
+          <th scope="row" class="selection-column">
+            <input class="form-check-input me-1 cursor-pointer" type="checkbox" [checked]="isIngredientGroupSelected(group)" [indeterminate]="isIngredientGroupPartiallySelected(group)" (click)="$event.stopPropagation(); toggleIngredientGroupSelected(group)"
+              [attr.aria-label]="'grocery.selectRecipeIngredients' | translate:{ recipe: group.recipeTitle }" [title]="'grocery.selectRecipeIngredients' | translate:{ recipe: group.recipeTitle }">
+          </th>
+          <td colspan="4">
+            <div class="grocery-recipe-group-title">
+              <strong>{{ group.recipeTitle }}</strong>
+              <span class="grocery-recipe-group-badge">
+                <i class="fas" [ngClass]="group.isRecipeGroup ? 'fa-book-open' : 'fa-list'" aria-hidden="true"></i>
+                {{ (group.isRecipeGroup ? 'grocery.recipeGroupLabel' : 'grocery.manualGroupLabel') | translate }}
+              </span>
+            </div>
           </td>
         </tr>
         @for (ingredient of group.ingredients; track ingredient; let i = $index) {
