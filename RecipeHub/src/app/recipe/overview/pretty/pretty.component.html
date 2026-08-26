@@ -29,6 +29,13 @@
           <span *ngIf="(recipe.madeCount ?? 0) > 0"><i class="fas fa-utensils" aria-hidden="true"></i> {{ 'recipe.madeThisCount' | translate:{ count: recipe.madeCount } }}</span>
         </div>
 
+        <div class="recipe-nutrition-highlights" *ngIf="getSortHighlights(recipe).length > 0">
+          <span class="recipe-nutrition-highlight" *ngFor="let highlight of getSortHighlights(recipe)">
+            <strong>{{ highlight.value }}</strong>
+            <span>{{ highlight.label }}</span>
+          </span>
+        </div>
+
         <div class="recipe-nutrition-highlights" *ngIf="getNutritionHighlights(recipe).length > 0">
           <span class="recipe-nutrition-highlight" *ngFor="let highlight of getNutritionHighlights(recipe)">
             <strong *ngIf="highlight.value != null">{{ highlight.value | number:'1.0-2' }} {{ highlight.unit }}</strong>

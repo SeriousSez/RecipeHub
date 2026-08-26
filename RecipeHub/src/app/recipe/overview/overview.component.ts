@@ -184,7 +184,7 @@ export class OverviewComponent implements OnInit {
   }
 
   public get sortOptions(): string[] {
-    return ['created', 'rating', 'popularity', 'title', 'creator', 'protein', 'carbohydrates', 'fiber'];
+    return ['created', 'time', 'rating', 'popularity', 'title', 'creator', 'protein', 'carbohydrates', 'fiber'];
   }
 
   public get nutritionHighlightTags(): string[] {
@@ -205,6 +205,7 @@ export class OverviewComponent implements OnInit {
   public get sortOptionLabels(): Record<string, string> {
     return {
       created: this.translateService.instant('recipe.sortCreated'),
+      time: this.translateService.instant('recipe.sortTime'),
       title: this.translateService.instant('recipe.sortTitle'),
       creator: this.translateService.instant('recipe.sortCreator'),
       rating: this.translateService.instant('recipe.sortRating'),
@@ -872,6 +873,9 @@ export class OverviewComponent implements OnInit {
         case 'creator':
           comparison = a.creator.localeCompare(b.creator);
           break;
+        case 'time':
+          comparison = this.getTotalRecipeMinutes(a) - this.getTotalRecipeMinutes(b);
+          break;
         case 'created':
         default:
           comparison = new Date(a.created).getTime() - new Date(b.created).getTime();
@@ -933,5 +937,16 @@ export class OverviewComponent implements OnInit {
     if (left == null) return 1;
     if (right == null) return -1;
     return this.ascending ? left - right : right - left;
+  }
+
+  private getTotalRecipeMinutes(recipe: Recipe): number {
+    return [
+      recipe.preparationMinutes,
+      recipe.cookingMinutes,
+      recipe.proofingMinutes,
+      recipe.chillingMinutes,
+      recipe.coolingMinutes,
+      recipe.restingMinutes
+    ].reduce<number>((total, minutes) => total + (minutes ?? 0), 0);
   }
 }

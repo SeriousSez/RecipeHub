@@ -227,6 +227,36 @@
     color: #64748b;
 }
 
+.recipe-rating-summary {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem .8rem;
+    margin-top: auto;
+    padding-top: 1.45rem;
+    color: #64748b;
+    font-size: .68rem;
+}
+
+.recipe-rating-summary::before {
+    content: '';
+    position: absolute;
+    top: .75rem;
+    right: 0;
+    left: 0;
+    height: 1px;
+    background: rgba(15, 23, 42, .08);
+}
+
+.recipe-rating-summary i,
+.recipe-rating-summary strong {
+    color: #b45309;
+}
+
+.recipe-rating-summary+.recipe-nutrition-highlights {
+    margin-top: .55rem;
+}
+
 @media only screen and (max-device-width: 480px) {
     .card-group {
         grid-template-columns: repeat(1, minmax(0, 1fr));
@@ -249,23 +279,4 @@
     .card-group {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
-}
-
-.recipe-rating-summary {
-    display: flex;
-    flex-wrap: wrap;
-    gap: .35rem .8rem;
-    margin-top: auto;
-    padding-top: .85rem;
-    color: #64748b;
-    font-size: .68rem;
-}
-
-.recipe-rating-summary i,
-.recipe-rating-summary strong {
-    color: #b45309;
-}
-
-.recipe-rating-summary+.recipe-nutrition-highlights {
-    margin-top: .55rem;
 }

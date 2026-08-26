@@ -619,6 +619,7 @@ namespace RecipeHub.Api.Controllers
                 {
                     "title" => ascending ? filtered.OrderBy(r => r.Title, StringComparer.OrdinalIgnoreCase) : filtered.OrderByDescending(r => r.Title, StringComparer.OrdinalIgnoreCase),
                     "creator" => ascending ? filtered.OrderBy(r => r.Creator, StringComparer.OrdinalIgnoreCase) : filtered.OrderByDescending(r => r.Creator, StringComparer.OrdinalIgnoreCase),
+                    "time" => ascending ? filtered.OrderBy(GetTotalRecipeMinutes) : filtered.OrderByDescending(GetTotalRecipeMinutes),
                     "protein" => ascending
                         ? filtered.OrderBy(r => r.ProteinGrams.HasValue ? 0 : 1).ThenBy(r => r.ProteinGrams)
                         : filtered.OrderBy(r => r.ProteinGrams.HasValue ? 0 : 1).ThenByDescending(r => r.ProteinGrams),
@@ -751,6 +752,16 @@ namespace RecipeHub.Api.Controllers
         private static bool Contains(string value, string term)
         {
             return !string.IsNullOrEmpty(value) && value.Contains(term, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static int GetTotalRecipeMinutes(RecipeResponse recipe)
+        {
+            return (recipe.PreparationMinutes ?? 0) +
+                (recipe.CookingMinutes ?? 0) +
+                (recipe.ProofingMinutes ?? 0) +
+                (recipe.ChillingMinutes ?? 0) +
+                (recipe.CoolingMinutes ?? 0) +
+                (recipe.RestingMinutes ?? 0);
         }
 
         private static List<string> SplitFilterValues(string value)

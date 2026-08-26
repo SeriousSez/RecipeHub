@@ -463,6 +463,7 @@
         "sortDirectionAria": "Toggle sort direction",
         "clearFiltersButton": "Clear filters",
         "sortCreated": "Created",
+        "sortTime": "Time",
         "sortTitle": "Title",
         "sortCreator": "Creator",
         "sortRating": "Rating",

@@ -23,6 +23,7 @@ export class PrettyComponent implements OnInit {
   @Input() pantryIngredients: string[] = [];
   @Input() bestMatchScore: number = 0;
   @Input() activeTagFilters: string[] = [];
+  @Input() activeSortSetting: string = 'created';
   @Input() showEngagement: boolean = false;
   @Output() selectRecipe = new EventEmitter<Recipe>();
 
@@ -126,6 +127,52 @@ export class PrettyComponent implements OnInit {
 
   getNutritionHighlights(recipe: Recipe): RecipeNutritionHighlight[] {
     return getRecipeNutritionHighlights(recipe, this.activeTagFilters);
+  }
+
+  getSortHighlights(recipe: Recipe): Array<{ value: string, label: string }> {
+    if (this.activeSortSetting === 'creator') {
+      return recipe.creator ? [{ value: recipe.creator, label: this.translateService.instant('recipe.sortCreator') }] : [];
+    }
+
+    if (this.activeSortSetting === 'time') {
+      const timeHighlights = [
+        { value: recipe.preparationMinutes, labelKey: 'recipe.preparationTimeLabel' },
+        { value: recipe.cookingMinutes, labelKey: 'recipe.cookingTimeLabel' },
+        { value: recipe.proofingMinutes, labelKey: 'recipe.proofingTimeLabel' },
+        { value: recipe.chillingMinutes, labelKey: 'recipe.chillingTimeLabel' },
+        { value: recipe.coolingMinutes, labelKey: 'recipe.coolingTimeLabel' },
+        { value: recipe.restingMinutes, labelKey: 'recipe.restingTimeLabel' }
+      ]
+        .filter(item => item.value != null && item.value > 0)
+        .map(item => ({ value: this.formatDuration(item.value ?? 0), label: this.translateService.instant(item.labelKey) }));
+
+      const totalTime = this.getTotalRecipeMinutes(recipe);
+      return totalTime > 0
+        ? [{ value: this.formatDuration(totalTime), label: this.translateService.instant('recipe.sortTime') }, ...timeHighlights]
+        : [];
+    }
+
+    return [];
+  }
+
+  private getTotalRecipeMinutes(recipe: Recipe): number {
+    return [
+      recipe.preparationMinutes,
+      recipe.cookingMinutes,
+      recipe.proofingMinutes,
+      recipe.chillingMinutes,
+      recipe.coolingMinutes,
+      recipe.restingMinutes
+    ].reduce<number>((total, value) => total + (value ?? 0), 0);
+  }
+
+  private formatDuration(minutes: number): string {
+    if (minutes <= 0) return '';
+    if (minutes < 60) return `${minutes} min`;
+
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    return remainingMinutes > 0 ? `${hours} hr ${remainingMinutes} min` : `${hours} hr`;
   }
 
   getIngredientMatchSummary(recipe: Recipe) {
