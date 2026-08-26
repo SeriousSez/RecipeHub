@@ -23,6 +23,7 @@ import { LanguageService } from 'src/app/shared/services/language.service';
 import { concatMap, finalize } from 'rxjs/operators';
 import { NutritionEstimate } from '../models/nutrition-estimate.interface';
 import { RecipeEngagement } from '../models/recipe-engagement.interface';
+import { PantryService } from 'src/app/pantry/pantry.service';
 
 @Component({
   selector: 'app-recipe',
@@ -314,7 +315,7 @@ export class RecipeComponent implements OnInit {
     toolbarPosition: 'top'
   };
 
-  constructor(private activatedRoute: ActivatedRoute, private datepipe: DatePipe, private router: Router, public utilityService: UtilityService, private recipeService: RecipeService, private groceryService: GroceryService, private ingredientService: IngredientService, private userService: UserService, private safeService: SafeService, private favoriteService: FavoriteService, private translateService: TranslateService, private languageService: LanguageService, private changeDetectorRef: ChangeDetectorRef) {
+  constructor(private activatedRoute: ActivatedRoute, private datepipe: DatePipe, private router: Router, public utilityService: UtilityService, private recipeService: RecipeService, private groceryService: GroceryService, private ingredientService: IngredientService, private userService: UserService, private safeService: SafeService, private favoriteService: FavoriteService, private translateService: TranslateService, private languageService: LanguageService, private changeDetectorRef: ChangeDetectorRef, private pantryService: PantryService) {
     const routeId = activatedRoute.snapshot.params['id'];
     const routeTitle = activatedRoute.snapshot.params['title'];
     const routeKey = activatedRoute.snapshot.params['key'];
@@ -433,23 +434,45 @@ export class RecipeComponent implements OnInit {
   //#endregion
 
   markAsMade(): void {
-    this.saveEngagement(null);
+    this.saveEngagement(null, true);
   }
 
   rateRecipe(rating: number): void {
     this.saveEngagement(rating);
   }
 
-  private saveEngagement(rating: number | null): void {
+  private saveEngagement(rating: number | null, consumePantry: boolean = false): void {
     if (!this.userService.isAuthenticated() || !this.recipeId || this.savingEngagement) return;
 
     this.savingEngagement = true;
     this.engagementError = false;
+    const shouldConsumePantry = consumePantry && !this.engagement.hasMade;
     this.recipeService.saveEngagement(this.recipeId, rating).pipe(
       finalize(() => this.savingEngagement = false)
     ).subscribe({
-      next: engagement => this.engagement = engagement,
+      next: engagement => {
+        this.engagement = engagement;
+        if (shouldConsumePantry && engagement.hasMade) {
+          this.consumeRecipeIngredientsFromPantry();
+        }
+      },
       error: () => this.engagementError = true
+    });
+  }
+
+  private consumeRecipeIngredientsFromPantry(): void {
+    const ingredients = (this.canonicalRecipe?.ingredients ?? this.recipe?.ingredients ?? [])
+      .map(ingredient => ({
+        name: ingredient.name,
+        amount: ingredient.amount,
+        amountType: ingredient.amountType
+      }));
+
+    if (ingredients.length === 0) return;
+
+    this.pantryService.consumeItems(ingredients, this.userService.getUserId()).subscribe({
+      next: () => this.loadPantryIngredients(),
+      error: () => { }
     });
   }
 

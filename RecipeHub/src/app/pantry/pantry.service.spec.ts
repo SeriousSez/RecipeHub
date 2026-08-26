@@ -52,4 +52,33 @@ describe('PantryService', () => {
         const storedItems = JSON.parse(localStorage.getItem('recipehub-pantry-items') ?? '[]') as PantryItem[];
         expect(storedItems.map(item => item.name)).toEqual(['Eggs', 'Spinach', 'Tomatoes']);
     });
+
+    it('consumes matching local pantry quantities and removes depleted items', () => {
+        localStorage.setItem('recipehub-pantry-items', JSON.stringify([
+            { id: 'flour-id', name: 'Flour', amount: 500, amountType: 'Gram', expirationDate: null },
+            { id: 'egg-id', name: 'Eggs', amount: 2, amountType: 'Piece', expirationDate: '2026-08-30' }
+        ]));
+
+        let result: PantryItem[] = [];
+        service.consumeItems([
+            { name: 'flour', amount: 200, amountType: 'Gram' },
+            { name: 'Eggs', amount: 2, amountType: 'Piece' }
+        ]).subscribe(items => result = items);
+
+        expect(result).toEqual([{ id: 'flour-id', name: 'Flour', amount: 300, amountType: 'Gram', expirationDate: null }]);
+        expect(localStorage.getItem('recipehub-pantry-ingredients')).toBe('Flour');
+    });
+
+    it('consumes authenticated pantry items before updating the account pantry', () => {
+        http.get.and.returnValue(of([
+            { id: 'rice-id', name: 'Rice', amount: 1, amountType: 'Kilogram', expirationDate: null }
+        ]));
+        http.post.and.returnValue(of([]));
+
+        service.consumeItems([{ name: 'Rice', amount: 250, amountType: 'Gram' }], 'user-id').subscribe();
+
+        const update = http.post.calls.mostRecent();
+        const updateBody = update.args[1] as { items: PantryItem[] };
+        expect(updateBody.items).toEqual([{ id: 'rice-id', name: 'Rice', amount: 1, amountType: 'Kilogram', expirationDate: null }]);
+    });
 });
