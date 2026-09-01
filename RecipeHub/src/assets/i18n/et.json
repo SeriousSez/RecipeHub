@@ -368,6 +368,7 @@
         "priceFrom": "Hind kuupäevaga",
         "unmatchedIngredients": "Kataloogivastet pole:",
         "nearbyStoresHeading": "Lähedal olevad poed",
+        "onlineStore": "Veebipood",
         "offersSource": "Hinna- ja poeandmed pakub",
         "locationPermissionDenied": "Asukoha luba keelati. Lähedal olevate poodide otsimiseks luba asukohale juurdepääs.",
         "locationUnavailable": "Asukohta ei õnnestunud määrata. Proovi uuesti, kui asukohateenused on saadaval.",

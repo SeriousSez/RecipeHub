@@ -129,7 +129,7 @@
                     [attr.aria-label]="'grocery.categoryBadMatch' | translate:{ category: offer.productCategory }"><i class="fas fa-thumbs-down" aria-hidden="true"></i></button>
                 </div>
                 }
-                <p><strong>{{ offer.chainName }}</strong> · {{ offer.storeName }} · {{ offer.distanceKm | number:'1.0-1' }} km</p>
+                <p><strong>{{ offer.chainName }}</strong> · {{ offer.storeName }} · {{ offer.isOnlineOnly ? ('grocery.onlineStore' | translate) : (offer.distanceKm | number:'1.0-1') + ' km' }}</p>
                 <p class="grocery-offer-address">{{ offer.storeAddress }}, {{ offer.storePostalCode }} {{ offer.storeCity }}</p>
               </div>
               <div class="grocery-offer-price">
@@ -173,7 +173,7 @@
           @for (store of nearbyStores; track store.id) {
           <a [href]="getStoreMapUrl(store)" target="_blank" rel="noopener noreferrer">
             <strong>{{ store.chainName }}</strong>
-            <span>{{ store.name }} · {{ store.distanceKm | number:'1.0-1' }} km</span>
+            <span>{{ store.name }} · {{ store.isOnlineOnly ? ('grocery.onlineStore' | translate) : (store.distanceKm | number:'1.0-1') + ' km' }}</span>
             <i class="fas fa-external-link-alt" aria-hidden="true"></i>
           </a>
           }

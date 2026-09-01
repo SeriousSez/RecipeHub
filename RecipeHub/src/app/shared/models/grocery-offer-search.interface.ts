@@ -32,6 +32,7 @@ export interface GroceryNearbyStore {
     latitude: number;
     longitude: number;
     distanceKm: number;
+    isOnlineOnly?: boolean;
 }
 
 export interface GroceryIngredientOffer {
@@ -47,6 +48,7 @@ export interface GroceryIngredientOffer {
     storeCity: string;
     storePostalCode?: string;
     distanceKm: number;
+    isOnlineOnly?: boolean;
     price: number;
     originalPrice?: number;
     discountPercentage?: number;

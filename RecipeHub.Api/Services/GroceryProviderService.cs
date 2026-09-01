@@ -51,12 +51,18 @@ namespace RecipeHub.Api.Services
         {
             if (model != null)
             {
-                if (model.Latitude >= 54.5 && model.Latitude <= 57.8 && model.Longitude >= 8.0 && model.Longitude <= 15.2)
+                if (model.Latitude >= 54.9 && model.Latitude <= 55.3 && model.Longitude >= 14.6 && model.Longitude <= 15.3)
+                    return "DK";
+                if (model.Latitude >= 54.5 && model.Latitude <= 57.8 && model.Longitude >= 8.0 && model.Longitude < 12.9)
                     return "DK";
                 if (model.Latitude >= 57.5 && model.Latitude <= 59.8 && model.Longitude >= 21.5 && model.Longitude <= 28.3)
                     return "EE";
                 if (model.Latitude >= 35.8 && model.Latitude <= 42.2 && model.Longitude >= 25.5 && model.Longitude <= 45.1)
                     return "TR";
+                if (model.Latitude >= 57.9 && model.Latitude <= 71.3 && model.Longitude >= 4.0 && model.Longitude < 13.0)
+                    return "NO";
+                if (model.Latitude >= 55.0 && model.Latitude <= 69.5 && model.Longitude >= 12.9 && model.Longitude <= 24.5)
+                    return "SE";
             }
 
             return string.IsNullOrWhiteSpace(model?.CountryCode) ? "DK" : model.CountryCode.Trim();

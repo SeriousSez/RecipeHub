@@ -368,6 +368,7 @@
         "priceFrom": "Fiyat tarihi",
         "unmatchedIngredients": "Katalog eşleşmesi yok:",
         "nearbyStoresHeading": "Yakındaki mağazalar",
+        "onlineStore": "Çevrimiçi mağaza",
         "offersSource": "Fiyat ve mağaza verilerini sağlayan",
         "locationPermissionDenied": "Konum izni reddedildi. Yakındaki mağazaları aramak için konum erişimine izin verin.",
         "locationUnavailable": "Konumunuz belirlenemedi. Konum hizmetleri kullanılabilir olduğunda tekrar deneyin.",

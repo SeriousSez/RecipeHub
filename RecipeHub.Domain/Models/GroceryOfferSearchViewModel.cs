@@ -37,6 +37,7 @@ namespace RecipeHub.Domain.Models
         public double Latitude { get; set; }
         public double Longitude { get; set; }
         public double DistanceKm { get; set; }
+        public bool IsOnlineOnly { get; set; }
     }
 
     public class GroceryIngredientOfferViewModel
@@ -53,6 +54,7 @@ namespace RecipeHub.Domain.Models
         public string StoreCity { get; set; }
         public string StorePostalCode { get; set; }
         public double DistanceKm { get; set; }
+        public bool IsOnlineOnly { get; set; }
         public decimal Price { get; set; }
         public decimal? OriginalPrice { get; set; }
         public int? DiscountPercentage { get; set; }

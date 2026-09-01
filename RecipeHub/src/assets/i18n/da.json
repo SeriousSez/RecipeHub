@@ -368,6 +368,7 @@
         "priceFrom": "Pris fra",
         "unmatchedIngredients": "Intet katalogmatch:",
         "nearbyStoresHeading": "Butikker i nærheden",
+        "onlineStore": "Onlinebutik",
         "offersSource": "Priser og butiksdata leveret af",
         "locationPermissionDenied": "Adgang til placering blev afvist. Tillad placering for at søge efter butikker i nærheden.",
         "locationUnavailable": "Din placering kunne ikke bestemmes. Prøv igen, når placeringstjenester er tilgængelige.",

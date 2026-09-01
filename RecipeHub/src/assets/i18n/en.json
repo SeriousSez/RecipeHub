@@ -388,6 +388,7 @@
         "priceFrom": "Price from",
         "unmatchedIngredients": "No catalog match:",
         "nearbyStoresHeading": "Nearby stores",
+        "onlineStore": "Online store",
         "offersSource": "Prices and store data supplied by",
         "locationPermissionDenied": "Location permission was denied. Allow location access to search nearby stores.",
         "locationUnavailable": "Your location could not be determined. Try again when location services are available.",

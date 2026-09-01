@@ -145,9 +145,21 @@ namespace RecipeHub
                 client.DefaultRequestHeaders.UserAgent.ParseAdd(Configuration["OpenPrices:UserAgent"] ?? "RecipeHub/1.0");
                 client.Timeout = TimeSpan.FromSeconds(30);
             });
+            services.AddHttpClient("Primat", client =>
+            {
+                client.BaseAddress = new Uri(Configuration["Primat:BaseUrl"] ?? "https://primat.nu/api/v3/");
+                client.Timeout = TimeSpan.FromSeconds(30);
+            });
+            services.AddHttpClient("Kassalapp", client =>
+            {
+                client.BaseAddress = new Uri(Configuration["Kassalapp:BaseUrl"] ?? "https://kassal.app/api/v1/");
+                client.Timeout = TimeSpan.FromSeconds(30);
+            });
             services.AddScoped<IGroceryProvider, MadprisGroceryOfferService>();
             services.AddScoped<IGroceryProvider, CamGozGroceryProvider>();
             services.AddScoped<IGroceryProvider, OpenPricesGroceryProvider>();
+            services.AddScoped<IGroceryProvider, PrimatGroceryProvider>();
+            services.AddScoped<IGroceryProvider, KassalappGroceryProvider>();
             services.AddScoped<IGroceryOfferService, GroceryProviderService>();
             services.AddScoped<IIngredientImageGenerator, IngredientImageGenerator>();
             services.AddScoped<IFavoriteService, FavoriteService>();
