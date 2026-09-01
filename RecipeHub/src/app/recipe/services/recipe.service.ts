@@ -15,6 +15,7 @@ import { RecipeUpdate } from '../models/recipe-update.interface';
 import { RecipePagedQuery, RecipePagedResult } from '../models/recipe-paged.interface';
 import { NutritionEstimate, NutritionEstimateIngredient } from '../models/nutrition-estimate.interface';
 import { RecipeEngagement } from '../models/recipe-engagement.interface';
+import { GeneratedRecipe, RecipeGenerationRequest } from '../models/recipe-generation.interface';
 
 @Injectable()
 
@@ -118,6 +119,10 @@ export class RecipeService extends BaseService {
 
   estimateNutrition(ingredients: NutritionEstimateIngredient[], portions: number, instructions: string): Observable<NutritionEstimate> {
     return this.http.post<NutritionEstimate>(this.baseUrl + "/recipe/estimate-nutrition", { ingredients, portions, instructions }, this.httpOptions);
+  }
+
+  generateRecipe(request: RecipeGenerationRequest): Observable<GeneratedRecipe> {
+    return this.http.post<GeneratedRecipe>(this.baseUrl + "/recipe/generate", request, this.httpOptions);
   }
 
   addIngredients(recipe: Recipe, ingredients: Ingredient[]): Observable<Ingredient[]> {

@@ -11,6 +11,10 @@
         <i class="far fa-file-alt" aria-hidden="true"></i>
         <span>{{ 'recipe.addRecipeNav' | translate }}</span>
       </button>
+      <button class="recipe-side-link" type="button" (click)="openGenerateRecipe()">
+        <i class="fas fa-magic" aria-hidden="true"></i>
+        <span>{{ 'recipe.generateRecipeNav' | translate }}</span>
+      </button>
     </div>
 
     <div class="recipe-side-panel">
@@ -82,6 +86,30 @@
     }
 
     <app-food-plan-modal [visible]="showFoodPlanModal" [recipes]="selectedRecipes" (closed)="closeFoodPlanModal()" (saved)="handleFoodPlanSaved()"></app-food-plan-modal>
+
+    @if (showGenerateRecipe) {
+    <div class="generate-recipe-modal-backdrop" (click)="closeGenerateRecipe()"></div>
+    <section class="generate-recipe-modal" role="dialog" aria-modal="true" [attr.aria-label]="'recipe.generateRecipeNav' | translate">
+      <header class="generate-recipe-modal-header">
+        <div>
+          <h2>{{ 'recipe.generateRecipeHeading' | translate }}</h2>
+          <p>{{ 'recipe.generateRecipeHint' | translate }}</p>
+        </div>
+        <button type="button" class="generate-recipe-modal-close" (click)="closeGenerateRecipe()" [attr.aria-label]="'pantry.cancelButton' | translate"><i class="fas fa-times" aria-hidden="true"></i></button>
+      </header>
+      <div class="generate-recipe-modal-body">
+        <textarea class="form-control" rows="3" [(ngModel)]="generateRecipePrompt" [placeholder]="'recipe.generateRecipePromptPlaceholder' | translate" [disabled]="generatingRecipe"></textarea>
+        <p class="generate-recipe-modal-error" *ngIf="generateRecipeErrorKey && !generatingRecipe">{{ generateRecipeErrorKey | translate }}</p>
+        <div class="generate-recipe-modal-actions">
+          <button type="button" class="btn btn-brand-secondary" [disabled]="generatingRecipe || !generateRecipePrompt.trim()" (click)="generateRecipe()">
+            <i class="fas" [ngClass]="generatingRecipe ? 'fa-sync-alt fa-spin' : 'fa-magic'" aria-hidden="true"></i>
+            {{ (generatingRecipe ? 'pantry.generatingRecipe' : 'recipe.generateRecipeNav') | translate }}
+          </button>
+          <button type="button" class="btn btn-outline-secondary" (click)="closeGenerateRecipe()">{{ 'pantry.cancelButton' | translate }}</button>
+        </div>
+      </div>
+    </section>
+    }
 
     @if (loading) {
     <section class="recipe-loading-skeleton" aria-label="Loading recipes" aria-busy="true">

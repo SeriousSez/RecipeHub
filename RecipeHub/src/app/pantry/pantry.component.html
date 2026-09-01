@@ -8,9 +8,34 @@
         <div class="pantry-header-actions">
             <span class="pantry-count">{{ pantryItems.length }} {{ (pantryItems.length === 1 ? 'pantry.itemSingular' : 'pantry.itemPlural') | translate }}</span>
             <button type="button" class="btn btn-outline-brand pantry-primary-button" (click)="openPhotoCapture()"><i class="fas fa-camera" aria-hidden="true"></i>{{ 'pantry.takePhotoButton' | translate }}</button>
+            <button type="button" class="btn btn-brand-secondary pantry-primary-button" [disabled]="pantryItems.length === 0" (click)="openGenerateRecipe()"><i class="fas fa-magic" aria-hidden="true"></i>{{ 'pantry.generateRecipeButton' | translate }}</button>
             <button type="button" class="btn btn-brand-alt pantry-primary-button" [disabled]="pantryItems.length === 0" (click)="findRecipes()"><i class="fas fa-search" aria-hidden="true"></i>{{ 'pantry.findRecipes' | translate }}</button>
         </div>
     </header>
+
+    <section class="pantry-section" *ngIf="showGenerateRecipe" aria-labelledby="pantry-generate-heading">
+        <div class="pantry-section-heading">
+            <div>
+                <h2 id="pantry-generate-heading">{{ 'pantry.generateRecipeHeading' | translate }}</h2>
+                <p>{{ 'pantry.generateRecipeHint' | translate }}</p>
+            </div>
+            <button type="button" class="pantry-photo-close" (click)="closeGenerateRecipe()" [attr.aria-label]="'pantry.cancelButton' | translate"><i class="fas fa-times" aria-hidden="true"></i></button>
+        </div>
+
+        <div class="pantry-photo-body">
+            <textarea class="form-control" rows="2" [(ngModel)]="generateRecipePrompt" [placeholder]="'pantry.generateRecipePromptPlaceholder' | translate" [disabled]="generatingRecipe"></textarea>
+
+            <p class="pantry-photo-error" *ngIf="generateRecipeErrorKey && !generatingRecipe">{{ generateRecipeErrorKey | translate }}</p>
+
+            <div class="pantry-photo-actions">
+                <button type="button" class="btn btn-brand-secondary pantry-primary-button" [disabled]="generatingRecipe" (click)="generateRecipeFromPantry()">
+                    <i class="fas" [ngClass]="generatingRecipe ? 'fa-sync-alt fa-spin' : 'fa-magic'" aria-hidden="true"></i>
+                    {{ (generatingRecipe ? 'pantry.generatingRecipe' : 'pantry.generateRecipeButton') | translate }}
+                </button>
+                <button type="button" class="btn btn-outline-secondary" (click)="closeGenerateRecipe()">{{ 'pantry.cancelButton' | translate }}</button>
+            </div>
+        </div>
+    </section>
 
     <section class="pantry-section pantry-photo-section" *ngIf="showPhotoCapture" aria-labelledby="pantry-photo-heading">
         <div class="pantry-section-heading">

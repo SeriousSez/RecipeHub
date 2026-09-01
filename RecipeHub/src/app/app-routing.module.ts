@@ -13,6 +13,7 @@ import { ConfirmEmailComponent } from './confirm-email/confirm-email.component';
 import { PantryComponent } from './pantry/pantry.component';
 import { PublicProfileComponent } from './public-profile/public-profile.component';
 import { FoodPlanComponent } from './food-plan/food-plan.component';
+import { RecipeGeneratePreviewComponent } from './recipe/generate-preview/recipe-generate-preview.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -29,6 +30,7 @@ const routes: Routes = [
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'confirm-email', component: ConfirmEmailComponent },
+  { path: 'recipe/generate/preview', component: RecipeGeneratePreviewComponent, canActivate: [AuthGuard] },
   { path: 'recipe/:id/:slug', component: RecipeComponent },
   { path: 'recipe/:title/:creator', component: RecipeComponent },
   { path: 'recipe/:key', component: RecipeComponent },

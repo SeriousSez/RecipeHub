@@ -8,6 +8,8 @@ import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { RecognizedPantryItem } from '../recipe/models/ingredient-photo-recognition.interface';
 import { RecipeTaxonomyGroup } from '../recipe/models/recipe-taxonomy';
+import { RecipeService } from '../recipe/services/recipe.service';
+import { RecipeDraftService } from '../recipe/services/recipe-draft.service';
 
 interface PendingPantryPhoto {
     dataUrl: string;
@@ -56,11 +58,15 @@ export class PantryComponent implements OnInit, OnDestroy {
     public pendingPhotos: PendingPantryPhoto[] = [];
     public recognizedItems: RecognizedPantryItem[] = [];
     public selectedRecognizedNames = new Set<string>();
+    public showGenerateRecipe = false;
+    public generatingRecipe = false;
+    public generateRecipeErrorKey = '';
+    public generateRecipePrompt = '';
     private ingredientNameLabels: Record<string, string> = {};
     private languageSubscription?: Subscription;
     private ingredientRequestId = 0;
 
-    constructor(private pantryService?: PantryService, private ingredientService?: IngredientService, private userService?: UserService, private router?: Router, private translateService?: TranslateService) { }
+    constructor(private pantryService?: PantryService, private ingredientService?: IngredientService, private userService?: UserService, private router?: Router, private translateService?: TranslateService, private recipeService?: RecipeService, private recipeDraftService?: RecipeDraftService) { }
 
     public ngOnInit(): void {
         this.loadLocalItems();
@@ -138,6 +144,44 @@ export class PantryComponent implements OnInit, OnDestroy {
         this.recognizedItems = [];
         this.selectedRecognizedNames.clear();
         this.pendingPhotos = [];
+    }
+
+    public openGenerateRecipe(): void {
+        this.showGenerateRecipe = true;
+        this.generateRecipeErrorKey = '';
+        this.generateRecipePrompt = '';
+    }
+
+    public closeGenerateRecipe(): void {
+        this.showGenerateRecipe = false;
+        this.generatingRecipe = false;
+        this.generateRecipeErrorKey = '';
+    }
+
+    public generateRecipeFromPantry(): void {
+        if (this.generatingRecipe) return;
+
+        this.generatingRecipe = true;
+        this.generateRecipeErrorKey = '';
+        const pantryItems = this.pantryItems.map(item => item.name);
+        const prompt = this.generateRecipePrompt.trim() || undefined;
+
+        this.recipeService?.generateRecipe({ pantryItems, prompt, language: this.getRequestedLanguage() }).subscribe({
+            next: draft => {
+                this.generatingRecipe = false;
+                if (draft?.errorCode) {
+                    this.generateRecipeErrorKey = draft.errorCode === 'not_configured' ? 'pantry.generateRecipeNotConfigured' : 'pantry.generateRecipeFailed';
+                    return;
+                }
+                this.recipeDraftService?.setDraft(draft);
+                this.closeGenerateRecipe();
+                this.router?.navigate(['/recipe/generate/preview']);
+            },
+            error: () => {
+                this.generatingRecipe = false;
+                this.generateRecipeErrorKey = 'pantry.generateRecipeFailed';
+            }
+        });
     }
 
     public onPhotoSelected(event: Event): void {

@@ -13,6 +13,7 @@ import { UserSettings } from 'src/app/account/models/user-settings.interface';
 import { UtilityService } from 'src/app/shared/utils/utility.service';
 import { TranslateService } from '@ngx-translate/core';
 import { getRecipeNutritionHighlights, RecipeNutritionHighlight, getTaxonomyValueLabel, RecipeTaxonomyGroup, RECIPE_CATEGORY_GROUPS, RECIPE_TAG_GROUPS } from '../models/recipe-taxonomy';
+import { RecipeDraftService } from '../services/recipe-draft.service';
 import { LanguageService } from 'src/app/shared/services/language.service';
 
 @Component({
@@ -35,6 +36,10 @@ export class OverviewComponent implements OnInit {
   public showFavorites: boolean = false;
   public showMyRecipes: boolean = false;
   public showCreateMode: boolean = false;
+  public showGenerateRecipe: boolean = false;
+  public generatingRecipe: boolean = false;
+  public generateRecipeErrorKey: string = '';
+  public generateRecipePrompt: string = '';
   public showMobileFilters: boolean = false;
   public isClosingMobileFilters: boolean = false;
   public showPantryMatches: boolean = false;
@@ -262,7 +267,7 @@ export class OverviewComponent implements OnInit {
   private refreshIndicatorTimer?: ReturnType<typeof setTimeout>;
   private pageRequestSequence: number = 0;
 
-  constructor(private recipeService: RecipeService, private userService: UserService, private favoriteService: FavoriteService, private groceryService: GroceryService, private datepipe: DatePipe, private router: Router, private route: ActivatedRoute, private utilityService: UtilityService, private translateService: TranslateService, private languageService: LanguageService) { }
+  constructor(private recipeService: RecipeService, private userService: UserService, private favoriteService: FavoriteService, private groceryService: GroceryService, private datepipe: DatePipe, private router: Router, private route: ActivatedRoute, private utilityService: UtilityService, private translateService: TranslateService, private languageService: LanguageService, private recipeDraftService: RecipeDraftService) { }
 
   ngOnInit(): void {
     this.loadPantryIngredients();
@@ -594,6 +599,43 @@ export class OverviewComponent implements OnInit {
 
   openCreateRecipe() {
     this.showCreateMode = true;
+  }
+
+  openGenerateRecipe() {
+    this.showGenerateRecipe = true;
+    this.generateRecipeErrorKey = '';
+    this.generateRecipePrompt = '';
+  }
+
+  closeGenerateRecipe() {
+    this.showGenerateRecipe = false;
+    this.generatingRecipe = false;
+    this.generateRecipeErrorKey = '';
+  }
+
+  generateRecipe() {
+    if (this.generatingRecipe || !this.generateRecipePrompt.trim()) return;
+
+    this.generatingRecipe = true;
+    this.generateRecipeErrorKey = '';
+    const language = this.translateService.currentLang === 'da' ? 'Danish' : this.translateService.currentLang === 'et' ? 'Estonian' : this.translateService.currentLang === 'tr' ? 'Turkish' : 'English';
+
+    this.recipeService.generateRecipe({ prompt: this.generateRecipePrompt.trim(), language }).subscribe({
+      next: draft => {
+        this.generatingRecipe = false;
+        if (draft?.errorCode) {
+          this.generateRecipeErrorKey = draft.errorCode === 'not_configured' ? 'recipe.generateRecipeNotConfigured' : 'recipe.generateRecipeFailed';
+          return;
+        }
+        this.recipeDraftService.setDraft(draft);
+        this.closeGenerateRecipe();
+        this.router.navigate(['/recipe/generate/preview']);
+      },
+      error: () => {
+        this.generatingRecipe = false;
+        this.generateRecipeErrorKey = 'recipe.generateRecipeFailed';
+      }
+    });
   }
 
   closeCreateRecipe() {

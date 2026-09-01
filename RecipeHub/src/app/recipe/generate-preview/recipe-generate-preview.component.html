@@ -1,0 +1,136 @@
+<div *ngIf="draft" class="recipe-detail-shell">
+    <div class="recipe-generate-preview-banner">
+        <p>{{ 'recipe.generatePreviewNotice' | translate }}</p>
+        <div class="recipe-generate-preview-actions">
+            <button type="button" class="btn btn-brand" (click)="useThisRecipe()"><i class="fas fa-check" aria-hidden="true"></i>{{ 'recipe.generateUseRecipe' | translate }}</button>
+            <button type="button" class="btn btn-outline-secondary" (click)="discardDraft()">{{ 'recipe.generateDiscard' | translate }}</button>
+        </div>
+    </div>
+
+    <article class="recipe-detail-page">
+        <header class="recipe-detail-header">
+            <div class="recipe-detail-heading-group">
+                <p class="recipe-detail-kicker">{{ 'recipe.instructionsKicker' | translate }}</p>
+                <h1 class="recipe-detail-title">{{ draft.title }}</h1>
+            </div>
+        </header>
+
+        <div *ngIf="totalMinutes != null || draft.preparationMinutes != null || draft.cookingMinutes != null || draft.proofingMinutes != null || draft.chillingMinutes != null || draft.coolingMinutes != null || draft.restingMinutes != null || draft.shelfLifeDays != null || draft.canBeFrozen != null"
+            class="recipe-detail-facts">
+            <div *ngIf="totalMinutes as total" class="recipe-detail-fact">
+                <i class="far fa-clock" aria-hidden="true"></i>
+                <span>{{ 'recipe.totalTimeLabel' | translate }}</span>
+                <strong>{{ formatDuration(total) }}</strong>
+            </div>
+            <div *ngIf="draft.preparationMinutes != null" class="recipe-detail-fact">
+                <i class="fas fa-utensils" aria-hidden="true"></i>
+                <span>{{ 'recipe.preparationTimeLabel' | translate }}</span>
+                <strong>{{ formatDuration(draft.preparationMinutes) }}</strong>
+            </div>
+            <div *ngIf="draft.cookingMinutes != null" class="recipe-detail-fact">
+                <i class="fas fa-fire" aria-hidden="true"></i>
+                <span>{{ 'recipe.cookingTimeLabel' | translate }}</span>
+                <strong>{{ formatDuration(draft.cookingMinutes) }}</strong>
+            </div>
+            <div *ngIf="draft.proofingMinutes != null" class="recipe-detail-fact">
+                <i class="fas fa-bread-slice" aria-hidden="true"></i>
+                <span>{{ 'recipe.proofingTimeLabel' | translate }}</span>
+                <strong>{{ formatDuration(draft.proofingMinutes) }}</strong>
+            </div>
+            <div *ngIf="draft.chillingMinutes != null" class="recipe-detail-fact">
+                <i class="far fa-snowflake" aria-hidden="true"></i>
+                <span>{{ 'recipe.chillingTimeLabel' | translate }}</span>
+                <strong>{{ formatDuration(draft.chillingMinutes) }}</strong>
+            </div>
+            <div *ngIf="draft.coolingMinutes != null" class="recipe-detail-fact">
+                <i class="fas fa-temperature-low" aria-hidden="true"></i>
+                <span>{{ 'recipe.coolingTimeLabel' | translate }}</span>
+                <strong>{{ formatDuration(draft.coolingMinutes) }}</strong>
+            </div>
+            <div *ngIf="draft.restingMinutes != null" class="recipe-detail-fact">
+                <i class="far fa-hourglass" aria-hidden="true"></i>
+                <span>{{ 'recipe.restingTimeLabel' | translate }}</span>
+                <strong>{{ formatDuration(draft.restingMinutes) }}</strong>
+            </div>
+            <div *ngIf="draft.shelfLifeDays != null" class="recipe-detail-fact">
+                <i class="far fa-calendar-alt" aria-hidden="true"></i>
+                <span>{{ 'recipe.shelfLifeLabel' | translate }}</span>
+                <strong>{{ draft.shelfLifeDays }} {{ 'recipe.daysShort' | translate }}</strong>
+            </div>
+            <div *ngIf="draft.canBeFrozen != null" class="recipe-detail-fact">
+                <i class="far fa-snowflake" aria-hidden="true"></i>
+                <span>{{ 'recipe.canBeFrozenLabel' | translate }}</span>
+                <strong>{{ (draft.canBeFrozen ? 'recipe.yesLabel' : 'recipe.noLabel') | translate }}</strong>
+            </div>
+        </div>
+
+        <div class="recipe-detail-content">
+            <main class="recipe-detail-main-panel">
+                <div class="recipe-detail-section-header">
+                    <h2>{{ 'recipe.instructionsHeading' | translate }}</h2>
+                    <span>{{ 'recipe.servesShortLabel' | translate }} {{ draft.portions }}</span>
+                </div>
+                <p *ngIf="draft.description">{{ draft.description }}</p>
+                <div class="recipe-detail-instructions" [innerHTML]="draft.instructions"></div>
+            </main>
+
+            <aside class="recipe-detail-side-panel">
+                <div class="recipe-detail-side-header">
+                    <span>{{ 'recipe.ingredientsHeading' | translate }}</span>
+                </div>
+
+                <div class="recipe-ingredient-list">
+                    <section *ngFor="let group of ingredientGroups" class="recipe-ingredient-group">
+                        <h3 *ngIf="group.name" class="recipe-ingredient-group-title">{{ group.name }}</h3>
+                        <span *ngFor="let ingredient of group.ingredients" class="recipe-ingredient-item">
+                            {{ ingredient.name }} <span *ngIf="ingredient.amount || ingredient.amountType === 'To taste'">- <i><ng-container *ngIf="ingredient.amountType !== 'To taste'">{{ getScaledIngredientAmount(ingredient.amount) }} </ng-container>{{ ('pantry.units.' + ingredient.amountType) |
+                                    translate }}</i></span>
+                        </span>
+                    </section>
+                </div>
+            </aside>
+        </div>
+
+        <div *ngIf="draft.categories.length > 0 || draft.tags.length > 0" class="recipe-detail-badges-wrap">
+            <span *ngFor="let category of draft.categories" class="recipe-generate-badge">{{ category }}</span>
+            <span *ngFor="let tag of draft.tags" class="recipe-generate-badge">{{ tag }}</span>
+        </div>
+
+        <section *ngIf="hasNutrition" class="recipe-nutrition" aria-labelledby="recipe-nutrition-heading">
+            <div class="recipe-nutrition-heading">
+                <h2 id="recipe-nutrition-heading">{{ 'recipe.nutritionHeading' | translate }}</h2>
+                <span>{{ 'recipe.nutritionPerServing' | translate }}</span>
+            </div>
+            <dl class="recipe-nutrition-grid">
+                <div *ngIf="draft.calories != null">
+                    <dt>{{ 'recipe.caloriesLabel' | translate }}</dt>
+                    <dd>{{ draft.calories | number:'1.0-2' }} <span>kcal</span></dd>
+                </div>
+                <div *ngIf="draft.proteinGrams != null">
+                    <dt>{{ 'recipe.proteinLabel' | translate }}</dt>
+                    <dd>{{ draft.proteinGrams | number:'1.0-2' }} <span>g</span></dd>
+                </div>
+                <div *ngIf="draft.carbohydrateGrams != null">
+                    <dt>{{ 'recipe.carbohydratesLabel' | translate }}</dt>
+                    <dd>{{ draft.carbohydrateGrams | number:'1.0-2' }} <span>g</span></dd>
+                </div>
+                <div *ngIf="draft.fatGrams != null">
+                    <dt>{{ 'recipe.fatLabel' | translate }}</dt>
+                    <dd>{{ draft.fatGrams | number:'1.0-2' }} <span>g</span></dd>
+                </div>
+                <div *ngIf="draft.fiberGrams != null">
+                    <dt>{{ 'recipe.fiberLabel' | translate }}</dt>
+                    <dd>{{ draft.fiberGrams | number:'1.0-2' }} <span>g</span></dd>
+                </div>
+                <div *ngIf="draft.sugarGrams != null">
+                    <dt>{{ 'recipe.sugarLabel' | translate }}</dt>
+                    <dd>{{ draft.sugarGrams | number:'1.0-2' }} <span>g</span></dd>
+                </div>
+                <div *ngIf="draft.sodiumMilligrams != null">
+                    <dt>{{ 'recipe.sodiumLabel' | translate }}</dt>
+                    <dd>{{ draft.sodiumMilligrams | number:'1.0-2' }} <span>mg</span></dd>
+                </div>
+            </dl>
+        </section>
+    </article>
+</div>

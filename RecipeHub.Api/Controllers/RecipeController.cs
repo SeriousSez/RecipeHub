@@ -40,8 +40,9 @@ namespace RecipeHub.Api.Controllers
         private readonly IRecipeNutritionEstimator _nutritionEstimator;
         private readonly IRecipeTranslationService _recipeTranslationService;
         private readonly IRecipeTranslationQueue _translationQueue;
+        private readonly IRecipeGenerationService _recipeGenerationService;
 
-        public RecipeController(ILogger<RecipeController> logger, IRecipeService recipeService, IMemoryCache memoryCache, IServiceScopeFactory scopeFactory, IHostEnvironment hostEnvironment, RecipeHubContext context, IRecipeNutritionEstimator nutritionEstimator, IRecipeTranslationService recipeTranslationService, IRecipeTranslationQueue translationQueue)
+        public RecipeController(ILogger<RecipeController> logger, IRecipeService recipeService, IMemoryCache memoryCache, IServiceScopeFactory scopeFactory, IHostEnvironment hostEnvironment, RecipeHubContext context, IRecipeNutritionEstimator nutritionEstimator, IRecipeTranslationService recipeTranslationService, IRecipeTranslationQueue translationQueue, IRecipeGenerationService recipeGenerationService)
         {
             _logger = logger;
             _recipeService = recipeService;
@@ -52,6 +53,7 @@ namespace RecipeHub.Api.Controllers
             _nutritionEstimator = nutritionEstimator;
             _recipeTranslationService = recipeTranslationService;
             _translationQueue = translationQueue;
+            _recipeGenerationService = recipeGenerationService;
         }
 
         [HttpPost("estimate-nutrition")]
@@ -62,6 +64,17 @@ namespace RecipeHub.Api.Controllers
                 return BadRequest("At least one ingredient is required.");
 
             return new OkObjectResult(await _nutritionEstimator.EstimateAsync(request));
+        }
+
+        [HttpPost("generate")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [EnableRateLimiting("RecipeGeneration")]
+        public async Task<IActionResult> Generate([FromBody] RecipeGenerationRequest request)
+        {
+            if (request == null || (string.IsNullOrWhiteSpace(request.Prompt) && (request.PantryItems == null || request.PantryItems.Count == 0)))
+                return BadRequest("Provide a prompt or pantry items to generate a recipe.");
+
+            return new OkObjectResult(await _recipeGenerationService.GenerateAsync(request));
         }
 
         [HttpPost("create")]

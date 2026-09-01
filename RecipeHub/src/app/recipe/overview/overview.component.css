@@ -1324,3 +1324,96 @@ button:focus {
     color: #1d4ed8;
     font-size: .68rem;
 }
+
+.generate-recipe-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1040;
+    background: rgba(15, 23, 42, .45);
+    backdrop-filter: blur(4px);
+}
+
+.generate-recipe-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    z-index: 1050;
+    width: min(90vw, 32rem);
+    transform: translate(-50%, -50%);
+    padding: 1.25rem;
+    border-radius: 1rem;
+    background: #fff;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, .25);
+}
+
+.generate-recipe-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: .75rem;
+    margin-bottom: .85rem;
+}
+
+.generate-recipe-modal-header h2 {
+    margin: 0 0 .25rem;
+    font-size: 1.1rem;
+}
+
+.generate-recipe-modal-header p {
+    margin: 0;
+    color: #64748b;
+    font-size: .85rem;
+}
+
+.generate-recipe-modal-close {
+    width: 2.1rem;
+    height: 2.1rem;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(15, 23, 42, .1);
+    border-radius: 999px;
+    background: #fff;
+    color: #334155;
+}
+
+.generate-recipe-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+}
+
+.generate-recipe-modal-error {
+    margin: 0;
+    color: #b91c1c;
+    font-weight: 700;
+}
+
+.generate-recipe-modal-actions {
+    display: flex;
+    gap: .6rem;
+}
+
+.generate-recipe-modal-actions .btn {
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .45rem;
+    padding: .6rem 1rem;
+    border-radius: .8rem;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+:host-context([data-theme='dark']) .generate-recipe-modal {
+    background: #182234;
+    color: #e2e8f0;
+}
+
+:host-context([data-theme='dark']) .generate-recipe-modal-close {
+    background: #182234;
+    border-color: rgba(148, 163, 184, .2);
+    color: #e2e8f0;
+}

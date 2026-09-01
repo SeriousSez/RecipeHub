@@ -12,6 +12,7 @@ import { Ingredient } from '../models/ingredient.interface';
 import { RecipeTaxonomyGroup, RECIPE_CATEGORY_GROUPS, RECIPE_TAG_GROUPS, sortRecipeTaxonomyValues, getTaxonomyValueLabel } from '../models/recipe-taxonomy';
 import { IngredientService } from '../services/ingredient.service';
 import { RecipeService } from '../services/recipe.service';
+import { RecipeDraftService } from '../services/recipe-draft.service';
 import { TaxonomySelectComponent } from '../taxonomy-select/taxonomy-select.component';
 import { TranslateService } from '@ngx-translate/core';
 import { finalize } from 'rxjs/operators';
@@ -129,7 +130,7 @@ export class CreateComponent implements OnInit, OnDestroy {
     toolbarPosition: 'top'
   };
 
-  constructor(public utilityService: UtilityService, private recipeService: RecipeService, private ingredientService: IngredientService, public userService: UserService, private router: Router, private formBuilder: UntypedFormBuilder, private translateService: TranslateService, private datepipe: DatePipe) { }
+  constructor(public utilityService: UtilityService, private recipeService: RecipeService, private ingredientService: IngredientService, public userService: UserService, private router: Router, private formBuilder: UntypedFormBuilder, private translateService: TranslateService, private datepipe: DatePipe, private recipeDraftService: RecipeDraftService) { }
 
   public get badExampleTitle(): string {
     return this.translateService.instant('recipe.badExampleTitle');
@@ -189,6 +190,51 @@ export class CreateComponent implements OnInit, OnDestroy {
       description: ['']
     });
 
+    this.prefillFromGeneratedDraft();
+  }
+
+  private prefillFromGeneratedDraft(): void {
+    const draft = this.recipeDraftService.consumeDraft();
+    if (!draft) return;
+
+    this.recipeForm.patchValue({
+      title: draft.title,
+      description: draft.description,
+      instructions: draft.instructions,
+      portions: draft.portions,
+      preparationMinutes: draft.preparationMinutes,
+      cookingMinutes: draft.cookingMinutes,
+      proofingMinutes: draft.proofingMinutes,
+      chillingMinutes: draft.chillingMinutes,
+      coolingMinutes: draft.coolingMinutes,
+      restingMinutes: draft.restingMinutes,
+      shelfLifeDays: draft.shelfLifeDays,
+      canBeFrozen: !!draft.canBeFrozen,
+      calories: draft.calories,
+      proteinGrams: draft.proteinGrams,
+      carbohydrateGrams: draft.carbohydrateGrams,
+      fatGrams: draft.fatGrams,
+      fiberGrams: draft.fiberGrams,
+      sugarGrams: draft.sugarGrams,
+      sodiumMilligrams: draft.sodiumMilligrams,
+      categories: draft.categories ?? [],
+      tags: draft.tags ?? []
+    });
+
+    this.ingredientGroupNames = Array.from(new Set((draft.ingredients ?? [])
+      .map(ingredient => ingredient.group?.trim())
+      .filter((group): group is string => !!group)));
+
+    this.newIngredients = (draft.ingredients ?? []).map(ingredient => ({
+      name: ingredient.name,
+      description: ingredient.description ?? '',
+      amount: ingredient.amount,
+      amountType: ingredient.amountType,
+      group: ingredient.group ?? '',
+      imageCaption: '',
+      image: null,
+      created: ''
+    }));
   }
 
   ngOnDestroy(): void {
