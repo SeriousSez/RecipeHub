@@ -7,7 +7,7 @@ import { Recipe } from '../recipe/models/recipe.interface';
 import { RecipeService } from '../recipe/services/recipe.service';
 import { UserService } from '../shared/services/user.service';
 import { UtilityService } from '../shared/utils/utility.service';
-import { FoodPlanEntry, FoodPlanEntryRequest } from './food-plan-entry.interface';
+import { FoodPlanEntry, FoodPlanEntryRequest, FoodPlanNutritionTotals } from './food-plan-entry.interface';
 import { FoodPlanService } from './food-plan.service';
 import { LanguageService } from '../shared/services/language.service';
 import { getTaxonomyValueLabel } from '../recipe/models/recipe-taxonomy';
@@ -58,6 +58,31 @@ export class FoodPlanComponent implements OnInit, OnDestroy {
 
     public get plannedCount(): number {
         return this.entries.length;
+    }
+
+    public get weekNutritionTotals(): FoodPlanNutritionTotals {
+        return this.getNutritionTotals(this.entries);
+    }
+
+    public getDayNutritionTotals(day: Date): FoodPlanNutritionTotals {
+        return this.getNutritionTotals(this.entriesForDay(day));
+    }
+
+    private getNutritionTotals(entries: FoodPlanEntry[]): FoodPlanNutritionTotals {
+        return entries.reduce((totals, entry) => {
+            const recipe = entry.recipe;
+            if (!recipe) return totals;
+
+            if (recipe.calories != null || recipe.proteinGrams != null || recipe.carbohydrateGrams != null || recipe.fatGrams != null) {
+                totals.hasData = true;
+            }
+
+            totals.calories += recipe.calories ?? 0;
+            totals.proteinGrams += recipe.proteinGrams ?? 0;
+            totals.carbohydrateGrams += recipe.carbohydrateGrams ?? 0;
+            totals.fatGrams += recipe.fatGrams ?? 0;
+            return totals;
+        }, { calories: 0, proteinGrams: 0, carbohydrateGrams: 0, fatGrams: 0, hasData: false } as FoodPlanNutritionTotals);
     }
 
     public get mealSlotLabels(): Record<string, string> {

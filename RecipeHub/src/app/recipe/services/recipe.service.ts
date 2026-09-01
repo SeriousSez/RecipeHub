@@ -69,8 +69,8 @@ export class RecipeService extends BaseService {
       ));
   }
 
-  getRecipesWithIngredients(): Observable<Recipe[]> {
-    return this.http.get<Recipe[]>(this.baseUrl + "/recipe/getallwithingredients", this.httpOptions)
+  getRecipesWithIngredients(language: string = 'English'): Observable<Recipe[]> {
+    return this.http.get<Recipe[]>(this.baseUrl + "/recipe/getallwithingredients?language=" + encodeURIComponent(language), this.httpOptions)
       .pipe(map(details => {
         return details;
       }, (error: any) => console.log(error, "fails")

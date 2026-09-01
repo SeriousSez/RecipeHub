@@ -69,6 +69,14 @@ namespace RecipeHub
                         Window = TimeSpan.FromMinutes(1),
                         QueueLimit = 0
                     }));
+                options.AddPolicy("IngredientPhotoRecognition", context => RateLimitPartition.GetFixedWindowLimiter(
+                    context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                    _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = Math.Max(1, Configuration.GetValue("IngredientPhotoRecognition:RateLimitPerMinute", 10)),
+                        Window = TimeSpan.FromMinutes(1),
+                        QueueLimit = 0
+                    }));
             });
 
             services.AddScoped<IUserRepository, UserRepository>();
@@ -101,6 +109,7 @@ namespace RecipeHub
             services.AddHttpClient<WikipediaIngredientImageGenerator>();
             services.AddHttpClient<IRecipeNutritionEstimator, RecipeNutritionEstimator>();
             services.AddHttpClient<IRecipeTranslationService, OpenAiRecipeTranslationService>();
+            services.AddHttpClient<IIngredientPhotoRecognitionService, OpenAiIngredientPhotoRecognitionService>();
             services.AddHttpClient("Madpris", client =>
             {
                 client.BaseAddress = new Uri(Configuration["Madpris:BaseUrl"] ?? "https://madpris.gratis.dk/");

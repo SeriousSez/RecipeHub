@@ -47,7 +47,12 @@
 .pantry-toolbar-actions {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: .65rem;
+}
+
+.pantry-header-actions {
+    justify-content: flex-end;
 }
 
 .pantry-count {
@@ -58,15 +63,20 @@
 }
 
 .pantry-primary-button,
-.pantry-clear-button {
+.pantry-clear-button,
+.pantry-photo-picker,
+.pantry-photo-analyze,
+.pantry-photo-actions .btn {
     min-height: 42px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
     gap: .45rem;
     padding: .6rem .85rem;
     border-radius: .8rem;
     font-weight: 800;
+    white-space: nowrap;
     transition: none;
 }
 
@@ -152,7 +162,12 @@ button:disabled {
 
 .pantry-field {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: .35rem;
+    min-width: 0;
+}
+
+.pantry-field app-taxonomy-select {
     min-width: 0;
 }
 
@@ -162,8 +177,7 @@ button:disabled {
     font-weight: 800;
 }
 
-.pantry-field .form-control,
-.pantry-field .form-select {
+.pantry-field .form-control {
     min-height: 44px;
     border-color: #b9c5d2;
     border-radius: 7px;
@@ -274,8 +288,7 @@ button:disabled {
     width: 3rem;
 }
 
-.pantry-table input,
-.pantry-table select {
+.pantry-table input {
     width: 100%;
     min-height: 38px;
     padding: .4rem .55rem;
@@ -285,12 +298,16 @@ button:disabled {
     color: inherit;
 }
 
-.pantry-table input:focus,
-.pantry-table select:focus {
+.pantry-table input:focus {
     border-color: #4b8bc4;
     outline: 0;
     background: #fff;
     box-shadow: 0 0 0 3px rgba(37, 110, 170, .1);
+}
+
+.pantry-table app-taxonomy-select {
+    display: block;
+    width: 100%;
 }
 
 .pantry-table tr.is-expired {
@@ -301,7 +318,8 @@ button:disabled {
     background: #fffbeb;
 }
 
-.pantry-table tr:has(app-date-picker.date-picker-host-open) {
+.pantry-table tr:has(app-date-picker.date-picker-host-open),
+.pantry-table tr:has(app-taxonomy-select.taxonomy-select-host-open) {
     position: relative;
     z-index: 20;
 }
@@ -371,6 +389,177 @@ button:disabled {
     gap: .45rem;
     color: #64748b;
     text-align: center;
+}
+
+.pantry-photo-section .pantry-section-heading {
+    align-items: flex-start;
+}
+
+.pantry-photo-close {
+    width: 2.1rem;
+    height: 2.1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(15, 23, 42, .1);
+    border-radius: 999px;
+    background: #fff;
+    color: #334155;
+}
+
+.pantry-photo-body {
+    display: flex;
+    flex-direction: column;
+    gap: .85rem;
+    margin-top: .5rem;
+}
+
+.pantry-photo-picker {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    align-self: flex-start;
+    cursor: pointer;
+}
+
+.pantry-photo-picker input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.pantry-photo-previews {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .6rem;
+}
+
+.pantry-photo-preview-item {
+    position: relative;
+    width: 96px;
+    height: 96px;
+}
+
+.pantry-photo-preview-item img {
+    width: 100%;
+    height: 100%;
+    border-radius: .7rem;
+    object-fit: cover;
+    border: 1px solid rgba(15, 23, 42, .08);
+}
+
+.pantry-photo-preview-item button {
+    position: absolute;
+    top: -.4rem;
+    right: -.4rem;
+    width: 1.6rem;
+    height: 1.6rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(15, 23, 42, .1);
+    border-radius: 999px;
+    background: #fff;
+    color: #b91c1c;
+}
+
+.pantry-photo-analyze {
+    align-self: flex-start;
+}
+
+.pantry-photo-status {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    color: #64748b;
+    font-weight: 700;
+}
+
+.pantry-photo-error {
+    margin: 0;
+    color: #b91c1c;
+    font-weight: 700;
+}
+
+.pantry-photo-results {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+}
+
+.pantry-photo-results-heading {
+    margin: 0;
+    color: #374151;
+    font-size: .82rem;
+    font-weight: 800;
+}
+
+.pantry-photo-result {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .55rem;
+    padding: .5rem .65rem;
+    border: 1px solid rgba(15, 23, 42, .08);
+    border-radius: .6rem;
+    background: #fff;
+}
+
+.pantry-photo-result-name {
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+    min-width: 9rem;
+    flex: 1 1 9rem;
+    cursor: pointer;
+}
+
+.pantry-photo-result-amount {
+    width: 5.5rem;
+    min-height: 34px;
+    padding: .3rem .5rem;
+    border: 1px solid #cbd5e1;
+    border-radius: .5rem;
+}
+
+.pantry-photo-result-unit {
+    flex: 0 0 auto;
+    width: 9rem;
+}
+
+.pantry-photo-result-expiry {
+    color: #64748b;
+    font-size: .78rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.pantry-photo-actions {
+    display: flex;
+    gap: .6rem;
+    margin-top: .35rem;
+}
+
+:host-context([data-theme='dark']) .pantry-photo-result {
+    background: #182234;
+    border-color: rgba(148, 163, 184, .2);
+    color: #e2e8f0;
+}
+
+:host-context([data-theme='dark']) .pantry-photo-preview-item button {
+    background: #182234;
+    border-color: rgba(148, 163, 184, .2);
+}
+
+:host-context([data-theme='dark']) .pantry-photo-close {
+    background: #182234;
+    border-color: rgba(148, 163, 184, .2);
+    color: #e2e8f0;
 }
 
 .pantry-empty i {

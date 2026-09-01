@@ -7,9 +7,59 @@
         </div>
         <div class="pantry-header-actions">
             <span class="pantry-count">{{ pantryItems.length }} {{ (pantryItems.length === 1 ? 'pantry.itemSingular' : 'pantry.itemPlural') | translate }}</span>
+            <button type="button" class="btn btn-outline-brand pantry-primary-button" (click)="openPhotoCapture()"><i class="fas fa-camera" aria-hidden="true"></i>{{ 'pantry.takePhotoButton' | translate }}</button>
             <button type="button" class="btn btn-brand-alt pantry-primary-button" [disabled]="pantryItems.length === 0" (click)="findRecipes()"><i class="fas fa-search" aria-hidden="true"></i>{{ 'pantry.findRecipes' | translate }}</button>
         </div>
     </header>
+
+    <section class="pantry-section pantry-photo-section" *ngIf="showPhotoCapture" aria-labelledby="pantry-photo-heading">
+        <div class="pantry-section-heading">
+            <div>
+                <h2 id="pantry-photo-heading">{{ 'pantry.photoCaptureHeading' | translate }}</h2>
+                <p>{{ 'pantry.photoCaptureHint' | translate }}</p>
+            </div>
+            <button type="button" class="pantry-photo-close" (click)="closePhotoCapture()" [attr.aria-label]="'pantry.cancelButton' | translate"><i class="fas fa-times" aria-hidden="true"></i></button>
+        </div>
+
+        <div class="pantry-photo-body">
+            <label class="btn btn-outline-brand pantry-photo-picker">
+                <input type="file" accept="image/*" capture="environment" multiple (change)="onPhotoSelected($event)" [disabled]="capturingPhoto">
+                <i class="fas fa-camera" aria-hidden="true"></i>
+                <span>{{ (pendingPhotos.length > 0 ? 'pantry.addAnotherPhotoButton' : 'pantry.choosePhotoButton') | translate }}</span>
+            </label>
+
+            <div class="pantry-photo-previews" *ngIf="pendingPhotos.length > 0">
+                <div class="pantry-photo-preview-item" *ngFor="let photo of pendingPhotos; let photoIndex = index">
+                    <img [src]="photo.dataUrl" [alt]="'pantry.photoCaptureHeading' | translate">
+                    <button type="button" (click)="removePendingPhoto(photoIndex)" [disabled]="capturingPhoto" [attr.aria-label]="'pantry.removePhotoAria' | translate"><i class="fas fa-times" aria-hidden="true"></i></button>
+                </div>
+            </div>
+
+            <button type="button" class="btn btn-brand pantry-photo-analyze" *ngIf="pendingPhotos.length > 0" [disabled]="capturingPhoto" (click)="analyzePendingPhotos()">
+                <i class="fas" [ngClass]="capturingPhoto ? 'fa-sync-alt fa-spin' : 'fa-magic'" aria-hidden="true"></i>
+                {{ (capturingPhoto ? 'pantry.analyzingPhoto' : 'pantry.analyzePhotosButton') | translate: { count: pendingPhotos.length } }}
+            </button>
+
+            <p class="pantry-photo-error" *ngIf="photoErrorKey && !capturingPhoto">{{ photoErrorKey | translate }}</p>
+
+            <div class="pantry-photo-results" *ngIf="recognizedItems.length > 0">
+                <p class="pantry-photo-results-heading">{{ 'pantry.recognizedIngredientsHeading' | translate }}</p>
+                <div class="pantry-photo-result" *ngFor="let item of recognizedItems">
+                    <label class="pantry-photo-result-name">
+                        <input type="checkbox" [checked]="isRecognizedIngredientSelected(item.name)" (change)="toggleRecognizedIngredient(item.name)">
+                        <span>{{ item.name }}</span>
+                    </label>
+                    <input class="pantry-photo-result-amount" type="number" min="0" step="any" [(ngModel)]="item.amount" [attr.aria-label]="'pantry.quantityLabel' | translate" [placeholder]="'pantry.quantityPlaceholder' | translate">
+                    <app-taxonomy-select class="pantry-photo-result-unit" [(ngModel)]="item.amountType" [groups]="unitGroups" [optionLabels]="unitLabels" [multiple]="false" [allowCustom]="false" [ariaLabel]="'pantry.unitLabel' | translate"></app-taxonomy-select>
+                    <span class="pantry-photo-result-expiry" *ngIf="item.expirationDate">{{ 'pantry.expiryLabel' | translate }}: {{ item.expirationDate }}</span>
+                </div>
+                <div class="pantry-photo-actions">
+                    <button type="button" class="btn btn-brand" [disabled]="selectedRecognizedNames.size === 0" (click)="addRecognizedIngredientsToPantry()"><i class="fas fa-plus" aria-hidden="true"></i>{{ 'pantry.addSelectedIngredients' | translate }}</button>
+                    <button type="button" class="btn btn-outline-secondary" (click)="closePhotoCapture()">{{ 'pantry.cancelButton' | translate }}</button>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <section class="pantry-section" aria-labelledby="pantry-add-heading">
         <div class="pantry-section-heading">
@@ -24,9 +74,8 @@
             <div class="pantry-field pantry-name-field"><label for="pantry-name">{{ 'pantry.ingredientLabel' | translate }}</label><app-taxonomy-select id="pantry-name" name="pantryName" [(ngModel)]="draftName" [options]="ingredientOptions" [optionLabels]="ingredientOptionLabels" [multiple]="false"
                     [allowCustom]="true" [placeholder]="'pantry.ingredientPlaceholder' | translate" [ariaLabel]="'pantry.ingredientLabel' | translate"></app-taxonomy-select></div>
             <div class="pantry-field"><label for="pantry-amount">{{ 'pantry.quantityLabel' | translate }}</label><input id="pantry-amount" type="number" min="0" step="any" class="form-control" [(ngModel)]="draftAmount" [placeholder]="'pantry.quantityPlaceholder' | translate"></div>
-            <div class="pantry-field"><label for="pantry-unit">{{ 'pantry.unitLabel' | translate }}</label><select id="pantry-unit" class="form-select" [(ngModel)]="draftUnit">
-                    <option *ngFor="let unit of units" [value]="unit">{{ ('pantry.units.' + unit) | translate }}</option>
-                </select></div>
+            <div class="pantry-field"><label for="pantry-unit">{{ 'pantry.unitLabel' | translate }}</label><app-taxonomy-select id="pantry-unit" [(ngModel)]="draftUnit" [groups]="unitGroups" [optionLabels]="unitLabels" [multiple]="false" [allowCustom]="false"
+                    [ariaLabel]="'pantry.unitLabel' | translate"></app-taxonomy-select></div>
             <div class="pantry-field"><label for="pantry-expiry">{{ 'pantry.expiryLabel' | translate }}</label><app-date-picker id="pantry-expiry" [(ngModel)]="draftExpirationDate" [placeholder]="'dd/mm/yyyy'" [ariaLabel]="'pantry.expiryLabel' | translate"></app-date-picker></div>
             <button type="button" class="btn btn-brand pantry-primary-button" [disabled]="!draftName.trim()" (click)="addItem()"><i class="fas fa-plus" aria-hidden="true"></i>{{ 'pantry.addButton' | translate }}</button>
         </div>
@@ -64,9 +113,8 @@
                                 readonly [attr.aria-label]="'pantry.ingredientLabel' | translate"><span class="pantry-expiry-state" *ngIf="isExpired(item)">{{ 'pantry.expired' |
                                 translate }}</span><span class="pantry-expiry-state" *ngIf="isExpiringSoon(item)">{{ 'pantry.expiringSoon' | translate }}</span></td>
                         <td [attr.data-label]="'pantry.quantityLabel' | translate"><input type="number" min="0" step="any" [(ngModel)]="item.amount" (change)="updateItem(item)" [attr.aria-label]="'pantry.quantityLabel' | translate"></td>
-                        <td [attr.data-label]="'pantry.unitLabel' | translate"><select [(ngModel)]="item.amountType" (change)="updateItem(item)" [attr.aria-label]="'pantry.unitLabel' | translate">
-                                <option *ngFor="let unit of units" [value]="unit">{{ ('pantry.units.' + unit) | translate }}</option>
-                            </select></td>
+                        <td [attr.data-label]="'pantry.unitLabel' | translate"><app-taxonomy-select [(ngModel)]="item.amountType" (ngModelChange)="updateItem(item)" [groups]="unitGroups" [optionLabels]="unitLabels" [multiple]="false" [allowCustom]="false"
+                                [ariaLabel]="'pantry.unitLabel' | translate"></app-taxonomy-select></td>
                         <td [attr.data-label]="'pantry.expiryLabel' | translate"><app-date-picker [(ngModel)]="item.expirationDate" (ngModelChange)="updateItem(item)" [placeholder]="'dd/mm/yyyy'" [ariaLabel]="'pantry.expiryLabel' | translate"></app-date-picker></td>
                         <td class="pantry-row-action"><button type="button" (click)="removeItem(item)" [attr.aria-label]="'pantry.removeIngredientAria' | translate"><i class="fas fa-times" aria-hidden="true"></i></button></td>
                     </tr>

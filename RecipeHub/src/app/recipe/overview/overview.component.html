@@ -279,7 +279,7 @@
               </td>
             </tr>
             }
-            @if (shownRecipes.length == 0) {
+            @if (shownRecipes.length == 0 && !matchingLoading) {
             <tr>
               <td colspan="12" class="text-center">
                 {{ 'recipe.noRecipes' | translate }}
@@ -288,7 +288,7 @@
             }
           </tbody>
           }
-          @if (loading === false && shownRecipes.length == 0) {
+          @if (loading === false && shownRecipes.length == 0 && !matchingLoading) {
           <p class="text-center">
             {{ 'recipe.noRecipes' | translate }}
           </p>

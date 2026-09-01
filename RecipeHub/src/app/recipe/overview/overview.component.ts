@@ -273,7 +273,18 @@ export class OverviewComponent implements OnInit {
     this.getGroceryLists();
     this.subscription = this.userService.authStatus$.subscribe(status => this.isAuthenticated = status);
     this.settingsSubscription = this.userService.settings$.subscribe(settings => this.settings = settings);
-    this.languageSubscription = this.translateService.onLangChange.subscribe(() => this.applyFiltersAndSort());
+    this.languageSubscription = this.translateService.onLangChange.subscribe(() => {
+      this.matchingRecipes = null;
+      if (this.showPantryMatches && this.pantryIngredients.trim()) {
+        this.loadMatchingRecipes(true);
+        return;
+      }
+
+      this.applyFiltersAndSort();
+      if (this.pantryIngredients.trim() && !this.matchingLoading) {
+        this.loadMatchingRecipes(false);
+      }
+    });
 
     if (this.isAuthenticated) this.getFavorites();
   }
@@ -442,6 +453,10 @@ export class OverviewComponent implements OnInit {
 
   private getRecipeLanguage(): string {
     return { da: 'Danish', et: 'Estonian', tr: 'Turkish' }[this.languageService.getCurrentLanguage()] ?? 'English';
+  }
+
+  private getSortCollator(): Intl.Collator {
+    return new Intl.Collator(this.languageService.getCurrentLanguage(), { sensitivity: 'base', numeric: true });
   }
 
   private startRefreshing(): void {
@@ -642,37 +657,7 @@ export class OverviewComponent implements OnInit {
   }
 
   private normalizeIngredientText(value: string | null | undefined): string {
-    const normalized = this.normalizeText(value)
-      .replace(/[^a-z0-9\s]/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
-
-    if (!normalized) {
-      return '';
-    }
-
-    return normalized
-      .split(' ')
-      .map(word => {
-        if (word.length <= 3) {
-          return word;
-        }
-
-        if (word.endsWith('ies') && word.length > 4) {
-          return word.slice(0, -3) + 'y';
-        }
-
-        if ((word.endsWith('sses') || word.endsWith('shes') || word.endsWith('ches') || word.endsWith('xes') || word.endsWith('zes')) && word.length > 4) {
-          return word.slice(0, -2);
-        }
-
-        if (word.endsWith('s') && !word.endsWith('ss')) {
-          return word.slice(0, -1);
-        }
-
-        return word;
-      })
-      .join(' ');
+    return (value ?? '').trim().toLowerCase();
   }
 
   private ingredientNamesMatch(left: string | null | undefined, right: string | null | undefined): boolean {
@@ -685,9 +670,7 @@ export class OverviewComponent implements OnInit {
 
     return leftName === rightName ||
       leftName.includes(rightName) ||
-      rightName.includes(leftName) ||
-      leftName.replace(/\s+/g, '').includes(rightName.replace(/\s+/g, '')) ||
-      rightName.replace(/\s+/g, '').includes(leftName.replace(/\s+/g, ''));
+      rightName.includes(leftName);
   }
 
   private parsePantryIngredients(): string[] {
@@ -720,7 +703,7 @@ export class OverviewComponent implements OnInit {
 
     this.matchingLoading = true;
 
-    this.recipeService.getRecipesWithIngredients().subscribe({
+    this.recipeService.getRecipesWithIngredients(this.getRecipeLanguage()).subscribe({
       next: recipes => {
         this.matchingRecipes = Array.isArray(recipes) ? recipes : [];
         this.matchingLoading = false;
@@ -748,12 +731,12 @@ export class OverviewComponent implements OnInit {
 
     const recipeNames = (recipe.ingredients ?? []).map(ingredient => this.normalizeIngredientText(ingredient.name));
 
-    return pantryItems.reduce((score, pantryIngredient) => {
-      if (!pantryIngredient) {
+    return recipeNames.reduce((score, recipeIngredient) => {
+      if (!recipeIngredient) {
         return score;
       }
 
-      const hasMatch = recipeNames.some(name => this.ingredientNamesMatch(name, pantryIngredient));
+      const hasMatch = pantryItems.some(pantryItem => this.ingredientNamesMatch(recipeIngredient, pantryItem));
 
       return hasMatch ? score + 1 : score;
     }, 0);
@@ -852,6 +835,7 @@ export class OverviewComponent implements OnInit {
         return nutritionComparison;
       }
 
+      // Best pantry matches surface first; the chosen sort field only breaks ties within the same match quality.
       const coverageComparison = this.getIngredientMatchPercentage(b) - this.getIngredientMatchPercentage(a);
 
       if (coverageComparison !== 0) {
@@ -868,10 +852,10 @@ export class OverviewComponent implements OnInit {
 
       switch (this.sortSetting) {
         case 'title':
-          comparison = a.title.localeCompare(b.title);
+          comparison = this.getSortCollator().compare(a.title, b.title);
           break;
         case 'creator':
-          comparison = a.creator.localeCompare(b.creator);
+          comparison = this.getSortCollator().compare(a.creator, b.creator);
           break;
         case 'time':
           comparison = this.getTotalRecipeMinutes(a) - this.getTotalRecipeMinutes(b);

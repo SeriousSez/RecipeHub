@@ -25,3 +25,11 @@ export interface FoodPlanEntryRequest {
     repeatUntil?: string | null;
     position: number;
 }
+
+export interface FoodPlanNutritionTotals {
+    calories: number;
+    proteinGrams: number;
+    carbohydrateGrams: number;
+    fatGrams: number;
+    hasData: boolean;
+}

@@ -71,6 +71,14 @@
     color: #0f766e;
 }
 
+.food-plan-nutrition-chip {
+    color: #0f766e !important;
+}
+
+.food-plan-nutrition-chip .fas {
+    color: #0f766e;
+}
+
 .food-plan-week-actions {
     display: flex;
     align-items: center;
@@ -367,6 +375,15 @@
 .food-plan-day header strong {
     color: #0f172a;
     font-size: 1rem;
+}
+
+.food-plan-day-nutrition {
+    grid-column: 1;
+    color: #64748b !important;
+    font-size: .68rem !important;
+    font-weight: 700 !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
 }
 
 .food-plan-day header button {

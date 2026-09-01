@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Logging;
 using RecipeHub.ApplicationService.Services;
 using RecipeHub.Domain.Models;
@@ -17,13 +18,15 @@ namespace RecipeHub.Api.Controllers
         private readonly IIngredientService _ingredientService;
         private readonly IImageService _imageService;
         private readonly IRecipeTranslationService _recipeTranslationService;
+        private readonly IIngredientPhotoRecognitionService _ingredientPhotoRecognitionService;
 
-        public IngredientController(ILogger<IngredientController> logger, IIngredientService ingredientService, IImageService imageService, IRecipeTranslationService recipeTranslationService)
+        public IngredientController(ILogger<IngredientController> logger, IIngredientService ingredientService, IImageService imageService, IRecipeTranslationService recipeTranslationService, IIngredientPhotoRecognitionService ingredientPhotoRecognitionService)
         {
             _logger = logger;
             _ingredientService = ingredientService;
             _imageService = imageService;
             _recipeTranslationService = recipeTranslationService;
+            _ingredientPhotoRecognitionService = ingredientPhotoRecognitionService;
         }
 
         [HttpPost("create")]
@@ -201,6 +204,28 @@ namespace RecipeHub.Api.Controllers
                 Updated = true,
                 Ingredient = ingredient
             });
+        }
+
+        [HttpPost("recognizephoto")]
+        [EnableRateLimiting("IngredientPhotoRecognition")]
+        public async Task<IActionResult> RecognizePhoto([FromBody] IngredientPhotoRecognitionRequest request)
+        {
+            const int maxBase64Length = 8_000_000;
+            const int maxImageCount = 6;
+            var images = request?.Images ?? new List<IngredientPhotoImage>();
+            if (request == null || images.Count == 0 || images.Count > maxImageCount ||
+                images.Any(image => string.IsNullOrWhiteSpace(image?.ImageBase64) || image.ImageBase64.Length > maxBase64Length))
+            {
+                return BadRequest();
+            }
+
+            var result = await _ingredientPhotoRecognitionService.RecognizeAsync(request);
+            if (!string.IsNullOrWhiteSpace(result.ErrorCode))
+            {
+                return new ObjectResult(result) { StatusCode = result.ErrorCode == "not_configured" ? 501 : 502 };
+            }
+
+            return new OkObjectResult(result);
         }
     }
 }

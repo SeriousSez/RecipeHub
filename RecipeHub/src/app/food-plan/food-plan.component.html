@@ -7,6 +7,11 @@
             <div class="food-plan-metrics" aria-label="Food plan summary">
                 <span><strong>{{ plannedCount }}</strong> {{ 'foodPlan.plannedCountLabel' | translate }}</span>
                 <span><strong>{{ recipes.length }}</strong> {{ 'foodPlan.recipesAvailableLabel' | translate }}</span>
+                <span *ngIf="weekNutritionTotals.hasData" class="food-plan-nutrition-chip">
+                    <i class="fas fa-chart-pie" aria-hidden="true"></i>
+                    {{ 'foodPlan.weekNutritionSummary' | translate:{ calories: (weekNutritionTotals.calories | number:'1.0-0'), protein: (weekNutritionTotals.proteinGrams | number:'1.0-0'), carbs: (weekNutritionTotals.carbohydrateGrams | number:'1.0-0'), fat: (weekNutritionTotals.fatGrams |
+                    number:'1.0-0') } }}
+                </span>
             </div>
         </div>
         <div class="food-plan-week-actions">
@@ -77,6 +82,9 @@
             <header>
                 <span>{{ formatDayName(day) }}</span>
                 <strong>{{ formatDayNumber(day) }}</strong>
+                <span class="food-plan-day-nutrition" *ngIf="getDayNutritionTotals(day).hasData">
+                    {{ 'foodPlan.dayNutritionSummary' | translate:{ calories: (getDayNutritionTotals(day).calories | number:'1.0-0'), protein: (getDayNutritionTotals(day).proteinGrams | number:'1.0-0') } }}
+                </span>
                 <button type="button" (click)="planForDay(day)" [attr.aria-label]="'foodPlan.planForDayAria' | translate"><i class="fas fa-plus" aria-hidden="true"></i></button>
             </header>
             <div class="food-plan-entry-list" *ngIf="entriesForDay(day).length > 0; else emptyDay">

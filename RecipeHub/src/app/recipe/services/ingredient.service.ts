@@ -9,6 +9,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { IngredientCreation } from 'src/app/shared/models/ingredient.creation.interface';
 import { Ingredient } from '../models/ingredient.interface';
+import { IngredientPhotoRecognitionResult } from '../models/ingredient-photo-recognition.interface';
 
 @Injectable()
 
@@ -91,5 +92,9 @@ export class IngredientService extends BaseService {
         return result;
       }, (error: any) => console.log(error, "fails")
       ));
+  }
+
+  recognizeIngredientsFromPhoto(images: { imageBase64: string, contentType: string }[], language: string): Observable<IngredientPhotoRecognitionResult> {
+    return this.http.post<IngredientPhotoRecognitionResult>(this.baseUrl + "/ingredient/recognizephoto", { images, language }, this.httpOptions);
   }
 }

@@ -6,6 +6,14 @@ import { PantryItem } from './pantry-item.interface';
 import { PantryService } from './pantry.service';
 import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
+import { RecognizedPantryItem } from '../recipe/models/ingredient-photo-recognition.interface';
+import { RecipeTaxonomyGroup } from '../recipe/models/recipe-taxonomy';
+
+interface PendingPantryPhoto {
+    dataUrl: string;
+    base64: string;
+    contentType: string;
+}
 
 @Component({
     selector: 'app-pantry',
@@ -17,9 +25,20 @@ export class PantryComponent implements OnInit, OnDestroy {
     private readonly pantryNamesStorageKey = 'recipehub-pantry-ingredients';
     private readonly pantryItemsStorageKey = 'recipehub-pantry-items';
     public readonly units = ['Piece', 'Gram', 'Kilogram', 'Milliliter', 'Liter', 'Teaspoon', 'Tablespoon', 'Cup', 'Ounce', 'Pound'];
+    public readonly unitGroups: RecipeTaxonomyGroup[] = [
+        { id: 'common', labelKey: 'recipe.measurementGroups.common', values: ['Piece', 'Teaspoon', 'Tablespoon', 'Cup'] },
+        { id: 'metric', labelKey: 'recipe.measurementGroups.metric', values: ['Gram', 'Kilogram', 'Milliliter', 'Liter'] },
+        { id: 'imperial', labelKey: 'recipe.measurementGroups.imperial', values: ['Ounce', 'Pound'] }
+    ];
     public pantryItems: PantryItem[] = [];
     public ingredientOptions: string[] = [];
     public ingredientOptionLabels: Record<string, string> = {};
+    public get unitLabels(): Record<string, string> {
+        return this.units.reduce((labels, unit) => {
+            labels[unit] = this.translateService?.instant(`pantry.units.${unit}`) ?? unit;
+            return labels;
+        }, {} as Record<string, string>);
+    }
     public searchTerm = '';
     public draftName = '';
     public draftAmount: number | null = null;
@@ -31,6 +50,12 @@ export class PantryComponent implements OnInit, OnDestroy {
     public translatingLocalIngredients = false;
     public sortColumn: 'name' | 'amount' | 'unit' | 'expirationDate' = 'name';
     public sortAscending = true;
+    public showPhotoCapture = false;
+    public capturingPhoto = false;
+    public photoErrorKey = '';
+    public pendingPhotos: PendingPantryPhoto[] = [];
+    public recognizedItems: RecognizedPantryItem[] = [];
+    public selectedRecognizedNames = new Set<string>();
     private ingredientNameLabels: Record<string, string> = {};
     private languageSubscription?: Subscription;
     private ingredientRequestId = 0;
@@ -96,6 +121,133 @@ export class PantryComponent implements OnInit, OnDestroy {
     public isExpiringSoon(item: PantryItem): boolean {
         if (!item.expirationDate || this.isExpired(item)) return false;
         return new Date(`${item.expirationDate}T00:00:00`).getTime() <= Date.now() + (3 * 24 * 60 * 60 * 1000);
+    }
+
+    public openPhotoCapture(): void {
+        this.showPhotoCapture = true;
+        this.photoErrorKey = '';
+        this.recognizedItems = [];
+        this.selectedRecognizedNames.clear();
+        this.pendingPhotos = [];
+    }
+
+    public closePhotoCapture(): void {
+        this.showPhotoCapture = false;
+        this.capturingPhoto = false;
+        this.photoErrorKey = '';
+        this.recognizedItems = [];
+        this.selectedRecognizedNames.clear();
+        this.pendingPhotos = [];
+    }
+
+    public onPhotoSelected(event: Event): void {
+        const input = event.target as HTMLInputElement;
+        const files = Array.from(input?.files ?? []);
+        if (files.length === 0 || this.capturingPhoto) return;
+
+        this.photoErrorKey = '';
+        this.recognizedItems = [];
+        this.selectedRecognizedNames.clear();
+
+        Promise.all(files.map(file => this.readPhotoAsDataUrl(file))).then(photos => {
+            this.pendingPhotos = [...this.pendingPhotos, ...photos.filter((photo): photo is PendingPantryPhoto => !!photo)];
+            if (input) input.value = '';
+        });
+    }
+
+    public removePendingPhoto(index: number): void {
+        this.pendingPhotos = this.pendingPhotos.filter((_, photoIndex) => photoIndex !== index);
+    }
+
+    public analyzePendingPhotos(): void {
+        if (this.pendingPhotos.length === 0 || this.capturingPhoto) return;
+
+        this.capturingPhoto = true;
+        this.photoErrorKey = '';
+        const images = this.pendingPhotos.map(photo => ({ imageBase64: photo.base64, contentType: photo.contentType }));
+
+        this.ingredientService?.recognizeIngredientsFromPhoto(images, this.getRequestedLanguage()).subscribe({
+            next: result => {
+                this.capturingPhoto = false;
+                this.recognizedItems = (result?.items ?? [])
+                    .filter(item => !!item?.name)
+                    .map(item => ({ ...item, name: this.capitalizeName(item.name) }));
+                this.recognizedItems.forEach(item => this.selectedRecognizedNames.add(item.name));
+                if (this.recognizedItems.length === 0) this.photoErrorKey = 'pantry.noIngredientsRecognized';
+            },
+            error: error => {
+                this.capturingPhoto = false;
+                const errorCode = error?.error?.errorCode;
+                this.photoErrorKey = errorCode === 'not_configured' ? 'pantry.photoRecognitionNotConfigured' : 'pantry.photoRecognitionFailed';
+            }
+        });
+    }
+
+    private readPhotoAsDataUrl(file: File): Promise<PendingPantryPhoto | null> {
+        return new Promise(resolve => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const rawDataUrl = typeof reader.result === 'string' ? reader.result : '';
+                if (!rawDataUrl) {
+                    resolve(null);
+                    return;
+                }
+
+                const image = new Image();
+                image.onload = () => {
+                    // Re-encode into JPEG so unsupported source formats (e.g. AVIF/HEIC captures) still reach the recognition API.
+                    const canvas = document.createElement('canvas');
+                    canvas.width = image.naturalWidth || image.width;
+                    canvas.height = image.naturalHeight || image.height;
+                    const context = canvas.getContext('2d');
+                    if (!context) {
+                        resolve(null);
+                        return;
+                    }
+
+                    context.drawImage(image, 0, 0);
+                    const jpegDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                    const [, base64] = jpegDataUrl.split(',');
+                    resolve(base64 ? { dataUrl: jpegDataUrl, base64, contentType: 'image/jpeg' } : null);
+                };
+                image.onerror = () => resolve(null);
+                image.src = rawDataUrl;
+            };
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(file);
+        });
+    }
+
+    public toggleRecognizedIngredient(name: string): void {
+        if (this.selectedRecognizedNames.has(name)) this.selectedRecognizedNames.delete(name);
+        else this.selectedRecognizedNames.add(name);
+    }
+
+    public isRecognizedIngredientSelected(name: string): boolean {
+        return this.selectedRecognizedNames.has(name);
+    }
+
+    public addRecognizedIngredientsToPantry(): void {
+        const items = this.recognizedItems.filter(item => this.selectedRecognizedNames.has(item.name));
+        if (items.length === 0) return;
+
+        items.forEach(item => {
+            const normalized = this.normalizeName(item.name);
+            if (!normalized) return;
+
+            const existing = this.pantryItems.find(candidate => candidate.name.toLowerCase() === normalized.toLowerCase());
+            if (existing) {
+                existing.amount = item.amount ?? existing.amount;
+                existing.amountType = item.amountType ?? existing.amountType;
+                existing.expirationDate = item.expirationDate ?? existing.expirationDate;
+            } else {
+                this.pantryItems = [...this.pantryItems, { id: this.createId(), name: normalized, amount: item.amount ?? null, amountType: item.amountType ?? 'Piece', expirationDate: item.expirationDate ?? null }];
+            }
+        });
+
+        this.sortItems();
+        this.persistItems();
+        this.closePhotoCapture();
     }
 
     private loadIngredientOptions(languageCode: string = this.translateService?.currentLang || 'en'): void {
@@ -196,6 +348,10 @@ export class PantryComponent implements OnInit, OnDestroy {
 
     private resetDraft(): void { this.draftName = ''; this.draftAmount = null; this.draftUnit = 'Piece'; this.draftExpirationDate = ''; }
     private normalizeName(value: string): string { return (value ?? '').trim().replace(/\s+/g, ' '); }
+    private capitalizeName(value: string): string {
+        const normalized = this.normalizeName(value);
+        return normalized ? normalized.charAt(0).toUpperCase() + normalized.slice(1) : normalized;
+    }
     private sortItems(): void { this.pantryItems.sort((first, second) => first.name.localeCompare(second.name)); }
     private compareItems(first: PantryItem, second: PantryItem): number {
         let comparison = 0;

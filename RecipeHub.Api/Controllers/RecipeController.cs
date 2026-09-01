@@ -12,6 +12,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
@@ -509,20 +510,35 @@ namespace RecipeHub.Api.Controllers
         }
 
         [HttpGet("getallwithingredients")]
-        public async Task<IActionResult> GetAllWithIngredients()
+        public async Task<IActionResult> GetAllWithIngredients(string language = "English")
         {
             var cacheVersion = GetRecipeCacheVersion();
             var cacheKey = $"recipes:getallwithingredients:v{cacheVersion}";
-            if (_memoryCache.TryGetValue(cacheKey, out RecipeCacheEntry cachedRecipes))
+            if (!_memoryCache.TryGetValue(cacheKey, out RecipeCacheEntry cachedRecipes))
             {
-                return new OkObjectResult(cachedRecipes.Data);
+                var allRecipes = (await _recipeService.GetAllWithIngredients()).ToList();
+                cachedRecipes = new RecipeCacheEntry(allRecipes, DateTimeOffset.UtcNow);
+                _memoryCache.Set(cacheKey, cachedRecipes, new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = CacheTtl
+                });
             }
 
-            var recipes = (await _recipeService.GetAllWithIngredients()).ToList();
-            _memoryCache.Set(cacheKey, new RecipeCacheEntry(recipes, DateTimeOffset.UtcNow), new MemoryCacheEntryOptions
+            var recipes = cachedRecipes.Data.ToList();
+
+            if (!string.IsNullOrWhiteSpace(language) && !language.Equals("English", StringComparison.OrdinalIgnoreCase))
             {
-                AbsoluteExpirationRelativeToNow = CacheTtl
-            });
+                var storedTranslations = await _recipeTranslationService.GetAvailableStoredTranslationsAsync(recipes, language);
+                if (storedTranslations.Count > 0)
+                {
+                    recipes = recipes.Select(item => storedTranslations.TryGetValue(item.Id, out var translated) ? translated : item).ToList();
+                }
+
+                if (recipes.Any(item => !language.Equals(item.Language, StringComparison.OrdinalIgnoreCase)))
+                {
+                    TriggerTranslationRefresh(recipes.Select(item => item.Id), language);
+                }
+            }
 
             return new OkObjectResult(recipes);
         }
@@ -615,10 +631,22 @@ namespace RecipeHub.Api.Controllers
                         (r.Ingredients ?? new List<IngredientResponse>()).Any(i => Contains(i.Name, term)));
                 }
 
+                var sortComparer = GetCultureStringComparer(language);
+                var isEnglish = string.IsNullOrWhiteSpace(language) || language.Equals("English", StringComparison.OrdinalIgnoreCase);
+                var sortTitleTranslations = !isEnglish && string.Equals(sortBy, "title", StringComparison.OrdinalIgnoreCase)
+                    ? await _recipeTranslationService.GetAvailableStoredTranslationsAsync(allRecipes.ToList(), language)
+                    : new Dictionary<Guid, RecipeResponse>();
+                if (sortTitleTranslations.Count < allRecipes.Count && !isEnglish && string.Equals(sortBy, "title", StringComparison.OrdinalIgnoreCase))
+                {
+                    TriggerTranslationRefresh(allRecipes.Where(r => !sortTitleTranslations.ContainsKey(r.Id)).Select(r => r.Id), language);
+                }
+
+                string GetSortTitle(RecipeResponse recipe) => sortTitleTranslations.TryGetValue(recipe.Id, out var translated) ? translated.Title : recipe.Title;
+
                 filtered = sortBy?.ToLowerInvariant() switch
                 {
-                    "title" => ascending ? filtered.OrderBy(r => r.Title, StringComparer.OrdinalIgnoreCase) : filtered.OrderByDescending(r => r.Title, StringComparer.OrdinalIgnoreCase),
-                    "creator" => ascending ? filtered.OrderBy(r => r.Creator, StringComparer.OrdinalIgnoreCase) : filtered.OrderByDescending(r => r.Creator, StringComparer.OrdinalIgnoreCase),
+                    "title" => ascending ? filtered.OrderBy(GetSortTitle, sortComparer) : filtered.OrderByDescending(GetSortTitle, sortComparer),
+                    "creator" => ascending ? filtered.OrderBy(r => r.Creator, sortComparer) : filtered.OrderByDescending(r => r.Creator, sortComparer),
                     "time" => ascending ? filtered.OrderBy(GetTotalRecipeMinutes) : filtered.OrderByDescending(GetTotalRecipeMinutes),
                     "protein" => ascending
                         ? filtered.OrderBy(r => r.ProteinGrams.HasValue ? 0 : 1).ThenBy(r => r.ProteinGrams)
@@ -762,6 +790,19 @@ namespace RecipeHub.Api.Controllers
                 (recipe.ChillingMinutes ?? 0) +
                 (recipe.CoolingMinutes ?? 0) +
                 (recipe.RestingMinutes ?? 0);
+        }
+
+        private static StringComparer GetCultureStringComparer(string language)
+        {
+            var cultureName = language?.Trim().ToLowerInvariant() switch
+            {
+                "danish" => "da-DK",
+                "estonian" => "et-EE",
+                "turkish" => "tr-TR",
+                _ => "en-US"
+            };
+
+            return StringComparer.Create(CultureInfo.GetCultureInfo(cultureName), ignoreCase: true);
         }
 
         private static List<string> SplitFilterValues(string value)
