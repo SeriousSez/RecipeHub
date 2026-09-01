@@ -81,13 +81,20 @@
 
 .food-plan-week-actions {
     display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: .6rem;
+}
+
+.food-plan-week-nav {
+    display: flex;
     align-items: center;
     gap: .5rem;
     flex-wrap: wrap;
     white-space: nowrap;
 }
 
-.food-plan-week-actions strong {
+.food-plan-week-nav strong {
     min-height: 42px;
     display: inline-flex;
     align-items: center;
@@ -97,7 +104,7 @@
     color: #0f172a;
 }
 
-.food-plan-week-actions .btn {
+.food-plan-week-nav .btn {
     min-width: 42px;
     min-height: 42px;
     border-radius: 8px;
@@ -105,9 +112,12 @@
 }
 
 .food-plan-grocery-button {
+    min-height: 42px;
     display: inline-flex;
     align-items: center;
     gap: .45rem;
+    border-radius: 8px;
+    font-weight: 800;
 }
 
 .food-plan-feedback {
@@ -531,10 +541,15 @@
 
     .food-plan-week-actions {
         width: 100%;
+        align-items: stretch;
+    }
+
+    .food-plan-week-nav {
+        width: 100%;
         flex-wrap: wrap;
     }
 
-    .food-plan-week-actions strong {
+    .food-plan-week-nav strong {
         order: -1;
         width: 100%;
     }
@@ -575,7 +590,7 @@
 :host-context([data-theme='dark']) .food-plan-panel h2,
 :host-context([data-theme='dark']) .food-plan-day header strong,
 :host-context([data-theme='dark']) .food-plan-entry strong,
-:host-context([data-theme='dark']) .food-plan-week-actions strong {
+:host-context([data-theme='dark']) .food-plan-week-nav strong {
     color: #e2e8f0;
 }
 
@@ -587,7 +602,7 @@
 }
 
 :host-context([data-theme='dark']) .food-plan-metrics span,
-:host-context([data-theme='dark']) .food-plan-week-actions strong,
+:host-context([data-theme='dark']) .food-plan-week-nav strong,
 :host-context([data-theme='dark']) .food-plan-form,
 :host-context([data-theme='dark']) .food-plan-day header,
 :host-context([data-theme='dark']) .food-plan-entry,

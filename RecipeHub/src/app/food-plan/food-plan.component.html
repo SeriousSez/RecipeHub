@@ -15,10 +15,12 @@
             </div>
         </div>
         <div class="food-plan-week-actions">
-            <button type="button" class="btn btn-outline-secondary" (click)="previousWeek()"><i class="fas fa-chevron-left" aria-hidden="true"></i></button>
-            <strong>{{ weekLabel }}</strong>
-            <button type="button" class="btn btn-outline-secondary" (click)="nextWeek()"><i class="fas fa-chevron-right" aria-hidden="true"></i></button>
-            <button type="button" class="btn btn-brand-alt" (click)="currentWeek()">{{ 'foodPlan.todayButton' | translate }}</button>
+            <div class="food-plan-week-nav">
+                <button type="button" class="btn btn-outline-secondary" (click)="previousWeek()"><i class="fas fa-chevron-left" aria-hidden="true"></i></button>
+                <strong>{{ weekLabel }}</strong>
+                <button type="button" class="btn btn-outline-secondary" (click)="nextWeek()"><i class="fas fa-chevron-right" aria-hidden="true"></i></button>
+                <button type="button" class="btn btn-brand-alt" (click)="currentWeek()">{{ 'foodPlan.todayButton' | translate }}</button>
+            </div>
             <button type="button" class="btn btn-outline-brand food-plan-grocery-button" [disabled]="entries.length === 0 || addingWeekToGroceries" (click)="addWeekToGroceries()">
                 <i class="fas" [ngClass]="addingWeekToGroceries ? 'fa-spinner fa-spin' : 'fa-shopping-cart'" aria-hidden="true"></i>
                 {{ (addingWeekToGroceries ? 'foodPlan.addingWeekToGroceries' : 'foodPlan.addWeekToGroceries') | translate }}
