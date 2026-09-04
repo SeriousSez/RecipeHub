@@ -48,6 +48,10 @@
                 <app-taxonomy-select [(ngModel)]="mealSlot" [options]="mealSlots" [optionLabels]="mealSlotLabels" [multiple]="false" [allowCustom]="false" [placeholder]="'recipe.mealSlotLabel' | translate" [ariaLabel]="'recipe.mealSlotLabel' | translate"></app-taxonomy-select>
             </label>
             <label class="food-plan-modal-field">
+                <span class="food-plan-modal-label">{{ 'foodPlan.servingsLabel' | translate }}</span>
+                <input class="form-control" type="number" min="1" step="1" required [(ngModel)]="servings">
+            </label>
+            <label class="food-plan-modal-field">
                 <span class="food-plan-modal-label">{{ 'recipe.repeatUntilLabel' | translate }}</span>
                 <app-date-picker [(ngModel)]="repeatUntil" [disabled]="!repeatWeekly" [placeholder]="'dd/mm/yyyy'" [ariaLabel]="'recipe.repeatUntilLabel' | translate"></app-date-picker>
             </label>

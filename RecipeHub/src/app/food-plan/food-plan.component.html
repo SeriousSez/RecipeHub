@@ -62,6 +62,10 @@
                 <app-taxonomy-select class="food-plan-select" name="mealSlot" [(ngModel)]="draft.mealSlot" [options]="mealSlots" [optionLabels]="mealSlotLabels" [multiple]="false" [allowCustom]="false" [placeholder]="'foodPlan.chooseMeal' | translate"
                     [ariaLabel]="'foodPlan.mealLabel' | translate"></app-taxonomy-select>
             </label>
+            <label class="food-plan-servings-field">
+                <span>{{ 'foodPlan.servingsLabel' | translate }}</span>
+                <input class="form-control" name="servings" type="number" min="1" step="1" required [(ngModel)]="draft.servings">
+            </label>
             <label class="food-plan-repeat-until-field">
                 <span>{{ 'foodPlan.repeatUntilLabel' | translate }}</span>
                 <app-date-picker name="repeatUntil" [(ngModel)]="draft.repeatUntil" [disabled]="!draft.repeatWeekly" placeholder="dd/mm/yyyy" [ariaLabel]="'foodPlan.repeatUntilLabel' | translate"></app-date-picker>
@@ -93,6 +97,7 @@
                 <button type="button" class="food-plan-entry" *ngFor="let entry of entriesForDay(day); trackBy: trackEntry" (click)="openRecipe(entry)">
                     <span class="food-plan-meal">{{ entry.mealSlot }}</span>
                     <strong>{{ entry.recipe?.title || 'Recipe' }}</strong>
+                    <span class="food-plan-entry-servings">{{ entry.servings || 1 }} {{ 'foodPlan.servingsShortLabel' | translate }}</span>
                     <span class="food-plan-entry-notes" *ngIf="entry.notes">{{ entry.notes }}</span>
                     <span class="food-plan-repeat-badge" *ngIf="entry.repeatWeekly"><i class="fas fa-redo" aria-hidden="true"></i>{{ 'foodPlan.weeklyBadge' | translate }}</span>
                     <i class="fas fa-times food-plan-remove" aria-hidden="true" (click)="removeEntry(entry); $event.stopPropagation()"></i>

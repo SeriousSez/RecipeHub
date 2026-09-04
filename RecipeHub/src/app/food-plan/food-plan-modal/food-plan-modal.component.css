@@ -200,7 +200,7 @@
 
 .food-plan-options {
     display: grid;
-    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(180px, auto);
+    grid-template-columns: minmax(0, 1.1fr) minmax(8rem, .7fr) minmax(6rem, .45fr) minmax(180px, auto);
     align-items: end;
     gap: .75rem;
 }

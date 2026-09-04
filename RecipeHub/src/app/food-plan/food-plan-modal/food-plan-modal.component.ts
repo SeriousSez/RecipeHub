@@ -25,6 +25,7 @@ export class FoodPlanModalComponent implements OnChanges {
     public feedbackType: 'success' | 'danger' = 'success';
     public selectedDates: string[] = [];
     public mealSlot = 'Dinner';
+    public servings = 1;
     public repeatWeekly = false;
     public repeatUntil = '';
     public notes = '';
@@ -90,6 +91,7 @@ export class FoodPlanModalComponent implements OnChanges {
                 recipeId: recipe.id,
                 plannedDate,
                 mealSlot: this.mealSlot,
+                servings: this.servings,
                 notes: this.notes?.trim() || null,
                 repeatWeekly: this.repeatWeekly,
                 repeatUntil: this.repeatWeekly && this.repeatUntil ? this.repeatUntil : null,
@@ -137,6 +139,7 @@ export class FoodPlanModalComponent implements OnChanges {
         this.weekStart = this.getWeekStart(new Date());
         this.setWeekDays(true);
         this.mealSlot = 'Dinner';
+        this.servings = 1;
         this.repeatWeekly = false;
         this.repeatUntil = '';
         this.notes = '';

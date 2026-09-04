@@ -59,6 +59,7 @@ namespace RecipeHub.ApplicationService.Services
                 Recipe = recipe,
                 PlannedDate = model.PlannedDate.Date,
                 MealSlot = NormalizeMealSlot(model.MealSlot),
+                Servings = model.Servings,
                 Notes = model.Notes?.Trim(),
                 RepeatWeekly = model.RepeatWeekly,
                 RepeatUntil = model.RepeatUntil?.Date,
@@ -81,6 +82,7 @@ namespace RecipeHub.ApplicationService.Services
             entry.Recipe = recipe;
             entry.PlannedDate = model.PlannedDate.Date;
             entry.MealSlot = NormalizeMealSlot(model.MealSlot);
+            entry.Servings = model.Servings;
             entry.Notes = model.Notes?.Trim();
             entry.RepeatWeekly = model.RepeatWeekly;
             entry.RepeatUntil = model.RepeatUntil?.Date;

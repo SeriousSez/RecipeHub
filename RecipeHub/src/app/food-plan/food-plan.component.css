@@ -184,17 +184,18 @@
 }
 
 .food-plan-recipe-field {
-    grid-column: span 3;
+    grid-column: span 2;
 }
 
 .food-plan-date-field,
 .food-plan-meal-field,
+.food-plan-servings-field,
 .food-plan-repeat-until-field {
     grid-column: span 2;
 }
 
 .food-plan-repeat {
-    grid-column: span 3;
+    grid-column: span 2;
 }
 
 .food-plan-notes {
@@ -209,6 +210,10 @@
     color: #0f172a;
     font-weight: 650;
     box-shadow: none;
+}
+
+.food-plan-servings-field input {
+    text-align: center;
 }
 
 .food-plan-form .form-control:focus,
@@ -515,6 +520,7 @@
 
     .food-plan-date-field,
     .food-plan-meal-field,
+    .food-plan-servings-field,
     .food-plan-repeat-until-field,
     .food-plan-repeat,
     .food-plan-submit {
@@ -563,6 +569,7 @@
     .food-plan-recipe-field,
     .food-plan-date-field,
     .food-plan-meal-field,
+    .food-plan-servings-field,
     .food-plan-repeat-until-field,
     .food-plan-repeat,
     .food-plan-notes {

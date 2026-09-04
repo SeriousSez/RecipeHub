@@ -44,6 +44,8 @@
         "dateLabel": "Kuupäev",
         "mealLabel": "Toidukord",
         "chooseMeal": "Vali toidukord",
+        "servingsLabel": "Portsjonid selleks päevaks",
+        "servingsShortLabel": "portsjonit",
         "repeatUntilLabel": "Korda kuni",
         "repeatWeekly": "Korda igal nädalal",
         "notesLabel": "Märkmed",

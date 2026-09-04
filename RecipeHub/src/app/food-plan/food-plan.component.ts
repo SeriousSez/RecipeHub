@@ -77,10 +77,11 @@ export class FoodPlanComponent implements OnInit, OnDestroy {
                 totals.hasData = true;
             }
 
-            totals.calories += recipe.calories ?? 0;
-            totals.proteinGrams += recipe.proteinGrams ?? 0;
-            totals.carbohydrateGrams += recipe.carbohydrateGrams ?? 0;
-            totals.fatGrams += recipe.fatGrams ?? 0;
+            const servings = entry.servings || 1;
+            totals.calories += (recipe.calories ?? 0) * servings;
+            totals.proteinGrams += (recipe.proteinGrams ?? 0) * servings;
+            totals.carbohydrateGrams += (recipe.carbohydrateGrams ?? 0) * servings;
+            totals.fatGrams += (recipe.fatGrams ?? 0) * servings;
             return totals;
         }, { calories: 0, proteinGrams: 0, carbohydrateGrams: 0, fatGrams: 0, hasData: false } as FoodPlanNutritionTotals);
     }
@@ -135,7 +136,19 @@ export class FoodPlanComponent implements OnInit, OnDestroy {
             .pipe(finalize(() => this.addingWeekToGroceries = false))
             .subscribe({
                 next: recipes => {
-                    recipes.filter(recipe => !!recipe?.ingredients?.length).forEach(recipe => this.groceryService.addRecipeToList(recipe));
+                    recipes.forEach((recipe, index) => {
+                        const entry = this.entries[index];
+                        if (!recipe?.ingredients?.length) return;
+
+                        const servings = entry?.servings || 1;
+                        this.groceryService.addRecipeToList({
+                            ...recipe,
+                            ingredients: recipe.ingredients.map(ingredient => ({
+                                ...ingredient,
+                                amount: ingredient.amount * servings
+                            }))
+                        });
+                    });
                     this.groceryFeedbackType = 'success';
                     this.groceryFeedbackMessage = this.translateService.instant('foodPlan.addedWeekToGroceries', { count: recipes.length });
                 },
@@ -264,7 +277,7 @@ export class FoodPlanComponent implements OnInit, OnDestroy {
     }
 
     private createDraft(plannedDate = this.toDateInputValue(new Date())): FoodPlanEntryRequest {
-        return { userId: this.userService.getUserId(), recipeId: '', plannedDate, mealSlot: 'Dinner', notes: '', repeatWeekly: false, repeatUntil: null, position: 0 };
+        return { userId: this.userService.getUserId(), recipeId: '', plannedDate, mealSlot: 'Dinner', servings: 1, notes: '', repeatWeekly: false, repeatUntil: null, position: 0 };
     }
 
     private getWeekStart(date: Date): Date {

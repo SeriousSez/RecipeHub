@@ -44,6 +44,8 @@
         "dateLabel": "Tarih",
         "mealLabel": "Öğün",
         "chooseMeal": "Öğün seç",
+        "servingsLabel": "Bu gün için porsiyon",
+        "servingsShortLabel": "porsiyon",
         "repeatUntilLabel": "Şu tarihe kadar tekrarla",
         "repeatWeekly": "Haftalık tekrarla",
         "notesLabel": "Notlar",

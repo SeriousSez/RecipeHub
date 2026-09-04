@@ -92,6 +92,12 @@ namespace RecipeHub.Api.Controllers
                 return false;
             }
 
+            if (model.Servings < 1)
+            {
+                error = "At least one serving is required.";
+                return false;
+            }
+
             if (model.RepeatUntil.HasValue && model.RepeatUntil.Value.Date < model.PlannedDate.Date)
             {
                 error = "Repeat-until date must be on or after the planned date.";

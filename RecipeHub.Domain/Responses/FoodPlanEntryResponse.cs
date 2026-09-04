@@ -10,6 +10,7 @@ namespace RecipeHub.Domain.Responses
         public DateTime PlannedDate { get; set; }
         public DateTime OccurrenceDate { get; set; }
         public string MealSlot { get; set; }
+        public int Servings { get; set; }
         public string Notes { get; set; }
         public bool RepeatWeekly { get; set; }
         public DateTime? RepeatUntil { get; set; }

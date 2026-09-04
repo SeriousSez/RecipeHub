@@ -7,6 +7,7 @@ export interface FoodPlanEntry {
     plannedDate: string;
     occurrenceDate: string;
     mealSlot: string;
+    servings: number;
     notes: string | null;
     repeatWeekly: boolean;
     repeatUntil: string | null;
@@ -20,6 +21,7 @@ export interface FoodPlanEntryRequest {
     recipeId: string;
     plannedDate: string;
     mealSlot: string;
+    servings: number;
     notes?: string | null;
     repeatWeekly: boolean;
     repeatUntil?: string | null;

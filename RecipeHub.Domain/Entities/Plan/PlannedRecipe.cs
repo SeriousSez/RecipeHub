@@ -13,6 +13,7 @@ namespace RecipeHub.Domain.Entities.Plan
         public Recipe.Recipe Recipe { get; set; }
         public DateTime PlannedDate { get; set; }
         public string MealSlot { get; set; }
+        public int Servings { get; set; } = 1;
         public string Notes { get; set; }
         public bool RepeatWeekly { get; set; }
         public DateTime? RepeatUntil { get; set; }

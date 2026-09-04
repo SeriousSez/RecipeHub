@@ -44,6 +44,8 @@
         "dateLabel": "Date",
         "mealLabel": "Meal",
         "chooseMeal": "Choose a meal",
+        "servingsLabel": "Servings for this day",
+        "servingsShortLabel": "servings",
         "repeatUntilLabel": "Repeat until",
         "repeatWeekly": "Repeat weekly",
         "notesLabel": "Notes",

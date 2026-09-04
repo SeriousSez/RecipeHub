@@ -44,6 +44,8 @@
         "dateLabel": "Dato",
         "mealLabel": "Måltid",
         "chooseMeal": "Vælg måltid",
+        "servingsLabel": "Portioner denne dag",
+        "servingsShortLabel": "portioner",
         "repeatUntilLabel": "Gentag indtil",
         "repeatWeekly": "Gentag ugentligt",
         "notesLabel": "Noter",
