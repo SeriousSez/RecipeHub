@@ -673,6 +673,91 @@
     margin-top: 1.15rem;
 }
 
+.grocery-cost-estimate {
+    margin-top: 1rem;
+    padding: .85rem 1rem;
+    border: 1px solid #d5dbe4;
+    border-radius: 9px;
+    background: #f8fafc;
+}
+
+.grocery-cost-estimate-headline {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+.grocery-cost-estimate-label {
+    color: #172033;
+    font-size: .85rem;
+    font-weight: 800;
+}
+
+.grocery-cost-estimate-total {
+    display: inline-flex;
+    align-items: baseline;
+    gap: .45rem;
+}
+
+.grocery-cost-estimate-total del {
+    color: #94a3b8;
+    font-size: .8rem;
+}
+
+.grocery-cost-estimate-total strong {
+    color: #172033;
+    font-size: 1.15rem;
+}
+
+.grocery-cost-estimate-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .25rem .75rem;
+    margin-top: .2rem;
+    color: #64748b;
+    font-size: .75rem;
+}
+
+.grocery-cost-estimate-savings {
+    color: #15803d;
+    font-weight: 700;
+}
+
+.grocery-cost-estimate-note {
+    margin: .35rem 0 0;
+    color: #64748b;
+    font-size: .72rem;
+}
+
+.grocery-cost-estimate-note.is-warning {
+    color: #b45309;
+}
+
+:host-context([data-theme='dark']) .grocery-cost-estimate {
+    border-color: #46505d;
+    background: #1d2127;
+}
+
+:host-context([data-theme='dark']) .grocery-cost-estimate-label,
+:host-context([data-theme='dark']) .grocery-cost-estimate-total strong {
+    color: #f8fafc;
+}
+
+:host-context([data-theme='dark']) .grocery-cost-estimate-meta,
+:host-context([data-theme='dark']) .grocery-cost-estimate-note {
+    color: #cbd5e1;
+}
+
+:host-context([data-theme='dark']) .grocery-cost-estimate-savings {
+    color: #4ade80;
+}
+
+:host-context([data-theme='dark']) .grocery-cost-estimate-note.is-warning {
+    color: #fbbf24;
+}
+
 .grocery-offer-group-heading {
     display: flex;
     align-items: baseline;

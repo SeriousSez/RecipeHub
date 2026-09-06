@@ -10,7 +10,7 @@ import { finalize } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 import { PantryService } from 'src/app/pantry/pantry.service';
 import { UserService } from 'src/app/shared/services/user.service';
-import { GroceryIngredientOffer, GroceryNearbyStore, GroceryOfferCategory, GroceryOfferGroup, GroceryOfferSearchResponse, GroceryShoppingPreference } from 'src/app/shared/models/grocery-offer-search.interface';
+import { GroceryCostEstimate, GroceryIngredientOffer, GroceryNearbyStore, GroceryOfferCategory, GroceryOfferGroup, GroceryOfferSearchResponse, GroceryShoppingPreference } from 'src/app/shared/models/grocery-offer-search.interface';
 
 interface GroceryIngredientGroup {
   recipeTitle: string;
@@ -311,6 +311,51 @@ export class GroceryComponent implements OnInit {
   isOldOffer(offer: GroceryOfferGroup['offers'][number]): boolean {
     const validFrom = offer.validFrom ? Date.parse(offer.validFrom) : NaN;
     return Number.isFinite(validFrom) && validFrom < Date.now() - 90 * 24 * 60 * 60 * 1000;
+  }
+
+  get costEstimate(): GroceryCostEstimate | null {
+    const offers = this.getEstimatedOffers();
+    if (offers.length === 0 || this.getEstimateCurrencies(offers).length !== 1) return null;
+
+    const total = offers.reduce((sum, offer) => sum + offer.price, 0);
+    const originalTotal = offers.reduce((sum, offer) => sum + (offer.originalPrice && offer.originalPrice > offer.price ? offer.originalPrice : offer.price), 0);
+
+    return {
+      currency: offers[0].currency,
+      total,
+      originalTotal,
+      savings: originalTotal - total,
+      coveredCount: offers.length,
+      totalCount: this.nearbyOfferGroups.length + (this.nearbyOfferResults?.unmatchedIngredients.length ?? 0),
+      usesOldPrices: offers.some(offer => this.isOldOffer(offer))
+    };
+  }
+
+  get hasMixedOfferCurrencies(): boolean {
+    return this.getEstimateCurrencies(this.getEstimatedOffers()).length > 1;
+  }
+
+  private getEstimatedOffers(): GroceryIngredientOffer[] {
+    if (!this.nearbyOfferResults) return [];
+
+    return this.nearbyOfferGroups
+      .map(group => this.selectEstimateOffer(group.offers))
+      .filter((offer): offer is GroceryIngredientOffer => !!offer);
+  }
+
+  private selectEstimateOffer(offers: GroceryIngredientOffer[]): GroceryIngredientOffer | null {
+    const pricedOffers = offers.filter(offer => Number.isFinite(offer.price) && offer.price > 0 && !!offer.currency?.trim());
+    if (pricedOffers.length === 0) return null;
+
+    if (this.offerShoppingPreference === 'budget' || this.offerShoppingPreference === 'deals') {
+      return pricedOffers.reduce((cheapest, offer) => offer.price < cheapest.price ? offer : cheapest);
+    }
+
+    return pricedOffers[0];
+  }
+
+  private getEstimateCurrencies(offers: GroceryIngredientOffer[]): string[] {
+    return Array.from(new Set(offers.map(offer => offer.currency.trim().toUpperCase())));
   }
 
   get sortLabel() {
