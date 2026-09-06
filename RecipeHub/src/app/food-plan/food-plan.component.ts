@@ -148,7 +148,7 @@ export class FoodPlanComponent implements OnInit, OnDestroy {
         this.foodPlanService.create(this.draft).subscribe({
             next: () => {
                 this.saving = false;
-                this.draft = this.createDraft(this.draft.plannedDate);
+                this.draft = this.createDraft(this.draft.plannedDate, this.draft.recipeId);
                 this.loadEntries();
             },
             error: () => {
@@ -316,8 +316,8 @@ export class FoodPlanComponent implements OnInit, OnDestroy {
         return { da: 'Danish', et: 'Estonian', tr: 'Turkish' }[this.languageService.getCurrentLanguage()] ?? 'English';
     }
 
-    private createDraft(plannedDate = this.toDateInputValue(new Date())): FoodPlanEntryRequest {
-        return { userId: this.userService.getUserId(), recipeId: '', plannedDate, mealSlot: 'Dinner', servings: 1, notes: '', repeatWeekly: false, repeatUntil: null, position: 0 };
+    private createDraft(plannedDate = this.toDateInputValue(new Date()), recipeId = ''): FoodPlanEntryRequest {
+        return { userId: this.userService.getUserId(), recipeId, plannedDate, mealSlot: 'Dinner', servings: 1, notes: '', repeatWeekly: false, repeatUntil: null, position: 0 };
     }
 
     private getWeekStart(date: Date): Date {
