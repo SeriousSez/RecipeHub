@@ -508,6 +508,59 @@
     font-size: .78rem;
 }
 
+.recipe-cost-estimate {
+    display: flex;
+    align-items: center;
+    gap: .55rem .9rem;
+    flex-wrap: wrap;
+    margin: 0 0 1.25rem;
+    color: #64748b;
+    font-size: .78rem;
+}
+
+.recipe-cost-estimate>div {
+    display: flex;
+    align-items: baseline;
+    gap: .55rem;
+    flex-wrap: wrap;
+}
+
+.recipe-cost-estimate strong {
+    color: #1f2937;
+}
+
+.recipe-cost-estimate small {
+    color: #64748b;
+}
+
+.recipe-cost-button {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .2rem 0;
+    border: 0;
+    background: transparent;
+    color: #3977ad;
+    font-size: .78rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.recipe-cost-button:hover:not(:disabled) {
+    color: #24577f;
+    text-decoration: underline;
+    text-underline-offset: .18rem;
+}
+
+.recipe-cost-button:disabled {
+    color: #94a3b8;
+    cursor: wait;
+}
+
+.recipe-cost-error {
+    color: #b91c1c !important;
+}
+
 .recipe-nutrition {
     margin: 1.5rem 0 0;
     padding: 1.25rem 0 0;

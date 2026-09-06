@@ -3,7 +3,7 @@ export interface GroceryOfferSearchRequest {
     ingredientContexts?: Record<string, string>;
     ingredientCategories?: Record<string, string>;
     shoppingPreference?: GroceryShoppingPreference;
-    countryCode: 'DK' | 'EE' | 'TR';
+    countryCode: 'DK' | 'EE' | 'TR' | 'NO' | 'SE';
     forceRefresh?: boolean;
     latitude: number;
     longitude: number;

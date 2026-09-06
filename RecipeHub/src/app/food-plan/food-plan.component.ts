@@ -12,6 +12,8 @@ import { FoodPlanService } from './food-plan.service';
 import { LanguageService } from '../shared/services/language.service';
 import { getTaxonomyValueLabel } from '../recipe/models/recipe-taxonomy';
 import { GroceryService } from '../shared/services/grocery.service';
+import { GroceryCostEstimate } from '../shared/models/grocery-offer-search.interface';
+import { GroceryCostEstimatorService } from '../shared/services/grocery-cost-estimator.service';
 
 @Component({
     selector: 'app-food-plan',
@@ -27,6 +29,9 @@ export class FoodPlanComponent implements OnInit, OnDestroy {
     public loading = true;
     public saving = false;
     public addingWeekToGroceries = false;
+    public estimatingWeekCost = false;
+    public weekCostEstimate: GroceryCostEstimate | null = null;
+    public weekCostEstimateError = false;
     public error = '';
     public groceryFeedbackMessage = '';
     public groceryFeedbackType: 'success' | 'danger' = 'success';
@@ -35,7 +40,7 @@ export class FoodPlanComponent implements OnInit, OnDestroy {
     private languageSubscription?: Subscription;
     private weekStart = this.getWeekStart(new Date());
 
-    constructor(private foodPlanService: FoodPlanService, private recipeService: RecipeService, private userService: UserService, private groceryService: GroceryService, private router: Router, private utilityService: UtilityService, private languageService: LanguageService, private translateService: TranslateService) {
+    constructor(private foodPlanService: FoodPlanService, private recipeService: RecipeService, private userService: UserService, private groceryService: GroceryService, private router: Router, private utilityService: UtilityService, private languageService: LanguageService, private translateService: TranslateService, private groceryCostEstimator: GroceryCostEstimatorService) {
         this.draft = this.createDraft();
     }
 
@@ -66,6 +71,24 @@ export class FoodPlanComponent implements OnInit, OnDestroy {
 
     public getDayNutritionTotals(day: Date): FoodPlanNutritionTotals {
         return this.getNutritionTotals(this.entriesForDay(day));
+    }
+
+    public checkWeekPrices(): void {
+        if (this.estimatingWeekCost || this.entries.length === 0) return;
+
+        const recipes = this.entries
+            .filter(entry => !!entry.recipe)
+            .map(entry => ({ recipe: entry.recipe!, servings: entry.servings }));
+        if (recipes.length === 0) return;
+
+        this.estimatingWeekCost = true;
+        this.weekCostEstimateError = false;
+        this.groceryCostEstimator.estimateRecipes(recipes)
+            .pipe(finalize(() => this.estimatingWeekCost = false))
+            .subscribe({
+                next: estimate => this.weekCostEstimate = estimate,
+                error: () => this.weekCostEstimateError = true
+            });
     }
 
     private getNutritionTotals(entries: FoodPlanEntry[]): FoodPlanNutritionTotals {

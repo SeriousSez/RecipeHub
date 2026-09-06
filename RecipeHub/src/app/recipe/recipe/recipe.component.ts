@@ -24,6 +24,8 @@ import { concatMap, finalize } from 'rxjs/operators';
 import { NutritionEstimate } from '../models/nutrition-estimate.interface';
 import { RecipeEngagement } from '../models/recipe-engagement.interface';
 import { PantryService } from 'src/app/pantry/pantry.service';
+import { GroceryCostEstimate } from 'src/app/shared/models/grocery-offer-search.interface';
+import { GroceryCostEstimatorService } from 'src/app/shared/services/grocery-cost-estimator.service';
 
 @Component({
   selector: 'app-recipe',
@@ -94,6 +96,9 @@ export class RecipeComponent implements OnInit {
   public nutritionEstimateMessageKey: string = '';
   public nutritionUnmatchedCount: number = 0;
   public nutritionEstimateProvider: string = '';
+  public recipeCostEstimate: GroceryCostEstimate | null = null;
+  public estimatingRecipeCost: boolean = false;
+  public recipeCostEstimateError: boolean = false;
   public engagement: RecipeEngagement = { madeCount: 0, averageRating: null, ratingCount: 0, hasMade: false, userRating: null };
   public savingEngagement: boolean = false;
   public engagementError: boolean = false;
@@ -315,7 +320,7 @@ export class RecipeComponent implements OnInit {
     toolbarPosition: 'top'
   };
 
-  constructor(private activatedRoute: ActivatedRoute, private datepipe: DatePipe, private router: Router, public utilityService: UtilityService, private recipeService: RecipeService, private groceryService: GroceryService, private ingredientService: IngredientService, private userService: UserService, private safeService: SafeService, private favoriteService: FavoriteService, private translateService: TranslateService, private languageService: LanguageService, private changeDetectorRef: ChangeDetectorRef, private pantryService: PantryService) {
+  constructor(private activatedRoute: ActivatedRoute, private datepipe: DatePipe, private router: Router, public utilityService: UtilityService, private recipeService: RecipeService, private groceryService: GroceryService, private ingredientService: IngredientService, private userService: UserService, private safeService: SafeService, private favoriteService: FavoriteService, private translateService: TranslateService, private languageService: LanguageService, private changeDetectorRef: ChangeDetectorRef, private pantryService: PantryService, private groceryCostEstimator: GroceryCostEstimatorService) {
     const routeId = activatedRoute.snapshot.params['id'];
     const routeTitle = activatedRoute.snapshot.params['title'];
     const routeKey = activatedRoute.snapshot.params['key'];
@@ -798,6 +803,11 @@ export class RecipeComponent implements OnInit {
     return totalMinutes > 0 ? totalMinutes : null;
   }
 
+  getRecipeCostPerServing(): number | null {
+    if (!this.recipeCostEstimate) return null;
+    return this.recipeCostEstimate.total / (this.parseNumericPortions(this.recipe?.portions) ?? 1);
+  }
+
   hasNutrition(): boolean {
     return [this.recipe?.calories, this.recipe?.proteinGrams, this.recipe?.carbohydrateGrams, this.recipe?.fatGrams, this.recipe?.fiberGrams, this.recipe?.sugarGrams, this.recipe?.sodiumMilligrams]
       .some(value => value != null);
@@ -813,6 +823,19 @@ export class RecipeComponent implements OnInit {
       .subscribe({
         next: estimate => this.applyNutritionEstimate(estimate),
         error: () => this.nutritionEstimateMessageKey = 'recipe.nutritionEstimateFailed'
+      });
+  }
+
+  estimateRecipeCost(): void {
+    if (this.estimatingRecipeCost || !this.recipe) return;
+
+    this.estimatingRecipeCost = true;
+    this.recipeCostEstimateError = false;
+    this.groceryCostEstimator.estimateRecipes([{ recipe: this.recipe }])
+      .pipe(finalize(() => this.estimatingRecipeCost = false))
+      .subscribe({
+        next: estimate => this.recipeCostEstimate = estimate,
+        error: () => this.recipeCostEstimateError = true
       });
   }
 

@@ -42,6 +42,7 @@
 
       @if (!isAuthenticated) {
       <nav class="mobile-nav-links" aria-label="Account navigation">
+        <a routerLinkActive="active" routerLink="/recipes" (click)="closeNavbar()"><i class="fas fa-book-open" aria-hidden="true"></i>{{ 'nav.recipes' | translate }}</a>
         <a routerLinkActive="active" routerLink="/login" (click)="closeNavbar()"><i class="fas fa-sign-in-alt" aria-hidden="true"></i>{{ 'nav.login' | translate }}</a>
         <a routerLinkActive="active" routerLink="/register" (click)="closeNavbar()"><i class="fas fa-user-plus" aria-hidden="true"></i>{{ 'nav.signUp' | translate }}</a>
       </nav>

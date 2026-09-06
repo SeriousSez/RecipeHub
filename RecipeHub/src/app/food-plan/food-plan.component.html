@@ -12,6 +12,10 @@
                     {{ 'foodPlan.weekNutritionSummary' | translate:{ calories: (weekNutritionTotals.calories | number:'1.0-0'), protein: (weekNutritionTotals.proteinGrams | number:'1.0-0'), carbs: (weekNutritionTotals.carbohydrateGrams | number:'1.0-0'), fat: (weekNutritionTotals.fatGrams |
                     number:'1.0-0') } }}
                 </span>
+                <span class="food-plan-cost" *ngIf="weekCostEstimate as estimate">
+                    <i class="fas fa-tag" aria-hidden="true"></i>
+                    {{ 'foodPlan.weekCostSummary' | translate:{ amount: (estimate.total | number:'1.2-2'), currency: estimate.currency, covered: estimate.coveredCount, total: estimate.totalCount } }}
+                </span>
             </div>
         </div>
         <div class="food-plan-week-actions">
@@ -25,8 +29,17 @@
                 <i class="fas" [ngClass]="addingWeekToGroceries ? 'fa-spinner fa-spin' : 'fa-shopping-cart'" aria-hidden="true"></i>
                 {{ (addingWeekToGroceries ? 'foodPlan.addingWeekToGroceries' : 'foodPlan.addWeekToGroceries') | translate }}
             </button>
+            <button type="button" class="food-plan-cost-button" [disabled]="entries.length === 0 || estimatingWeekCost" (click)="checkWeekPrices()">
+                <i class="fas" [ngClass]="estimatingWeekCost ? 'fa-spinner fa-spin' : 'fa-tag'" aria-hidden="true"></i>
+                {{ (estimatingWeekCost ? 'foodPlan.checkingPrices' : 'foodPlan.checkPrices') | translate }}
+            </button>
         </div>
     </header>
+
+    <p class="food-plan-cost-note" *ngIf="weekCostEstimate || weekCostEstimateError">
+        <span *ngIf="weekCostEstimate">{{ 'foodPlan.costEstimateApproximate' | translate }}</span>
+        <span *ngIf="weekCostEstimateError">{{ 'foodPlan.costEstimateFailed' | translate }}</span>
+    </p>
 
     <div class="alert alert-{{ groceryFeedbackType }} food-plan-feedback" *ngIf="groceryFeedbackMessage" role="alert">{{ groceryFeedbackMessage }}</div>
 

@@ -17,7 +17,8 @@
     "footer": {
         "recipes": "Retseptid",
         "myRecipes": "Minu retseptid",
-        "grocery": "Ostunimekiri"
+        "grocery": "Ostunimekiri",
+        "createMenu": "Loo retsept"
     },
     "datePicker": {
         "previousMonth": "Eelmine kuu",
@@ -57,7 +58,12 @@
         "weeklyBadge": "Iganädalane",
         "noRecipePlanned": "Retsepti pole planeeritud",
         "weekNutritionSummary": "{{calories}} kcal · {{protein}}g valku · {{carbs}}g süsivesikuid · {{fat}}g rasva",
-        "dayNutritionSummary": "{{calories}} kcal · {{protein}}g valku"
+        "dayNutritionSummary": "{{calories}} kcal · {{protein}}g valku",
+        "checkPrices": "Kontrolli hindu",
+        "checkingPrices": "Kontrollin hindu...",
+        "weekCostSummary": "Umbes {{amount}} {{currency}} nädala kohta ({{covered}}/{{total}} koostisosa)",
+        "costEstimateApproximate": "Pakihinna hinnang lähedalasuvate pakkumiste põhjal.",
+        "costEstimateFailed": "Hindu ei saanud kontrollida. Proovi hiljem uuesti."
     },
     "home": {
         "eyebrow": "Paremad toidukorrad, vähem arvamist",
@@ -561,6 +567,13 @@
         "decreasePortionsAria": "Vähenda portsjoneid",
         "increasePortionsAria": "Suurenda portsjoneid",
         "totalTimeLabel": "Koguaeg",
+        "checkPrices": "Kontrolli hindu",
+        "checkingPrices": "Kontrollin hindu...",
+        "costEstimateLabel": "Hinnanguline hind",
+        "costEstimatePerServing": "Umbes {{amount}} {{currency}} portsjoni kohta",
+        "costEstimateCoverage": "Põhineb {{covered}} koostisosal {{total}}-st",
+        "costEstimateApproximate": "Pakihinna hinnang lähedalasuvate pakkumiste põhjal.",
+        "costEstimateFailed": "Hindu ei saanud kontrollida. Proovi hiljem uuesti.",
         "preparationTimeLabel": "Ettevalmistus",
         "cookingTimeLabel": "Küpsetamine",
         "proofingTimeLabel": "Kergitamine",

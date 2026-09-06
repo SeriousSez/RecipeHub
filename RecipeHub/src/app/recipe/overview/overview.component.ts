@@ -266,12 +266,19 @@ export class OverviewComponent implements OnInit {
   private groceryFeedbackTimer?: ReturnType<typeof setTimeout>;
   private refreshIndicatorTimer?: ReturnType<typeof setTimeout>;
   private pageRequestSequence: number = 0;
+  private queryParamsSubscription?: Subscription;
 
   constructor(private recipeService: RecipeService, private userService: UserService, private favoriteService: FavoriteService, private groceryService: GroceryService, private datepipe: DatePipe, private router: Router, private route: ActivatedRoute, private utilityService: UtilityService, private translateService: TranslateService, private languageService: LanguageService, private recipeDraftService: RecipeDraftService) { }
 
   ngOnInit(): void {
     this.loadPantryIngredients();
     this.activatePantryMatchesWhenReady = this.route.snapshot.queryParamMap.get('pantry') === 'true';
+    this.showGenerateRecipe = this.route.snapshot.queryParamMap.get('generate') === 'true';
+    this.queryParamsSubscription = this.route.queryParamMap.subscribe(params => {
+      if (params.get('generate') === 'true' && !this.showGenerateRecipe) {
+        this.openGenerateRecipe();
+      }
+    });
     this.restoreFilterState();
     this.creatorFilter = this.route.snapshot.queryParamMap.get('creator')?.trim() ?? '';
     this.getRecipes();
@@ -367,6 +374,7 @@ export class OverviewComponent implements OnInit {
     this.subscription?.unsubscribe();
     this.settingsSubscription?.unsubscribe();
     this.languageSubscription?.unsubscribe();
+    this.queryParamsSubscription?.unsubscribe();
     if (this.refreshIndicatorTimer) clearTimeout(this.refreshIndicatorTimer);
   }
 
@@ -611,6 +619,7 @@ export class OverviewComponent implements OnInit {
     this.showGenerateRecipe = false;
     this.generatingRecipe = false;
     this.generateRecipeErrorKey = '';
+    this.router.navigate([], { relativeTo: this.route, queryParams: { generate: null }, queryParamsHandling: 'merge', replaceUrl: true });
   }
 
   generateRecipe() {

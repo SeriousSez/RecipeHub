@@ -17,7 +17,8 @@
     "footer": {
         "recipes": "Recipes",
         "myRecipes": "My Recipes",
-        "grocery": "Grocery"
+        "grocery": "Grocery",
+        "createMenu": "Create recipe"
     },
     "datePicker": {
         "previousMonth": "Previous month",
@@ -57,7 +58,12 @@
         "weeklyBadge": "Weekly",
         "noRecipePlanned": "No recipe planned",
         "weekNutritionSummary": "{{calories}} kcal · {{protein}}g protein · {{carbs}}g carbs · {{fat}}g fat",
-        "dayNutritionSummary": "{{calories}} kcal · {{protein}}g protein"
+        "dayNutritionSummary": "{{calories}} kcal · {{protein}}g protein",
+        "checkPrices": "Check prices",
+        "checkingPrices": "Checking prices...",
+        "weekCostSummary": "About {{amount}} {{currency}} for the week ({{covered}}/{{total}} ingredients)",
+        "costEstimateApproximate": "Package-price estimate based on nearby offers.",
+        "costEstimateFailed": "Prices could not be checked. Try again later."
     },
     "home": {
         "eyebrow": "Better meals, less guesswork",
@@ -581,6 +587,13 @@
         "decreasePortionsAria": "Decrease servings",
         "increasePortionsAria": "Increase servings",
         "totalTimeLabel": "Total time",
+        "checkPrices": "Check prices",
+        "checkingPrices": "Checking prices...",
+        "costEstimateLabel": "Approximate cost",
+        "costEstimatePerServing": "About {{amount}} {{currency}} per serving",
+        "costEstimateCoverage": "Based on {{covered}} of {{total}} ingredients",
+        "costEstimateApproximate": "Package-price estimate based on nearby offers.",
+        "costEstimateFailed": "Prices could not be checked. Try again later.",
         "preparationTimeLabel": "Preparation",
         "cookingTimeLabel": "Cooking",
         "proofingTimeLabel": "Proofing",

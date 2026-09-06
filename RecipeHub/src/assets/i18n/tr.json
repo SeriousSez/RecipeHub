@@ -17,7 +17,8 @@
     "footer": {
         "recipes": "Tarifler",
         "myRecipes": "Tariflerim",
-        "grocery": "Market Listesi"
+        "grocery": "Market Listesi",
+        "createMenu": "Tarif oluştur"
     },
     "datePicker": {
         "previousMonth": "Önceki ay",
@@ -57,7 +58,12 @@
         "weeklyBadge": "Haftalık",
         "noRecipePlanned": "Planlanmış tarif yok",
         "weekNutritionSummary": "{{calories}} kcal · {{protein}}g protein · {{carbs}}g karbonhidrat · {{fat}}g yağ",
-        "dayNutritionSummary": "{{calories}} kcal · {{protein}}g protein"
+        "dayNutritionSummary": "{{calories}} kcal · {{protein}}g protein",
+        "checkPrices": "Fiyatları kontrol et",
+        "checkingPrices": "Fiyatlar kontrol ediliyor...",
+        "weekCostSummary": "Hafta için yaklaşık {{amount}} {{currency}} ({{covered}}/{{total}} malzeme)",
+        "costEstimateApproximate": "Yakındaki tekliflere göre paket fiyatı tahmini.",
+        "costEstimateFailed": "Fiyatlar kontrol edilemedi. Daha sonra tekrar deneyin."
     },
     "home": {
         "eyebrow": "Daha iyi yemekler, daha az tahmin",
@@ -561,6 +567,13 @@
         "decreasePortionsAria": "Porsiyonu azalt",
         "increasePortionsAria": "Porsiyonu artır",
         "totalTimeLabel": "Toplam süre",
+        "checkPrices": "Fiyatları kontrol et",
+        "checkingPrices": "Fiyatlar kontrol ediliyor...",
+        "costEstimateLabel": "Yaklaşık maliyet",
+        "costEstimatePerServing": "Porsiyon başına yaklaşık {{amount}} {{currency}}",
+        "costEstimateCoverage": "{{total}} malzemenin {{covered}} tanesine göre",
+        "costEstimateApproximate": "Yakındaki tekliflere göre paket fiyatı tahmini.",
+        "costEstimateFailed": "Fiyatlar kontrol edilemedi. Daha sonra tekrar deneyin.",
         "preparationTimeLabel": "Hazırlık",
         "cookingTimeLabel": "Pişirme",
         "proofingTimeLabel": "Mayalanma",

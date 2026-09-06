@@ -17,7 +17,8 @@
     "footer": {
         "recipes": "Opskrifter",
         "myRecipes": "Mine opskrifter",
-        "grocery": "Indkøbsliste"
+        "grocery": "Indkøbsliste",
+        "createMenu": "Opret opskrift"
     },
     "datePicker": {
         "previousMonth": "Forrige måned",
@@ -57,7 +58,12 @@
         "weeklyBadge": "Ugentlig",
         "noRecipePlanned": "Ingen opskrift planlagt",
         "weekNutritionSummary": "{{calories}} kcal · {{protein}}g protein · {{carbs}}g kulhydrat · {{fat}}g fedt",
-        "dayNutritionSummary": "{{calories}} kcal · {{protein}}g protein"
+        "dayNutritionSummary": "{{calories}} kcal · {{protein}}g protein",
+        "checkPrices": "Tjek priser",
+        "checkingPrices": "Tjekker priser...",
+        "weekCostSummary": "Ca. {{amount}} {{currency}} for ugen ({{covered}}/{{total}} ingredienser)",
+        "costEstimateApproximate": "Pakkepris-estimat baseret på tilbud i nærheden.",
+        "costEstimateFailed": "Priserne kunne ikke hentes. Prøv igen senere."
     },
     "home": {
         "eyebrow": "Bedre måltider, mindre gætteri",
@@ -561,6 +567,13 @@
         "decreasePortionsAria": "Færre portioner",
         "increasePortionsAria": "Flere portioner",
         "totalTimeLabel": "Tid i alt",
+        "checkPrices": "Tjek priser",
+        "checkingPrices": "Tjekker priser...",
+        "costEstimateLabel": "Anslået pris",
+        "costEstimatePerServing": "Ca. {{amount}} {{currency}} pr. portion",
+        "costEstimateCoverage": "Baseret på {{covered}} af {{total}} ingredienser",
+        "costEstimateApproximate": "Pakkepris-estimat baseret på tilbud i nærheden.",
+        "costEstimateFailed": "Priserne kunne ikke hentes. Prøv igen senere.",
         "preparationTimeLabel": "Arbejdstid",
         "cookingTimeLabel": "Tilberedning",
         "proofingTimeLabel": "Hævning",

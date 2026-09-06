@@ -23,6 +23,10 @@ footer {
         padding: 0 .2rem;
     }
 
+    .create-menu-item {
+        position: relative;
+    }
+
     .nav-link {
         position: relative;
         display: flex;
@@ -48,6 +52,61 @@ footer {
     .nav-link:focus-visible {
         outline: 2px solid #2563eb;
         outline-offset: -2px;
+    }
+
+    .create-menu-toggle {
+        width: 100%;
+        border: 0;
+        cursor: pointer;
+    }
+
+    .create-menu {
+        position: absolute;
+        bottom: calc(100% + .65rem);
+        left: 50%;
+        display: grid;
+        gap: .25rem;
+        width: max-content;
+        min-width: 11rem;
+        padding: .4rem;
+        transform: translateX(-50%);
+        border: 1px solid rgba(15, 23, 42, .1);
+        border-radius: .7rem;
+        background: rgba(255, 255, 255, .98);
+        box-shadow: 0 12px 28px rgba(15, 23, 42, .16);
+    }
+
+    .create-menu::after {
+        content: '';
+        position: absolute;
+        bottom: -.35rem;
+        left: calc(50% - .35rem);
+        width: .7rem;
+        height: .7rem;
+        transform: rotate(45deg);
+        border-right: 1px solid rgba(15, 23, 42, .1);
+        border-bottom: 1px solid rgba(15, 23, 42, .1);
+        background: #fff;
+    }
+
+    .create-menu a {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        gap: .55rem;
+        padding: .6rem .7rem;
+        border-radius: .45rem;
+        color: #334155;
+        font-size: .82rem;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .create-menu a:hover,
+    .create-menu a:focus-visible {
+        background: #f1f5f9;
+        color: #0f172a;
     }
 
     a,
@@ -90,5 +149,25 @@ footer {
 
     :host-context([data-theme='dark']) .nav-link:focus-visible {
         outline-color: #93c5fd;
+    }
+
+    :host-context([data-theme='dark']) .create-menu {
+        border-color: #46505d;
+        background: rgba(29, 33, 39, .98);
+    }
+
+    :host-context([data-theme='dark']) .create-menu::after {
+        border-color: #46505d;
+        background: #1d2127;
+    }
+
+    :host-context([data-theme='dark']) .create-menu a {
+        color: #cbd5e1;
+    }
+
+    :host-context([data-theme='dark']) .create-menu a:hover,
+    :host-context([data-theme='dark']) .create-menu a:focus-visible {
+        background: rgba(148, 163, 184, .12);
+        color: #f8fafc;
     }
 }

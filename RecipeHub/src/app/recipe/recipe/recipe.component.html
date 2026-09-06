@@ -125,6 +125,23 @@
             </div>
         </div>
 
+        <section class="recipe-cost-estimate" aria-live="polite">
+            <div *ngIf="recipeCostEstimate as estimate; else recipeCostAction">
+                <span><i class="fas fa-tag" aria-hidden="true"></i>{{ 'recipe.costEstimateLabel' | translate }}</span>
+                <strong>{{ estimate.total | number:'1.2-2' }} {{ estimate.currency }}</strong>
+                <small>{{ 'recipe.costEstimatePerServing' | translate:{ amount: (getRecipeCostPerServing() | number:'1.2-2'), currency: estimate.currency } }}</small>
+                <small>{{ 'recipe.costEstimateCoverage' | translate:{ covered: estimate.coveredCount, total: estimate.totalCount } }}</small>
+            </div>
+            <ng-template #recipeCostAction>
+                <button type="button" class="recipe-cost-button" (click)="estimateRecipeCost()" [disabled]="estimatingRecipeCost">
+                    <i class="fas" [ngClass]="estimatingRecipeCost ? 'fa-spinner fa-spin' : 'fa-tag'" aria-hidden="true"></i>
+                    {{ (estimatingRecipeCost ? 'recipe.checkingPrices' : 'recipe.checkPrices') | translate }}
+                </button>
+                <small>{{ 'recipe.costEstimateApproximate' | translate }}</small>
+                <small *ngIf="recipeCostEstimateError" class="recipe-cost-error">{{ 'recipe.costEstimateFailed' | translate }}</small>
+            </ng-template>
+        </section>
+
         <figure *ngIf="recipe.image" class="recipe-detail-figure">
             <img [src]="recipe.image.url" [alt]="recipe.image.caption">
             <figcaption>{{recipe.image.caption}}</figcaption>

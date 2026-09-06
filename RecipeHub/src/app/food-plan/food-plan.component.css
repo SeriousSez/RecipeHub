@@ -79,6 +79,14 @@
     color: #0f766e;
 }
 
+.food-plan-cost {
+    color: #0f766e !important;
+}
+
+.food-plan-cost .fas {
+    color: #0f766e;
+}
+
 .food-plan-week-actions {
     display: flex;
     flex-direction: column;
@@ -118,6 +126,36 @@
     gap: .45rem;
     border-radius: 8px;
     font-weight: 800;
+}
+
+.food-plan-cost-button {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    padding: .2rem 0;
+    border: 0;
+    background: transparent;
+    color: #0f766e;
+    font-size: .82rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.food-plan-cost-button:hover:not(:disabled) {
+    color: #115e59;
+    text-decoration: underline;
+    text-underline-offset: .18rem;
+}
+
+.food-plan-cost-button:disabled {
+    color: #94a3b8;
+    cursor: wait;
+}
+
+.food-plan-cost-note {
+    margin: -.5rem 0 1rem;
+    color: #64748b;
+    font-size: .8rem;
 }
 
 .food-plan-feedback {

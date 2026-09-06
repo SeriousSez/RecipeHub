@@ -952,8 +952,11 @@ button:focus {
     }
 
     .recipe-toolbar-mobile {
-        display: block;
+        display: flex;
+        align-items: center;
+        gap: .6rem;
     }
+
 
     .recipe-toolbar {
         flex-direction: column;
@@ -968,6 +971,10 @@ button:focus {
 
     .recipe-table-shell {
         overflow-x: auto;
+    }
+
+    .recipe-selection-checkbox {
+        display: none;
     }
 }
 
