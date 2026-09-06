@@ -478,9 +478,9 @@
 
   <div id="recipe-create-preview-panel" class="card-preview mobile recipe-editor-preview recipe-editor-pane" role="tabpanel" [class.is-hidden]="editorView !== 'preview'">
     <div class="card recipe-preview-shell">
-      <div class="btn-group float-end" role="group" aria-label="Basic outlined example">
-        <button type="button" [ngClass]="recipePreview ? 'active' : ''" class="btn btn-outline-primary btn-sm" (click)="toRecipePreview()">{{ 'recipe.recipePreviewToggle' | translate }}</button>
-        <button type="button" [ngClass]="recipePreview ? '' : 'active'" class="btn btn-outline-primary btn-sm" (click)="toCardPreview()">{{ 'recipe.cardPreviewToggle' | translate }}</button>
+      <div class="recipe-preview-tabs" role="tablist" [attr.aria-label]="'recipe.createViewTabsAria' | translate">
+        <button type="button" role="tab" [attr.aria-selected]="recipePreview" [class.active]="recipePreview" (click)="toRecipePreview()">{{ 'recipe.recipePreviewToggle' | translate }}</button>
+        <button type="button" role="tab" [attr.aria-selected]="!recipePreview" [class.active]="!recipePreview" (click)="toCardPreview()">{{ 'recipe.cardPreviewToggle' | translate }}</button>
       </div>
 
       <hr />

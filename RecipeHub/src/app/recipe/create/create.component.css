@@ -1280,6 +1280,34 @@ image-cropper {
     box-shadow: 0 10px 24px rgba(15, 23, 42, .06);
 }
 
+.recipe-preview-tabs {
+    display: flex;
+    width: min(100%, 34rem);
+    margin: 0 auto;
+    padding: .2rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #f1f5f9;
+}
+
+.recipe-preview-tabs button {
+    flex: 1;
+    min-height: 2.25rem;
+    padding: .45rem .7rem;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: #475569;
+    font-size: .78rem;
+    font-weight: 800;
+}
+
+.recipe-preview-tabs button.active {
+    background: #fff;
+    color: #1d4ed8;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, .14);
+}
+
 .preview-detail-page {
     width: min(100%, 1100px);
     margin: 0 auto;
@@ -1596,6 +1624,20 @@ image-cropper {
     border-color: #46505d;
     background: #252a31;
     color: #e5e7eb;
+}
+
+:host-context([data-theme='dark']) .recipe-preview-tabs {
+    border-color: #46505d;
+    background: #171c22;
+}
+
+:host-context([data-theme='dark']) .recipe-preview-tabs button {
+    color: #cbd5e1;
+}
+
+:host-context([data-theme='dark']) .recipe-preview-tabs button.active {
+    background: #343b44;
+    color: #bfdbfe;
 }
 
 :host-context([data-theme='dark']) .recipe-editor-accordion .accordion-button:not(.collapsed),
