@@ -599,7 +599,7 @@ image-cropper {
 }
 
 :host ::ng-deep .angular-editor {
-    overflow: hidden;
+    overflow: visible;
     border: 1px solid #b9c5d2;
     border-radius: 7px;
     background: #fbfcfe;
@@ -614,11 +614,14 @@ image-cropper {
 
 :host ::ng-deep .angular-editor-textarea {
     min-height: 240px !important;
+    height: auto !important;
     margin: 0 !important;
     padding: 1rem !important;
     border: 0 !important;
     background: #fff !important;
     color: #172033 !important;
+    overflow-y: auto !important;
+    resize: vertical !important;
     outline: 0 !important;
 }
 
