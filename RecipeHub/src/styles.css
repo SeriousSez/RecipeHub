@@ -9,6 +9,11 @@ body {
   height: 100vh;
 }
 
+button:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+
 @media screen and (max-width: 991px) {
 
   input:not([type='checkbox']):not([type='radio']):not([type='hidden']),

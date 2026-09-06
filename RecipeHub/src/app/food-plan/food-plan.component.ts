@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { forkJoin, Subscription } from 'rxjs';
-import { finalize } from 'rxjs/operators';
+import { finalize, map, switchMap } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 import { Recipe } from '../recipe/models/recipe.interface';
 import { RecipeService } from '../recipe/services/recipe.service';
@@ -39,6 +39,7 @@ export class FoodPlanComponent implements OnInit, OnDestroy {
     public draft: FoodPlanEntryRequest;
     private languageSubscription?: Subscription;
     private weekStart = this.getWeekStart(new Date());
+    private readonly weekCostEstimates = new Map<string, { estimate: GroceryCostEstimate | null; error: boolean }>();
 
     constructor(private foodPlanService: FoodPlanService, private recipeService: RecipeService, private userService: UserService, private groceryService: GroceryService, private router: Router, private utilityService: UtilityService, private languageService: LanguageService, private translateService: TranslateService, private groceryCostEstimator: GroceryCostEstimatorService) {
         this.draft = this.createDraft();
@@ -76,18 +77,27 @@ export class FoodPlanComponent implements OnInit, OnDestroy {
     public checkWeekPrices(): void {
         if (this.estimatingWeekCost || this.entries.length === 0) return;
 
-        const recipes = this.entries
-            .filter(entry => !!entry.recipe)
-            .map(entry => ({ recipe: entry.recipe!, servings: entry.servings }));
-        if (recipes.length === 0) return;
-
+        const weekKey = this.getWeekKey();
         this.estimatingWeekCost = true;
         this.weekCostEstimateError = false;
-        this.groceryCostEstimator.estimateRecipes(recipes)
-            .pipe(finalize(() => this.estimatingWeekCost = false))
+        forkJoin(this.entries.map(entry => this.recipeService.getRecipeById(entry.recipeId).pipe(
+            map(recipe => ({ recipe, servings: entry.servings }))
+        ))).pipe(
+            switchMap(recipes => this.groceryCostEstimator.estimateRecipes(recipes)),
+            finalize(() => this.estimatingWeekCost = false)
+        )
             .subscribe({
-                next: estimate => this.weekCostEstimate = estimate,
-                error: () => this.weekCostEstimateError = true
+                next: estimate => {
+                    this.weekCostEstimates.set(weekKey, { estimate, error: false });
+                    if (weekKey === this.getWeekKey()) this.weekCostEstimate = estimate;
+                },
+                error: () => {
+                    this.weekCostEstimates.set(weekKey, { estimate: null, error: true });
+                    if (weekKey === this.getWeekKey()) {
+                        this.weekCostEstimate = null;
+                        this.weekCostEstimateError = true;
+                    }
+                }
             });
     }
 
@@ -219,6 +229,10 @@ export class FoodPlanComponent implements OnInit, OnDestroy {
         return this.toDateInputValue(day) === this.toDateInputValue(new Date());
     }
 
+    public isSelectedDay(day: Date): boolean {
+        return this.toDateInputValue(day) === this.draft.plannedDate;
+    }
+
     public openRecipe(entry: FoodPlanEntry): void {
         if (!entry.recipe) return;
         this.router.navigate([`recipe/${this.utilityService.toRecipeKey(entry.recipe.id, entry.recipe.title)}`]);
@@ -255,6 +269,9 @@ export class FoodPlanComponent implements OnInit, OnDestroy {
     }
 
     private loadEntries(): void {
+        const cachedCost = this.weekCostEstimates.get(this.getWeekKey());
+        this.weekCostEstimate = cachedCost?.estimate ?? null;
+        this.weekCostEstimateError = cachedCost?.error ?? false;
         const userId = this.userService.getUserId();
         if (!userId) {
             this.loading = false;
@@ -310,6 +327,10 @@ export class FoodPlanComponent implements OnInit, OnDestroy {
         start.setHours(0, 0, 0, 0);
         start.setDate(start.getDate() + offset);
         return start;
+    }
+
+    private getWeekKey(): string {
+        return this.toDateInputValue(this.weekStart);
     }
 
     private toDateInputValue(date: Date): string {

@@ -17,6 +17,10 @@
                     {{ 'foodPlan.weekCostSummary' | translate:{ amount: (estimate.total | number:'1.2-2'), currency: estimate.currency, covered: estimate.coveredCount, total: estimate.totalCount } }}
                 </span>
             </div>
+            <p class="food-plan-cost-note" *ngIf="weekCostEstimate || weekCostEstimateError">
+                <span *ngIf="weekCostEstimate">{{ 'foodPlan.costEstimateApproximate' | translate }}</span>
+                <span *ngIf="weekCostEstimateError">{{ 'foodPlan.costEstimateFailed' | translate }}</span>
+            </p>
         </div>
         <div class="food-plan-week-actions">
             <div class="food-plan-week-nav">
@@ -35,11 +39,6 @@
             </button>
         </div>
     </header>
-
-    <p class="food-plan-cost-note" *ngIf="weekCostEstimate || weekCostEstimateError">
-        <span *ngIf="weekCostEstimate">{{ 'foodPlan.costEstimateApproximate' | translate }}</span>
-        <span *ngIf="weekCostEstimateError">{{ 'foodPlan.costEstimateFailed' | translate }}</span>
-    </p>
 
     <div class="alert alert-{{ groceryFeedbackType }} food-plan-feedback" *ngIf="groceryFeedbackMessage" role="alert">{{ groceryFeedbackMessage }}</div>
 
@@ -97,7 +96,7 @@
     </section>
 
     <section class="food-plan-week" [attr.aria-label]="'foodPlan.weekAria' | translate">
-        <article class="food-plan-day" *ngFor="let day of weekDays" [class.is-today]="isToday(day)" [class.has-entries]="entriesForDay(day).length > 0">
+        <article class="food-plan-day" *ngFor="let day of weekDays" [class.is-today]="isToday(day)" [class.is-selected]="isSelectedDay(day)" [class.has-entries]="entriesForDay(day).length > 0">
             <header>
                 <span>{{ formatDayName(day) }}</span>
                 <strong>{{ formatDayNumber(day) }}</strong>

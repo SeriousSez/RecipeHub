@@ -14,9 +14,9 @@
 }
 
 .food-plan-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
     gap: 1.25rem;
     padding: 1.15rem 1.25rem;
     background: linear-gradient(135deg, #ffffff 0%, #f1fbf7 58%, #eaf7ff 100%);
@@ -95,21 +95,24 @@
 }
 
 .food-plan-week-nav {
-    display: flex;
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr) 42px auto;
     align-items: center;
     gap: .5rem;
-    flex-wrap: wrap;
     white-space: nowrap;
 }
 
 .food-plan-week-nav strong {
+    min-width: 0;
     min-height: 42px;
     display: inline-flex;
     align-items: center;
+    overflow: hidden;
     padding: 0 .65rem;
     border-radius: 8px;
     background: rgba(255, 255, 255, .78);
     color: #0f172a;
+    text-overflow: ellipsis;
 }
 
 .food-plan-week-nav .btn {
@@ -153,7 +156,7 @@
 }
 
 .food-plan-cost-note {
-    margin: -.5rem 0 1rem;
+    margin: .45rem 0 0;
     color: #64748b;
     font-size: .8rem;
 }
@@ -400,6 +403,11 @@
     box-shadow: 0 14px 28px rgba(15, 118, 110, .12);
 }
 
+.food-plan-day.is-selected {
+    border-color: #2563eb;
+    box-shadow: 0 14px 28px rgba(37, 99, 235, .16);
+}
+
 .food-plan-day.has-entries {
     background: linear-gradient(180deg, #ffffff 0%, #f7fffb 100%);
 }
@@ -415,6 +423,10 @@
 
 .food-plan-day.is-today header {
     background: #ecfdf5;
+}
+
+.food-plan-day.is-selected header {
+    background: #eff6ff;
 }
 
 .food-plan-day header span {
@@ -580,6 +592,7 @@
 
     .food-plan-header,
     .food-plan-panel-heading {
+        display: flex;
         flex-direction: column;
     }
 
@@ -589,6 +602,7 @@
     }
 
     .food-plan-week-nav {
+        display: flex;
         width: 100%;
         flex-wrap: wrap;
     }
@@ -729,4 +743,10 @@
     border-color: rgba(148, 163, 184, .22);
     background: #1f2937;
     color: #5eead4;
+}
+
+:host-context([data-theme='dark']) .food-plan-day.is-selected,
+:host-context([data-theme='dark']) .food-plan-day.is-selected header {
+    border-color: rgba(96, 165, 250, .72);
+    background: rgba(37, 99, 235, .2);
 }
