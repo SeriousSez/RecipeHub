@@ -806,11 +806,17 @@
         "badExampleTitle": "Tarifiniz",
         "previewImageAlt": "Tarif önizleme görseli",
         "previewImagePlaceholder": "Görsel açıklaması ekleyin",
+        "previewDescriptionPlaceholder": "Tarifinizi özel yapan şeyi, tadını ve ne zaman servis etmeyi sevdiğinizi anlatan kısa bir açıklama ekleyin.",
+        "previewInstructionsPlaceholder": "<h3>Hazırlanışı</h3><p>Tarifinizi hazırlamak için açık ve sıralı adımlar ekleyin.</p><ol><li>Hazırlığı ve önemli malzemeleri veya ekipmanları açıklayın.</li><li>Pişirme adımlarını, süreleri ve sıcaklıkları belirtin.</li><li>Servis, saklama veya alternatif önerileri ekleyerek bitirin.</li></ol><h3>Malzemeler</h3><p>Tarifin kiler, alışveriş ve yemek planı özelliklerinde kullanılabilmesi için miktar ve birimleri ekleyin.</p><h3>Kategoriler, etiketler ve besin değerleri</h3><p>Tarifinizi bulunabilir ve anlaşılır hale getirmek için aşağıdaki bölümleri kullanın.</p>",
         "previewPlaceholderFact": "Detay ekleyin",
         "previewTimePlaceholder": "Süre ekleyin",
         "previewDaysPlaceholder": "Gün ekleyin",
         "previewIngredientPlaceholder": "Malzeme, miktar ve birim ekleyin",
-        "previewBadgesPlaceholder": "Kategoriler ve etiketler burada görünür"
+        "previewIngredientGroupPlaceholder": "Malzeme grubu",
+        "previewIngredientGroupTwoPlaceholder": "Başka bir malzeme grubu",
+        "previewAddValue": "Değer ekleyin",
+        "previewBadgesPlaceholder": "Kategoriler ve etiketler burada görünür",
+        "previewCosmeticsPlaceholder": "Tarifinizi anlaşılır ve bulunabilir hale getirmek için kategori, etiket, saklama ve beslenme bilgilerini ekleyin."
     },
     "fridges": {
         "listHeading": "Buzdolabı listesi",

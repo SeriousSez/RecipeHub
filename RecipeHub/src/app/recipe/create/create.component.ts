@@ -47,8 +47,13 @@ export class CreateComponent implements OnInit, OnDestroy {
   @ViewChild('imageCropper') imageCropper?: ImageCropperComponent;
   @ViewChild('ingredientNameSelect') ingredientNameSelect?: TaxonomySelectComponent;
   //#region preview
-  public fakeInstructions: string = "<h3>Instructions</h3><p>Add clear, ordered steps that explain how to prepare and cook your recipe.</p><ol><li>Start with the preparation and list the key ingredients or equipment.</li><li>Describe the main cooking steps, including useful timings and temperatures.</li><li>Finish with serving instructions, storage notes, or helpful substitutions.</li></ol><h3>Ingredients</h3><p>Add ingredients with quantities and units so the recipe can support pantry, grocery, and food-plan workflows.</p><h3>Categories, tags, and nutrition</h3><p>Use the sections below to make your recipe easier to find and understand.</p>";
-  public fakeDescription: string = "Add a short description that tells readers what makes your recipe special, what it tastes like, and when you like to serve it.";
+  public get fakeInstructions(): string {
+    return this.translateService.instant('recipe.previewInstructionsPlaceholder');
+  }
+
+  public get fakeDescription(): string {
+    return this.translateService.instant('recipe.previewDescriptionPlaceholder');
+  }
   public recipePreview: boolean = true;
   public editorView: 'edit' | 'preview' = 'edit';
   //#endregion

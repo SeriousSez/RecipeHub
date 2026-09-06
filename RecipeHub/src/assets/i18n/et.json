@@ -806,11 +806,17 @@
         "badExampleTitle": "Sinu retsept",
         "previewImageAlt": "Retsepti eelvaate pilt",
         "previewImagePlaceholder": "Lisa pildi kirjeldus",
+        "previewDescriptionPlaceholder": "Lisa lühike kirjeldus, mis ütleb, mis teeb retsepti eriliseks, kuidas see maitseb ja millal seda serveerida.",
+        "previewInstructionsPlaceholder": "<h3>Valmistamine</h3><p>Lisa selged sammud õiges järjekorras.</p><ol><li>Kirjelda ettevalmistust ning olulisi koostisosi või töövahendeid.</li><li>Selgita valmistamist, aegu ja temperatuure.</li><li>Lõpeta serveerimise, säilitamise või asenduste juhistega.</li></ol><h3>Koostisosad</h3><p>Lisa kogused ja ühikud, et retsepti saaks kasutada sahvri, ostude ja toiduplaani jaoks.</p><h3>Kategooriad, sildid ja toiteväärtus</h3><p>Kasuta allolevaid jaotisi, et retsepti oleks lihtsam leida ja mõista.</p>",
         "previewPlaceholderFact": "Lisa üksikasjad",
         "previewTimePlaceholder": "Lisa aeg",
         "previewDaysPlaceholder": "Lisa päevad",
         "previewIngredientPlaceholder": "Lisa koostisosa, kogus ja ühik",
-        "previewBadgesPlaceholder": "Kategooriad ja sildid kuvatakse siin"
+        "previewIngredientGroupPlaceholder": "Koostisosade rühm",
+        "previewIngredientGroupTwoPlaceholder": "Teine koostisosade rühm",
+        "previewAddValue": "Lisa väärtus",
+        "previewBadgesPlaceholder": "Kategooriad ja sildid kuvatakse siin",
+        "previewCosmeticsPlaceholder": "Lisa kategooriad, sildid, säilitamise ja toitumise üksikasjad, et retsepti oleks lihtsam mõista ja leida."
     },
     "fridges": {
         "listHeading": "Külmikute nimekiri",

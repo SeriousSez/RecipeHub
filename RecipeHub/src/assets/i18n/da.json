@@ -806,11 +806,17 @@
         "badExampleTitle": "Din opskrift",
         "previewImageAlt": "Forhåndsvisning af opskriftsbillede",
         "previewImagePlaceholder": "Tilføj en billedtekst",
+        "previewDescriptionPlaceholder": "Tilføj en kort beskrivelse, der fortæller, hvad der gør opskriften særlig, hvordan den smager, og hvornår du serverer den.",
+        "previewInstructionsPlaceholder": "<h3>Fremgangsmåde</h3><p>Tilføj klare trin i den rækkefølge, de skal udføres.</p><ol><li>Beskriv forberedelsen og de vigtigste ingredienser eller redskaber.</li><li>Forklar tilberedning, tider og temperaturer.</li><li>Afslut med servering, opbevaring eller gode alternativer.</li></ol><h3>Ingredienser</h3><p>Tilføj mængder og enheder, så opskriften kan bruges i spisekammer, indkøb og madplan.</p><h3>Kategorier, tags og næring</h3><p>Brug sektionerne nedenfor til at gøre opskriften nem at finde og forstå.</p>",
         "previewPlaceholderFact": "Tilføj detaljer",
         "previewTimePlaceholder": "Tilføj tid",
         "previewDaysPlaceholder": "Tilføj dage",
         "previewIngredientPlaceholder": "Tilføj ingrediens, mængde og enhed",
-        "previewBadgesPlaceholder": "Kategorier og tags vises her"
+        "previewIngredientGroupPlaceholder": "Ingrediensgruppe",
+        "previewIngredientGroupTwoPlaceholder": "En anden ingrediensgruppe",
+        "previewAddValue": "Tilføj værdi",
+        "previewBadgesPlaceholder": "Kategorier og tags vises her",
+        "previewCosmeticsPlaceholder": "Tilføj kategorier, tags, opbevaring og kostdetaljer, så opskriften er nemmere at forstå og finde."
     },
     "fridges": {
         "listHeading": "Liste over køleskabe",

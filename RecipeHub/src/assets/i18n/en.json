@@ -897,6 +897,8 @@
         "badExampleTitle": "Your Recipe",
         "previewImageAlt": "Recipe preview image",
         "previewImagePlaceholder": "Add an image caption",
+        "previewDescriptionPlaceholder": "Add a short description that tells readers what makes your recipe special, what it tastes like, and when you like to serve it.",
+        "previewInstructionsPlaceholder": "<h3>Instructions</h3><p>Add clear, ordered steps that explain how to prepare and cook your recipe.</p><ol><li>Start with the preparation and list the key ingredients or equipment.</li><li>Describe the main cooking steps, including useful timings and temperatures.</li><li>Finish with serving instructions, storage notes, or helpful substitutions.</li></ol><h3>Ingredients</h3><p>Add ingredients with quantities and units so the recipe can support pantry, grocery, and food-plan workflows.</p><h3>Categories, tags, and nutrition</h3><p>Use the sections below to make your recipe easier to find and understand.</p>",
         "previewPlaceholderFact": "Add details",
         "previewTimePlaceholder": "Add time",
         "previewDaysPlaceholder": "Add days",
