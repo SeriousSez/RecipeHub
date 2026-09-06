@@ -801,8 +801,14 @@
         "createButton": "Opret",
         "recipePreviewToggle": "Opskriftsforhåndsvisning",
         "cardPreviewToggle": "Kortforhåndsvisning",
-        "badExampleTitle": "Dårligt eksempel",
-        "previewImageAlt": "Forhåndsvisning af opskriftsbillede"
+        "badExampleTitle": "Din opskrift",
+        "previewImageAlt": "Forhåndsvisning af opskriftsbillede",
+        "previewImagePlaceholder": "Tilføj en billedtekst",
+        "previewPlaceholderFact": "Tilføj detaljer",
+        "previewTimePlaceholder": "Tilføj tid",
+        "previewDaysPlaceholder": "Tilføj dage",
+        "previewIngredientPlaceholder": "Tilføj ingrediens, mængde og enhed",
+        "previewBadgesPlaceholder": "Kategorier og tags vises her"
     },
     "fridges": {
         "listHeading": "Liste over køleskabe",

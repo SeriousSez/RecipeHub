@@ -801,8 +801,14 @@
         "createButton": "Loo",
         "recipePreviewToggle": "Retsepti eelvaade",
         "cardPreviewToggle": "Kaardi eelvaade",
-        "badExampleTitle": "Halb näide",
-        "previewImageAlt": "Retsepti eelvaate pilt"
+        "badExampleTitle": "Sinu retsept",
+        "previewImageAlt": "Retsepti eelvaate pilt",
+        "previewImagePlaceholder": "Lisa pildi kirjeldus",
+        "previewPlaceholderFact": "Lisa üksikasjad",
+        "previewTimePlaceholder": "Lisa aeg",
+        "previewDaysPlaceholder": "Lisa päevad",
+        "previewIngredientPlaceholder": "Lisa koostisosa, kogus ja ühik",
+        "previewBadgesPlaceholder": "Kategooriad ja sildid kuvatakse siin"
     },
     "fridges": {
         "listHeading": "Külmikute nimekiri",

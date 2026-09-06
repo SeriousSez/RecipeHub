@@ -801,8 +801,14 @@
         "createButton": "Oluştur",
         "recipePreviewToggle": "Tarif Önizleme",
         "cardPreviewToggle": "Kart Önizleme",
-        "badExampleTitle": "Kötü Örnek",
-        "previewImageAlt": "Tarif önizleme görseli"
+        "badExampleTitle": "Tarifiniz",
+        "previewImageAlt": "Tarif önizleme görseli",
+        "previewImagePlaceholder": "Görsel açıklaması ekleyin",
+        "previewPlaceholderFact": "Detay ekleyin",
+        "previewTimePlaceholder": "Süre ekleyin",
+        "previewDaysPlaceholder": "Gün ekleyin",
+        "previewIngredientPlaceholder": "Malzeme, miktar ve birim ekleyin",
+        "previewBadgesPlaceholder": "Kategoriler ve etiketler burada görünür"
     },
     "fridges": {
         "listHeading": "Buzdolabı listesi",

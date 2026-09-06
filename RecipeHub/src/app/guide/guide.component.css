@@ -169,7 +169,6 @@
 .guide-library-list {
     display: grid;
     gap: .55rem;
-    max-height: min(70vh, 28rem);
     overflow-y: auto;
     padding: .8rem;
 }

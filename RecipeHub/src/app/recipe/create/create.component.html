@@ -1,5 +1,5 @@
 <div class="recipe-editor-layout">
-  <header class="card-header recipe-editor-header">
+  <header class="card-header recipe-editor-header" data-guide-target="recipe-create-header">
     <div class="recipe-editor-header-title">
       <span class="recipe-editor-header-icon"><i class="fas fa-utensils" aria-hidden="true"></i></span>
       <h4 class="card-title">{{ 'recipe.createRecipeHeading' | translate }}</h4>
@@ -9,7 +9,7 @@
         <i class="fas fa-pen" aria-hidden="true"></i>
         <span>{{ 'recipe.createEditTab' | translate }}</span>
       </button>
-      <button type="button" role="tab" [class.active]="editorView === 'preview'" [attr.aria-selected]="editorView === 'preview'" aria-controls="recipe-create-preview-panel" (click)="setEditorView('preview')">
+      <button type="button" role="tab" data-guide-target="recipe-create-preview" [class.active]="editorView === 'preview'" [attr.aria-selected]="editorView === 'preview'" aria-controls="recipe-create-preview-panel" (click)="setEditorView('preview')">
         <i class="fas fa-eye" aria-hidden="true"></i>
         <span>{{ 'recipe.createPreviewTab' | translate }}</span>
       </button>
@@ -23,7 +23,7 @@
         <div class="accordion recipe-editor-accordion" id="accordion">
           <form (ngSubmit)="create(recipeForm)" [formGroup]="recipeForm">
 
-            <div class="accordion-item">
+            <div class="accordion-item" data-guide-target="recipe-create-head">
               <h2 class="accordion-header" id="headingHead">
                 <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseHead" aria-expanded="true" aria-controls="collapseHead">
                   <i class="far fa-image" aria-hidden="true"></i>
@@ -76,7 +76,7 @@
               </div>
             </div>
 
-            <div class="accordion-item">
+            <div class="accordion-item" data-guide-target="recipe-create-body">
               <h2 class="accordion-header" id="headingBody">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBody" aria-expanded="false" aria-controls="collapseBody">
                   <i class="fas fa-align-left" aria-hidden="true"></i>
@@ -150,7 +150,7 @@
             </div>
 
             <ng-template #cosmeticsSection>
-              <div class="accordion-item cosmetics" [formGroup]="recipeForm">
+              <div class="accordion-item cosmetics" data-guide-target="recipe-create-cosmetics" [formGroup]="recipeForm">
                 <h2 class="accordion-header" id="headingCosmetics">
                   <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCosmetics" aria-expanded="false" aria-controls="collapseCosmetics">
                     <i class="far fa-id-card" aria-hidden="true"></i>
@@ -290,7 +290,7 @@
             </ng-template>
           </form>
 
-          <div class="accordion-item ingredients">
+          <div class="accordion-item ingredients" data-guide-target="recipe-create-ingredients">
             <h2 class="accordion-header" id="headingIngredients">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseIngredients" aria-expanded="false" aria-controls="collapseIngredients">
                 <i class="fas fa-list-ul" aria-hidden="true"></i>
@@ -456,7 +456,7 @@
       </div>
     </div>
 
-    <div class="recipe-editor-actions">
+    <div class="recipe-editor-actions" data-guide-target="recipe-create-save">
       <div class="form-group d-inline-block">
         <button type="submit" class="btn btn-primary btn-create" [disabled]="recipeForm.invalid || isRequesting" (click)="create(recipeForm)">
           @if (isRequesting) {
@@ -503,22 +503,35 @@
           <div *ngIf="getPreviewTotalMinutes() as totalMinutes" class="preview-detail-fact">
             <i class="far fa-clock" aria-hidden="true"></i><span>{{ 'recipe.totalTimeLabel' | translate }}</span><strong>{{ formatPreviewDuration(totalMinutes) }}</strong>
           </div>
+          <div *ngIf="getPreviewTotalMinutes() == null" class="preview-detail-fact preview-detail-fact-placeholder"><i class="far fa-clock" aria-hidden="true"></i><span>{{ 'recipe.totalTimeLabel' | translate }}</span><strong>{{ 'recipe.previewTimePlaceholder' | translate }}</strong></div>
           <div
             *ngFor="let fact of [{ field: 'preparationMinutes', icon: 'fas fa-utensils', label: 'recipe.preparationTimeLabel' }, { field: 'cookingMinutes', icon: 'fas fa-fire', label: 'recipe.cookingTimeLabel' }, { field: 'proofingMinutes', icon: 'fas fa-bread-slice', label: 'recipe.proofingTimeLabel' }, { field: 'chillingMinutes', icon: 'far fa-snowflake', label: 'recipe.chillingTimeLabel' }, { field: 'coolingMinutes', icon: 'fas fa-temperature-low', label: 'recipe.coolingTimeLabel' }, { field: 'restingMinutes', icon: 'far fa-hourglass', label: 'recipe.restingTimeLabel' }]"
             class="preview-detail-fact" [hidden]="recipeForm.get(fact.field)?.value == null">
             <i [class]="fact.icon" aria-hidden="true"></i><span>{{ fact.label | translate }}</span><strong>{{ formatPreviewDuration(recipeForm.get(fact.field)?.value) }}</strong>
           </div>
+          <div *ngIf="recipeForm.get('preparationMinutes')?.value == null" class="preview-detail-fact preview-detail-fact-placeholder"><i class="fas fa-utensils" aria-hidden="true"></i><span>{{ 'recipe.preparationTimeLabel' | translate }}</span><strong>{{ 'recipe.previewTimePlaceholder' | translate
+              }}</strong></div>
+          <div *ngIf="recipeForm.get('cookingMinutes')?.value == null" class="preview-detail-fact preview-detail-fact-placeholder"><i class="fas fa-fire" aria-hidden="true"></i><span>{{ 'recipe.cookingTimeLabel' | translate }}</span><strong>{{ 'recipe.previewTimePlaceholder' | translate }}</strong>
+          </div>
           <div *ngIf="recipeForm.get('shelfLifeDays')?.value != null" class="preview-detail-fact">
             <i class="far fa-calendar-alt" aria-hidden="true"></i><span>{{ 'recipe.shelfLifeLabel' | translate }}</span><strong>{{ recipeForm.get('shelfLifeDays')?.value }} {{ 'recipe.daysShort' | translate }}</strong>
           </div>
+          <div *ngIf="recipeForm.get('shelfLifeDays')?.value == null" class="preview-detail-fact preview-detail-fact-placeholder"><i class="far fa-calendar-alt" aria-hidden="true"></i><span>{{ 'recipe.shelfLifeLabel' | translate }}</span><strong>{{ 'recipe.previewDaysPlaceholder' | translate
+              }}</strong></div>
           <div *ngIf="recipeForm.get('canBeFrozen')?.value != null" class="preview-detail-fact">
             <i class="far fa-snowflake" aria-hidden="true"></i><span>{{ 'recipe.canBeFrozenLabel' | translate }}</span><strong>{{ (recipeForm.get('canBeFrozen')?.value ? 'recipe.yesLabel' : 'recipe.noLabel') | translate }}</strong>
           </div>
         </div>
+        <div *ngIf="getPreviewTotalMinutes() == null && recipeForm.get('shelfLifeDays')?.value == null && recipeForm.get('canBeFrozen')?.value == null" class="preview-detail-facts preview-detail-facts-placeholder">
+          <div class="preview-detail-fact"><i class="far fa-clock" aria-hidden="true"></i><span>{{ 'recipe.preparationTimeLabel' | translate }}</span><strong>{{ 'recipe.previewTimePlaceholder' | translate }}</strong></div>
+          <div class="preview-detail-fact"><i class="fas fa-fire" aria-hidden="true"></i><span>{{ 'recipe.cookingTimeLabel' | translate }}</span><strong>{{ 'recipe.previewTimePlaceholder' | translate }}</strong></div>
+          <div class="preview-detail-fact"><i class="fas fa-hourglass-half" aria-hidden="true"></i><span>{{ 'recipe.totalTimeLabel' | translate }}</span><strong>{{ 'recipe.previewTimePlaceholder' | translate }}</strong></div>
+          <div class="preview-detail-fact"><i class="far fa-calendar-alt" aria-hidden="true"></i><span>{{ 'recipe.shelfLifeLabel' | translate }}</span><strong>{{ 'recipe.previewDaysPlaceholder' | translate }}</strong></div>
+        </div>
 
         <figure class="preview-detail-figure">
           <img [src]="imageUrl == defaultImageUrl ? '../../assets/images/spices.jpg' : imageUrl" [alt]="recipeForm.get('imageCaption')?.value || recipeForm.get('title')?.value || previewImageAlt">
-          <figcaption>{{ recipeForm.get('imageCaption')?.value }}</figcaption>
+          <figcaption>{{ recipeForm.get('imageCaption')?.value || ('recipe.previewImagePlaceholder' | translate) }}</figcaption>
         </figure>
 
         <div class="preview-detail-content">
@@ -542,7 +555,15 @@
               </section>
             </div>
             <ng-template #noPreviewIngredients>
-              <p class="preview-ingredient-item preview-ingredient-empty"><i>{{ 'recipe.noIngredientsMessage' | translate }}</i></p>
+              <div class="preview-ingredient-list preview-placeholder-list">
+                <h3 class="preview-ingredient-group-title preview-ingredient-placeholder">{{ 'recipe.previewIngredientGroupPlaceholder' | translate }}</h3>
+                <p class="preview-ingredient-item preview-ingredient-placeholder">{{ 'recipe.previewIngredientPlaceholder' | translate }}</p>
+                <p class="preview-ingredient-item preview-ingredient-placeholder">{{ 'recipe.previewIngredientPlaceholder' | translate }}</p>
+                <p class="preview-ingredient-item preview-ingredient-placeholder">{{ 'recipe.previewIngredientPlaceholder' | translate }}</p>
+                <h3 class="preview-ingredient-group-title preview-ingredient-placeholder">{{ 'recipe.previewIngredientGroupTwoPlaceholder' | translate }}</h3>
+                <p class="preview-ingredient-item preview-ingredient-placeholder">{{ 'recipe.previewIngredientPlaceholder' | translate }}</p>
+                <p class="preview-ingredient-item preview-ingredient-placeholder">{{ 'recipe.previewIngredientPlaceholder' | translate }}</p>
+              </div>
             </ng-template>
           </aside>
         </div>
@@ -555,6 +576,53 @@
             <span *ngFor="let badge of getPreviewTagBadges()" [ngClass]="badge.cssClass" [attr.title]="badge.label" [attr.aria-label]="badge.label">{{ badge.displayValue }}</span>
           </div>
         </div>
+        <div *ngIf="getPreviewCategoryBadges().length === 0 && getPreviewTagBadges().length === 0" class="preview-detail-badges-wrap preview-badges-placeholder">
+          {{ 'recipe.previewBadgesPlaceholder' | translate }}
+        </div>
+
+        <section class="preview-detail-nutrition">
+          <div class="preview-detail-placeholder-heading">
+            <h3>{{ 'recipe.nutritionHeading' | translate }}</h3>
+            <span>{{ 'recipe.nutritionPerServing' | translate }}</span>
+          </div>
+          <div class="preview-detail-nutrition-grid">
+            <div>
+              <dt>{{ 'recipe.caloriesLabel' | translate }}</dt>
+              <dd>{{ recipeForm.get('calories')?.value ?? ('recipe.previewAddValue' | translate) }}<span *ngIf="recipeForm.get('calories')?.value != null"> kcal</span></dd>
+            </div>
+            <div>
+              <dt>{{ 'recipe.proteinLabel' | translate }}</dt>
+              <dd>{{ recipeForm.get('proteinGrams')?.value ?? ('recipe.previewAddValue' | translate) }}<span *ngIf="recipeForm.get('proteinGrams')?.value != null"> g</span></dd>
+            </div>
+            <div>
+              <dt>{{ 'recipe.carbohydratesLabel' | translate }}</dt>
+              <dd>{{ recipeForm.get('carbohydrateGrams')?.value ?? ('recipe.previewAddValue' | translate) }}<span *ngIf="recipeForm.get('carbohydrateGrams')?.value != null"> g</span></dd>
+            </div>
+            <div>
+              <dt>{{ 'recipe.fatLabel' | translate }}</dt>
+              <dd>{{ recipeForm.get('fatGrams')?.value ?? ('recipe.previewAddValue' | translate) }}<span *ngIf="recipeForm.get('fatGrams')?.value != null"> g</span></dd>
+            </div>
+            <div>
+              <dt>{{ 'recipe.fiberLabel' | translate }}</dt>
+              <dd>{{ recipeForm.get('fiberGrams')?.value ?? ('recipe.previewAddValue' | translate) }}<span *ngIf="recipeForm.get('fiberGrams')?.value != null"> g</span></dd>
+            </div>
+            <div>
+              <dt>{{ 'recipe.sugarLabel' | translate }}</dt>
+              <dd>{{ recipeForm.get('sugarGrams')?.value ?? ('recipe.previewAddValue' | translate) }}<span *ngIf="recipeForm.get('sugarGrams')?.value != null"> g</span></dd>
+            </div>
+            <div>
+              <dt>{{ 'recipe.sodiumLabel' | translate }}</dt>
+              <dd>{{ recipeForm.get('sodiumMilligrams')?.value ?? ('recipe.previewAddValue' | translate) }}<span *ngIf="recipeForm.get('sodiumMilligrams')?.value != null"> mg</span></dd>
+            </div>
+          </div>
+        </section>
+
+        <section class="preview-detail-placeholder-section preview-cosmetics-placeholder" *ngIf="getPreviewCategoryBadges().length === 0 && getPreviewTagBadges().length === 0 && recipeForm.get('shelfLifeDays')?.value == null && recipeForm.get('canBeFrozen')?.value == null">
+          <div class="preview-detail-placeholder-heading">
+            <h3>{{ 'recipe.cosmeticsHeader' | translate }}</h3>
+          </div>
+          <p>{{ 'recipe.previewCosmeticsPlaceholder' | translate }}</p>
+        </section>
       </article>
       }
 

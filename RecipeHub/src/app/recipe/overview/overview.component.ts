@@ -276,6 +276,7 @@ export class OverviewComponent implements OnInit {
     this.activatePantryMatchesWhenReady = this.route.snapshot.queryParamMap.get('pantry') === 'true';
     this.showGenerateRecipe = this.route.snapshot.queryParamMap.get('generate') === 'true';
     this.recipeGuideRequested = this.route.snapshot.queryParamMap.get('guide') === 'recipeDetail';
+    if (this.route.snapshot.queryParamMap.get('guide') === 'recipeCreate') this.showCreateMode = true;
     this.queryParamsSubscription = this.route.queryParamMap.subscribe(params => {
       if (params.get('generate') === 'true' && !this.showGenerateRecipe) {
         this.openGenerateRecipe();
@@ -284,6 +285,7 @@ export class OverviewComponent implements OnInit {
         this.recipeGuideRequested = true;
         this.openFirstRecipeForGuide();
       }
+      if (params.get('guide') === 'recipeCreate' && !this.showCreateMode) this.openCreateRecipe();
     });
     this.restoreFilterState();
     this.creatorFilter = this.route.snapshot.queryParamMap.get('creator')?.trim() ?? '';

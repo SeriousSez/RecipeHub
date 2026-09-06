@@ -20,7 +20,7 @@
     </div>
 
     <div class="recipe-side-panel">
-      <div class="recipe-side-section recipe-mobile-hidden">
+      <div class="recipe-side-section recipe-mobile-hidden" data-guide-target="recipes-selection">
         <div class="recipe-side-panel-header">{{ 'recipe.selectionHeader' | translate }}</div>
 
         <div class="recipe-side-actions">
@@ -53,7 +53,7 @@
       <div class="recipe-side-section recipe-side-filter recipe-mobile-hidden">
         <div class="recipe-side-panel-header">{{ 'recipe.filtersToggle' | translate }}</div>
         <div class="recipe-side-actions">
-          <button type="button" class="recipe-side-action-button recipe-action-button-secondary" (click)="openMobileFilters()">
+          <button type="button" class="recipe-side-action-button recipe-action-button-secondary" data-guide-target="recipes-detailed-filters" (click)="openMobileFilters()">
             <i class="fas fa-sliders-h" aria-hidden="true"></i>
             <span>{{ 'recipe.filtersToggle' | translate }}</span>
             <span *ngIf="activeFilterCount > 0" class="recipe-side-filter-count">{{ activeFilterCount }}</span>

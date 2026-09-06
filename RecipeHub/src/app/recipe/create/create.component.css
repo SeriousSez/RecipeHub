@@ -1450,6 +1450,13 @@ image-cropper {
     color: #0f172a;
 }
 
+:host ::ng-deep .preview-detail-instructions img {
+    display: block;
+    width: auto !important;
+    max-width: 100% !important;
+    height: auto !important;
+}
+
 .preview-detail-side-header {
     margin-bottom: .8rem;
     color: #0f172a;
@@ -2085,4 +2092,103 @@ image-cropper {
         transform: translateX(0);
         opacity: 1;
     }
+}
+
+.preview-detail-facts-placeholder,
+.preview-badges-placeholder {
+    opacity: .72;
+}
+
+.preview-ingredient-placeholder,
+.preview-badges-placeholder {
+    color: #64748b;
+    font-style: italic;
+}
+
+.preview-detail-placeholder-section {
+    margin-top: 1rem;
+    padding: 1rem 1.15rem;
+    border: 1px dashed #cbd5e1;
+    border-radius: 1rem;
+    background: #f8fafc;
+    color: #64748b;
+}
+
+.preview-detail-placeholder-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: .75rem;
+    margin-bottom: .75rem;
+}
+
+.preview-detail-placeholder-heading h3 {
+    margin: 0;
+    color: #334155;
+    font-size: .9rem;
+    font-weight: 800;
+}
+
+.preview-detail-placeholder-heading span,
+.preview-detail-placeholder-section p {
+    margin: 0;
+    font-size: .78rem;
+    font-style: italic;
+}
+
+.preview-detail-placeholder-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: .5rem;
+}
+
+.preview-detail-placeholder-grid span {
+    min-height: 2.2rem;
+    padding: .55rem .6rem;
+    border-radius: .55rem;
+    background: #fff;
+    font-size: .72rem;
+    font-weight: 700;
+}
+
+@media (max-width: 640px) {
+    .preview-detail-placeholder-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.preview-detail-fact-placeholder {
+    opacity: .72;
+}
+
+.preview-detail-nutrition {
+    margin-top: 1.5rem;
+    padding: 1.25rem 0 0;
+    border-top: 1px solid rgba(15, 23, 42, .1);
+}
+
+.preview-detail-nutrition-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 1rem;
+    margin: 0;
+}
+
+.preview-detail-nutrition-grid dt {
+    color: #64748b;
+    font-size: .68rem;
+    font-weight: 700;
+}
+
+.preview-detail-nutrition-grid dd {
+    margin: .12rem 0 0;
+    color: #172033;
+    font-size: .95rem;
+    font-weight: 800;
+}
+
+.preview-detail-nutrition-grid dd span {
+    color: #64748b;
+    font-size: .68rem;
+    font-weight: 700;
 }
