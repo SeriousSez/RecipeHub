@@ -32,6 +32,8 @@
         "libraryTitle": "Vælg en guide",
         "libraryText": "Start den guide, der passer til det, du vil lære.",
         "startGuide": "Start guide",
+        "restartGuide": "Start guide igen",
+        "completed": "Gennemført",
         "allGuides": "Alle guides",
         "skip": "Spring over",
         "back": "Tilbage",

@@ -37,8 +37,9 @@
             <div class="guide-library-copy">
                 <h3>{{ ('guide.' + guide + 'Title') | translate }}</h3>
                 <p>{{ ('guide.' + guide + 'Text') | translate }}</p>
+                <span class="guide-complete-badge" *ngIf="isGuideCompleted(guide)"><i class="fas fa-check" aria-hidden="true"></i>{{ 'guide.completed' | translate }}</span>
             </div>
-            <button type="button" class="guide-primary" (click)="startGuide(guide)">{{ 'guide.startGuide' | translate }}</button>
+            <button type="button" class="guide-primary" (click)="startGuide(guide)">{{ (isGuideCompleted(guide) ? 'guide.restartGuide' : 'guide.startGuide') | translate }}</button>
         </article>
     </div>
 </section>

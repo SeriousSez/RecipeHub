@@ -32,6 +32,8 @@
         "libraryTitle": "Bir kılavuz seçin",
         "libraryText": "Öğrenmek istediğiniz konuya uygun kılavuzu başlatın.",
         "startGuide": "Kılavuzu başlat",
+        "restartGuide": "Kılavuzu yeniden başlat",
+        "completed": "Tamamlandı",
         "allGuides": "Tüm kılavuzlar",
         "skip": "Atla",
         "back": "Geri",

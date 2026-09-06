@@ -277,8 +277,11 @@ export class OverviewComponent implements OnInit {
     this.showGenerateRecipe = this.route.snapshot.queryParamMap.get('generate') === 'true';
     this.recipeGuideRequested = this.route.snapshot.queryParamMap.get('guide') === 'recipeDetail';
     if (this.route.snapshot.queryParamMap.get('guide') === 'recipeCreate') this.showCreateMode = true;
+    if (this.route.snapshot.queryParamMap.get('guide') === 'recipes') this.resetGuideOverviewState();
     this.queryParamsSubscription = this.route.queryParamMap.subscribe(params => {
-      if (params.get('generate') === 'true' && !this.showGenerateRecipe) {
+      if (params.get('guide') === 'recipes') {
+        this.resetGuideOverviewState();
+      } else if (params.get('generate') === 'true' && !this.showGenerateRecipe) {
         this.openGenerateRecipe();
       }
       if (params.get('guide') === 'recipeDetail') {
@@ -629,6 +632,14 @@ export class OverviewComponent implements OnInit {
 
   openCreateRecipe() {
     this.showCreateMode = true;
+  }
+
+  private resetGuideOverviewState(): void {
+    this.showCreateMode = false;
+    this.showGenerateRecipe = false;
+    this.generatingRecipe = false;
+    this.generateRecipeErrorKey = '';
+    this.generateRecipePrompt = '';
   }
 
   openGenerateRecipe() {

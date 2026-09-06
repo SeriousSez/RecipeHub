@@ -32,6 +32,8 @@
         "libraryTitle": "Choose a guide",
         "libraryText": "Start the guide that matches what you want to learn.",
         "startGuide": "Start guide",
+        "restartGuide": "Restart guide",
+        "completed": "Completed",
         "allGuides": "All guides",
         "skip": "Skip",
         "back": "Back",

@@ -32,6 +32,8 @@
         "libraryTitle": "Vali juhis",
         "libraryText": "Alusta juhist, mis sobib sinu õpieesmärgiga.",
         "startGuide": "Alusta juhist",
+        "restartGuide": "Alusta uuesti",
+        "completed": "Lõpetatud",
         "allGuides": "Kõik juhised",
         "skip": "Jäta vahele",
         "back": "Tagasi",

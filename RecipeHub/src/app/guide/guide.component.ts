@@ -30,16 +30,18 @@ export class GuideComponent implements OnInit {
     private targetResizeObserver?: ResizeObserver;
     private readonly actedTargets = new Set<string>();
     private readonly hintDismissedKey = 'recipehub-guide-hint-dismissed';
+    private readonly completedGuidesKey = 'recipehub-completed-guides';
+    public completedGuides = new Set<string>();
     public readonly guideIds = ['recipes', 'recipeDetail', 'recipeCreate', 'pantry', 'foodPlan', 'grocery'];
     public steps: GuideStep[] = [];
     private readonly guideSteps: Record<string, GuideStep[]> = {
         recipes: [
-            { target: '[data-guide-target="recipes-browse"]', route: '/recipes', icon: 'fa-book-open', titleKey: 'guide.recipesBrowseTitle', textKey: 'guide.recipesBrowseText', scroll: false },
-            { target: '[data-guide-target="recipes-selection"]', route: '/recipes', icon: 'fa-shopping-cart', titleKey: 'guide.recipesSelectionTitle', textKey: 'guide.recipesSelectionText' },
-            { target: '[data-guide-target="recipes-create"]', route: '/recipes', icon: 'fa-magic', titleKey: 'guide.recipesCreateTitle', textKey: 'guide.recipesCreateText' },
-            { target: '[data-guide-target="recipes-filters"]', route: '/recipes', icon: 'fa-filter', titleKey: 'guide.recipesFiltersTitle', textKey: 'guide.recipesFiltersText' },
+            { target: '[data-guide-target="recipes-browse"]', route: '/recipes', queryParams: { guide: 'recipes' }, icon: 'fa-book-open', titleKey: 'guide.recipesBrowseTitle', textKey: 'guide.recipesBrowseText', scroll: false },
+            { target: '[data-guide-target="recipes-selection"]', route: null, icon: 'fa-shopping-cart', titleKey: 'guide.recipesSelectionTitle', textKey: 'guide.recipesSelectionText' },
+            { target: '[data-guide-target="recipes-create"]', route: null, icon: 'fa-magic', titleKey: 'guide.recipesCreateTitle', textKey: 'guide.recipesCreateText' },
+            { target: '[data-guide-target="recipes-filters"]', route: null, icon: 'fa-filter', titleKey: 'guide.recipesFiltersTitle', textKey: 'guide.recipesFiltersText' },
             { target: '[data-guide-target="recipes-detailed-filters"]', route: '/recipes', icon: 'fa-sliders-h', titleKey: 'guide.recipesDetailedFiltersTitle', textKey: 'guide.recipesDetailedFiltersText', scroll: false },
-            { target: '[data-guide-target="recipes-browse"]', route: '/recipes', icon: 'fa-tag', titleKey: 'guide.recipesPricesTitle', textKey: 'guide.recipesPricesText', scroll: false }
+            { target: '[data-guide-target="recipes-browse"]', route: null, icon: 'fa-tag', titleKey: 'guide.recipesPricesTitle', textKey: 'guide.recipesPricesText', scroll: false }
         ],
         recipeDetail: [
             { target: '[data-guide-target="recipe-detail-actions"]', route: '/recipes', queryParams: { guide: 'recipeDetail' }, icon: 'fa-bolt', titleKey: 'guide.recipeDetailActionsTitle', textKey: 'guide.recipeDetailActionsText' },
@@ -90,6 +92,14 @@ export class GuideComponent implements OnInit {
 
     public ngOnInit(): void {
         this.showHint = typeof localStorage !== 'undefined' && localStorage.getItem(this.hintDismissedKey) !== 'true';
+        if (typeof localStorage !== 'undefined') {
+            try {
+                const completed = JSON.parse(localStorage.getItem(this.completedGuidesKey) ?? '[]');
+                if (Array.isArray(completed)) this.completedGuides = new Set(completed);
+            } catch {
+                this.completedGuides = new Set<string>();
+            }
+        }
     }
 
     public start(): void {
@@ -123,7 +133,9 @@ export class GuideComponent implements OnInit {
         this.steps = (this.guideSteps[guideId] ?? []).map((step, index) =>
             guideId === 'recipeDetail' && index === 0 && this.isRecipeDetailRoute()
                 ? { ...step, route: null, queryParams: undefined }
-                : { ...step }
+                : guideId === 'recipes' && index === 0
+                    ? { ...step, queryParams: { guide: 'recipes', guideRun: String(Date.now()) } }
+                    : { ...step }
         );
         this.step = 0;
         this.actedTargets.clear();
@@ -145,7 +157,21 @@ export class GuideComponent implements OnInit {
             this.actedTargets.clear();
             this.activateStep();
         }
-        else this.close();
+        else {
+            if (this.activeGuide) this.markGuideComplete(this.activeGuide);
+            this.close();
+        }
+    }
+
+    public isGuideCompleted(guideId: string): boolean {
+        return this.completedGuides.has(guideId);
+    }
+
+    public markGuideComplete(guideId: string): void {
+        this.completedGuides.add(guideId);
+        if (typeof localStorage !== 'undefined') {
+            localStorage.setItem(this.completedGuidesKey, JSON.stringify(Array.from(this.completedGuides)));
+        }
     }
 
     public previous(): void {
