@@ -63,3 +63,13 @@ export interface GroceryOfferGroup {
     ingredientName: string;
     offers: GroceryIngredientOffer[];
 }
+
+export interface GroceryCostEstimate {
+    currency: string;
+    total: number;
+    originalTotal: number;
+    savings: number;
+    coveredCount: number;
+    totalCount: number;
+    usesOldPrices: boolean;
+}

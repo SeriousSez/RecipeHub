@@ -75,6 +75,29 @@
 
     @if (nearbyOfferResults && !dealsCollapsed) {
     <div id="grocery-deals-results">
+      @if (costEstimate; as estimate) {
+      <div class="grocery-cost-estimate" role="status">
+        <div class="grocery-cost-estimate-headline">
+          <span class="grocery-cost-estimate-label">{{ 'grocery.costEstimateHeading' | translate }}</span>
+          <span class="grocery-cost-estimate-total">
+            @if (estimate.savings > 0) { <del>{{ estimate.originalTotal | currency:estimate.currency:'symbol-narrow':'1.2-2' }}</del> }
+            <strong>≈ {{ estimate.total | currency:estimate.currency:'symbol-narrow':'1.2-2' }}</strong>
+          </span>
+        </div>
+        <div class="grocery-cost-estimate-meta">
+          <span>{{ 'grocery.costEstimateCoverage' | translate:{ covered: estimate.coveredCount, total: estimate.totalCount } }}</span>
+          @if (estimate.savings > 0) {
+          <span class="grocery-cost-estimate-savings">{{ 'grocery.costEstimateSavings' | translate }} {{ estimate.savings | currency:estimate.currency:'symbol-narrow':'1.2-2' }}</span>
+          }
+        </div>
+        <p class="grocery-cost-estimate-note">{{ 'grocery.costEstimateApproximate' | translate }}</p>
+        @if (estimate.usesOldPrices) {
+        <p class="grocery-cost-estimate-note is-warning">{{ 'grocery.costEstimateOldPrices' | translate }}</p>
+        }
+      </div>
+      } @else if (hasMixedOfferCurrencies) {
+      <div class="grocery-offers-message" role="status">{{ 'grocery.costEstimateMixedCurrency' | translate }}</div>
+      }
       @if (nearbyOfferGroups.length > 0) {
       <div class="grocery-offer-groups">
         @for (group of nearbyOfferGroups; track group.ingredientName; let groupIndex = $index) {
