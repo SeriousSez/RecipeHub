@@ -1,5 +1,5 @@
-<div class="grocery-page container py-4">
-  <section class="grocery-hero mb-4">
+<div class="grocery-page container py-4" data-guide-target="grocery">
+  <section class="grocery-hero mb-4" data-guide-target="grocery-overview">
     <div class="grocery-hero-copy">
       <p class="grocery-eyebrow mb-2">{{ 'grocery.kicker' | translate }}</p>
       <h1 class="mb-2">{{ 'grocery.heading' | translate }}</h1>
@@ -12,7 +12,7 @@
         {{ 'grocery.addRecipe' | translate }}
       </button>
       <button class="btn btn-brand-secondary" type="button" (click)="openAddIngredient()">{{ 'grocery.addIngredient' | translate }}</button>
-      <button class="btn btn-brand-secondary" type="button" [disabled]="!hasIngredients || searchingNearbyOffers" (click)="findNearbyOffers()">
+      <button class="btn btn-brand-secondary" data-guide-target="grocery-offers" type="button" [disabled]="!hasIngredients || searchingNearbyOffers" (click)="findNearbyOffers()">
         <i class="fas" [ngClass]="searchingNearbyOffers ? 'fa-spinner fa-spin' : 'fa-store'" aria-hidden="true"></i>
         {{ (searchingNearbyOffers ? 'grocery.searchingNearbyOffers' : 'grocery.findNearbyOffers') | translate }}
       </button>
@@ -239,7 +239,7 @@
   }
 
   @if (hasIngredients) {
-  <section class="grocery-card">
+  <section class="grocery-card" data-guide-target="grocery-ingredients">
     <div class="grocery-card-header">
       <div>
         <h2 class="mb-1">{{ 'grocery.ingredientListHeading' | translate }}</h2>

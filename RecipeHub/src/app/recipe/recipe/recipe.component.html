@@ -68,7 +68,7 @@
                 <h1 class="recipe-detail-title">{{recipe.title}}</h1>
             </div>
 
-            <div *ngIf="status" class="recipe-detail-actions">
+            <div *ngIf="status" class="recipe-detail-actions" data-guide-target="recipe-detail-actions">
                 <button type="button" class="recipe-detail-icon-button" (click)="shareRecipe()" [attr.aria-label]="'recipe.shareRecipeAria' | translate" [title]="'recipe.shareRecipeAria' | translate">
                     <i class="fas fa-share-alt" aria-hidden="true"></i>
                 </button>
@@ -97,7 +97,7 @@
         </div>
 
         <div *ngIf="getTotalRecipeMinutes() != null || recipe.preparationMinutes != null || recipe.cookingMinutes != null || recipe.proofingMinutes != null || recipe.chillingMinutes != null || recipe.coolingMinutes != null || recipe.restingMinutes != null || recipe.shelfLifeDays != null || recipe.canBeFrozen != null"
-            class="recipe-detail-facts">
+            class="recipe-detail-facts" data-guide-target="recipe-detail-facts">
             <div *ngIf="getTotalRecipeMinutes() as totalMinutes" class="recipe-detail-fact">
                 <i class="far fa-clock" aria-hidden="true"></i>
                 <span>{{ 'recipe.totalTimeLabel' | translate }}</span>
@@ -145,7 +145,7 @@
             </div>
         </div>
 
-        <section class="recipe-cost-estimate" aria-live="polite">
+        <section class="recipe-cost-estimate" data-guide-target="recipe-detail-cost" aria-live="polite">
             <div *ngIf="recipeCostEstimate as estimate; else recipeCostAction">
                 <span><i class="fas fa-tag" aria-hidden="true"></i>{{ 'recipe.costEstimateLabel' | translate }}</span>
                 <strong>{{ estimate.total | number:'1.2-2' }} {{ estimate.currency }}</strong>
@@ -167,7 +167,7 @@
             <figcaption>{{recipe.image.caption}}</figcaption>
         </figure>
 
-        <div class="recipe-detail-content">
+        <div class="recipe-detail-content" data-guide-target="recipe-detail-content">
             <main class="recipe-detail-main-panel">
                 <div class="recipe-detail-section-header">
                     <h2>{{ 'recipe.instructionsHeading' | translate }}</h2>
@@ -228,7 +228,7 @@
             </div>
         </div>
 
-        <section *ngIf="hasNutrition()" class="recipe-nutrition" aria-labelledby="recipe-nutrition-heading">
+        <section *ngIf="hasNutrition()" class="recipe-nutrition" data-guide-target="recipe-detail-nutrition" aria-labelledby="recipe-nutrition-heading">
             <div class="recipe-nutrition-heading">
                 <h2 id="recipe-nutrition-heading">{{ 'recipe.nutritionHeading' | translate }}</h2>
                 <span>{{ 'recipe.nutritionPerServing' | translate }}</span>
@@ -265,7 +265,8 @@
             </dl>
         </section>
 
-        <section *ngIf="status || engagement.madeCount > 0 || engagement.ratingCount > 0" class="recipe-engagement" [class.is-action-only]="engagement.madeCount === 0 && engagement.ratingCount === 0" [attr.aria-label]="'recipe.communityRatingLabel' | translate">
+        <section *ngIf="status || engagement.madeCount > 0 || engagement.ratingCount > 0" class="recipe-engagement" data-guide-target="recipe-detail-rating" [class.is-action-only]="engagement.madeCount === 0 && engagement.ratingCount === 0"
+            [attr.aria-label]="'recipe.communityRatingLabel' | translate">
             <div *ngIf="engagement.madeCount > 0 || engagement.ratingCount > 0" class="recipe-engagement-summary">
                 <i class="fas fa-star" aria-hidden="true"></i>
                 <strong *ngIf="engagement.averageRating != null">{{ engagement.averageRating | number:'1.1-1' }}</strong>

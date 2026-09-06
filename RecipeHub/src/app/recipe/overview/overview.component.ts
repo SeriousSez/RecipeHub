@@ -267,6 +267,7 @@ export class OverviewComponent implements OnInit {
   private refreshIndicatorTimer?: ReturnType<typeof setTimeout>;
   private pageRequestSequence: number = 0;
   private queryParamsSubscription?: Subscription;
+  private recipeGuideRequested = false;
 
   constructor(private recipeService: RecipeService, private userService: UserService, private favoriteService: FavoriteService, private groceryService: GroceryService, private datepipe: DatePipe, private router: Router, private route: ActivatedRoute, private utilityService: UtilityService, private translateService: TranslateService, private languageService: LanguageService, private recipeDraftService: RecipeDraftService) { }
 
@@ -274,9 +275,14 @@ export class OverviewComponent implements OnInit {
     this.loadPantryIngredients();
     this.activatePantryMatchesWhenReady = this.route.snapshot.queryParamMap.get('pantry') === 'true';
     this.showGenerateRecipe = this.route.snapshot.queryParamMap.get('generate') === 'true';
+    this.recipeGuideRequested = this.route.snapshot.queryParamMap.get('guide') === 'recipeDetail';
     this.queryParamsSubscription = this.route.queryParamMap.subscribe(params => {
       if (params.get('generate') === 'true' && !this.showGenerateRecipe) {
         this.openGenerateRecipe();
+      }
+      if (params.get('guide') === 'recipeDetail') {
+        this.recipeGuideRequested = true;
+        this.openFirstRecipeForGuide();
       }
     });
     this.restoreFilterState();
@@ -383,6 +389,14 @@ export class OverviewComponent implements OnInit {
     this.fetchPage(true);
   }
 
+  private openFirstRecipeForGuide(): void {
+    const recipe = this.shownRecipes[0];
+    if (!recipe) return;
+
+    this.recipeGuideRequested = false;
+    this.router.navigate([`recipe/${this.utilityService.toRecipeKey(recipe.id, recipe.title)}`]);
+  }
+
   private fetchPage(reset: boolean): void {
     const requestSequence = ++this.pageRequestSequence;
 
@@ -425,6 +439,12 @@ export class OverviewComponent implements OnInit {
         const items = Array.isArray(result?.items) ? result.items : [];
         this.shownRecipes = reset ? items : [...this.shownRecipes, ...items];
         this.totalCount = result?.totalCount ?? this.shownRecipes.length;
+
+        if (reset && this.recipeGuideRequested && items.length > 0) {
+          this.recipeGuideRequested = false;
+          this.router.navigate([`recipe/${this.utilityService.toRecipeKey(items[0].id, items[0].title)}`]);
+          return;
+        }
         this.availableCategories = result?.availableCategories ?? [];
         this.availableTags = result?.availableTags ?? [];
 
@@ -610,6 +630,7 @@ export class OverviewComponent implements OnInit {
   }
 
   openGenerateRecipe() {
+    this.showCreateMode = false;
     this.showGenerateRecipe = true;
     this.generateRecipeErrorKey = '';
     this.generateRecipePrompt = '';

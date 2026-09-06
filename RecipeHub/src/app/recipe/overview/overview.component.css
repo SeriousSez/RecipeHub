@@ -77,6 +77,12 @@ button:focus {
     gap: 0.4rem;
 }
 
+.recipe-side-create-actions {
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+}
+
 .recipe-side-link {
     display: flex;
     align-items: center;

@@ -1,0 +1,72 @@
+<aside class="guide-hint" *ngIf="showHint" aria-live="polite">
+    <div>
+        <strong>{{ 'guide.hintTitle' | translate }}</strong>
+        <p>{{ 'guide.hintText' | translate }}</p>
+    </div>
+    <div class="guide-hint-actions">
+        <button type="button" class="guide-primary" (click)="start()">{{ 'guide.start' | translate }}</button>
+        <button type="button" class="guide-dismiss" (click)="dismissHint()" [attr.aria-label]="'guide.dismiss' | translate">&times;</button>
+    </div>
+</aside>
+
+<button *ngIf="!showGuide" type="button" class="guide-help-button" (click)="start()" [attr.aria-label]="'guide.open' | translate" [title]="'guide.open' | translate">
+    <i class="fas fa-question" aria-hidden="true"></i>
+</button>
+
+<div class="guide-backdrop" *ngIf="showGuide && !targetRect" (click)="close()"></div>
+<div class="guide-spotlight" *ngIf="showGuide && targetRect" [style.top.px]="targetRect.top" [style.left.px]="targetRect.left" [style.width.px]="targetRect.width" [style.height.px]="targetRect.height"></div>
+<section class="guide-dialog guide-library" *ngIf="showGuide && !activeGuide" role="dialog" aria-modal="true" [attr.aria-label]="'guide.libraryTitle' | translate" (click)="$event.stopPropagation()">
+    <header class="guide-dialog-header">
+        <div>
+            <span class="guide-kicker">{{ 'guide.kicker' | translate }}</span>
+            <h2>{{ 'guide.libraryTitle' | translate }}</h2>
+            <p>{{ 'guide.libraryText' | translate }}</p>
+        </div>
+        <button type="button" class="guide-close" (click)="close()" [attr.aria-label]="'guide.close' | translate"><i class="fas fa-times" aria-hidden="true"></i></button>
+    </header>
+    <div class="guide-library-list">
+        <article class="guide-library-card" *ngFor="let guide of guideIds">
+            <ng-container [ngSwitch]="guide">
+                <i *ngSwitchCase="'recipes'" class="fas fa-book-open guide-library-icon" aria-hidden="true"></i>
+                <i *ngSwitchCase="'recipeDetail'" class="fas fa-utensils guide-library-icon" aria-hidden="true"></i>
+                <i *ngSwitchCase="'pantry'" class="fas fa-box guide-library-icon" aria-hidden="true"></i>
+                <i *ngSwitchCase="'foodPlan'" class="fas fa-calendar-alt guide-library-icon" aria-hidden="true"></i>
+                <i *ngSwitchCase="'grocery'" class="fas fa-shopping-basket guide-library-icon" aria-hidden="true"></i>
+            </ng-container>
+            <div class="guide-library-copy">
+                <h3>{{ ('guide.' + guide + 'Title') | translate }}</h3>
+                <p>{{ ('guide.' + guide + 'Text') | translate }}</p>
+            </div>
+            <button type="button" class="guide-primary" (click)="startGuide(guide)">{{ 'guide.startGuide' | translate }}</button>
+        </article>
+    </div>
+</section>
+<section class="guide-dialog guide-active-dialog" [class.has-target]="!!targetRect" *ngIf="showGuide && activeGuide" [ngStyle]="tooltipStyle" role="dialog" aria-modal="true" [attr.aria-label]="'guide.title' | translate" (click)="$event.stopPropagation()">
+    <header class="guide-dialog-header">
+        <div>
+            <span class="guide-kicker">{{ 'guide.kicker' | translate }}</span>
+            <h2>{{ ('guide.' + activeGuide + 'GuideTitle') | translate }}</h2>
+        </div>
+        <button type="button" class="guide-close" (click)="close()" [attr.aria-label]="'guide.close' | translate"><i class="fas fa-times" aria-hidden="true"></i></button>
+    </header>
+
+    <div class="guide-dialog-body">
+        <div class="guide-progress" aria-hidden="true">
+            <span *ngFor="let item of steps; let index = index" [class.is-active]="index === step" [class.is-complete]="index < step"></span>
+        </div>
+        <span class="guide-step-count">{{ step + 1 }} / {{ steps.length }}</span>
+        <div *ngIf="steps[step] as currentStep">
+            <i class="fas {{ currentStep.icon }} guide-icon" aria-hidden="true"></i>
+            <h3>{{ currentStep.titleKey | translate }}</h3>
+            <p>{{ currentStep.textKey | translate }}</p>
+        </div>
+    </div>
+
+    <footer class="guide-dialog-footer">
+        <button type="button" class="guide-skip" (click)="backToGuides()">{{ 'guide.allGuides' | translate }}</button>
+        <div>
+            <button type="button" class="guide-secondary" *ngIf="step > 0" (click)="previous()">{{ 'guide.back' | translate }}</button>
+            <button type="button" class="guide-primary" (click)="next()">{{ (step === steps.length - 1 ? 'guide.done' : 'guide.next') | translate }}</button>
+        </div>
+    </footer>
+</section>

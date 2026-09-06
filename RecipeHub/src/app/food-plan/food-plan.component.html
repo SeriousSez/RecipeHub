@@ -1,4 +1,4 @@
-<main class="food-plan-page">
+<main class="food-plan-page" data-guide-target="foodPlan">
     <header class="food-plan-header">
         <div>
             <p class="food-plan-kicker">{{ 'foodPlan.kicker' | translate }}</p>
@@ -23,17 +23,17 @@
             </p>
         </div>
         <div class="food-plan-week-actions">
-            <div class="food-plan-week-nav">
+            <div class="food-plan-week-nav" data-guide-target="food-plan-week">
                 <button type="button" class="btn btn-outline-secondary" (click)="previousWeek()"><i class="fas fa-chevron-left" aria-hidden="true"></i></button>
                 <strong>{{ weekLabel }}</strong>
                 <button type="button" class="btn btn-outline-secondary" (click)="nextWeek()"><i class="fas fa-chevron-right" aria-hidden="true"></i></button>
                 <button type="button" class="btn btn-brand-alt" (click)="currentWeek()">{{ 'foodPlan.todayButton' | translate }}</button>
             </div>
-            <button type="button" class="btn btn-outline-brand food-plan-grocery-button" [disabled]="entries.length === 0 || addingWeekToGroceries" (click)="addWeekToGroceries()">
+            <button type="button" class="btn btn-outline-brand food-plan-grocery-button" data-guide-target="food-plan-groceries" [disabled]="entries.length === 0 || addingWeekToGroceries" (click)="addWeekToGroceries()">
                 <i class="fas" [ngClass]="addingWeekToGroceries ? 'fa-spinner fa-spin' : 'fa-shopping-cart'" aria-hidden="true"></i>
                 {{ (addingWeekToGroceries ? 'foodPlan.addingWeekToGroceries' : 'foodPlan.addWeekToGroceries') | translate }}
             </button>
-            <button type="button" class="food-plan-cost-button" [disabled]="entries.length === 0 || estimatingWeekCost" (click)="checkWeekPrices()">
+            <button type="button" class="food-plan-cost-button" data-guide-target="food-plan-prices" [disabled]="entries.length === 0 || estimatingWeekCost" (click)="checkWeekPrices()">
                 <i class="fas" [ngClass]="estimatingWeekCost ? 'fa-spinner fa-spin' : 'fa-tag'" aria-hidden="true"></i>
                 {{ (estimatingWeekCost ? 'foodPlan.checkingPrices' : 'foodPlan.checkPrices') | translate }}
             </button>
@@ -50,7 +50,7 @@
             </div>
             <span class="food-plan-status" *ngIf="loading"><i class="fas fa-sync-alt" aria-hidden="true"></i>{{ 'foodPlan.loading' | translate }}</span>
         </div>
-        <form class="food-plan-form" (ngSubmit)="addEntry()">
+        <form class="food-plan-form" data-guide-target="food-plan-add" (ngSubmit)="addEntry()">
             <label class="food-plan-recipe-field">
                 <span>{{ 'foodPlan.recipeLabel' | translate }}</span>
                 <button class="food-plan-recipe-picker" type="button" (click)="openRecipeSelectionModal()" [class.has-selection]="selectedRecipe">
@@ -95,7 +95,7 @@
         <p class="food-plan-error" *ngIf="error">{{ error }}</p>
     </section>
 
-    <section class="food-plan-week" [attr.aria-label]="'foodPlan.weekAria' | translate">
+    <section class="food-plan-week" data-guide-target="food-plan-days" [attr.aria-label]="'foodPlan.weekAria' | translate">
         <article class="food-plan-day" *ngFor="let day of weekDays" [class.is-today]="isToday(day)" [class.is-selected]="isSelectedDay(day)" [class.has-entries]="entriesForDay(day).length > 0">
             <header>
                 <span>{{ formatDayName(day) }}</span>

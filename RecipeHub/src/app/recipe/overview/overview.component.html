@@ -1,4 +1,4 @@
-<div class="recipe-page-shell">
+<div class="recipe-page-shell" data-guide-target="recipes-browse">
   <aside class="recipe-page-sidebar" role="navigation" aria-label="Recipe navigation">
     <div class="recipe-sidebar-header">{{ 'recipe.explorerKicker' | translate }}</div>
 
@@ -7,14 +7,16 @@
         <i class="fa fa-list" aria-hidden="true"></i>
         <span>{{ 'recipe.overviewNav' | translate }}</span>
       </button>
-      <button class="recipe-side-link" type="button" (click)="openCreateRecipe()" [class.active]="showCreateMode">
-        <i class="far fa-file-alt" aria-hidden="true"></i>
-        <span>{{ 'recipe.addRecipeNav' | translate }}</span>
-      </button>
-      <button class="recipe-side-link" type="button" (click)="openGenerateRecipe()">
-        <i class="fas fa-magic" aria-hidden="true"></i>
-        <span>{{ 'recipe.generateRecipeNav' | translate }}</span>
-      </button>
+      <div class="recipe-side-create-actions" data-guide-target="recipes-create">
+        <button class="recipe-side-link" type="button" (click)="openCreateRecipe()" [class.active]="showCreateMode">
+          <i class="far fa-file-alt" aria-hidden="true"></i>
+          <span>{{ 'recipe.addRecipeNav' | translate }}</span>
+        </button>
+        <button class="recipe-side-link" type="button" (click)="openGenerateRecipe()">
+          <i class="fas fa-magic" aria-hidden="true"></i>
+          <span>{{ 'recipe.generateRecipeNav' | translate }}</span>
+        </button>
+      </div>
     </div>
 
     <div class="recipe-side-panel">
@@ -147,7 +149,7 @@
 
     @if (loading === false && !loadError) {
     <section class="recipe-panel">
-      <div class="recipe-toolbar recipe-toolbar-desktop">
+      <div class="recipe-toolbar recipe-toolbar-desktop" data-guide-target="recipes-filters">
         <div class="recipe-filter-group">
           <label for="recipe-search" class="recipe-filter-label">{{ 'recipe.filterLabel' | translate }}</label>
           <input id="recipe-search" class="form-control recipe-filter-input" type="search" [placeholder]="'recipe.searchPlaceholder' | translate" [value]="searchTerm" (input)="searchTerm = $any($event.target).value; applyFiltersAndSort()">
@@ -171,7 +173,7 @@
 
       </div>
 
-      <div class="recipe-toolbar-mobile">
+      <div class="recipe-toolbar-mobile" data-guide-target="recipes-filters">
         <button class="recipe-mobile-filter-toggle" type="button" (click)="toggleMobileFilters()">
           <i class="fas fa-filter" aria-hidden="true"></i>
           <span class="recipe-mobile-filter-label">{{ 'recipe.filtersToggle' | translate }}</span>

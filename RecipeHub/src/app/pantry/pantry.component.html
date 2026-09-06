@@ -1,5 +1,5 @@
-<main class="pantry-page">
-    <header class="pantry-header">
+<main class="pantry-page" data-guide-target="pantry">
+    <header class="pantry-header" data-guide-target="pantry-overview">
         <div>
             <p class="pantry-kicker">{{ 'pantry.kicker' | translate }}</p>
             <h1>{{ 'pantry.heading' | translate }}</h1>
@@ -7,9 +7,9 @@
         </div>
         <div class="pantry-header-actions">
             <span class="pantry-count">{{ pantryItems.length }} {{ (pantryItems.length === 1 ? 'pantry.itemSingular' : 'pantry.itemPlural') | translate }}</span>
-            <button type="button" class="btn btn-outline-brand pantry-primary-button" (click)="openPhotoCapture()"><i class="fas fa-camera" aria-hidden="true"></i>{{ 'pantry.takePhotoButton' | translate }}</button>
-            <button type="button" class="btn btn-brand-secondary pantry-primary-button" [disabled]="pantryItems.length === 0" (click)="openGenerateRecipe()"><i class="fas fa-magic" aria-hidden="true"></i>{{ 'pantry.generateRecipeButton' | translate }}</button>
-            <button type="button" class="btn btn-brand-alt pantry-primary-button" [disabled]="pantryItems.length === 0" (click)="findRecipes()"><i class="fas fa-search" aria-hidden="true"></i>{{ 'pantry.findRecipes' | translate }}</button>
+            <button type="button" class="btn btn-outline-brand pantry-primary-button" data-guide-target="pantry-photo" (click)="openPhotoCapture()"><i class="fas fa-camera" aria-hidden="true"></i>{{ 'pantry.takePhotoButton' | translate }}</button>
+            <button type="button" class="btn btn-brand-secondary pantry-primary-button" data-guide-target="pantry-generate" [disabled]="pantryItems.length === 0" (click)="openGenerateRecipe()"><i class="fas fa-magic" aria-hidden="true"></i>{{ 'pantry.generateRecipeButton' | translate }}</button>
+            <button type="button" class="btn btn-brand-alt pantry-primary-button" data-guide-target="pantry-match" [disabled]="pantryItems.length === 0" (click)="findRecipes()"><i class="fas fa-search" aria-hidden="true"></i>{{ 'pantry.findRecipes' | translate }}</button>
         </div>
     </header>
 
@@ -86,7 +86,7 @@
         </div>
     </section>
 
-    <section class="pantry-section" aria-labelledby="pantry-add-heading">
+    <section class="pantry-section" data-guide-target="pantry-add" aria-labelledby="pantry-add-heading">
         <div class="pantry-section-heading">
             <div>
                 <h2 id="pantry-add-heading">{{ 'pantry.addItemHeading' | translate }}</h2>
@@ -106,7 +106,7 @@
         </div>
     </section>
 
-    <section class="pantry-section" aria-labelledby="pantry-current-heading">
+    <section class="pantry-section" data-guide-target="pantry-current" aria-labelledby="pantry-current-heading">
         <div class="pantry-inventory-toolbar">
             <div>
                 <h2 id="pantry-current-heading">{{ 'pantry.currentItemsHeading' | translate }}</h2>

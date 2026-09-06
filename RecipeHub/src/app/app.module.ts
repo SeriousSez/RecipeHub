@@ -33,6 +33,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { FoodPlanComponent } from './food-plan/food-plan.component';
 import { FoodPlanService } from './food-plan/food-plan.service';
+import { GuideComponent } from './guide/guide.component';
 
 export function tokenGetter() {
   return localStorage.getItem("token");
@@ -55,7 +56,8 @@ export function tokenGetter() {
     ConfirmEmailComponent,
     PantryComponent,
     PublicProfileComponent,
-    FoodPlanComponent
+    FoodPlanComponent,
+    GuideComponent
   ],
   bootstrap: [AppComponent], imports: [BrowserModule,
     FormsModule,
