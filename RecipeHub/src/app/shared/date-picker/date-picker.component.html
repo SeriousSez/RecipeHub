@@ -8,17 +8,27 @@
     <div class="date-picker-popover" role="dialog" [attr.aria-label]="ariaLabel">
         <div class="date-picker-header">
             <button type="button" (click)="previousMonth()" [attr.aria-label]="'datePicker.previousMonth' | translate"><i class="fas fa-chevron-left" aria-hidden="true"></i></button>
-            <strong>{{ monthLabel }}</strong>
+            <button type="button" class="date-picker-period" *ngIf="calendarView === 'days'" (click)="$event.stopPropagation(); showMonthPicker()" [attr.aria-label]="monthLabel">{{ monthLabel }}</button>
+            <button type="button" class="date-picker-period" *ngIf="calendarView === 'months'" (click)="$event.stopPropagation(); showYearPicker()" [attr.aria-label]="viewDate.getFullYear()">{{ viewDate.getFullYear() }}</button>
+            <strong *ngIf="calendarView === 'years'">{{ yearOptions[0] }} - {{ yearOptions[yearOptions.length - 1] }}</strong>
             <button type="button" (click)="nextMonth()" [attr.aria-label]="'datePicker.nextMonth' | translate"><i class="fas fa-chevron-right" aria-hidden="true"></i></button>
         </div>
 
-        <div class="date-picker-weekdays" aria-hidden="true">
+        <div class="date-picker-months" *ngIf="calendarView === 'months'">
+            <button type="button" *ngFor="let month of monthOptions" [class.is-selected]="month.index === viewDate.getMonth()" (click)="$event.stopPropagation(); selectMonth(month.index)">{{ month.label }}</button>
+        </div>
+
+        <div class="date-picker-years" *ngIf="calendarView === 'years'">
+            <button type="button" *ngFor="let year of yearOptions" [class.is-selected]="year === viewDate.getFullYear()" (click)="$event.stopPropagation(); selectYear(year)">{{ year }}</button>
+        </div>
+
+        <div class="date-picker-weekdays" *ngIf="calendarView === 'days'" aria-hidden="true">
             @for (weekday of weekdayLabels; track weekday) {
             <span>{{ weekday }}</span>
             }
         </div>
 
-        <div class="date-picker-days">
+        <div class="date-picker-days" *ngIf="calendarView === 'days'">
             @for (day of calendarDays; track trackDay($index, day)) {
             <button type="button" [class.is-muted]="!day.inMonth" [class.is-today]="day.isToday" [class.is-selected]="day.isSelected" (click)="selectDate(day.value)">
                 {{ day.label }}

@@ -35,6 +35,7 @@ export class DatePickerComponent implements ControlValueAccessor {
     public isOpen = false;
     public value = '';
     public viewDate = new Date();
+    public calendarView: 'days' | 'months' | 'years' = 'days';
 
     private onChange: (value: string) => void = () => undefined;
     private onTouched: () => void = () => undefined;
@@ -58,6 +59,18 @@ export class DatePickerComponent implements ControlValueAccessor {
 
     public get monthLabel(): string {
         return this.viewDate.toLocaleDateString(this.languageService.getCurrentLanguage(), { month: 'long', year: 'numeric' });
+    }
+
+    public get monthOptions(): Array<{ index: number; label: string }> {
+        return Array.from({ length: 12 }, (_, index) => ({
+            index,
+            label: new Date(this.viewDate.getFullYear(), index, 1).toLocaleDateString(this.languageService.getCurrentLanguage(), { month: 'short' })
+        }));
+    }
+
+    public get yearOptions(): number[] {
+        const start = this.viewDate.getFullYear() - 5;
+        return Array.from({ length: 12 }, (_, index) => start + index);
     }
 
     public get calendarDays(): DatePickerDay[] {
@@ -101,6 +114,7 @@ export class DatePickerComponent implements ControlValueAccessor {
     public toggle(): void {
         if (this.disabled) return;
         this.isOpen = !this.isOpen;
+        if (this.isOpen) this.calendarView = 'days';
     }
 
     public open(): void {
@@ -114,11 +128,45 @@ export class DatePickerComponent implements ControlValueAccessor {
     }
 
     public previousMonth(): void {
+        if (this.calendarView === 'years') {
+            this.viewDate = new Date(this.viewDate.getFullYear() - 12, this.viewDate.getMonth(), 1);
+            return;
+        }
+        if (this.calendarView === 'months') {
+            this.viewDate = new Date(this.viewDate.getFullYear() - 1, this.viewDate.getMonth(), 1);
+            return;
+        }
         this.viewDate = new Date(this.viewDate.getFullYear(), this.viewDate.getMonth() - 1, 1);
     }
 
     public nextMonth(): void {
+        if (this.calendarView === 'years') {
+            this.viewDate = new Date(this.viewDate.getFullYear() + 12, this.viewDate.getMonth(), 1);
+            return;
+        }
+        if (this.calendarView === 'months') {
+            this.viewDate = new Date(this.viewDate.getFullYear() + 1, this.viewDate.getMonth(), 1);
+            return;
+        }
         this.viewDate = new Date(this.viewDate.getFullYear(), this.viewDate.getMonth() + 1, 1);
+    }
+
+    public showMonthPicker(): void {
+        this.calendarView = this.calendarView === 'months' ? 'days' : 'months';
+    }
+
+    public showYearPicker(): void {
+        this.calendarView = this.calendarView === 'years' ? 'months' : 'years';
+    }
+
+    public selectMonth(month: number): void {
+        this.viewDate = new Date(this.viewDate.getFullYear(), month, 1);
+        this.calendarView = 'days';
+    }
+
+    public selectYear(year: number): void {
+        this.viewDate = new Date(year, this.viewDate.getMonth(), 1);
+        this.calendarView = 'months';
     }
 
     public selectDate(value: string): void {

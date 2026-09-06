@@ -106,6 +106,45 @@
     width: 2rem;
 }
 
+.date-picker-header .date-picker-period {
+    width: auto;
+    min-width: 0;
+    flex: 1;
+    border: 0;
+    background: transparent;
+    color: #0f172a;
+    font-size: .9rem;
+    font-weight: 850;
+}
+
+.date-picker-months,
+.date-picker-years {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: .35rem;
+    min-height: 14rem;
+    align-content: center;
+}
+
+.date-picker-months button,
+.date-picker-years button {
+    min-height: 2.35rem;
+    border: 0;
+    border-radius: .45rem;
+    background: transparent;
+    color: #0f172a;
+    font-size: .78rem;
+    font-weight: 750;
+}
+
+.date-picker-months button:hover,
+.date-picker-years button:hover,
+.date-picker-months button.is-selected,
+.date-picker-years button.is-selected {
+    background: #0f766e;
+    color: #fff;
+}
+
 .date-picker-weekdays,
 .date-picker-days {
     display: grid;
