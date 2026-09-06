@@ -9,6 +9,14 @@ body {
   height: 100vh;
 }
 
+@media screen and (max-width: 991px) {
+
+  input:not([type='checkbox']):not([type='radio']):not([type='hidden']),
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 1vh;
