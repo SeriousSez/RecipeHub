@@ -12,9 +12,12 @@
         </button>
     </header>
 
-    <div class="recipe-selection-toolbar">
+    <div class="recipe-selection-toolbar app-search-control">
         <i class="fas fa-search" aria-hidden="true"></i>
         <input type="search" [(ngModel)]="searchTerm" [placeholder]="'recipe.searchPlaceholder' | translate" [attr.aria-label]="'recipe.searchPlaceholder' | translate" autocomplete="off">
+        @if (searchTerm) {
+        <button type="button" class="app-search-clear" (click)="searchTerm = ''" [attr.aria-label]="'recipe.clearSearchAria' | translate" [title]="'recipe.clearSearchAria' | translate"><i class="fas fa-times" aria-hidden="true"></i></button>
+        }
     </div>
 
     <div class="recipe-selection-progress" *ngIf="loading" [attr.aria-label]="'recipe.loading' | translate">

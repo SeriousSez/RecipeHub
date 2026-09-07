@@ -87,7 +87,7 @@
     flex: 0 0 auto;
 }
 
-.recipe-selection-toolbar i {
+.recipe-selection-toolbar>i {
     position: absolute;
     top: 50%;
     left: .85rem;
@@ -98,7 +98,7 @@
 .recipe-selection-toolbar input {
     width: 100%;
     min-height: 44px;
-    padding: .35rem .75rem .35rem 2.35rem;
+    padding: .35rem 2.75rem .35rem 2.35rem;
     border: 1px solid #cbd5e1;
     border-radius: .7rem;
     color: #0f172a;

@@ -113,7 +113,11 @@
                 <p>{{ 'pantry.inventoryHint' | translate }}</p>
             </div>
             <div class="pantry-toolbar-actions">
-                <div class="pantry-search"><i class="fas fa-search" aria-hidden="true"></i><input type="search" [placeholder]="'pantry.searchPlaceholder' | translate" [(ngModel)]="searchTerm" [attr.aria-label]="'pantry.searchLabel' | translate"></div>
+                <div class="pantry-search app-search-control"><i class="fas fa-search" aria-hidden="true"></i><input type="search" [placeholder]="'pantry.searchPlaceholder' | translate" [(ngModel)]="searchTerm" [attr.aria-label]="'pantry.searchLabel' | translate">
+                    @if (searchTerm) {
+                    <button type="button" class="app-search-clear" (click)="searchTerm = ''" [attr.aria-label]="'recipe.clearSearchAria' | translate" [title]="'recipe.clearSearchAria' | translate"><i class="fas fa-times" aria-hidden="true"></i></button>
+                    }
+                </div>
                 <button type="button" class="btn btn-outline-danger pantry-clear-button" [disabled]="pantryItems.length === 0" (click)="confirmClear = true"><i class="fas fa-trash-alt" aria-hidden="true"></i>{{ 'pantry.clearAll' | translate }}</button>
             </div>
         </div>

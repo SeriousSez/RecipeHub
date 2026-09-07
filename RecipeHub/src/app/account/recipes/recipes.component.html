@@ -13,10 +13,13 @@
 
     <section class="my-recipes-panel">
         <div class="my-recipes-toolbar">
-            <div class="my-recipes-search">
+            <div class="my-recipes-search app-search-control">
                 <label class="visually-hidden" for="my-recipes-search">{{ 'myRecipes.searchPlaceholder' | translate }}</label>
                 <i class="fas fa-search" aria-hidden="true"></i>
                 <input id="my-recipes-search" type="search" [(ngModel)]="recipeSearch" [placeholder]="'myRecipes.searchPlaceholder' | translate" autocomplete="off">
+                @if (recipeSearch) {
+                <button type="button" class="app-search-clear" (click)="recipeSearch = ''" [attr.aria-label]="'recipe.clearSearchAria' | translate" [title]="'recipe.clearSearchAria' | translate"><i class="fas fa-times" aria-hidden="true"></i></button>
+                }
             </div>
             <label class="my-recipes-sort">
                 <span>{{ 'myRecipes.sortLabel' | translate }}</span>

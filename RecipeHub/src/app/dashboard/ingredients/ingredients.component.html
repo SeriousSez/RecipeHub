@@ -11,10 +11,13 @@
   </header>
 
   <div class="dashboard-toolbar">
-    <div class="dashboard-search">
+    <div class="dashboard-search app-search-control">
       <label class="visually-hidden" for="ingredient-search">{{ 'dashboard.searchIngredients' | translate }}</label>
       <i class="fas fa-search" aria-hidden="true"></i>
       <input id="ingredient-search" class="form-control" type="search" [(ngModel)]="ingredientSearch" [placeholder]="'dashboard.searchIngredients' | translate" autocomplete="off">
+      @if (ingredientSearch) {
+      <button type="button" class="app-search-clear" (click)="ingredientSearch = ''" [attr.aria-label]="'recipe.clearSearchAria' | translate" [title]="'recipe.clearSearchAria' | translate"><i class="fas fa-times" aria-hidden="true"></i></button>
+      }
     </div>
     <div class="dashboard-actions">
       <button class="btn btn-outline-danger" type="button" [disabled]="selectedIngredients.length == 0" (click)="requestDelete()">{{ 'dashboard.deleteButton' | translate }}</button>
