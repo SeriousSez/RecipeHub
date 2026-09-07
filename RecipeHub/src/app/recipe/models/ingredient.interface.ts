@@ -10,6 +10,10 @@ export interface Ingredient {
     displayName?: string;
     description: string;
     language?: string;
+    canonicalName?: string;
+    category?: string;
+    subcategory?: string;
+    openFoodFactsId?: string;
     amount: number;
     amountType: string;
     group?: string;

@@ -77,6 +77,10 @@ export class IngredientService extends BaseService {
     return this.http.post<Ingredient>(this.baseUrl + "/ingredient/update", ingredient, this.httpOptions);
   }
 
+  classifyAll(): Observable<{ updated: number; failed: number }> {
+    return this.http.post<{ updated: number; failed: number }>(this.baseUrl + "/ingredient/classifyall", {}, this.httpOptions);
+  }
+
   deleteIngredients(ingredients: Ingredient[]): Observable<Ingredient[]> {
     return this.http.post<Ingredient[]>(this.baseUrl + "/ingredient/delete", ingredients, this.httpOptions)
       .pipe(map(ingredients => {

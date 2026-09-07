@@ -184,6 +184,12 @@ namespace RecipeHub.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
+                    b.Property<string>("CanonicalName")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Category")
+                        .HasColumnType("longtext");
+
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(65,30)");
 
@@ -214,8 +220,14 @@ namespace RecipeHub.Infrastructure.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("longtext");
 
+                    b.Property<string>("OpenFoodFactsId")
+                        .HasColumnType("longtext");
+
                     b.Property<DateTime>("PurchaseDate")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Subcategory")
+                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
 
@@ -264,6 +276,12 @@ namespace RecipeHub.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
+                    b.Property<string>("CanonicalName")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Category")
+                        .HasColumnType("longtext");
+
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(65,30)");
 
@@ -289,6 +307,12 @@ namespace RecipeHub.Infrastructure.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Name")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("OpenFoodFactsId")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Subcategory")
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");
@@ -489,6 +513,12 @@ namespace RecipeHub.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
+                    b.Property<string>("CanonicalName")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Category")
+                        .HasColumnType("longtext");
+
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime(6)");
 
@@ -508,6 +538,12 @@ namespace RecipeHub.Infrastructure.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Name")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("OpenFoodFactsId")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Subcategory")
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");

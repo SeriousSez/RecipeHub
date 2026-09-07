@@ -3,6 +3,9 @@ import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { UserService } from '../shared/services/user.service';
 import { TranslateService } from '@ngx-translate/core';
+import { RecipeService } from '../recipe/services/recipe.service';
+import { Recipe } from '../recipe/models/recipe.interface';
+import { UtilityService } from '../shared/utils/utility.service';
 
 @Component({
   selector: 'app-home',
@@ -14,17 +17,66 @@ export class HomeComponent implements OnInit {
 
   status: boolean = false;
   pantryIngredientCount: number = 0;
+  recommendedRecipes: Recipe[] = [];
+  recommendationsLoading = true;
   subscription?: Subscription;
+  private recommendationsRequestId = 0;
 
-  constructor(private userService: UserService, private router: Router, private translateService: TranslateService) { }
+  constructor(private userService: UserService, private router: Router, private translateService: TranslateService, private recipeService: RecipeService, public utilityService: UtilityService) { }
 
   ngOnInit(): void {
     this.subscription = this.userService.authStatus$.subscribe(status => {
       this.status = status;
       this.refreshPantryCount();
+      this.loadRecommendations();
     });
 
     this.refreshPantryCount();
+  }
+
+  private loadRecommendations(): void {
+    const requestId = ++this.recommendationsRequestId;
+    const personalized = this.status;
+    this.recommendationsLoading = true;
+
+    if (personalized) {
+      this.recipeService.getRecommendations(3, this.translateService.currentLang || 'English').subscribe({
+        next: recipes => {
+          if (requestId !== this.recommendationsRequestId) return;
+          this.recommendedRecipes = (recipes ?? []).slice(0, 3);
+          this.recommendationsLoading = false;
+        },
+        error: () => {
+          if (requestId === this.recommendationsRequestId) {
+            this.recommendedRecipes = [];
+            this.recommendationsLoading = false;
+          }
+        }
+      });
+      return;
+    }
+
+    this.recipeService.getRecipesPaged({
+      page: 1,
+      pageSize: 3,
+      sortBy: 'popularity',
+      ascending: false,
+      language: this.translateService.currentLang || 'English'
+    }).subscribe({
+      next: result => {
+        if (requestId !== this.recommendationsRequestId) return;
+
+        const candidates = (result?.items ?? []).slice(0, 18);
+        this.recommendedRecipes = candidates.slice(0, 3);
+        this.recommendationsLoading = false;
+      },
+      error: () => {
+        if (requestId === this.recommendationsRequestId) {
+          this.recommendedRecipes = [];
+          this.recommendationsLoading = false;
+        }
+      }
+    });
   }
 
   private refreshPantryCount(): void {

@@ -85,3 +85,8 @@
 {"ts":1788753614772,"traceId":"tr-1788753614772-165nmn","type":"complete","filePath":"RecipeHub/src/styles.css","result":{"completionLength":42,"latencyMs":2171,"localHits":3}}
 {"ts":1788753617824,"traceId":"tr-1788753617824-yuszvl","type":"complete","filePath":"RecipeHub/src/styles.css","result":{"completionLength":69,"latencyMs":852,"localHits":3}}
 {"ts":1788753877136,"traceId":"tr-1788753877136-hytfph","type":"complete","filePath":"RecipeHub/src/app/recipe/create/create.component.css","result":{"completionLength":16,"latencyMs":1448,"localHits":3}}
+{"ts":1788755687168,"traceId":"tr-1788755687168-pykm89","type":"complete","filePath":"RecipeHub/src/index.html","result":{"completionLength":41,"latencyMs":121721,"localHits":3}}
+{"ts":1788758335908,"traceId":"tr-1788758335908-heb581","type":"complete","filePath":"RecipeHub.ApplicationService/Services/IngredientClassificationService.cs","result":{"completionLength":1010,"latencyMs":5691,"localHits":3}}
+{"ts":1788758340745,"traceId":"tr-1788758340745-jsnmyw","type":"complete","filePath":"RecipeHub.ApplicationService/Services/IngredientClassificationService.cs","result":{"completionLength":1676,"latencyMs":11536,"localHits":3}}
+{"ts":1788758343267,"traceId":"tr-1788758343267-658kaq","type":"complete","filePath":"RecipeHub.ApplicationService/Services/IngredientClassificationService.cs","result":{"completionLength":442,"latencyMs":13314,"localHits":3}}
+{"ts":1788758345294,"traceId":"tr-1788758345294-ufvutu","type":"complete","filePath":"RecipeHub/src/app/recipe/models/ingredient-taxonomy.ts","result":{"completionLength":135,"latencyMs":10138,"localHits":3}}

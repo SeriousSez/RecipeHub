@@ -27,6 +27,7 @@ export class IngredientsComponent implements OnInit {
   deletingIngredients = false;
   deleteCompleted = false;
   showIngredientModal = false;
+  classifyingIngredients = false;
   editingIngredient: Ingredient | null = null;
   openedAccordion: string;
   clickedTableRow: string;
@@ -150,6 +151,18 @@ export class IngredientsComponent implements OnInit {
   public startEditIngredient(ingredient: Ingredient): void {
     this.editingIngredient = ingredient;
     this.showIngredientModal = true;
+  }
+
+  public classifyAllIngredients(): void {
+    if (this.classifyingIngredients) return;
+
+    this.classifyingIngredients = true;
+    this.ingredientService.classifyAll()
+      .pipe(finalize(() => this.classifyingIngredients = false))
+      .subscribe({
+        next: () => this.getIngredients(),
+        error: () => { }
+      });
   }
 
   public prepareSingleDelete(ingredient: Ingredient): void {

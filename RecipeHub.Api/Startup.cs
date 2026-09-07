@@ -111,6 +111,12 @@ namespace RecipeHub
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IRecipeService, RecipeService>();
             services.AddScoped<IIngredientService, IngredientService>();
+            services.AddHttpClient<IIngredientClassificationService, IngredientClassificationService>(client =>
+            {
+                client.BaseAddress = new Uri(Configuration["OpenFoodFacts:BaseUrl"] ?? "https://world.openfoodfacts.org/");
+                client.Timeout = TimeSpan.FromSeconds(4);
+                client.DefaultRequestHeaders.UserAgent.ParseAdd(Configuration["OpenFoodFacts:UserAgent"] ?? "RecipeHub/1.0 (ingredient taxonomy)");
+            });
             services.AddScoped<IImageService, ImageService>();
             services.AddHttpClient<OpenAiIngredientImageGenerator>();
             services.AddHttpClient<LocalStableDiffusionIngredientImageGenerator>();

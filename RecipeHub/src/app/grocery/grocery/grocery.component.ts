@@ -11,11 +11,13 @@ import { TranslateService } from '@ngx-translate/core';
 import { PantryService } from 'src/app/pantry/pantry.service';
 import { UserService } from 'src/app/shared/services/user.service';
 import { GroceryCostEstimate, GroceryIngredientOffer, GroceryNearbyStore, GroceryOfferCategory, GroceryOfferGroup, GroceryOfferSearchResponse, GroceryShoppingPreference } from 'src/app/shared/models/grocery-offer-search.interface';
+import { classifyIngredient } from 'src/app/recipe/models/ingredient-taxonomy';
 
 interface GroceryIngredientGroup {
   recipeTitle: string;
   recipeId: string | null;
   isRecipeGroup: boolean;
+  isCategoryGroup: boolean;
   ingredients: Ingredient[];
 }
 
@@ -38,7 +40,7 @@ export class GroceryComponent implements OnInit {
 
   ingredients: Ingredient[] = [];
   consolidatedIngredients: GroceryIngredientSummary[] = [];
-  viewMode: 'all' | 'recipe' = 'all';
+  viewMode: 'all' | 'recipe' | 'category' = 'all';
   loadingIngredientDetails: Set<string> = new Set<string>();
   loadedIngredientDetails: Set<string> = new Set<string>();
 
@@ -279,17 +281,25 @@ export class GroceryComponent implements OnInit {
     const groups = new Map<string, GroceryIngredientGroup>();
 
     this.ingredients.forEach(ingredient => {
-      const recipeKey = ingredient.sourceRecipeId || ingredient.sourceRecipeTitle || 'manual';
-      const recipeTitle = ingredient.sourceRecipeTitle?.trim() || this.translateService.instant('grocery.manualIngredients');
-      const group: GroceryIngredientGroup = groups.get(recipeKey) ?? {
-        recipeTitle,
-        recipeId: ingredient.sourceRecipeId ?? null,
-        isRecipeGroup: !!(ingredient.sourceRecipeId || ingredient.sourceRecipeTitle?.trim()),
+      const isCategoryMode = this.viewMode === 'category';
+      const category = isCategoryMode
+        ? (ingredient.category || classifyIngredient(ingredient.name).category)
+        : null;
+      const groupKey = isCategoryMode
+        ? `category:${category}`
+        : (ingredient.sourceRecipeId || ingredient.sourceRecipeTitle || 'manual');
+      const group: GroceryIngredientGroup = groups.get(groupKey) ?? {
+        recipeTitle: isCategoryMode
+          ? this.translateService.instant(`grocery.categories.${category}`)
+          : (ingredient.sourceRecipeTitle?.trim() || this.translateService.instant('grocery.manualIngredients')),
+        recipeId: isCategoryMode ? null : (ingredient.sourceRecipeId ?? null),
+        isRecipeGroup: !isCategoryMode && !!(ingredient.sourceRecipeId || ingredient.sourceRecipeTitle?.trim()),
+        isCategoryGroup: isCategoryMode,
         ingredients: []
       };
 
       group.ingredients.push(ingredient);
-      groups.set(recipeKey, group);
+      groups.set(groupKey, group);
     });
 
     return Array.from(groups.values())

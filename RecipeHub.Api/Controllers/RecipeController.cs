@@ -736,6 +736,36 @@ namespace RecipeHub.Api.Controllers
             return new OkObjectResult(stats);
         }
 
+        [HttpGet("recommendations")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> GetRecommendations(int limit = 3, string language = "English")
+        {
+            var userEmail = User?.Identity?.Name;
+            var user = await _context.Users.SingleOrDefaultAsync(item => item.Email == userEmail);
+            if (user == null)
+                return Unauthorized();
+
+            limit = Math.Clamp(limit, 1, 12);
+            var madeRecipeIds = await _context.RecipeRatings
+                .Where(item => item.UserId == user.Id)
+                .Select(item => item.RecipeId)
+                .ToListAsync();
+
+            var allRecipes = await GetAllRecipesCachedAsync();
+            var engagementByRecipe = await GetRecipeEngagementStatsAsync();
+            var recommendations = allRecipes
+                .Where(recipe => !madeRecipeIds.Contains(recipe.Id))
+                .OrderBy(recipe => GetEngagement(recipe.Id, engagementByRecipe).AverageRating.HasValue ? 0 : 1)
+                .ThenByDescending(recipe => GetEngagement(recipe.Id, engagementByRecipe).AverageRating)
+                .ThenByDescending(recipe => GetEngagement(recipe.Id, engagementByRecipe).RatingCount)
+                .ThenByDescending(recipe => GetEngagement(recipe.Id, engagementByRecipe).MadeCount)
+                .Take(limit)
+                .Select(recipe => CreatePagedRecipeResponse(recipe, GetEngagement(recipe.Id, engagementByRecipe)))
+                .ToList();
+
+            return Ok(recommendations);
+        }
+
         [HttpPost("engagement")]
         [Authorize(AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> SaveEngagement([FromBody] RecipeEngagementViewModel model)

@@ -58,6 +58,10 @@ export class RecipeService extends BaseService {
     return this.http.get<RecipeEngagement>(this.baseUrl + `/recipe/engagement/${encodeURIComponent(recipeId)}`, this.httpOptions);
   }
 
+  getRecommendations(limit: number = 3, language: string = 'English'): Observable<Recipe[]> {
+    return this.http.get<Recipe[]>(this.baseUrl + `/recipe/recommendations?limit=${limit}&language=${encodeURIComponent(language)}`, this.httpOptions);
+  }
+
   saveEngagement(recipeId: string, rating: number | null): Observable<RecipeEngagement> {
     return this.http.post<RecipeEngagement>(this.baseUrl + '/recipe/engagement', { recipeId, rating }, this.httpOptions);
   }

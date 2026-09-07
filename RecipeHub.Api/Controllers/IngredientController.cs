@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Logging;
 using RecipeHub.ApplicationService.Services;
@@ -96,6 +97,14 @@ namespace RecipeHub.Api.Controllers
 
             var translations = await _recipeTranslationService.TranslateIngredientNamesAsync(request.Names, request.Language, request.Contexts);
             return new OkObjectResult(translations ?? new Dictionary<string, string>());
+        }
+
+        [HttpPost("classifyall")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
+        public async Task<IActionResult> ClassifyAll()
+        {
+            var result = await _ingredientService.ClassifyAll();
+            return Ok(new { result.Updated, result.Failed });
         }
 
         [HttpPost("updatetranslation")]

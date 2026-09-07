@@ -13,6 +13,10 @@ namespace RecipeHub.Domain.Responses
         public string DisplayName { get; set; }
         public string Description { get; set; }
         public string Language { get; set; }
+        public string CanonicalName { get; set; }
+        public string Category { get; set; }
+        public string Subcategory { get; set; }
+        public string OpenFoodFactsId { get; set; }
         public decimal Amount { get; set; }
         public string AmountType { get; set; }
         public string Group { get; set; }

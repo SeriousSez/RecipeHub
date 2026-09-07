@@ -18,6 +18,10 @@
     </div>
     <div class="dashboard-actions">
       <button class="btn btn-outline-danger" type="button" [disabled]="selectedIngredients.length == 0" (click)="requestDelete()">{{ 'dashboard.deleteButton' | translate }}</button>
+      <button class="btn btn-outline-brand" type="button" [disabled]="classifyingIngredients" (click)="classifyAllIngredients()">
+        <i class="fas" [ngClass]="classifyingIngredients ? 'fa-spinner fa-spin' : 'fa-tags'" aria-hidden="true"></i>
+        {{ (classifyingIngredients ? 'dashboard.classifyingIngredientsButton' : 'dashboard.classifyIngredientsButton') | translate }}
+      </button>
       <button class="btn btn-outline-brand" type="button" (click)="startCreateIngredient()">{{ 'dashboard.createIngredientButton' | translate }}</button>
     </div>
   </div>

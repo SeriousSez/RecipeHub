@@ -261,6 +261,9 @@
       <button type="button" role="tab" class="grocery-view-tab" [class.is-active]="viewMode === 'recipe'" [attr.aria-selected]="viewMode === 'recipe'" (click)="viewMode = 'recipe'">
         {{ 'grocery.byRecipe' | translate }}
       </button>
+      <button type="button" role="tab" class="grocery-view-tab" [class.is-active]="viewMode === 'category'" [attr.aria-selected]="viewMode === 'category'" (click)="viewMode = 'category'">
+        {{ 'grocery.byCategory' | translate }}
+      </button>
     </div>
 
     <table class="table table-hover align-middle caption-top grocery-table mb-0">
@@ -314,7 +317,7 @@
               <strong>{{ group.recipeTitle }}</strong>
               <span class="grocery-recipe-group-badge">
                 <i class="fas" [ngClass]="group.isRecipeGroup ? 'fa-book-open' : 'fa-list'" aria-hidden="true"></i>
-                {{ (group.isRecipeGroup ? 'grocery.recipeGroupLabel' : 'grocery.manualGroupLabel') | translate }}
+                {{ (group.isRecipeGroup ? 'grocery.recipeGroupLabel' : (group.isCategoryGroup ? 'grocery.categoryGroupLabel' : 'grocery.manualGroupLabel')) | translate }}
               </span>
             </div>
           </td>

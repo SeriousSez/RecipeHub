@@ -1,5 +1,5 @@
 <section class="hero-section">
-  <div class="container-fluid hero-shell">
+  <div class="container-fluid hero-shell" [class.has-recommendations]="recommendationsLoading || recommendedRecipes.length > 0">
     <div class="hero-copy">
       <div class="eyebrow">{{ 'home.eyebrow' | translate }}</div>
 
@@ -46,6 +46,48 @@
           <small>{{ 'home.savedFavoritesSubtitle' | translate }}</small>
         </div>
       </div>
+
     </div>
+
+    @if (recommendationsLoading || recommendedRecipes.length > 0) {
+    <aside class="home-recommendations" aria-labelledby="home-recommendations-title">
+      <div class="home-recommendations-heading">
+        <div>
+          <span class="mini-feature-label">{{ 'home.popularPicksLabel' | translate }}</span>
+          <h2 id="home-recommendations-title">{{ 'home.quickWins' | translate }}</h2>
+        </div>
+        @if (!recommendationsLoading) {
+        <a class="home-recommendations-link" routerLink="/recipes">{{ 'home.browseRecipes' | translate }}</a>
+        }
+      </div>
+      <div class="home-recommendation-grid">
+        @if (recommendationsLoading) {
+        @for (slot of [1, 2, 3]; track slot) {
+        <div class="home-recommendation-card home-recommendation-skeleton" aria-hidden="true">
+          <span class="home-recommendation-skeleton-image"></span>
+          <span class="home-recommendation-body">
+            <span class="home-recommendation-skeleton-line home-recommendation-skeleton-title"></span>
+            <span class="home-recommendation-skeleton-line home-recommendation-skeleton-meta"></span>
+          </span>
+        </div>
+        }
+        } @else {
+        @for (recipe of recommendedRecipes; track recipe.id) {
+        <a class="home-recommendation-card" [routerLink]="['/recipe', utilityService.toRecipeKey(recipe.id, recipe.title)]">
+          <img [src]="recipe.image?.url || 'assets/images/food.png'" [alt]="recipe.title">
+          <span class="home-recommendation-body">
+            <strong>{{ recipe.title }}</strong>
+            @if ((recipe.ratingCount ?? 0) > 0 && recipe.averageRating != null) {
+            <small><i class="fas fa-star" aria-hidden="true"></i> {{ recipe.averageRating | number:'1.1-1' }} ({{ recipe.ratingCount }})</small>
+            } @else if ((recipe.madeCount ?? 0) > 0) {
+            <small><i class="fas fa-utensils" aria-hidden="true"></i> {{ 'recipe.madeThisCount' | translate:{ count: recipe.madeCount } }}</small>
+            }
+          </span>
+        </a>
+        }
+        }
+      </div>
+    </aside>
+    }
   </div>
 </section>

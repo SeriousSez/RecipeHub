@@ -17,6 +17,7 @@ namespace RecipeHub.ApplicationService.Services
         private readonly IIngredientRepository _ingredientRepository;
         private readonly IImageRepository _imageRepository;
         private readonly IIngredientImageGenerator _ingredientImageGenerator;
+        private readonly IIngredientClassificationService _ingredientClassificationService;
         private readonly IMapper _mapper;
 
         public IngredientService(
@@ -24,12 +25,14 @@ namespace RecipeHub.ApplicationService.Services
             IIngredientRepository ingredientRepository,
             IImageRepository imageRepository,
             IIngredientImageGenerator ingredientImageGenerator,
+            IIngredientClassificationService ingredientClassificationService,
             IMapper mapper)
         {
             _logger = logger;
             _ingredientRepository = ingredientRepository;
             _imageRepository = imageRepository;
             _ingredientImageGenerator = ingredientImageGenerator;
+            _ingredientClassificationService = ingredientClassificationService;
             _mapper = mapper;
         }
 
@@ -46,6 +49,11 @@ namespace RecipeHub.ApplicationService.Services
             }
 
             var ingredient = _mapper.Map<Ingredient>(model);
+            var classification = await _ingredientClassificationService.ClassifyAsync(ingredient.Name);
+            ingredient.CanonicalName = classification.CanonicalName;
+            ingredient.Category = classification.Category;
+            ingredient.Subcategory = classification.Subcategory;
+            ingredient.OpenFoodFactsId = classification.OpenFoodFactsId;
             await _ingredientRepository.Create(ingredient);
 
             _logger.LogTrace("Ingredient created! Ingredient: {@Ingredient}", ingredient);
@@ -92,6 +100,31 @@ namespace RecipeHub.ApplicationService.Services
             return ingredientList;
         }
 
+        public async Task<(int Updated, int Failed)> ClassifyAll()
+        {
+            var updated = 0;
+            var failed = 0;
+            foreach (var ingredient in await _ingredientRepository.GetAllFull())
+            {
+                try
+                {
+                    var classification = await _ingredientClassificationService.ClassifyAsync(ingredient.Name);
+                    ingredient.CanonicalName = classification.CanonicalName;
+                    ingredient.Category = classification.Category;
+                    ingredient.Subcategory = classification.Subcategory;
+                    ingredient.OpenFoodFactsId = classification.OpenFoodFactsId;
+                    await _ingredientRepository.Update(ingredient);
+                    updated++;
+                }
+                catch
+                {
+                    failed++;
+                }
+            }
+
+            return (updated, failed);
+        }
+
         public async Task<IngredientResponse> GetByName(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
@@ -117,6 +150,11 @@ namespace RecipeHub.ApplicationService.Services
 
             ingredient.Name = model.Name;
             ingredient.Description = model.Description;
+            var classification = await _ingredientClassificationService.ClassifyAsync(ingredient.Name);
+            ingredient.CanonicalName = classification.CanonicalName;
+            ingredient.Category = classification.Category;
+            ingredient.Subcategory = classification.Subcategory;
+            ingredient.OpenFoodFactsId = classification.OpenFoodFactsId;
 
             if (model.Image != null)
             {

@@ -13,12 +13,24 @@
     width: 100%;
 }
 
+.hero-shell.has-recommendations {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    align-items: center;
+    gap: 3.5rem;
+    max-width: 1180px;
+}
+
 .hero-copy {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     max-width: 760px;
     width: 100%;
+}
+
+.hero-shell.has-recommendations .hero-copy {
+    max-width: 760px;
 }
 
 .eyebrow {
@@ -147,6 +159,139 @@
     line-height: 1.5;
 }
 
+.home-recommendations {
+    width: 100%;
+    max-width: 320px;
+}
+
+.home-recommendations-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.home-recommendations-heading h2 {
+    margin: .35rem 0 0;
+    color: #0f172a;
+    font-size: 1.4rem;
+    letter-spacing: -0.04em;
+}
+
+.home-recommendations-link {
+    color: #1d4ed8;
+    font-size: .9rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.home-recommendations-link:hover,
+.home-recommendations-link:focus-visible {
+    text-decoration: underline;
+}
+
+.home-recommendation-grid {
+    display: grid;
+    gap: .8rem;
+}
+
+.home-recommendation-card {
+    display: flex;
+    flex-direction: row;
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: .85rem;
+    background: rgba(255, 255, 255, .78);
+    box-shadow: 0 12px 30px rgba(15, 23, 42, .05);
+    color: inherit;
+    text-decoration: none;
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.home-recommendation-card:hover,
+.home-recommendation-card:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 32px rgba(15, 23, 42, .1);
+    color: inherit;
+    text-decoration: none;
+}
+
+.home-recommendation-card img {
+    width: 92px;
+    min-width: 92px;
+    aspect-ratio: 1;
+    object-fit: cover;
+    background: #e2e8f0;
+}
+
+.home-recommendation-body {
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+    padding: .8rem .9rem .9rem;
+}
+
+.home-recommendation-body strong {
+    overflow: hidden;
+    color: #0f172a;
+    font-size: .98rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.home-recommendation-body small {
+    color: #64748b;
+    font-size: .78rem;
+}
+
+.home-recommendation-body i {
+    color: #2563eb;
+}
+
+.home-recommendation-skeleton {
+    pointer-events: none;
+}
+
+.home-recommendation-skeleton-image,
+.home-recommendation-skeleton-line {
+    display: block;
+    background: linear-gradient(100deg, #e2e8f0 20%, #f8fafc 40%, #e2e8f0 60%);
+    background-size: 220% 100%;
+    animation: home-recommendation-shimmer 1.35s ease-in-out infinite;
+}
+
+.home-recommendation-skeleton-image {
+    width: 92px;
+    min-width: 92px;
+    height: 92px;
+    aspect-ratio: 1;
+}
+
+.home-recommendation-skeleton-line {
+    height: .75rem;
+    border-radius: .3rem;
+}
+
+.home-recommendation-skeleton-title {
+    width: 78%;
+}
+
+.home-recommendation-skeleton-meta {
+    width: 48%;
+}
+
+@keyframes home-recommendation-shimmer {
+    0% {
+        background-position: 100% 0;
+    }
+
+    100% {
+        background-position: -100% 0;
+    }
+}
+
 :root[data-theme='dark'] .hero-section {
     background: transparent;
 }
@@ -211,8 +356,51 @@
     color: #cbd5e1;
 }
 
+:root[data-theme='dark'] .home-recommendations {
+    border-color: rgba(148, 163, 184, .16);
+}
+
+:root[data-theme='dark'] .home-recommendations-heading h2,
+:root[data-theme='dark'] .home-recommendation-body strong {
+    color: #f8fafc;
+}
+
+:root[data-theme='dark'] .home-recommendation-card {
+    border-color: rgba(148, 163, 184, .16);
+    background: rgba(15, 23, 42, .75);
+    box-shadow: 0 12px 30px rgba(2, 6, 23, .26);
+}
+
+:root[data-theme='dark'] .home-recommendation-body small {
+    color: #cbd5e1;
+}
+
+:root[data-theme='dark'] .home-recommendation-skeleton-image,
+:root[data-theme='dark'] .home-recommendation-skeleton-line {
+    background: linear-gradient(100deg, #1e293b 20%, #334155 40%, #1e293b 60%);
+    background-size: 220% 100%;
+}
+
 @media (max-width: 991px) {
+    .hero-shell.has-recommendations {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+    }
+
     .mini-feature-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .home-recommendations {
+        max-width: none;
+        margin-top: 2.25rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    .home-recommendation-grid {
         grid-template-columns: 1fr;
     }
 }

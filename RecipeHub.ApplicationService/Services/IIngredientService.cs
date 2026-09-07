@@ -15,6 +15,7 @@ namespace RecipeHub.ApplicationService.Services
         Task<IngredientResponse> GetByName(string name);
         Task<IEnumerable<IngredientResponse>> GetAll();
         Task<IEnumerable<IngredientResponse>> GetAllLite();
+        Task<(int Updated, int Failed)> ClassifyAll();
         Task<(int Updated, int Skipped, int Failed, List<string> FailedNames)> RegenerateImages(IEnumerable<string> excludedNames = null);
         Task<(bool Updated, string Error, IngredientResponse Ingredient)> RegenerateImage(string ingredientName);
     }
