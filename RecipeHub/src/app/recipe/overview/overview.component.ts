@@ -637,6 +637,23 @@ export class OverviewComponent implements OnInit {
 
   openCreateRecipe() {
     this.showCreateMode = true;
+    this.showGenerateRecipe = false;
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { guide: 'recipeCreate', generate: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
+  }
+
+  openRecipeOverview(): void {
+    this.resetGuideOverviewState();
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { guide: null, generate: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
   }
 
   private resetGuideOverviewState(): void {
