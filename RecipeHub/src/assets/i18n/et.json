@@ -625,6 +625,7 @@
         "filtersOn": "Sees",
         "filtersOff": "Väljas",
         "closeFiltersAria": "Sulge filtrid",
+        "clearSearchAria": "Tühjenda otsing",
         "myRecipesCaption": "Minu retseptid",
         "favoriteRecipesCaption": "Lemmikretseptid",
         "allRecipesCaption": "Kõik retseptid",

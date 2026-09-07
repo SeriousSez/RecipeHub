@@ -645,6 +645,7 @@
         "filtersOn": "On",
         "filtersOff": "Off",
         "closeFiltersAria": "Close filters",
+        "clearSearchAria": "Clear search",
         "myRecipesCaption": "My recipes",
         "favoriteRecipesCaption": "Favorite recipes",
         "allRecipesCaption": "All recipes",

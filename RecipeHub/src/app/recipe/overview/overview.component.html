@@ -152,7 +152,14 @@
       <div class="recipe-toolbar recipe-toolbar-desktop" data-guide-target="recipes-filters">
         <div class="recipe-filter-group">
           <label for="recipe-search" class="recipe-filter-label">{{ 'recipe.filterLabel' | translate }}</label>
-          <input id="recipe-search" class="form-control recipe-filter-input" type="search" [placeholder]="'recipe.searchPlaceholder' | translate" [value]="searchTerm" (input)="searchTerm = $any($event.target).value; applyFiltersAndSort()">
+          <div class="recipe-search-control">
+            <input id="recipe-search" class="form-control recipe-filter-input" type="search" [placeholder]="'recipe.searchPlaceholder' | translate" [value]="searchTerm" (input)="searchTerm = $any($event.target).value; applyFiltersAndSort()">
+            @if (searchTerm) {
+            <button type="button" class="recipe-search-clear" (click)="clearSearch()" [attr.aria-label]="'recipe.clearSearchAria' | translate" [title]="'recipe.clearSearchAria' | translate">
+              <i class="fas fa-times" aria-hidden="true"></i>
+            </button>
+            }
+          </div>
         </div>
         <div class="recipe-filter-group recipe-pantry-quick-filter">
           <label class="recipe-filter-label">{{ 'recipe.pantryLabel' | translate }}</label>
@@ -194,7 +201,14 @@
         <div class="recipe-mobile-filter-body">
           <div class="recipe-filter-group">
             <label for="recipe-search-mobile" class="recipe-filter-label">{{ 'recipe.filterLabel' | translate }}</label>
-            <input id="recipe-search-mobile" class="form-control recipe-filter-input" type="search" [placeholder]="'recipe.searchPlaceholder' | translate" [value]="searchTerm" (input)="searchTerm = $any($event.target).value; applyFiltersAndSort()">
+            <div class="recipe-search-control">
+              <input id="recipe-search-mobile" class="form-control recipe-filter-input" type="search" [placeholder]="'recipe.searchPlaceholder' | translate" [value]="searchTerm" (input)="searchTerm = $any($event.target).value; applyFiltersAndSort()">
+              @if (searchTerm) {
+              <button type="button" class="recipe-search-clear" (click)="clearSearch()" [attr.aria-label]="'recipe.clearSearchAria' | translate" [title]="'recipe.clearSearchAria' | translate">
+                <i class="fas fa-times" aria-hidden="true"></i>
+              </button>
+              }
+            </div>
           </div>
           <div class="recipe-filter-group">
             <label class="recipe-filter-label">{{ 'recipe.pantryLabel' | translate }}</label>

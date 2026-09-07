@@ -625,6 +625,7 @@
         "filtersOn": "Açık",
         "filtersOff": "Kapalı",
         "closeFiltersAria": "Filtreleri kapat",
+        "clearSearchAria": "Aramayı temizle",
         "myRecipesCaption": "Tariflerim",
         "favoriteRecipesCaption": "Favori tarifler",
         "allRecipesCaption": "Tüm tarifler",

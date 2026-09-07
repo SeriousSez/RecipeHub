@@ -770,6 +770,42 @@ button:focus {
     transition: none;
 }
 
+.recipe-search-control {
+    position: relative;
+}
+
+.recipe-search-control .recipe-filter-input {
+    padding-right: 2.75rem;
+}
+
+.recipe-search-control .recipe-filter-input::-webkit-search-cancel-button {
+    display: none;
+    appearance: none;
+}
+
+.recipe-search-clear {
+    position: absolute;
+    top: 50%;
+    right: .65rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: #3977ad;
+    transform: translateY(-50%);
+}
+
+.recipe-search-clear:hover,
+.recipe-search-clear:focus-visible {
+    background: #eaf2fb;
+    color: #17324d;
+}
+
 .recipe-filter-select:focus {
     border-color: #3977ad;
     box-shadow: 0 0 0 3px rgba(57, 119, 173, .12);

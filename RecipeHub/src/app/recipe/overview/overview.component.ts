@@ -142,6 +142,11 @@ export class OverviewComponent implements OnInit {
     this.applyFiltersAndSort();
   }
 
+  clearSearch(): void {
+    this.searchTerm = '';
+    this.applyFiltersAndSort();
+  }
+
   public searchTerm: string = '';
   public creatorFilter: string = '';
   public categoryFilter: string = '';
