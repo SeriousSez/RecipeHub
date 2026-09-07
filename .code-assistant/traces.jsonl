@@ -90,3 +90,4 @@
 {"ts":1788758340745,"traceId":"tr-1788758340745-jsnmyw","type":"complete","filePath":"RecipeHub.ApplicationService/Services/IngredientClassificationService.cs","result":{"completionLength":1676,"latencyMs":11536,"localHits":3}}
 {"ts":1788758343267,"traceId":"tr-1788758343267-658kaq","type":"complete","filePath":"RecipeHub.ApplicationService/Services/IngredientClassificationService.cs","result":{"completionLength":442,"latencyMs":13314,"localHits":3}}
 {"ts":1788758345294,"traceId":"tr-1788758345294-ufvutu","type":"complete","filePath":"RecipeHub/src/app/recipe/models/ingredient-taxonomy.ts","result":{"completionLength":135,"latencyMs":10138,"localHits":3}}
+{"ts":1788818604161,"traceId":"tr-1788818604161-ctgl34","type":"complete","filePath":"RecipeHub/src/app/footer/mobile-footer/mobile-footer.component.css","result":{"completionLength":15,"latencyMs":9150,"localHits":3}}
