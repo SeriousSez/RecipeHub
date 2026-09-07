@@ -22,7 +22,7 @@
         <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
         } {{ 'dashboard.deleteButton' | translate }}
       </button>
-      <button class="btn btn-outline-brand" type="button" data-bs-toggle="modal" data-bs-target="#customerModal">{{ 'dashboard.createUserButton' | translate }}</button>
+      <button class="btn btn-outline-brand" type="button" (click)="openCustomerModal()">{{ 'dashboard.createUserButton' | translate }}</button>
       <button class="btn btn-outline-brand-alt test-button" type="button" (click)="createTestUser()" [disabled]="creatingTestUser">
         @if (creatingTestUser) {
         <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
@@ -91,9 +91,9 @@
   [doneLabel]="'dashboard.doneButton' | translate" [successMessage]="'dashboard.deletionSuccess' | translate" [loading]="deletingTestUsers" [danger]="true" (confirmed)="deleteTestUsers()" (cancelled)="cancelDeleteTestUsers()"></app-confirmation>
 
 <!-- Modal -->
-<div class="modal fade" id="customerModal" tabindex="-1" aria-labelledby="customerModalLabel" aria-hidden="true" #customerModal>
+<div class="modal fade" [class.show]="showCustomerModal" [attr.aria-hidden]="!showCustomerModal" id="customerModal" tabindex="-1" aria-labelledby="customerModalLabel" (click)="showCustomerModal = false">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content customer-modal-content">
+    <div class="modal-content customer-modal-content" (click)="$event.stopPropagation()">
       <div class="modal-body" #container>
         @if (roles) {
         <app-registration-modal [title]="'dashboard.createUserModalTitle' | translate" [confirmButton]="'dashboard.createUserModalConfirm' | translate" [baseUrl]="targetUrl" [navigationUrl]="'dashboard'" [roles]="roles" (finish)="closeCustomerModal($event)"></app-registration-modal>

@@ -18,7 +18,7 @@
     </div>
     <div class="dashboard-actions">
       <button class="btn btn-outline-danger" type="button" [disabled]="selectedIngredients.length == 0" (click)="requestDelete()">{{ 'dashboard.deleteButton' | translate }}</button>
-      <button class="btn btn-outline-brand" type="button" data-bs-toggle="modal" data-bs-target="#ingredientModal" (click)="startCreateIngredient()">{{ 'dashboard.createIngredientButton' | translate }}</button>
+      <button class="btn btn-outline-brand" type="button" (click)="startCreateIngredient()">{{ 'dashboard.createIngredientButton' | translate }}</button>
     </div>
   </div>
 
@@ -55,8 +55,7 @@
           {{displayDateOnly(ingredient.created)}}
         </td>
         <td class="dashboard-row-actions">
-          <button class="btn btn-outline-brand btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#ingredientModal" (click)="$event.stopPropagation(); startEditIngredient(ingredient)" [attr.aria-label]="('dashboard.editButton' | translate) + ': ' + ingredient.name"
-            [attr.title]="'dashboard.editButton' | translate">
+          <button class="btn btn-outline-brand btn-sm" type="button" (click)="$event.stopPropagation(); startEditIngredient(ingredient)" [attr.aria-label]="('dashboard.editButton' | translate) + ': ' + ingredient.name" [attr.title]="'dashboard.editButton' | translate">
             <i class="fas fa-pen" aria-hidden="true"></i>
           </button>
           <button class="btn btn-outline-danger btn-sm" type="button" (click)="$event.stopPropagation(); prepareSingleDelete(ingredient)" [attr.aria-label]="('dashboard.deleteIngredientButton' | translate) + ': ' + ingredient.name" [attr.title]="'dashboard.deleteIngredientButton' | translate">
@@ -97,9 +96,9 @@
   (confirmed)="deleteIngredients()" (cancelled)="cancelDelete()"></app-confirmation>
 
 <!-- Modal -->
-<div class="modal fade" id="ingredientModal" tabindex="-1" aria-labelledby="ingredientModalLabel" aria-hidden="true" #ingredientModal>
+<div class="modal fade" [class.show]="showIngredientModal" [attr.aria-hidden]="!showIngredientModal" id="ingredientModal" tabindex="-1" aria-labelledby="ingredientModalLabel" (click)="showIngredientModal = false">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
+    <div class="modal-content" (click)="$event.stopPropagation()">
       @if (ingredients) {
       <app-ingredient-modal [ingredients]="ingredients" [ingredient]="editingIngredient" [editMode]="!!editingIngredient" (finish)="closeIngredientModal($event)"></app-ingredient-modal>
       }

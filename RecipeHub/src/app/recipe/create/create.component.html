@@ -25,13 +25,14 @@
 
             <div class="accordion-item" data-guide-target="recipe-create-head">
               <h2 class="accordion-header" id="headingHead">
-                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseHead" aria-expanded="true" aria-controls="collapseHead">
+                <button class="accordion-button" type="button" [class.collapsed]="!isEditorSectionOpen('head')" [attr.aria-expanded]="isEditorSectionOpen('head')" aria-controls="collapseHead" (click)="toggleEditorSection('head')">
                   <i class="far fa-image" aria-hidden="true"></i>
                   {{ 'recipe.headSection' | translate }}
+                  <i class="fas accordion-indicator" [ngClass]="isEditorSectionOpen('head') ? 'fa-minus' : 'fa-plus'" aria-hidden="true"></i>
                   <!-- <i *ngIf="f.title.errors" class="fas fa-exclamation-circle ms-2 text-warning"></i> -->
                 </button>
               </h2>
-              <div id="collapseHead" class="accordion-collapse collapse show" aria-labelledby="headingHead" data-bs-parent="#accordion">
+              <div id="collapseHead" class="accordion-collapse collapse" [class.show]="isEditorSectionOpen('head')" aria-labelledby="headingHead">
                 <div class="accordion-body">
                   <div class="form-group editor-field">
                     <label for="title">{{ 'recipe.titleLabel' | translate }} <span aria-hidden="true">*</span></label>
@@ -78,13 +79,14 @@
 
             <div class="accordion-item" data-guide-target="recipe-create-body">
               <h2 class="accordion-header" id="headingBody">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBody" aria-expanded="false" aria-controls="collapseBody">
+                <button class="accordion-button" type="button" [class.collapsed]="!isEditorSectionOpen('body')" [attr.aria-expanded]="isEditorSectionOpen('body')" aria-controls="collapseBody" (click)="toggleEditorSection('body')">
                   <i class="fas fa-align-left" aria-hidden="true"></i>
                   {{ 'recipe.bodySection' | translate }}
+                  <i class="fas accordion-indicator" [ngClass]="isEditorSectionOpen('body') ? 'fa-minus' : 'fa-plus'" aria-hidden="true"></i>
                   <!-- <i *ngIf="f.instructions.errors" class="fas fa-exclamation-circle ms-2 text-warning"></i> -->
                 </button>
               </h2>
-              <div id="collapseBody" class="accordion-collapse collapse" aria-labelledby="headingBody" data-bs-parent="#accordion">
+              <div id="collapseBody" class="accordion-collapse collapse" [class.show]="isEditorSectionOpen('body')" aria-labelledby="headingBody">
                 <div class="accordion-body">
                   <div class="form-group editor-field">
                     <label for="instructions">{{ 'recipe.instructionsLabel' | translate }} <span aria-hidden="true">*</span></label>
@@ -105,12 +107,13 @@
 
             <div class="accordion-item">
               <h2 class="accordion-header" id="headingDetails">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDetails" aria-expanded="false" aria-controls="collapseDetails">
+                <button class="accordion-button" type="button" [class.collapsed]="!isEditorSectionOpen('details')" [attr.aria-expanded]="isEditorSectionOpen('details')" aria-controls="collapseDetails" (click)="toggleEditorSection('details')">
                   <i class="fas fa-tags" aria-hidden="true"></i>
                   {{ 'recipe.categoriesTagsHeader' | translate }}
+                  <i class="fas accordion-indicator" [ngClass]="isEditorSectionOpen('details') ? 'fa-minus' : 'fa-plus'" aria-hidden="true"></i>
                 </button>
               </h2>
-              <div id="collapseDetails" class="accordion-collapse collapse" aria-labelledby="headingDetails" data-bs-parent="#accordion">
+              <div id="collapseDetails" class="accordion-collapse collapse" [class.show]="isEditorSectionOpen('details')" aria-labelledby="headingDetails">
                 <div class="accordion-body">
                   <div class="form-group suggestion-field-wrap">
                     <label for="categories">{{ 'recipe.categoriesLabel' | translate }}</label>
@@ -152,13 +155,14 @@
             <ng-template #cosmeticsSection>
               <div class="accordion-item cosmetics" data-guide-target="recipe-create-cosmetics" [formGroup]="recipeForm">
                 <h2 class="accordion-header" id="headingCosmetics">
-                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCosmetics" aria-expanded="false" aria-controls="collapseCosmetics">
+                  <button class="accordion-button" type="button" [class.collapsed]="!isEditorSectionOpen('cosmetics')" [attr.aria-expanded]="isEditorSectionOpen('cosmetics')" aria-controls="collapseCosmetics" (click)="toggleEditorSection('cosmetics')">
                     <i class="far fa-id-card" aria-hidden="true"></i>
                     {{ 'recipe.cosmeticsHeader' | translate }}
+                    <i class="fas accordion-indicator" [ngClass]="isEditorSectionOpen('cosmetics') ? 'fa-minus' : 'fa-plus'" aria-hidden="true"></i>
                     <!-- <i *ngIf="f.instructions.errors" class="fas fa-exclamation-circle ms-2 text-warning"></i> -->
                   </button>
                 </h2>
-                <div id="collapseCosmetics" class="accordion-collapse collapse" aria-labelledby="headingCosmetics" data-bs-parent="#accordion">
+                <div id="collapseCosmetics" class="accordion-collapse collapse" [class.show]="isEditorSectionOpen('cosmetics')" aria-labelledby="headingCosmetics">
                   <div class="accordion-body">
                     <div class="form-group editor-field">
                       <label for="card-caption">{{ 'recipe.cardDescriptionLabel' | translate }} <span aria-hidden="true">*</span></label>
@@ -292,12 +296,13 @@
 
           <div class="accordion-item ingredients" data-guide-target="recipe-create-ingredients">
             <h2 class="accordion-header" id="headingIngredients">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseIngredients" aria-expanded="false" aria-controls="collapseIngredients">
+              <button class="accordion-button" type="button" [class.collapsed]="!isEditorSectionOpen('ingredients')" [attr.aria-expanded]="isEditorSectionOpen('ingredients')" aria-controls="collapseIngredients" (click)="toggleEditorSection('ingredients')">
                 <i class="fas fa-list-ul" aria-hidden="true"></i>
                 {{ 'recipe.ingredientsAccordionHeader' | translate }}
+                <i class="fas accordion-indicator" [ngClass]="isEditorSectionOpen('ingredients') ? 'fa-minus' : 'fa-plus'" aria-hidden="true"></i>
               </button>
             </h2>
-            <div id="collapseIngredients" class="accordion-collapse collapse" aria-labelledby="headingIngredients" data-bs-parent="#accordion">
+            <div id="collapseIngredients" class="accordion-collapse collapse" [class.show]="isEditorSectionOpen('ingredients')" aria-labelledby="headingIngredients">
               <div class="accordion-body">
                 <div class="editor-table-wrap">
                   <div class="editor-group-manager">

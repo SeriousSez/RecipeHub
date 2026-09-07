@@ -88,6 +88,7 @@ export class RecipeComponent implements OnInit {
   public activeTagGroupId: string = RECIPE_TAG_GROUPS[0].id;
 
   public edit: boolean = false;
+  public openEditorSections = new Set<string>(['head']);
   public canEdit: boolean = false;
   public showIngredients: boolean = true;
   public favored: boolean = false;
@@ -107,6 +108,19 @@ export class RecipeComponent implements OnInit {
   public movingIngredient: Ingredient | null = null;
   public draggedIngredientGroup: string | null = null;
   public draggedIngredient: Ingredient | null = null;
+
+  public isEditorSectionOpen(section: string): boolean {
+    return this.openEditorSections.has(section);
+  }
+
+  public toggleEditorSection(section: string): void {
+    if (this.openEditorSections.has(section)) {
+      this.openEditorSections.delete(section);
+    } else {
+      this.openEditorSections.clear();
+      this.openEditorSections.add(section);
+    }
+  }
 
   get ingredientGroups(): Array<{ name: string; ingredients: Ingredient[] }> {
     const groups = new Map<string, { name: string; ingredients: Ingredient[] }>();

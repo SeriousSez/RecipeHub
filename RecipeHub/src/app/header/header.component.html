@@ -24,8 +24,8 @@
         <i class="fas" [ngClass]="isDarkTheme ? 'fa-sun' : 'fa-moon'"></i>
       </button>
 
-      <div class="user-menu dropdown language-switcher">
-        <button class="user-pill dropdown-toggle" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false" type="button" [attr.aria-label]="'nav.language' | translate">
+      <div class="user-menu dropdown language-switcher" [class.is-open]="languageMenuOpen">
+        <button class="user-pill dropdown-toggle" id="languageDropdown" [attr.aria-expanded]="languageMenuOpen" type="button" (click)="toggleLanguageMenu()" [attr.aria-label]="'nav.language' | translate">
           {{ currentLanguageLabel }}
         </button>
         <ul class="dropdown-menu dropdown-menu-end text-small" aria-labelledby="languageDropdown">
@@ -43,20 +43,19 @@
       }
 
       @if (isAuthenticated) {
-      <div class="user-menu dropdown">
-        <button class="user-pill dropdown-toggle" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false" type="button">
+      <div class="user-menu dropdown" [class.is-open]="profileMenuOpen">
+        <button class="user-pill dropdown-toggle" id="profileDropdown" [attr.aria-expanded]="profileMenuOpen" type="button" (click)="toggleProfileMenu()">
           <span class="user-name">{{ username }}</span>
           <span class="user-email">{{ email }}</span>
         </button>
         <ul class="dropdown-menu dropdown-menu-end text-small" aria-labelledby="profileDropdown">
-          <li><a class="dropdown-item" routerLink="account/profile">{{ 'nav.profile' | translate }}</a></li>
-          <li><a class="dropdown-item" routerLink="account/recipes">{{ 'nav.myRecipes' | translate }}</a></li>
-          <li><a class="dropdown-item" routerLink="/food-plan">{{ 'nav.foodPlan' | translate }}</a></li>
-          <li><a class="dropdown-item" routerLink="account/settings">{{ 'nav.settings' | translate }}</a></li>
+          <li><a class="dropdown-item" routerLink="account/profile" (click)="closeProfileMenu()">{{ 'nav.profile' | translate }}</a></li>
+          <li><a class="dropdown-item" routerLink="account/recipes" (click)="closeProfileMenu()">{{ 'nav.myRecipes' | translate }}</a></li>
+          <li><a class="dropdown-item" routerLink="account/settings" (click)="closeProfileMenu()">{{ 'nav.settings' | translate }}</a></li>
           <li>
             <hr class="dropdown-divider">
           </li>
-          <li><button type="button" class="dropdown-item" (click)="logout()">{{ 'nav.signOut' | translate }}</button></li>
+          <li><button type="button" class="dropdown-item" (click)="closeProfileMenu(); logout()">{{ 'nav.signOut' | translate }}</button></li>
         </ul>
       </div>
       }

@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Ingredient } from 'src/app/recipe/models/ingredient.interface';
 import { IngredientService } from 'src/app/recipe/services/ingredient.service';
@@ -14,8 +14,6 @@ import { TranslateService } from '@ngx-translate/core';
   standalone: false
 })
 export class IngredientsComponent implements OnInit {
-  @ViewChild('ingredientModal') private ingredientModal: ElementRef;
-
   targetUrl: string = '/dashboard/createingredients';
 
   ingredients: Ingredient[];
@@ -28,6 +26,7 @@ export class IngredientsComponent implements OnInit {
   showDeleteConfirmation = false;
   deletingIngredients = false;
   deleteCompleted = false;
+  showIngredientModal = false;
   editingIngredient: Ingredient | null = null;
   openedAccordion: string;
   clickedTableRow: string;
@@ -129,7 +128,7 @@ export class IngredientsComponent implements OnInit {
   public closeIngredientModal(ingredient: Ingredient) {
     if (!ingredient) {
       this.editingIngredient = null;
-      this.ingredientModal.nativeElement.click();
+      this.showIngredientModal = false;
       return;
     }
 
@@ -140,15 +139,17 @@ export class IngredientsComponent implements OnInit {
       this.ingredients.push(ingredient);
     }
     this.editingIngredient = null;
-    this.ingredientModal.nativeElement.click();
+    this.showIngredientModal = false;
   }
 
   public startCreateIngredient(): void {
     this.editingIngredient = null;
+    this.showIngredientModal = true;
   }
 
   public startEditIngredient(ingredient: Ingredient): void {
     this.editingIngredient = ingredient;
+    this.showIngredientModal = true;
   }
 
   public prepareSingleDelete(ingredient: Ingredient): void {

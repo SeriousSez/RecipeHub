@@ -163,6 +163,42 @@
   border-radius: 999px;
   background: #f8fafc;
   color: #0f172a;
+  cursor: pointer;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+
+.user-pill:hover,
+.user-pill:focus-visible {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.dropdown-toggle::after {
+  display: inline-block;
+  width: .45rem;
+  height: .45rem;
+  margin-left: .2rem;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  content: '';
+  transform: rotate(45deg);
+  transition: transform .15s ease;
+}
+
+.dropdown.is-open .dropdown-toggle::after {
+  transform: rotate(225deg);
+}
+
+:host-context([data-theme='dark']) .user-pill {
+  background: rgba(15, 23, 42, 0.72);
+  color: #e2e8f0;
+}
+
+:host-context([data-theme='dark']) .user-pill:hover,
+:host-context([data-theme='dark']) .user-pill:focus-visible {
+  border-color: #60a5fa;
+  background: rgba(96, 165, 250, 0.14);
+  color: #bfdbfe;
 }
 
 .user-name {

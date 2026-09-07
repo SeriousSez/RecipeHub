@@ -56,6 +56,7 @@ export class CreateComponent implements OnInit, OnDestroy {
   }
   public recipePreview: boolean = true;
   public editorView: 'edit' | 'preview' = 'edit';
+  public openEditorSections = new Set<string>(['head']);
   //#endregion
 
   public recipeForm: UntypedFormGroup;
@@ -151,6 +152,19 @@ export class CreateComponent implements OnInit, OnDestroy {
 
   public get ingredientOptionLabels(): Record<string, string> {
     return Object.fromEntries((this.ingredients ?? []).map(ingredient => [ingredient.name, ingredient.displayName ?? ingredient.name]));
+  }
+
+  public isEditorSectionOpen(section: string): boolean {
+    return this.openEditorSections.has(section);
+  }
+
+  public toggleEditorSection(section: string): void {
+    if (this.openEditorSections.has(section)) {
+      this.openEditorSections.delete(section);
+    } else {
+      this.openEditorSections.clear();
+      this.openEditorSections.add(section);
+    }
   }
 
   private languageSubscription?: Subscription;

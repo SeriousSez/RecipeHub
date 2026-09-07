@@ -16,7 +16,6 @@ import { TranslateService } from '@ngx-translate/core';
   standalone: false
 })
 export class OverviewComponent implements OnInit {
-  @ViewChild('customerModal') private customerModal: ElementRef;
   @ViewChild('deleteButton') private deleteButton: ElementRef;
 
   targetUrl: string = '/dashboard/createuser';
@@ -32,6 +31,7 @@ export class OverviewComponent implements OnInit {
   public deletingTestUsers = false;
   public showDeleteConfirmation = false;
   public showDeleteTestUsersConfirmation = false;
+  public showCustomerModal = false;
 
   public sortSetting: string = 'role';
   public ascending: boolean = true;
@@ -199,7 +199,11 @@ export class OverviewComponent implements OnInit {
   public closeCustomerModal(user: User) {
     this.users.push(user);
     this.checkForTestUsers();
-    this.customerModal.nativeElement.click();
+    this.showCustomerModal = false;
+  }
+
+  public openCustomerModal(): void {
+    this.showCustomerModal = true;
   }
 
   public get deleteUsersTitle(): string {

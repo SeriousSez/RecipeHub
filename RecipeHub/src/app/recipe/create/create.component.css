@@ -393,7 +393,7 @@ image-cropper {
     gap: 1rem;
     width: min(100%, 1240px);
     margin: 0 auto;
-    padding: 0 .75rem 3rem;
+    padding: 0 .75rem;
     align-items: start;
 }
 

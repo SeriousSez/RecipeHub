@@ -14,6 +14,7 @@
       <p class="hero-text">{{ 'home.welcomeBack' | translate }}</p>
       <div class="hero-actions">
         <button type="button" class="btn btn-primary btn-lg" routerLink="/recipes">{{ 'home.browseRecipes' | translate }}</button>
+        <button type="button" class="btn btn-outline-primary btn-lg" routerLink="/recipes/create">{{ 'footer.createMenu' | translate }}</button>
         <button type="button" class="btn btn-outline-secondary btn-lg" routerLink="/pantry">{{ 'home.myPantry' | translate }}</button>
         <button type="button" class="btn btn-outline-secondary btn-lg" routerLink="/grocery">{{ 'home.myGroceryList' | translate }}</button>
       </div>
@@ -22,7 +23,8 @@
       @if (!status) {
       <p class="hero-text">{{ 'home.welcomeBack' | translate }}</p>
       <div class="hero-actions">
-        <button type="button" class="btn btn-primary btn-lg" (click)="goToRegister()">{{ 'home.signUp' | translate }}</button>
+        <button type="button" class="btn btn-primary btn-lg" routerLink="/recipes">{{ 'home.browseRecipes' | translate }}</button>
+        <button type="button" class="btn btn-outline-primary btn-lg" (click)="goToRegister()">{{ 'home.signUp' | translate }}</button>
         <button type="button" class="btn btn-outline-secondary btn-lg" (click)="goToLogin()">{{ 'home.login' | translate }}</button>
       </div>
       }

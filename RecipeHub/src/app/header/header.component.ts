@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
@@ -25,6 +25,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   languages: UiLanguage[];
   currentLanguage: string;
   isDarkTheme: boolean;
+  languageMenuOpen = false;
+  profileMenuOpen = false;
 
   constructor(private userService: UserService, private router: Router, private languageService: LanguageService, private themeService: ThemeService) { }
 
@@ -54,7 +56,31 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   changeLanguage(code: string): void {
     this.currentLanguage = code;
+    this.languageMenuOpen = false;
     this.languageService.setLanguage(code);
+  }
+
+  toggleLanguageMenu(): void {
+    this.languageMenuOpen = !this.languageMenuOpen;
+    this.profileMenuOpen = false;
+  }
+
+  toggleProfileMenu(): void {
+    this.profileMenuOpen = !this.profileMenuOpen;
+    this.languageMenuOpen = false;
+  }
+
+  closeProfileMenu(): void {
+    this.profileMenuOpen = false;
+  }
+
+  @HostListener('document:click', ['$event'])
+  closeMenusOnOutsideClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement | null;
+    if (!target?.closest('.user-menu')) {
+      this.languageMenuOpen = false;
+      this.profileMenuOpen = false;
+    }
   }
 
   toggleTheme(): void {
