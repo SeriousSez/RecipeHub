@@ -2307,6 +2307,10 @@
 }
 
 @media (max-width: 800px) {
+    .recipe-detail-page {
+        padding-bottom: calc(1.8rem + 4.5rem + env(safe-area-inset-bottom));
+    }
+
     .recipe-detail-facts {
         justify-content: flex-start;
     }
