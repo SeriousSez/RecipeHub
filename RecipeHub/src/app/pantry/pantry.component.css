@@ -701,6 +701,19 @@ button:disabled {
         background: #fff;
     }
 
+    .pantry-table app-taxonomy-select {
+        min-width: 0;
+    }
+
+    .pantry-table app-taxonomy-select ::ng-deep .taxonomy-select-control {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .pantry-table app-taxonomy-select ::ng-deep .taxonomy-select-control input {
+        min-width: 0;
+    }
+
     .pantry-row-action {
         position: absolute;
         top: .55rem;

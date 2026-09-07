@@ -4,6 +4,7 @@ import { Subscription } from 'rxjs';
 import { UserService } from 'src/app/shared/services/user.service';
 import { LanguageService, UiLanguage } from 'src/app/shared/services/language.service';
 import { ThemeService } from 'src/app/shared/services/theme.service';
+import { GuideService } from 'src/app/shared/services/guide.service';
 
 @Component({
   selector: 'app-mobile-header',
@@ -43,7 +44,7 @@ export class MobileHeaderComponent implements OnInit {
   currentLanguage: string;
   isDarkTheme: boolean;
 
-  constructor(private userService: UserService, private router: Router, private elementRef: ElementRef, private languageService: LanguageService, private themeService: ThemeService) { }
+  constructor(private userService: UserService, private router: Router, private elementRef: ElementRef, private languageService: LanguageService, private themeService: ThemeService, private guideService: GuideService) { }
 
   ngOnInit(): void {
     this.subscription = this.userService.authStatus$.subscribe(result => this.isAuthenticated = result);
@@ -76,6 +77,11 @@ export class MobileHeaderComponent implements OnInit {
 
   closeNavbar() {
     this.navbarOpened = false;
+  }
+
+  openGuide(): void {
+    this.closeNavbar();
+    this.guideService.requestStart();
   }
 
   logout() {

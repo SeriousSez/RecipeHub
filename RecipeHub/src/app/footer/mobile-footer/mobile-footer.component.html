@@ -2,7 +2,7 @@
     <ul class="nav col-12 col-md-auto justify-content-center">
         <li class="col-4"><a class="nav-link px-2 text-header text-center" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" routerLink="/recipes">{{ 'footer.recipes' | translate }}</a></li>
         <li class="col-4 create-menu-item">
-            <button type="button" class="nav-link create-menu-toggle" (click)="toggleCreateMenu()" [attr.aria-expanded]="createMenuOpen" [attr.aria-label]="'footer.createMenu' | translate">
+            <button type="button" class="nav-link create-menu-toggle" (click)="toggleCreateMenu($event)" [attr.aria-expanded]="createMenuOpen" [attr.aria-label]="'footer.createMenu' | translate">
                 <i class="fas" [ngClass]="createMenuOpen ? 'fa-times' : 'fa-plus'" aria-hidden="true"></i>
             </button>
             <div class="create-menu" *ngIf="createMenuOpen" role="menu">

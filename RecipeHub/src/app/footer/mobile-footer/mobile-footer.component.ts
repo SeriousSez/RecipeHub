@@ -36,12 +36,18 @@ export class MobileFooterComponent implements OnInit {
 
   }
 
-  toggleCreateMenu(): void {
+  toggleCreateMenu(event: Event): void {
     this.createMenuOpen = !this.createMenuOpen;
+    if (!this.createMenuOpen && event.currentTarget instanceof HTMLElement) {
+      event.currentTarget.blur();
+    }
   }
 
   closeCreateMenu(): void {
     this.createMenuOpen = false;
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
   }
 
 }

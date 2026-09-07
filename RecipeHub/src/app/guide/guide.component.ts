@@ -1,6 +1,8 @@
-import { Component, HostListener, NgZone, OnInit } from '@angular/core';
+import { Component, HostListener, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { filter, take } from 'rxjs/operators';
+import { GuideService } from '../shared/services/guide.service';
 
 interface GuideStep {
     target: string;
@@ -10,6 +12,7 @@ interface GuideStep {
     titleKey: string;
     textKey: string;
     scroll?: boolean;
+    mobileScroll?: boolean;
     action?: 'expand' | 'click';
 }
 
@@ -19,7 +22,7 @@ interface GuideStep {
     styleUrls: ['./guide.component.css'],
     standalone: false
 })
-export class GuideComponent implements OnInit {
+export class GuideComponent implements OnInit, OnDestroy {
     public showHint = false;
     public showGuide = false;
     public activeGuide: string | null = null;
@@ -29,11 +32,13 @@ export class GuideComponent implements OnInit {
     private targetObserver?: MutationObserver;
     private targetResizeObserver?: ResizeObserver;
     private readonly actedTargets = new Set<string>();
+    public guidePlacement: 'top' | 'bottom' = 'bottom';
     private readonly hintDismissedKey = 'recipehub-guide-hint-dismissed';
     private readonly completedGuidesKey = 'recipehub-completed-guides';
     public completedGuides = new Set<string>();
     public readonly guideIds = ['recipes', 'recipeDetail', 'recipeCreate', 'pantry', 'foodPlan', 'grocery'];
     public steps: GuideStep[] = [];
+    private guideStartSubscription?: Subscription;
     private readonly guideSteps: Record<string, GuideStep[]> = {
         recipes: [
             { target: '[data-guide-target="recipes-browse"]', route: '/recipes', queryParams: { guide: 'recipes' }, icon: 'fa-book-open', titleKey: 'guide.recipesBrowseTitle', textKey: 'guide.recipesBrowseText', scroll: false },
@@ -64,7 +69,7 @@ export class GuideComponent implements OnInit {
             { target: '[data-guide-target="pantry-overview"]', route: '/pantry', icon: 'fa-box', titleKey: 'guide.pantryOverviewTitle', textKey: 'guide.pantryOverviewText' },
             { target: '[data-guide-target="pantry-add"]', route: '/pantry', icon: 'fa-plus', titleKey: 'guide.pantryAddTitle', textKey: 'guide.pantryAddText' },
             { target: '[data-guide-target="pantry-photo"]', route: '/pantry', icon: 'fa-camera', titleKey: 'guide.pantryPhotoTitle', textKey: 'guide.pantryPhotoText' },
-            { target: '[data-guide-target="pantry-current"]', route: '/pantry', icon: 'fa-list', titleKey: 'guide.pantryCurrentTitle', textKey: 'guide.pantryCurrentText', scroll: false },
+            { target: '[data-guide-target="pantry-current"]', route: '/pantry', icon: 'fa-list', titleKey: 'guide.pantryCurrentTitle', textKey: 'guide.pantryCurrentText', scroll: false, mobileScroll: true },
             { target: '[data-guide-target="pantry-generate"]', route: '/pantry', icon: 'fa-magic', titleKey: 'guide.pantryGenerateTitle', textKey: 'guide.pantryGenerateText' },
             { target: '[data-guide-target="pantry-match"]', route: '/pantry', icon: 'fa-search', titleKey: 'guide.pantryMatchTitle', textKey: 'guide.pantryMatchText' }
         ],
@@ -82,7 +87,7 @@ export class GuideComponent implements OnInit {
         ]
     };
 
-    constructor(private router: Router, private zone: NgZone) {
+    constructor(private router: Router, private zone: NgZone, private guideService: GuideService) {
         this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(() => {
             if (this.showGuide && this.activeGuide) {
                 this.scheduleTargetMeasurement();
@@ -91,6 +96,7 @@ export class GuideComponent implements OnInit {
     }
 
     public ngOnInit(): void {
+        this.guideStartSubscription = this.guideService.startRequest$.subscribe(() => this.start());
         this.showHint = typeof localStorage !== 'undefined' && localStorage.getItem(this.hintDismissedKey) !== 'true';
         if (typeof localStorage !== 'undefined') {
             try {
@@ -100,6 +106,12 @@ export class GuideComponent implements OnInit {
                 this.completedGuides = new Set<string>();
             }
         }
+    }
+
+    public ngOnDestroy(): void {
+        this.guideStartSubscription?.unsubscribe();
+        this.targetObserver?.disconnect();
+        this.targetResizeObserver?.disconnect();
     }
 
     public start(): void {
@@ -130,7 +142,14 @@ export class GuideComponent implements OnInit {
 
     public startGuide(guideId: string): void {
         this.activeGuide = guideId;
-        this.steps = (this.guideSteps[guideId] ?? []).map((step, index) =>
+        const steps = this.isMobileViewport() && guideId === 'recipes'
+            ? (this.guideSteps[guideId] ?? []).filter(step => ![
+                '[data-guide-target="recipes-selection"]',
+                '[data-guide-target="recipes-create"]',
+                '[data-guide-target="recipes-detailed-filters"]'
+            ].includes(step.target))
+            : (this.guideSteps[guideId] ?? []);
+        this.steps = steps.map((step, index) =>
             guideId === 'recipeDetail' && index === 0 && this.isRecipeDetailRoute()
                 ? { ...step, route: null, queryParams: undefined }
                 : guideId === 'recipes' && index === 0
@@ -190,6 +209,11 @@ export class GuideComponent implements OnInit {
 
     public get tooltipStyle(): Record<string, string> {
         if (!this.targetRect || typeof window === 'undefined') return {};
+        if (this.isMobileViewport()) {
+            return this.guidePlacement === 'top'
+                ? { top: '3rem', left: '1rem', right: '1rem', bottom: 'auto', transform: 'none' }
+                : { top: 'auto', left: '1rem', right: '1rem', bottom: '4.5rem', transform: 'none' };
+        }
 
         const width = 340;
         const gap = 16;
@@ -205,10 +229,13 @@ export class GuideComponent implements OnInit {
         const currentStep = this.steps[this.step];
         const route = currentStep?.route;
         this.targetRect = null;
+        this.guidePlacement = 'bottom';
         this.targetObserver?.disconnect();
         this.targetResizeObserver?.disconnect();
         this.targetObserver = undefined;
-        this.shouldScrollToTarget = currentStep?.scroll !== false;
+        this.shouldScrollToTarget = this.isMobileViewport()
+            ? currentStep?.mobileScroll ?? currentStep?.scroll !== false
+            : currentStep?.scroll !== false;
         if (!route) {
             this.scheduleTargetMeasurement();
             return;
@@ -237,6 +264,10 @@ export class GuideComponent implements OnInit {
 
     private isRecipeDetailRoute(): boolean {
         return this.router.url.includes('/recipe/') && !this.router.url.includes('/recipes');
+    }
+
+    private isMobileViewport(): boolean {
+        return typeof window !== 'undefined' && window.matchMedia('(max-width: 991px)').matches;
     }
 
     private waitForTarget(attempt = 0): void {
@@ -283,6 +314,11 @@ export class GuideComponent implements OnInit {
         if (this.shouldScrollToTarget && !this.steps[this.step]?.action) {
             this.shouldScrollToTarget = false;
             target.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'nearest' });
+            this.updateTargetRect(null);
+            window.requestAnimationFrame(() => {
+                window.requestAnimationFrame(() => this.setTargetRect());
+            });
+            return false;
         }
 
         const rect = target.getBoundingClientRect();
@@ -293,7 +329,34 @@ export class GuideComponent implements OnInit {
             width: Math.min(window.innerWidth - Math.max(4, rect.left - padding) - 4, rect.width + padding * 2),
             height: Math.min(window.innerHeight - Math.max(4, rect.top - padding) - 4, rect.height + padding * 2)
         });
+        this.scheduleGuidePlacement();
         return true;
+    }
+
+    private scheduleGuidePlacement(): void {
+        if (!this.targetRect || typeof window === 'undefined') return;
+
+        window.requestAnimationFrame(() => {
+            const dialog = document.querySelector<HTMLElement>('.guide-active-dialog');
+            if (!dialog || !this.targetRect) return;
+
+            const dialogHeight = dialog.getBoundingClientRect().height;
+            if (!dialogHeight) return;
+
+            const targetTop = this.targetRect.top;
+            const targetBottom = targetTop + this.targetRect.height;
+            const bottomPlacement = {
+                top: Math.max(16, window.innerHeight - dialogHeight - 24),
+                bottom: Math.max(16, window.innerHeight - 24)
+            };
+            const bottomOverlaps = bottomPlacement.bottom > targetTop && bottomPlacement.top < targetBottom;
+            const targetCoversViewport = targetBottom - targetTop >= window.innerHeight * .75;
+            const nextPlacement = bottomOverlaps && !targetCoversViewport ? 'top' : 'bottom';
+
+            if (nextPlacement !== this.guidePlacement) {
+                this.zone.run(() => this.guidePlacement = nextPlacement);
+            }
+        });
     }
 
     private updateTargetRect(rect: { top: number; left: number; width: number; height: number } | null): void {

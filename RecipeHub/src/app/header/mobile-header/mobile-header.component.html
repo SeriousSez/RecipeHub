@@ -47,6 +47,9 @@
         <a routerLinkActive="active" routerLink="/register" (click)="closeNavbar()"><i class="fas fa-user-plus" aria-hidden="true"></i>{{ 'nav.signUp' | translate }}</a>
       </nav>
       }
+      <button type="button" class="mobile-guide-link" (click)="openGuide()">
+        <i class="fas fa-question-circle" aria-hidden="true"></i>{{ 'guide.open' | translate }}
+      </button>
     </div>
   </div>
 </header>

@@ -16,11 +16,21 @@ footer {
     }
 
     .nav {
-        padding: 0 .35rem;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 4.5rem minmax(0, 1fr);
+        align-items: center;
+        width: 100%;
+        max-width: 34rem;
+        margin: 0 auto;
+        padding: .35rem .75rem;
     }
 
     .nav li {
-        padding: 0 .2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 0;
     }
 
     .create-menu-item {
@@ -33,7 +43,8 @@ footer {
         min-height: 44px;
         align-items: center;
         justify-content: center;
-        border-radius: 999px;
+        width: 100%;
+        border-radius: .5rem;
         color: #475569;
         font-weight: 600;
         transition: background-color .18s ease, color .18s ease;
@@ -55,9 +66,13 @@ footer {
     }
 
     .create-menu-toggle {
-        width: 100%;
+        width: 44px;
+        height: 44px;
+        margin: 0 auto;
         border: 0;
         cursor: pointer;
+        background: transparent;
+        color: #475569;
     }
 
     .create-menu {

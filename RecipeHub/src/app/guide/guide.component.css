@@ -113,6 +113,12 @@
     box-shadow: 0 10px 24px rgba(15, 23, 42, .14);
 }
 
+@media (max-width: 991px) {
+    .guide-help-button {
+        display: none;
+    }
+}
+
 .guide-backdrop {
     position: fixed;
     inset: 0;
@@ -166,6 +172,22 @@
     width: min(38rem, calc(100vw - 2rem));
 }
 
+@media (max-width: 991px) {
+    .guide-library {
+        top: 1rem;
+        bottom: 1rem;
+        max-height: calc(100dvh - 2rem);
+        display: flex;
+        flex-direction: column;
+        transform: translateX(-50%);
+    }
+
+    .guide-library-list {
+        min-height: 0;
+        flex: 1;
+    }
+}
+
 .guide-library-list {
     display: grid;
     gap: .55rem;
@@ -214,7 +236,7 @@
     font-weight: 800;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 991px) {
     .guide-library-card {
         grid-template-columns: 2.5rem minmax(0, 1fr);
     }
@@ -258,6 +280,14 @@
     margin: .3rem 0 0;
 }
 
+.guide-title-row {
+    display: block;
+}
+
+.guide-mobile-step-count {
+    display: none;
+}
+
 .guide-dialog h2 {
     font-size: 1.45rem;
     letter-spacing: -.02em;
@@ -267,8 +297,32 @@
     font-size: 1.1rem;
 }
 
+.guide-step-heading {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    margin: 1rem 0 .75rem;
+}
+
+.guide-step-heading h3 {
+    margin: 0;
+}
+
 .guide-dialog-body {
     padding: 1.25rem 1.35rem 1.5rem;
+}
+
+.guide-icon {
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    flex: 0 0 3rem;
+    margin: 0;
+    border-radius: 8px;
+    background: #dbeafe;
+    color: #1d4ed8;
+    font-size: 1.15rem;
 }
 
 .guide-progress {
@@ -289,19 +343,7 @@
     background: #0f766e;
 }
 
-.guide-icon {
-    display: grid;
-    place-items: center;
-    width: 3rem;
-    height: 3rem;
-    margin: 1.25rem 0 .9rem;
-    border-radius: 8px;
-    background: #dbeafe;
-    color: #1d4ed8;
-    font-size: 1.15rem;
-}
-
-@media (max-width: 600px) {
+@media (max-width: 991px) {
     .guide-hint {
         right: .75rem;
         bottom: 4.75rem;
@@ -317,10 +359,55 @@
 
     .guide-active-dialog {
         top: auto !important;
-        right: 1rem;
+        right: 1rem !important;
         bottom: 4.5rem;
         left: 1rem !important;
-        width: auto;
+        width: auto !important;
+        max-width: calc(100vw - 2rem);
+        box-sizing: border-box;
+        max-height: min(24rem, calc(100dvh - 10rem));
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        visibility: visible !important;
+        opacity: 1 !important;
+        z-index: 1203;
+    }
+
+    .guide-active-dialog .guide-dialog-body {
+        min-height: 0;
+        overflow-y: auto;
+    }
+
+    .guide-active-dialog .guide-dialog-footer {
+        flex-shrink: 0;
+    }
+
+    .guide-active-dialog.guide-target-overlap {
+        top: 3rem !important;
+        bottom: auto !important;
+    }
+
+    .guide-title-row {
+        display: flex;
+        align-items: baseline;
+        gap: .65rem;
+    }
+
+    .guide-mobile-step-count {
+        display: inline;
+        margin-left: auto;
+        white-space: nowrap;
+        letter-spacing: .06em;
+    }
+
+    .guide-desktop-step-count,
+    .guide-active-dialog .guide-icon {
+        display: none;
+    }
+
+    .guide-step-heading {
+        display: block;
     }
 }
 

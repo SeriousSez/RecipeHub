@@ -43,11 +43,15 @@
         </article>
     </div>
 </section>
-<section class="guide-dialog guide-active-dialog" [class.has-target]="!!targetRect" *ngIf="showGuide && activeGuide" [ngStyle]="tooltipStyle" role="dialog" aria-modal="true" [attr.aria-label]="'guide.title' | translate" (click)="$event.stopPropagation()">
+<section class="guide-dialog guide-active-dialog" [class.has-target]="!!targetRect" [class.guide-target-overlap]="guidePlacement === 'top'" *ngIf="showGuide && activeGuide" [ngStyle]="tooltipStyle" role="dialog" aria-modal="true" [attr.aria-label]="'guide.title' | translate"
+    (click)="$event.stopPropagation()">
     <header class="guide-dialog-header">
         <div>
             <span class="guide-kicker">{{ 'guide.kicker' | translate }}</span>
-            <h2>{{ ('guide.' + activeGuide + 'GuideTitle') | translate }}</h2>
+            <div class="guide-title-row">
+                <h2>{{ ('guide.' + activeGuide + 'GuideTitle') | translate }}</h2>
+                <span class="guide-step-count guide-mobile-step-count">{{ step + 1 }} / {{ steps.length }}</span>
+            </div>
         </div>
         <button type="button" class="guide-close" (click)="close()" [attr.aria-label]="'guide.close' | translate"><i class="fas fa-times" aria-hidden="true"></i></button>
     </header>
@@ -56,10 +60,12 @@
         <div class="guide-progress" aria-hidden="true">
             <span *ngFor="let item of steps; let index = index" [class.is-active]="index === step" [class.is-complete]="index < step"></span>
         </div>
-        <span class="guide-step-count">{{ step + 1 }} / {{ steps.length }}</span>
+        <span class="guide-step-count guide-desktop-step-count">{{ step + 1 }} / {{ steps.length }}</span>
         <div *ngIf="steps[step] as currentStep">
-            <i class="fas {{ currentStep.icon }} guide-icon" aria-hidden="true"></i>
-            <h3>{{ currentStep.titleKey | translate }}</h3>
+            <div class="guide-step-heading">
+                <i class="fas {{ currentStep.icon }} guide-icon" aria-hidden="true"></i>
+                <h3>{{ currentStep.titleKey | translate }}</h3>
+            </div>
             <p>{{ currentStep.textKey | translate }}</p>
         </div>
     </div>
