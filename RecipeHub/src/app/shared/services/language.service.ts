@@ -35,6 +35,24 @@ export class LanguageService {
         return this.languages.some(language => language.code === browserLanguage) ? browserLanguage : 'en';
     }
 
+    getCurrentRecipeLanguage(): string {
+        return this.toRecipeLanguage(this.getCurrentLanguage());
+    }
+
+    toRecipeLanguage(language?: string): string {
+        const normalized = (language ?? '').trim().toLowerCase();
+        return {
+            da: 'Danish',
+            danish: 'Danish',
+            en: 'English',
+            english: 'English',
+            et: 'Estonian',
+            estonian: 'Estonian',
+            tr: 'Turkish',
+            turkish: 'Turkish'
+        }[normalized] ?? 'English';
+    }
+
     setLanguage(code: string): void {
         localStorage.setItem(STORAGE_KEY, code);
         this.translateService.use(code);

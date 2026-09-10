@@ -6,6 +6,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { RecipeService } from '../recipe/services/recipe.service';
 import { Recipe } from '../recipe/models/recipe.interface';
 import { UtilityService } from '../shared/utils/utility.service';
+import { LanguageService } from '../shared/services/language.service';
 
 @Component({
   selector: 'app-home',
@@ -22,7 +23,7 @@ export class HomeComponent implements OnInit {
   subscription?: Subscription;
   private recommendationsRequestId = 0;
 
-  constructor(private userService: UserService, private router: Router, private translateService: TranslateService, private recipeService: RecipeService, public utilityService: UtilityService) { }
+  constructor(private userService: UserService, private router: Router, private translateService: TranslateService, private recipeService: RecipeService, public utilityService: UtilityService, private languageService: LanguageService) { }
 
   ngOnInit(): void {
     this.subscription = this.userService.authStatus$.subscribe(status => {
@@ -40,7 +41,7 @@ export class HomeComponent implements OnInit {
     this.recommendationsLoading = true;
 
     if (personalized) {
-      this.recipeService.getRecommendations(3, this.translateService.currentLang || 'English').subscribe({
+      this.recipeService.getRecommendations(3, this.languageService.getCurrentRecipeLanguage()).subscribe({
         next: recipes => {
           if (requestId !== this.recommendationsRequestId) return;
           this.recommendedRecipes = (recipes ?? []).slice(0, 3);
@@ -61,7 +62,7 @@ export class HomeComponent implements OnInit {
       pageSize: 3,
       sortBy: 'popularity',
       ascending: false,
-      language: this.translateService.currentLang || 'English'
+      language: this.languageService.getCurrentRecipeLanguage()
     }).subscribe({
       next: result => {
         if (requestId !== this.recommendationsRequestId) return;

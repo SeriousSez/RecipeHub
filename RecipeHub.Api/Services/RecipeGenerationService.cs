@@ -35,6 +35,7 @@ namespace RecipeHub.Api.Services
 
         public async Task<GeneratedRecipeResponse> GenerateAsync(RecipeGenerationRequest request)
         {
+            var language = NormalizeLanguageName(request?.Language);
             var apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY")
                 ?? _configuration["RecipeGeneration:OpenAIApiKey"]
                 ?? _configuration["NutritionEstimation:OpenAIApiKey"]
@@ -57,7 +58,6 @@ namespace RecipeHub.Api.Services
 
             var endpoint = _configuration["RecipeGeneration:OpenAIEndpoint"] ?? "https://api.openai.com/v1/chat/completions";
             var model = _configuration["RecipeGeneration:OpenAIModel"] ?? "gpt-4o-mini";
-            var language = string.IsNullOrWhiteSpace(request?.Language) ? "English" : request.Language;
             var portions = string.IsNullOrWhiteSpace(request?.Portions) ? "a reasonable number of" : request.Portions;
             var allowedAmountTypesJson = JsonSerializer.Serialize(AllowedAmountTypes);
 
@@ -160,6 +160,20 @@ Return only a JSON object with fields: title, description, instructions, portion
                 Amount = GetDecimal(element, "amount") ?? 0,
                 AmountType = AllowedAmountTypes.FirstOrDefault(allowed => string.Equals(allowed, amountType, StringComparison.OrdinalIgnoreCase)) ?? "Piece",
                 Group = GetString(element, "group") ?? string.Empty
+            };
+        }
+
+        private static string NormalizeLanguageName(string language)
+        {
+            if (string.IsNullOrWhiteSpace(language)) return "English";
+
+            return language.Trim() switch
+            {
+                "da" or "Danish" => "Danish",
+                "en" or "English" => "English",
+                "et" or "Estonian" => "Estonian",
+                "tr" or "Turkish" => "Turkish",
+                _ => "English"
             };
         }
 
