@@ -426,7 +426,7 @@ namespace RecipeHub.ApplicationService.Services
             if (languageChanged)
             {
                 var translations = await _context.RecipeTranslations
-                    .Where(translation => translation.RecipeId == recipe.Id)
+                    .Where(translation => translation.RecipeId == recipe.Id && translation.Language == recipe.Language)
                     .ToListAsync();
                 if (translations.Count > 0)
                 {
