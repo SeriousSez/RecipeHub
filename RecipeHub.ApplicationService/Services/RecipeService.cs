@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using RecipeHub.Domain.Responses;
 using System.Linq;
 using System;
+using Microsoft.EntityFrameworkCore;
+using RecipeHub.Infrastructure;
 
 namespace RecipeHub.ApplicationService.Services
 {
@@ -20,6 +22,7 @@ namespace RecipeHub.ApplicationService.Services
         private readonly IImageRepository _imageRepository;
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
+        private readonly RecipeHubContext _context;
 
         public RecipeService(
             ILogger<RecipeService> logger,
@@ -28,7 +31,8 @@ namespace RecipeHub.ApplicationService.Services
             IRecipeIngredientRepository recipeIngredientRepository,
             IImageRepository imageRepository,
             IUserRepository userRepository,
-            IMapper mapper)
+            IMapper mapper,
+            RecipeHubContext context)
         {
             _logger = logger;
             _recipeRepository = recipeRepository;
@@ -37,6 +41,7 @@ namespace RecipeHub.ApplicationService.Services
             _imageRepository = imageRepository;
             _userRepository = userRepository;
             _mapper = mapper;
+            _context = context;
         }
 
         public async Task<RecipeResponse> Create(RecipeViewModel model)
@@ -332,6 +337,7 @@ namespace RecipeHub.ApplicationService.Services
         public async Task<RecipeResponse> Update(RecipeUpdateViewModel model)
         {
             var recipe = await _recipeRepository.GetByTitleAndCreatorFull(model.OldTitle, model.Creator);
+            var originalLanguage = recipe?.Language?.Trim();
 
             if (model.Ingredients?.Any() == true)
             {
@@ -413,7 +419,22 @@ namespace RecipeHub.ApplicationService.Services
             recipe.Categories = model.Categories ?? new List<string>();
             recipe.Tags = model.Tags ?? new List<string>();
             recipe.Language = string.IsNullOrWhiteSpace(model.Language) ? recipe.Language : model.Language.Trim();
+            var languageChanged = !string.Equals(originalLanguage, recipe.Language, StringComparison.OrdinalIgnoreCase);
+
+            await using var transaction = await _context.Database.BeginTransactionAsync();
             await _recipeRepository.Update(recipe);
+            if (languageChanged)
+            {
+                var translations = await _context.RecipeTranslations
+                    .Where(translation => translation.RecipeId == recipe.Id)
+                    .ToListAsync();
+                if (translations.Count > 0)
+                {
+                    _context.RecipeTranslations.RemoveRange(translations);
+                    await _context.SaveChangesAsync();
+                }
+            }
+            await transaction.CommitAsync();
 
             _logger.LogTrace("Recipe updated! Recipe: {@Recipe}", recipe);
 
