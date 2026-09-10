@@ -336,7 +336,12 @@ namespace RecipeHub.ApplicationService.Services
 
         public async Task<RecipeResponse> Update(RecipeUpdateViewModel model)
         {
-            var recipe = await _recipeRepository.GetByTitleAndCreatorFull(model.OldTitle, model.Creator);
+            var recipe = await _context.Recipes
+                .Include(r => r.RecipeIngredients)
+                    .ThenInclude(ri => ri.Ingredient)
+                .Include(r => r.Creator)
+                .Include(r => r.Image)
+                .FirstOrDefaultAsync(r => r.Title == model.OldTitle && r.Creator.UserName == model.Creator);
             var originalLanguage = recipe?.Language?.Trim();
 
             if (model.Ingredients?.Any() == true)
@@ -422,18 +427,15 @@ namespace RecipeHub.ApplicationService.Services
             var languageChanged = !string.Equals(originalLanguage, recipe.Language, StringComparison.OrdinalIgnoreCase);
 
             await using var transaction = await _context.Database.BeginTransactionAsync();
-            await _recipeRepository.Update(recipe);
             if (languageChanged)
             {
                 var translations = await _context.RecipeTranslations
                     .Where(translation => translation.RecipeId == recipe.Id && translation.Language == recipe.Language)
                     .ToListAsync();
                 if (translations.Count > 0)
-                {
                     _context.RecipeTranslations.RemoveRange(translations);
-                    await _context.SaveChangesAsync();
-                }
             }
+            await _context.SaveChangesAsync();
             await transaction.CommitAsync();
 
             _logger.LogTrace("Recipe updated! Recipe: {@Recipe}", recipe);
