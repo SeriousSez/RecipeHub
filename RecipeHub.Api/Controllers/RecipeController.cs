@@ -39,10 +39,9 @@ namespace RecipeHub.Api.Controllers
         private readonly RecipeHubContext _context;
         private readonly IRecipeNutritionEstimator _nutritionEstimator;
         private readonly IRecipeTranslationService _recipeTranslationService;
-        private readonly IRecipeTranslationQueue _translationQueue;
         private readonly IRecipeGenerationService _recipeGenerationService;
 
-        public RecipeController(ILogger<RecipeController> logger, IRecipeService recipeService, IMemoryCache memoryCache, IServiceScopeFactory scopeFactory, IHostEnvironment hostEnvironment, RecipeHubContext context, IRecipeNutritionEstimator nutritionEstimator, IRecipeTranslationService recipeTranslationService, IRecipeTranslationQueue translationQueue, IRecipeGenerationService recipeGenerationService)
+        public RecipeController(ILogger<RecipeController> logger, IRecipeService recipeService, IMemoryCache memoryCache, IServiceScopeFactory scopeFactory, IHostEnvironment hostEnvironment, RecipeHubContext context, IRecipeNutritionEstimator nutritionEstimator, IRecipeTranslationService recipeTranslationService, IRecipeGenerationService recipeGenerationService)
         {
             _logger = logger;
             _recipeService = recipeService;
@@ -52,7 +51,6 @@ namespace RecipeHub.Api.Controllers
             _context = context;
             _nutritionEstimator = nutritionEstimator;
             _recipeTranslationService = recipeTranslationService;
-            _translationQueue = translationQueue;
             _recipeGenerationService = recipeGenerationService;
         }
 
@@ -367,7 +365,6 @@ namespace RecipeHub.Api.Controllers
             if (string.IsNullOrWhiteSpace(normalizedLanguage) ||
                 normalizedLanguage.Equals(recipe.Language, StringComparison.OrdinalIgnoreCase))
             {
-                _translationQueue.EnqueueRemaining(new[] { id }, normalizedLanguage);
                 return Ok(recipe);
             }
 
@@ -375,7 +372,17 @@ namespace RecipeHub.Api.Controllers
             if (_memoryCache.TryGetValue(translationCacheKey, out RecipeResponse cachedTranslation))
                 return Ok(cachedTranslation);
 
-            var storedTranslation = await _recipeTranslationService.GetStoredTranslationAsync(recipe, normalizedLanguage);
+            RecipeResponse storedTranslation;
+            try
+            {
+                storedTranslation = await _recipeTranslationService.GetStoredTranslationAsync(recipe, normalizedLanguage);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogWarning(exception, "Recipe translation lookup failed for recipe {RecipeId} and language {Language}", id, normalizedLanguage);
+                return Ok(recipe);
+            }
+
             var translationLookupMilliseconds = requestTimer.ElapsedMilliseconds - sourceLoadMilliseconds;
             if (storedTranslation != null)
             {
@@ -388,7 +395,17 @@ namespace RecipeHub.Api.Controllers
             }
 
             _logger.LogInformation("Recipe translation missing or stale. RecipeId: {RecipeId}; Language: {Language}; SourceLoadMs: {SourceLoadMs}; TranslationLookupMs: {TranslationLookupMs}", id, normalizedLanguage, sourceLoadMilliseconds, translationLookupMilliseconds);
-            var translatedRecipe = await _recipeTranslationService.TranslateAsync(recipe, normalizedLanguage);
+            RecipeResponse translatedRecipe;
+            try
+            {
+                translatedRecipe = await _recipeTranslationService.TranslateAsync(recipe, normalizedLanguage);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogWarning(exception, "Recipe translation generation failed for recipe {RecipeId} and language {Language}", id, normalizedLanguage);
+                return Ok(recipe);
+            }
+
             var generationMilliseconds = requestTimer.ElapsedMilliseconds - sourceLoadMilliseconds - translationLookupMilliseconds;
             if (translatedRecipe == null || !string.Equals(translatedRecipe.Language, normalizedLanguage, StringComparison.OrdinalIgnoreCase))
             {
@@ -404,7 +421,6 @@ namespace RecipeHub.Api.Controllers
             {
                 AbsoluteExpirationRelativeToNow = CacheTtl
             });
-            _translationQueue.EnqueueRemaining(new[] { id }, normalizedLanguage);
             _logger.LogInformation("Recipe translation generated. RecipeId: {RecipeId}; Language: {Language}; SourceLoadMs: {SourceLoadMs}; TranslationLookupMs: {TranslationLookupMs}; GenerationMs: {GenerationMs}; TotalMs: {TotalMs}", id, normalizedLanguage, sourceLoadMilliseconds, translationLookupMilliseconds, generationMilliseconds, requestTimer.ElapsedMilliseconds);
             return Ok(translatedRecipe);
         }
@@ -1086,7 +1102,6 @@ namespace RecipeHub.Api.Controllers
 
         private void TriggerTranslationRefresh(IEnumerable<Guid> recipeIds, string language = null)
         {
-            _translationQueue.Enqueue(recipeIds, language);
         }
 
         private sealed class RecipeCacheEntry
