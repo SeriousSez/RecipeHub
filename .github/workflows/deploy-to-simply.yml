@@ -325,6 +325,37 @@ jobs:
             Set-Content -Path $placeholder -Value "keep" -Encoding UTF8
           }
 
+      - name: Create API maintenance file
+        shell: pwsh
+        run: |
+          $content = @"
+          <!DOCTYPE html>
+          <html>
+          <head><title>RecipeHub maintenance</title></head>
+          <body><h1>RecipeHub is restarting</h1><p>Please try again shortly.</p></body>
+          </html>
+          "@
+          $payloadDir = "./api-offline-payload"
+          if (Test-Path $payloadDir) {
+            Remove-Item -Path $payloadDir -Recurse -Force
+          }
+          New-Item -ItemType Directory -Path $payloadDir | Out-Null
+          Set-Content -Path "$payloadDir/app_offline.htm" -Value $content -Encoding UTF8
+
+      - name: Take API offline before deployment
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./api-offline-payload/
+          server-dir: /recipes.api/
+          dangerous-clean-slate: false
+
+      - name: Wait for API process to stop
+        shell: pwsh
+        run: Start-Sleep -Seconds 5
+
       - name: Deploy API using FTP
         id: deploy_api_primary
         continue-on-error: true

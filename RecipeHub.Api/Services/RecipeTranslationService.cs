@@ -145,7 +145,7 @@ namespace RecipeHub.Api.Services
                 messages = new[]
                 {
                     new { role = "system", content = "You translate recipes accurately. Return valid JSON only. Never alter numbers, array order, or add content." },
-                    new { role = "user", content = $"Translate every string value in this recipe JSON from {sourceLanguage} to {language}. Keep empty values empty, and return the identical JSON shape: {sourceJson}" }
+                    new { role = "user", content = $"Translate every string value in this recipe JSON from {sourceLanguage} to {language}. Keep empty values empty. The instructionSegments array must contain exactly {source.InstructionSegments.Count} entries with each index from 0 through {source.InstructionSegments.Count - 1} present exactly once and in order. Return the identical JSON shape: {sourceJson}" }
                 }
             };
 
@@ -165,9 +165,22 @@ namespace RecipeHub.Api.Services
                 using var document = JsonDocument.Parse(responseBody);
                 var content = document.RootElement.GetProperty("choices")[0].GetProperty("message").GetProperty("content").GetString();
                 var translation = JsonSerializer.Deserialize<TranslationPayload>(content ?? string.Empty, JsonOptions);
-                if (translation?.Ingredients == null || translation.Ingredients.Count != source.Ingredients.Count ||
-                    translation.InstructionSegments == null || translation.InstructionSegments.Count != source.InstructionSegments.Count ||
-                    translation.InstructionSegments.Select((segment, index) => segment.Index != index).Any(invalid => invalid)) return recipe;
+                var validIngredientCount = translation?.Ingredients?.Count == source.Ingredients.Count;
+                var validInstructionSegments = translation?.InstructionSegments != null &&
+                    translation.InstructionSegments.Count == source.InstructionSegments.Count &&
+                    translation.InstructionSegments.Select((segment, index) => segment.Index == index).All(valid => valid);
+                if (!validIngredientCount || !validInstructionSegments)
+                {
+                    _logger.LogWarning(
+                        "Recipe translation response was invalid for recipe {RecipeId} and language {Language}. Expected {ExpectedIngredientCount} ingredients and {ExpectedInstructionCount} instruction segments; received {ReceivedIngredientCount} ingredients and {ReceivedInstructionCount} instruction segments.",
+                        recipe.Id,
+                        language,
+                        source.Ingredients.Count,
+                        source.InstructionSegments.Count,
+                        translation?.Ingredients?.Count,
+                        translation?.InstructionSegments?.Count);
+                    return recipe;
+                }
 
                 var translatedRecipe = CloneRecipe(recipe);
                 translatedRecipe.Title = translation.Title ?? recipe.Title;

@@ -218,12 +218,7 @@ namespace RecipeHub
                 // Allow authorization header in CORS
                 options.Events = new JwtBearerEvents
                 {
-                    OnMessageReceived = context =>
-                    {
-                        var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Startup>>();
-                        logger.LogInformation($"JWT Message Received: {context.Request.Headers["Authorization"]}");
-                        return System.Threading.Tasks.Task.CompletedTask;
-                    }
+                    OnMessageReceived = _ => System.Threading.Tasks.Task.CompletedTask
                 };
             });
 
@@ -324,7 +319,6 @@ namespace RecipeHub
             app.Use(async (context, next) =>
             {
                 logger.LogInformation($"Request: {context.Request.Method} {context.Request.Path} from {context.Request.Headers["Origin"]}");
-                logger.LogInformation($"Headers: {string.Join(", ", context.Request.Headers.Keys)}");
 
                 await next();
                 logger.LogInformation($"Response: {context.Response.StatusCode}");
