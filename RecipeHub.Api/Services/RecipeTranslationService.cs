@@ -94,7 +94,7 @@ namespace RecipeHub.Api.Services
 
         public async Task<RecipeResponse> TranslateAsync(RecipeResponse recipe, string targetLanguage)
         {
-            var language = SupportedLanguages.FirstOrDefault(item => item.Equals(targetLanguage?.Trim(), StringComparison.OrdinalIgnoreCase));
+            var language = NormalizeLanguageName(targetLanguage);
             if (recipe == null || language == null || language.Equals(recipe.Language, StringComparison.OrdinalIgnoreCase))
             {
                 return recipe;
@@ -220,7 +220,7 @@ namespace RecipeHub.Api.Services
 
         public async Task<List<RecipeResponse>> TranslateSummariesAsync(List<RecipeResponse> recipes, string targetLanguage)
         {
-            var language = SupportedLanguages.FirstOrDefault(item => item.Equals(targetLanguage?.Trim(), StringComparison.OrdinalIgnoreCase));
+            var language = NormalizeLanguageName(targetLanguage);
             if (recipes == null || recipes.Count == 0 || language == null)
             {
                 return recipes;
@@ -359,7 +359,7 @@ namespace RecipeHub.Api.Services
 
         public async Task<IReadOnlyDictionary<string, string>> CanonicalizeIngredientNamesAsync(IEnumerable<string> names, string sourceLanguage)
         {
-            var language = SupportedLanguages.FirstOrDefault(item => item.Equals(sourceLanguage?.Trim(), StringComparison.OrdinalIgnoreCase));
+            var language = NormalizeLanguageName(sourceLanguage);
             var distinctNames = (names ?? Enumerable.Empty<string>())
                 .Where(name => !string.IsNullOrWhiteSpace(name))
                 .Select(name => name.Trim())
@@ -423,7 +423,7 @@ namespace RecipeHub.Api.Services
 
         public async Task<IReadOnlyDictionary<string, string>> TranslateIngredientNamesAsync(IEnumerable<string> names, string targetLanguage, IReadOnlyDictionary<string, string> contexts = null)
         {
-            var language = SupportedLanguages.FirstOrDefault(item => item.Equals(targetLanguage?.Trim(), StringComparison.OrdinalIgnoreCase));
+            var language = NormalizeLanguageName(targetLanguage);
             var distinctNames = (names ?? Enumerable.Empty<string>())
                 .Where(name => !string.IsNullOrWhiteSpace(name))
                 .Select(name => name.Trim())
@@ -614,6 +614,20 @@ namespace RecipeHub.Api.Services
         {
             var normalized = name.Trim();
             return normalized.Length == 0 ? normalized : char.ToUpperInvariant(normalized[0]) + normalized.Substring(1);
+        }
+
+        private static string NormalizeLanguageName(string language)
+        {
+            if (string.IsNullOrWhiteSpace(language)) return "English";
+
+            return language.Trim() switch
+            {
+                "da" or "Danish" => "Danish",
+                "en" or "English" => "English",
+                "et" or "Estonian" => "Estonian",
+                "tr" or "Turkish" => "Turkish",
+                _ => SupportedLanguages.FirstOrDefault(item => item.Equals(language.Trim(), StringComparison.OrdinalIgnoreCase)) ?? "English"
+            };
         }
 
         private static RecipeResponse CloneRecipe(RecipeResponse recipe) => new RecipeResponse

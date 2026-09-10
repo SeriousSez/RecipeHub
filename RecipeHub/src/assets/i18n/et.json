@@ -598,6 +598,7 @@
         "backToOverview": "Tagasi ülevaate juurde",
         "unableToLoad": "Retsepte ei õnnestu praegu laadida. Palun värskenda lehte.",
         "translationUnavailable": "Seda retsepti ei saanud valitud keelde tõlkida. Proovi hiljem uuesti.",
+        "translationFallbackNotice": "See retsept ei ole valitud keeles veel saadaval, seega näitame praegu ingliskeelset versiooni.",
         "filterLabel": "Filter",
         "searchPlaceholder": "Otsi pealkirja, looja, siltide või teksti järgi",
         "pantryLabel": "Sahver",

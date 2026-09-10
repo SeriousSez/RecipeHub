@@ -358,23 +358,24 @@ namespace RecipeHub.Api.Controllers
         [EnableRateLimiting("RecipeTranslations")]
         public async Task<IActionResult> GetTranslation(Guid id, string language)
         {
+            var normalizedLanguage = NormalizeRecipeLanguage(language);
             var requestTimer = Stopwatch.StartNew();
             var recipe = await GetCachedRecipeByIdAsync(id.ToString());
             var sourceLoadMilliseconds = requestTimer.ElapsedMilliseconds;
             if (recipe == null) return NotFound();
 
-            if (string.IsNullOrWhiteSpace(language) ||
-                language.Equals(recipe.Language, StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrWhiteSpace(normalizedLanguage) ||
+                normalizedLanguage.Equals(recipe.Language, StringComparison.OrdinalIgnoreCase))
             {
-                _translationQueue.EnqueueRemaining(new[] { id }, language);
+                _translationQueue.EnqueueRemaining(new[] { id }, normalizedLanguage);
                 return Ok(recipe);
             }
 
-            var translationCacheKey = $"recipes:translation:{id}:{language.ToLowerInvariant()}:v{recipe.LastUpdated?.Ticks.ToString() ?? "initial"}";
+            var translationCacheKey = $"recipes:translation:{id}:{normalizedLanguage.ToLowerInvariant()}:v{recipe.LastUpdated?.Ticks.ToString() ?? "initial"}";
             if (_memoryCache.TryGetValue(translationCacheKey, out RecipeResponse cachedTranslation))
                 return Ok(cachedTranslation);
 
-            var storedTranslation = await _recipeTranslationService.GetStoredTranslationAsync(recipe, language);
+            var storedTranslation = await _recipeTranslationService.GetStoredTranslationAsync(recipe, normalizedLanguage);
             var translationLookupMilliseconds = requestTimer.ElapsedMilliseconds - sourceLoadMilliseconds;
             if (storedTranslation != null)
             {
@@ -382,28 +383,29 @@ namespace RecipeHub.Api.Controllers
                 {
                     AbsoluteExpirationRelativeToNow = CacheTtl
                 });
-                _logger.LogInformation("Recipe translation served from database. RecipeId: {RecipeId}; Language: {Language}; SourceLoadMs: {SourceLoadMs}; TranslationLookupMs: {TranslationLookupMs}; TotalMs: {TotalMs}", id, language, sourceLoadMilliseconds, translationLookupMilliseconds, requestTimer.ElapsedMilliseconds);
+                _logger.LogInformation("Recipe translation served from database. RecipeId: {RecipeId}; Language: {Language}; SourceLoadMs: {SourceLoadMs}; TranslationLookupMs: {TranslationLookupMs}; TotalMs: {TotalMs}", id, normalizedLanguage, sourceLoadMilliseconds, translationLookupMilliseconds, requestTimer.ElapsedMilliseconds);
                 return Ok(storedTranslation);
             }
 
-            _logger.LogInformation("Recipe translation missing or stale. RecipeId: {RecipeId}; Language: {Language}; SourceLoadMs: {SourceLoadMs}; TranslationLookupMs: {TranslationLookupMs}", id, language, sourceLoadMilliseconds, translationLookupMilliseconds);
-            var translatedRecipe = await _recipeTranslationService.TranslateAsync(recipe, language);
+            _logger.LogInformation("Recipe translation missing or stale. RecipeId: {RecipeId}; Language: {Language}; SourceLoadMs: {SourceLoadMs}; TranslationLookupMs: {TranslationLookupMs}", id, normalizedLanguage, sourceLoadMilliseconds, translationLookupMilliseconds);
+            var translatedRecipe = await _recipeTranslationService.TranslateAsync(recipe, normalizedLanguage);
             var generationMilliseconds = requestTimer.ElapsedMilliseconds - sourceLoadMilliseconds - translationLookupMilliseconds;
-            if (translatedRecipe == null || !string.Equals(translatedRecipe.Language, language, StringComparison.OrdinalIgnoreCase))
+            if (translatedRecipe == null || !string.Equals(translatedRecipe.Language, normalizedLanguage, StringComparison.OrdinalIgnoreCase))
             {
-                return StatusCode(503, new
+                _logger.LogInformation("Recipe translation unavailable for recipe {RecipeId}; falling back to source recipe in {SourceLanguage}. Requested language: {RequestedLanguage}", id, recipe.Language ?? "English", normalizedLanguage);
+                _memoryCache.Set(translationCacheKey, recipe, new MemoryCacheEntryOptions
                 {
-                    Code = "recipe_translation_unavailable",
-                    Message = "This recipe is not available in the selected language yet."
+                    AbsoluteExpirationRelativeToNow = CacheTtl
                 });
+                return Ok(recipe);
             }
 
             _memoryCache.Set(translationCacheKey, translatedRecipe, new MemoryCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = CacheTtl
             });
-            _translationQueue.EnqueueRemaining(new[] { id }, language);
-            _logger.LogInformation("Recipe translation generated. RecipeId: {RecipeId}; Language: {Language}; SourceLoadMs: {SourceLoadMs}; TranslationLookupMs: {TranslationLookupMs}; GenerationMs: {GenerationMs}; TotalMs: {TotalMs}", id, language, sourceLoadMilliseconds, translationLookupMilliseconds, generationMilliseconds, requestTimer.ElapsedMilliseconds);
+            _translationQueue.EnqueueRemaining(new[] { id }, normalizedLanguage);
+            _logger.LogInformation("Recipe translation generated. RecipeId: {RecipeId}; Language: {Language}; SourceLoadMs: {SourceLoadMs}; TranslationLookupMs: {TranslationLookupMs}; GenerationMs: {GenerationMs}; TotalMs: {TotalMs}", id, normalizedLanguage, sourceLoadMilliseconds, translationLookupMilliseconds, generationMilliseconds, requestTimer.ElapsedMilliseconds);
             return Ok(translatedRecipe);
         }
 
@@ -837,7 +839,8 @@ namespace RecipeHub.Api.Controllers
 
         private static StringComparer GetCultureStringComparer(string language)
         {
-            var cultureName = language?.Trim().ToLowerInvariant() switch
+            var normalizedLanguage = NormalizeRecipeLanguage(language);
+            var cultureName = normalizedLanguage.ToLowerInvariant() switch
             {
                 "danish" => "da-DK",
                 "estonian" => "et-EE",
@@ -846,6 +849,20 @@ namespace RecipeHub.Api.Controllers
             };
 
             return StringComparer.Create(CultureInfo.GetCultureInfo(cultureName), ignoreCase: true);
+        }
+
+        private static string NormalizeRecipeLanguage(string language)
+        {
+            if (string.IsNullOrWhiteSpace(language)) return "English";
+
+            return language.Trim() switch
+            {
+                "da" or "Danish" => "Danish",
+                "en" or "English" => "English",
+                "et" or "Estonian" => "Estonian",
+                "tr" or "Turkish" => "Turkish",
+                _ => "English"
+            };
         }
 
         private static List<string> SplitFilterValues(string value)

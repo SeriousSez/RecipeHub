@@ -64,6 +64,7 @@ export class RecipeComponent implements OnInit {
   public recipe: Recipe;
   public translationLoading: boolean = false;
   public translationError: boolean = false;
+  public translationFallbackVisible: boolean = false;
   private canonicalRecipe: Recipe | null = null;
   public safeInstructions: string;
   public basePortions: number | null = null;
@@ -608,6 +609,7 @@ export class RecipeComponent implements OnInit {
     const language = this.getRecipeLanguage();
     if (language === 'English') {
       this.translationError = false;
+      this.translationFallbackVisible = false;
       this.applyRecipeDisplay(this.cloneRecipe(this.canonicalRecipe));
       return;
     }
@@ -615,9 +617,13 @@ export class RecipeComponent implements OnInit {
     const recipeId = this.recipeId;
     this.translationLoading = true;
     this.translationError = false;
+    this.translationFallbackVisible = false;
     this.recipeService.getRecipeTranslation(recipeId, language).subscribe({
       next: recipe => {
         if (!this.edit && this.recipeId === recipeId && this.getRecipeLanguage() === language) {
+          const sourceLanguage = recipe?.language ?? 'English';
+          this.translationFallbackVisible = sourceLanguage !== language && sourceLanguage !== 'English' ? false : sourceLanguage === 'English';
+          this.translationError = false;
           this.applyRecipeDisplay(recipe);
         }
       },
@@ -625,6 +631,7 @@ export class RecipeComponent implements OnInit {
         if (!this.edit && this.recipeId === recipeId && this.getRecipeLanguage() === language) {
           this.translationLoading = false;
           this.translationError = true;
+          this.translationFallbackVisible = false;
         }
       }
     });

@@ -60,6 +60,10 @@
     {{ 'recipe.translationUnavailable' | translate }}
 </div>
 
+<div *ngIf="translationFallbackVisible && !translationLoading" class="recipe-translation-notice" role="status">
+    {{ 'recipe.translationFallbackNotice' | translate }}
+</div>
+
 <div *ngIf="recipe && !translationLoading && !translationError" class="recipe-detail-shell">
     <article *ngIf="edit == false" class="recipe-detail-page">
         <header class="recipe-detail-header">

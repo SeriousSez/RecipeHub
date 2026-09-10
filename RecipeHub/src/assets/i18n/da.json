@@ -598,6 +598,7 @@
         "backToOverview": "Tilbage til oversigt",
         "unableToLoad": "Kan ikke indlæse opskrifter lige nu. Genindlæs siden.",
         "translationUnavailable": "Opskriften kunne ikke oversættes til det valgte sprog. Prøv igen senere.",
+        "translationFallbackNotice": "Denne opskrift er endnu ikke tilgængelig på det valgte sprog, så vi viser den engelske version indtil videre.",
         "filterLabel": "Filter",
         "searchPlaceholder": "Søg efter titel, ophavsmand, tags eller tekst",
         "pantryLabel": "Spisekammer",

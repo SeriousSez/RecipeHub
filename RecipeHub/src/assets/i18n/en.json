@@ -618,6 +618,7 @@
         "backToOverview": "Back to overview",
         "unableToLoad": "Unable to load recipes right now. Please refresh the page.",
         "translationUnavailable": "This recipe could not be translated into the selected language. Please try again later.",
+        "translationFallbackNotice": "This recipe is not available in the selected language yet, so we are showing the English version for now.",
         "filterLabel": "Filter",
         "searchPlaceholder": "Search by title, creator, tags, or text",
         "pantryLabel": "Pantry",

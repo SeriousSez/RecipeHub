@@ -598,6 +598,7 @@
         "backToOverview": "Genel bakışa dön",
         "unableToLoad": "Tarifler şu anda yüklenemiyor. Lütfen sayfayı yenileyin.",
         "translationUnavailable": "Bu tarif seçilen dile çevrilemedi. Lütfen daha sonra tekrar deneyin.",
+        "translationFallbackNotice": "Bu tarif seçilen dilde henüz mevcut değil; bu yüzden şu anda İngilizce sürümünü gösteriyoruz.",
         "filterLabel": "Filtrele",
         "searchPlaceholder": "Başlık, oluşturan, etiket veya metne göre ara",
         "pantryLabel": "Kiler",
