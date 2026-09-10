@@ -412,7 +412,7 @@ namespace RecipeHub.ApplicationService.Services
             recipe.SodiumMilligrams = model.SodiumMilligrams;
             recipe.Categories = model.Categories ?? new List<string>();
             recipe.Tags = model.Tags ?? new List<string>();
-            //recipe.Language = model.Language;
+            recipe.Language = string.IsNullOrWhiteSpace(model.Language) ? recipe.Language : model.Language.Trim();
             await _recipeRepository.Update(recipe);
 
             _logger.LogTrace("Recipe updated! Recipe: {@Recipe}", recipe);

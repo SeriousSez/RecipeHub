@@ -127,6 +127,17 @@ namespace RecipeHub.Api.Controllers
             }
 
             var result = await _recipeService.Update(recipe);
+            if (result != null && !string.IsNullOrWhiteSpace(result.Language))
+            {
+                var matchingSourceTranslations = await _context.RecipeTranslations
+                    .Where(translation => translation.RecipeId == result.Id && translation.Language == result.Language)
+                    .ToListAsync();
+                if (matchingSourceTranslations.Count > 0)
+                {
+                    _context.RecipeTranslations.RemoveRange(matchingSourceTranslations);
+                    await _context.SaveChangesAsync();
+                }
+            }
 
             BumpRecipeCacheVersion();
 
