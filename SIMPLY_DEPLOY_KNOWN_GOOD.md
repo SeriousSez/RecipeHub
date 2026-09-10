@@ -14,6 +14,7 @@ File: `.github/workflows/deploy-to-simply.yml`
 - FTP deploy mode: `dangerous-clean-slate: false`
 - No `app_offline.htm` deploy/remove cycle in pipeline
 - Keep startup diagnostics enabled (`stdoutLogEnabled="true"` in deployed `web.config`)
+- The workflow must pass `https://recipes.api.sezginsahin.dk/api/health/ping` before a deployment is considered successful.
 
 ## API startup behavior
 
