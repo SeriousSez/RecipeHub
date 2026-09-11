@@ -34,6 +34,7 @@ namespace RecipeHub.Api.Services
 
     public class OpenAiRecipeTranslationService : IRecipeTranslationService
     {
+        private const int DefaultOpenAiMaxTokens = 12000;
         private static readonly Regex InstructionMarkupPattern = new Regex("(<[^>]+>|&(?:#\\d+|#x[0-9A-Fa-f]+|[A-Za-z]+);)", RegexOptions.Compiled);
         private static readonly HashSet<string> SupportedLanguages = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -141,6 +142,7 @@ namespace RecipeHub.Api.Services
             {
                 model,
                 temperature = 0,
+                max_tokens = GetOpenAiMaxTokens(),
                 response_format = new { type = "json_object" },
                 messages = new[]
                 {
@@ -162,9 +164,32 @@ namespace RecipeHub.Api.Services
                     return recipe;
                 }
 
-                using var document = JsonDocument.Parse(responseBody);
-                var content = document.RootElement.GetProperty("choices")[0].GetProperty("message").GetProperty("content").GetString();
-                var translation = JsonSerializer.Deserialize<TranslationPayload>(content ?? string.Empty, JsonOptions);
+                if (!TryExtractChatCompletion(responseBody, out var content, out var finishReason))
+                {
+                    _logger.LogWarning("Recipe translation response could not be parsed for recipe {RecipeId} and language {Language}", recipe.Id, language);
+                    return recipe;
+                }
+
+                if (string.Equals(finishReason, "length", StringComparison.OrdinalIgnoreCase))
+                {
+                    _logger.LogWarning(
+                        "Recipe translation response was truncated for recipe {RecipeId} and language {Language}. Increase RecipeTranslation:OpenAIMaxTokens to allow larger responses.",
+                        recipe.Id,
+                        language);
+                    return recipe;
+                }
+
+                TranslationPayload translation;
+                try
+                {
+                    translation = JsonSerializer.Deserialize<TranslationPayload>(content ?? string.Empty, JsonOptions);
+                }
+                catch (JsonException exception)
+                {
+                    _logger.LogWarning(exception, "Recipe translation JSON payload was invalid for recipe {RecipeId} and language {Language}", recipe.Id, language);
+                    return recipe;
+                }
+
                 var validIngredientCount = translation?.Ingredients?.Count == source.Ingredients.Count;
                 var validInstructions = HasMatchingInstructionMarkup(source.Instructions, translation?.Instructions);
                 if (!validIngredientCount || !validInstructions)
@@ -594,6 +619,7 @@ namespace RecipeHub.Api.Services
         {
             model = _configuration["RecipeTranslation:OpenAIModel"] ?? "gpt-4o-mini",
             temperature = 0,
+            max_tokens = GetOpenAiMaxTokens(),
             response_format = new { type = "json_object" },
             messages = new[]
             {
@@ -616,8 +642,75 @@ namespace RecipeHub.Api.Services
                 return null;
             }
 
+            if (!TryExtractChatCompletion(responseBody, out var content, out var finishReason))
+            {
+                _logger.LogWarning("Recipe translation response could not be parsed");
+                return null;
+            }
+
+            if (string.Equals(finishReason, "length", StringComparison.OrdinalIgnoreCase))
+            {
+                _logger.LogWarning("Recipe translation response was truncated. Increase RecipeTranslation:OpenAIMaxTokens to allow larger responses.");
+                return null;
+            }
+
+            return content;
+        }
+
+        private int GetOpenAiMaxTokens()
+        {
+            var configured = _configuration.GetValue<int?>("RecipeTranslation:OpenAIMaxTokens");
+            if (configured.HasValue && configured.Value > 0)
+                return configured.Value;
+            return DefaultOpenAiMaxTokens;
+        }
+
+        private static bool TryExtractChatCompletion(string responseBody, out string content, out string finishReason)
+        {
+            content = null;
+            finishReason = null;
+
             using var document = JsonDocument.Parse(responseBody);
-            return document.RootElement.GetProperty("choices")[0].GetProperty("message").GetProperty("content").GetString();
+            if (!document.RootElement.TryGetProperty("choices", out var choices) ||
+                choices.ValueKind != JsonValueKind.Array ||
+                choices.GetArrayLength() == 0)
+            {
+                return false;
+            }
+
+            var choice = choices[0];
+            if (choice.TryGetProperty("finish_reason", out var finishReasonProperty) &&
+                finishReasonProperty.ValueKind == JsonValueKind.String)
+            {
+                finishReason = finishReasonProperty.GetString();
+            }
+
+            if (!choice.TryGetProperty("message", out var message) ||
+                !message.TryGetProperty("content", out var contentProperty))
+            {
+                return false;
+            }
+
+            if (contentProperty.ValueKind == JsonValueKind.String)
+            {
+                content = contentProperty.GetString();
+                return !string.IsNullOrWhiteSpace(content);
+            }
+
+            if (contentProperty.ValueKind == JsonValueKind.Array)
+            {
+                content = string.Concat(contentProperty.EnumerateArray()
+                    .Where(item => item.ValueKind == JsonValueKind.Object &&
+                                   item.TryGetProperty("type", out var type) &&
+                                   type.ValueKind == JsonValueKind.String &&
+                                   type.GetString() == "text" &&
+                                   item.TryGetProperty("text", out var text) &&
+                                   text.ValueKind == JsonValueKind.String)
+                    .Select(item => item.GetProperty("text").GetString()));
+                return !string.IsNullOrWhiteSpace(content);
+            }
+
+            return false;
         }
 
         private static string NormalizeCanonicalIngredientName(string name)
