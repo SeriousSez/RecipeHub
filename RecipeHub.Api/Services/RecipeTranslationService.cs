@@ -130,59 +130,57 @@ namespace RecipeHub.Api.Services
                     Group = ingredient.Group
                 }).ToList()
             };
-            var sourceJson = JsonSerializer.Serialize(source);
             var sourceLanguage = string.IsNullOrWhiteSpace(recipe.Language) ? "English" : recipe.Language.Trim();
+            var sourceJson = JsonSerializer.Serialize(source);
             var sourceHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(sourceJson)));
             var cacheKey = $"recipe-translation:{recipe.Id}:{language.ToLowerInvariant()}:{sourceHash}";
             if (_cache.TryGetValue(cacheKey, out RecipeResponse cachedRecipe)) return cachedRecipe;
 
-            var endpoint = _configuration["RecipeTranslation:OpenAIEndpoint"] ?? "https://api.openai.com/v1/chat/completions";
-            var model = _configuration["RecipeTranslation:OpenAIModel"] ?? "gpt-4o-mini";
-            var requestBody = new
+            var detailsSource = new RecipeDetailsTranslation
             {
-                model,
-                temperature = 0,
-                max_tokens = GetOpenAiMaxTokens(),
-                response_format = new { type = "json_object" },
-                messages = new[]
-                {
-                    new { role = "system", content = "You translate recipes accurately. Return valid JSON only. Never alter numbers, array order, HTML tags, or HTML entities." },
-                    new { role = "user", content = $"Translate every string value in this recipe JSON from {sourceLanguage} to {language}. Keep empty values empty. In the instructions field, translate only human-readable text and preserve every HTML tag and HTML entity exactly, in the same order. Return the identical JSON shape: {sourceJson}" }
-                }
+                Title = source.Title,
+                Description = source.Description,
+                Portions = source.Portions,
+                ImageCaption = source.ImageCaption,
+                Ingredients = source.Ingredients
             };
+            var detailsJson = JsonSerializer.Serialize(detailsSource);
+            var detailsRequest = CreateRequestBody(
+                $"Translate every string value in this recipe JSON from {sourceLanguage} to {language}. Keep empty values empty and return the identical JSON shape: {detailsJson}",
+                "You translate recipes accurately. Return valid JSON only. Never alter numbers, array order, or add content.");
+            var instructionsRequest = string.IsNullOrWhiteSpace(source.Instructions)
+                ? null
+                : CreateRequestBody(
+                    $"Translate only the human-readable text in the instructions value from {sourceLanguage} to {language}. Preserve every HTML tag and HTML entity exactly, in the same order. Return the identical JSON object shape: {JsonSerializer.Serialize(new InstructionTranslation { Instructions = source.Instructions })}",
+                    "You translate recipe instructions accurately. Return valid JSON only. Never alter HTML tags, HTML entities, numbers, or add content.");
 
             try
             {
-                using var request = new HttpRequestMessage(HttpMethod.Post, endpoint);
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
-                request.Content = JsonContent.Create(requestBody);
-                using var response = await _httpClient.SendAsync(request);
-                var responseBody = await response.Content.ReadAsStringAsync();
-                if (!response.IsSuccessStatusCode)
-                {
-                    _logger.LogWarning("Recipe translation failed with status {StatusCode}", (int)response.StatusCode);
-                    return recipe;
-                }
-
-                if (!TryExtractChatCompletion(responseBody, out var content, out var finishReason))
-                {
-                    _logger.LogWarning("Recipe translation response could not be parsed for recipe {RecipeId} and language {Language}", recipe.Id, language);
-                    return recipe;
-                }
-
-                if (string.Equals(finishReason, "length", StringComparison.OrdinalIgnoreCase))
-                {
-                    _logger.LogWarning(
-                        "Recipe translation response was truncated for recipe {RecipeId} and language {Language}. Increase RecipeTranslation:OpenAIMaxTokens to allow larger responses.",
-                        recipe.Id,
-                        language);
-                    return recipe;
-                }
+                var detailsTask = SendAsync(detailsRequest, apiKey);
+                var instructionsTask = instructionsRequest == null
+                    ? Task.FromResult<string>(null)
+                    : SendAsync(instructionsRequest, apiKey);
+                await Task.WhenAll(detailsTask, instructionsTask);
+                var detailsContent = await detailsTask;
+                var instructionsContent = await instructionsTask;
+                if (detailsContent == null || (instructionsRequest != null && instructionsContent == null)) return recipe;
 
                 TranslationPayload translation;
                 try
                 {
-                    translation = JsonSerializer.Deserialize<TranslationPayload>(content ?? string.Empty, JsonOptions);
+                    var detailsTranslation = JsonSerializer.Deserialize<RecipeDetailsTranslation>(detailsContent, JsonOptions);
+                    var instructionTranslation = instructionsRequest == null
+                        ? new InstructionTranslation { Instructions = source.Instructions }
+                        : JsonSerializer.Deserialize<InstructionTranslation>(instructionsContent, JsonOptions);
+                    translation = new TranslationPayload
+                    {
+                        Title = detailsTranslation?.Title,
+                        Description = detailsTranslation?.Description,
+                        Instructions = instructionTranslation?.Instructions,
+                        Portions = detailsTranslation?.Portions,
+                        ImageCaption = detailsTranslation?.ImageCaption,
+                        Ingredients = detailsTranslation?.Ingredients
+                    };
                 }
                 catch (JsonException exception)
                 {
@@ -650,7 +648,7 @@ namespace RecipeHub.Api.Services
 
             if (string.Equals(finishReason, "length", StringComparison.OrdinalIgnoreCase))
             {
-                _logger.LogWarning("Recipe translation response was truncated. Increase RecipeTranslation:OpenAIMaxTokens to allow larger responses.");
+                _logger.LogWarning("Recipe translation response reached the configured output-token limit and was truncated.");
                 return null;
             }
 
@@ -823,6 +821,20 @@ namespace RecipeHub.Api.Services
             public string Portions { get; set; }
             public string ImageCaption { get; set; }
             public List<IngredientTranslation> Ingredients { get; set; } = new List<IngredientTranslation>();
+        }
+
+        private class RecipeDetailsTranslation
+        {
+            public string Title { get; set; }
+            public string Description { get; set; }
+            public string Portions { get; set; }
+            public string ImageCaption { get; set; }
+            public List<IngredientTranslation> Ingredients { get; set; } = new List<IngredientTranslation>();
+        }
+
+        private class InstructionTranslation
+        {
+            public string Instructions { get; set; }
         }
 
         private class IngredientTranslation
