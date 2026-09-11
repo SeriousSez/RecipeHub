@@ -121,7 +121,7 @@ namespace RecipeHub
             services.AddHttpClient<IRecipeNutritionEstimator, RecipeNutritionEstimator>();
             services.AddHttpClient<IRecipeTranslationService, OpenAiRecipeTranslationService>(client =>
             {
-                client.Timeout = TimeSpan.FromSeconds(Configuration.GetValue("RecipeTranslation:TimeoutSeconds", 60));
+                client.Timeout = TimeSpan.FromSeconds(Configuration.GetValue("RecipeTranslation:TimeoutSeconds", 120));
             });
             services.AddHttpClient<IIngredientPhotoRecognitionService, OpenAiIngredientPhotoRecognitionService>();
             services.AddHttpClient<IRecipeGenerationService, OpenAiRecipeGenerationService>();
