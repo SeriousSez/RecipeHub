@@ -119,7 +119,10 @@ namespace RecipeHub
             services.AddHttpClient<LocalStableDiffusionIngredientImageGenerator>();
             services.AddHttpClient<WikipediaIngredientImageGenerator>();
             services.AddHttpClient<IRecipeNutritionEstimator, RecipeNutritionEstimator>();
-            services.AddHttpClient<IRecipeTranslationService, OpenAiRecipeTranslationService>();
+            services.AddHttpClient<IRecipeTranslationService, OpenAiRecipeTranslationService>(client =>
+            {
+                client.Timeout = TimeSpan.FromSeconds(Configuration.GetValue("RecipeTranslation:TimeoutSeconds", 60));
+            });
             services.AddHttpClient<IIngredientPhotoRecognitionService, OpenAiIngredientPhotoRecognitionService>();
             services.AddHttpClient<IRecipeGenerationService, OpenAiRecipeGenerationService>();
             services.AddHttpClient("Madpris", client =>

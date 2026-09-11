@@ -118,7 +118,7 @@ namespace RecipeHub.Api.Services
             {
                 Title = recipe.Title,
                 Description = recipe.Description,
-                InstructionSegments = ExtractInstructionSegments(recipe.Instructions),
+                Instructions = recipe.Instructions,
                 Portions = recipe.Portions,
                 ImageCaption = recipe.Image?.Caption,
                 Ingredients = (recipe.Ingredients ?? new List<IngredientResponse>()).Select(ingredient => new IngredientTranslation
@@ -144,8 +144,8 @@ namespace RecipeHub.Api.Services
                 response_format = new { type = "json_object" },
                 messages = new[]
                 {
-                    new { role = "system", content = "You translate recipes accurately. Return valid JSON only. Never alter numbers, array order, or add content." },
-                    new { role = "user", content = $"Translate every string value in this recipe JSON from {sourceLanguage} to {language}. Keep empty values empty. The instructionSegments array must contain exactly {source.InstructionSegments.Count} entries with each index from 0 through {source.InstructionSegments.Count - 1} present exactly once and in order. Return the identical JSON shape: {sourceJson}" }
+                    new { role = "system", content = "You translate recipes accurately. Return valid JSON only. Never alter numbers, array order, HTML tags, or HTML entities." },
+                    new { role = "user", content = $"Translate every string value in this recipe JSON from {sourceLanguage} to {language}. Keep empty values empty. In the instructions field, translate only human-readable text and preserve every HTML tag and HTML entity exactly, in the same order. Return the identical JSON shape: {sourceJson}" }
                 }
             };
 
@@ -166,26 +166,23 @@ namespace RecipeHub.Api.Services
                 var content = document.RootElement.GetProperty("choices")[0].GetProperty("message").GetProperty("content").GetString();
                 var translation = JsonSerializer.Deserialize<TranslationPayload>(content ?? string.Empty, JsonOptions);
                 var validIngredientCount = translation?.Ingredients?.Count == source.Ingredients.Count;
-                var validInstructionSegments = translation?.InstructionSegments != null &&
-                    translation.InstructionSegments.Count == source.InstructionSegments.Count &&
-                    translation.InstructionSegments.Select((segment, index) => segment.Index == index).All(valid => valid);
-                if (!validIngredientCount || !validInstructionSegments)
+                var validInstructions = HasMatchingInstructionMarkup(source.Instructions, translation?.Instructions);
+                if (!validIngredientCount || !validInstructions)
                 {
                     _logger.LogWarning(
-                        "Recipe translation response was invalid for recipe {RecipeId} and language {Language}. Expected {ExpectedIngredientCount} ingredients and {ExpectedInstructionCount} instruction segments; received {ReceivedIngredientCount} ingredients and {ReceivedInstructionCount} instruction segments.",
+                        "Recipe translation response was invalid for recipe {RecipeId} and language {Language}. Expected {ExpectedIngredientCount} ingredients and matching instruction markup; received {ReceivedIngredientCount} ingredients and matching markup: {HasMatchingInstructionMarkup}.",
                         recipe.Id,
                         language,
                         source.Ingredients.Count,
-                        source.InstructionSegments.Count,
                         translation?.Ingredients?.Count,
-                        translation?.InstructionSegments?.Count);
+                        validInstructions);
                     return recipe;
                 }
 
                 var translatedRecipe = CloneRecipe(recipe);
                 translatedRecipe.Title = translation.Title ?? recipe.Title;
                 translatedRecipe.Description = translation.Description ?? recipe.Description;
-                translatedRecipe.Instructions = ApplyInstructionTranslation(recipe.Instructions, translation.InstructionSegments);
+                translatedRecipe.Instructions = translation.Instructions;
                 translatedRecipe.Portions = translation.Portions ?? recipe.Portions;
                 if (translatedRecipe.Image != null) translatedRecipe.Image.Caption = translation.ImageCaption ?? translatedRecipe.Image.Caption;
                 translatedRecipe.Language = language;
@@ -694,54 +691,24 @@ namespace RecipeHub.Api.Services
             }).ToList()
         };
 
-        private static List<InstructionTranslationSegment> ExtractInstructionSegments(string instructions) => InstructionMarkupPattern
-            .Split(instructions ?? string.Empty)
-            .Where(part => part.Any(char.IsLetter) && !InstructionMarkupPattern.IsMatch(part))
-            .Select((text, index) => new InstructionTranslationSegment { Index = index, Text = text })
-            .ToList();
-
-        private static string ApplyInstructionTranslation(string instructions, IReadOnlyList<InstructionTranslationSegment> translatedSegments)
+        private static bool HasMatchingInstructionMarkup(string sourceInstructions, string translatedInstructions)
         {
-            var parts = InstructionMarkupPattern.Split(instructions ?? string.Empty);
-            var translatedIndex = 0;
-            for (var index = 0; index < parts.Length; index++)
-            {
-                if (!parts[index].Any(char.IsLetter) || InstructionMarkupPattern.IsMatch(parts[index])) continue;
-                parts[index] = PreserveBoundaryWhitespace(parts[index], translatedSegments[translatedIndex++].Text);
-            }
-            return string.Concat(parts);
-        }
+            if (string.IsNullOrWhiteSpace(sourceInstructions) || string.IsNullOrWhiteSpace(translatedInstructions))
+                return string.Equals(sourceInstructions, translatedInstructions, StringComparison.Ordinal);
 
-        private static string PreserveBoundaryWhitespace(string original, string translated)
-        {
-            if (translated == null) return original;
-
-            var leadingLength = original.TakeWhile(char.IsWhiteSpace).Count();
-            var trailingLength = original.Reverse().TakeWhile(char.IsWhiteSpace).Count();
-            var leading = original.Substring(0, leadingLength);
-            var trailing = trailingLength == 0 ? string.Empty : original.Substring(original.Length - trailingLength);
-            var contentEnd = translated.Length;
-            while (contentEnd > 0 && char.IsWhiteSpace(translated[contentEnd - 1])) contentEnd--;
-            var contentStart = 0;
-            while (contentStart < contentEnd && char.IsWhiteSpace(translated[contentStart])) contentStart++;
-
-            return leading + translated.Substring(contentStart, contentEnd - contentStart) + trailing;
+            var sourceMarkup = InstructionMarkupPattern.Matches(sourceInstructions).Select(match => match.Value);
+            var translatedMarkup = InstructionMarkupPattern.Matches(translatedInstructions).Select(match => match.Value);
+            return sourceMarkup.SequenceEqual(translatedMarkup, StringComparer.Ordinal);
         }
 
         private class TranslationPayload
         {
             public string Title { get; set; }
             public string Description { get; set; }
-            public List<InstructionTranslationSegment> InstructionSegments { get; set; } = new List<InstructionTranslationSegment>();
+            public string Instructions { get; set; }
             public string Portions { get; set; }
             public string ImageCaption { get; set; }
             public List<IngredientTranslation> Ingredients { get; set; } = new List<IngredientTranslation>();
-        }
-
-        private class InstructionTranslationSegment
-        {
-            public int Index { get; set; }
-            public string Text { get; set; }
         }
 
         private class IngredientTranslation
