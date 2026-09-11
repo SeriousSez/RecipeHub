@@ -148,11 +148,16 @@ namespace RecipeHub.Api.Services
             var detailsRequest = CreateRequestBody(
                 $"Translate every string value in this recipe JSON from {sourceLanguage} to {language}. Keep empty values empty and return the identical JSON shape: {detailsJson}",
                 "You translate recipes accurately. Return valid JSON only. Never alter numbers, array order, or add content.");
-            var instructionsRequest = string.IsNullOrWhiteSpace(source.Instructions)
+            var instructionParts = SplitInstructionParts(source.Instructions);
+            var instructionSegments = instructionParts
+                .Select((part, index) => new InstructionTextSegment { Index = index, Text = part.Value?.Trim() })
+                .Where(segment => !instructionParts[segment.Index].IsMarkup && !string.IsNullOrWhiteSpace(segment.Text))
+                .ToList();
+            var instructionsRequest = instructionSegments.Count == 0
                 ? null
                 : CreateRequestBody(
-                    $"Translate only the human-readable text in the instructions value from {sourceLanguage} to {language}. Preserve every HTML tag and HTML entity exactly, in the same order. Return the identical JSON object shape: {JsonSerializer.Serialize(new InstructionTranslation { Instructions = source.Instructions })}",
-                    "You translate recipe instructions accurately. Return valid JSON only. Never alter HTML tags, HTML entities, numbers, or add content.");
+                    $"Translate every text value in these recipe instruction segments from {sourceLanguage} to {language}. Preserve each index and return an object with a segments property containing the identical array shape: {JsonSerializer.Serialize(instructionSegments)}",
+                    "You translate recipe instruction text accurately. Return valid JSON only. Never add HTML, alter numbers, change indexes or array order, or add segments.");
 
             try
             {
@@ -170,13 +175,15 @@ namespace RecipeHub.Api.Services
                 {
                     var detailsTranslation = JsonSerializer.Deserialize<RecipeDetailsTranslation>(detailsContent, JsonOptions);
                     var instructionTranslation = instructionsRequest == null
-                        ? new InstructionTranslation { Instructions = source.Instructions }
-                        : JsonSerializer.Deserialize<InstructionTranslation>(instructionsContent, JsonOptions);
+                        ? null
+                        : JsonSerializer.Deserialize<InstructionTextSegmentResponse>(instructionsContent, JsonOptions);
                     translation = new TranslationPayload
                     {
                         Title = detailsTranslation?.Title,
                         Description = detailsTranslation?.Description,
-                        Instructions = instructionTranslation?.Instructions,
+                        Instructions = instructionsRequest == null
+                            ? source.Instructions
+                            : RebuildInstructions(instructionParts, instructionSegments, instructionTranslation?.Segments),
                         Portions = detailsTranslation?.Portions,
                         ImageCaption = detailsTranslation?.ImageCaption,
                         Ingredients = detailsTranslation?.Ingredients
@@ -813,6 +820,53 @@ namespace RecipeHub.Api.Services
             return sourceMarkup.SequenceEqual(translatedMarkup, StringComparer.Ordinal);
         }
 
+        private static List<InstructionPart> SplitInstructionParts(string instructions)
+        {
+            var parts = new List<InstructionPart>();
+            if (string.IsNullOrEmpty(instructions)) return parts;
+
+            var position = 0;
+            foreach (Match match in InstructionMarkupPattern.Matches(instructions))
+            {
+                if (match.Index > position)
+                    parts.Add(new InstructionPart { Value = instructions.Substring(position, match.Index - position) });
+                parts.Add(new InstructionPart { Value = match.Value, IsMarkup = true });
+                position = match.Index + match.Length;
+            }
+
+            if (position < instructions.Length)
+                parts.Add(new InstructionPart { Value = instructions.Substring(position) });
+            return parts;
+        }
+
+        private static string RebuildInstructions(
+            IReadOnlyList<InstructionPart> parts,
+            IReadOnlyList<InstructionTextSegment> sourceSegments,
+            IReadOnlyList<InstructionTextSegment> translatedSegments)
+        {
+            if (translatedSegments == null || translatedSegments.Count != sourceSegments.Count)
+                return null;
+
+            var translatedByIndex = translatedSegments.ToDictionary(segment => segment.Index);
+            if (sourceSegments.Any(source => !translatedByIndex.TryGetValue(source.Index, out var translated) ||
+                                             string.IsNullOrWhiteSpace(translated.Text) ||
+                                             InstructionMarkupPattern.IsMatch(translated.Text)))
+                return null;
+
+            return string.Concat(parts.Select((part, index) =>
+                translatedByIndex.TryGetValue(index, out var translated)
+                    ? ReplaceInstructionText(part.Value, translated.Text)
+                    : part.Value));
+        }
+
+        private static string ReplaceInstructionText(string source, string translated)
+        {
+            var leadingWhitespaceLength = source.TakeWhile(char.IsWhiteSpace).Count();
+            var trailingWhitespaceLength = source.Reverse().TakeWhile(char.IsWhiteSpace).Count();
+            return source.Substring(0, leadingWhitespaceLength) + translated +
+                   source.Substring(source.Length - trailingWhitespaceLength);
+        }
+
         private class TranslationPayload
         {
             public string Title { get; set; }
@@ -832,9 +886,21 @@ namespace RecipeHub.Api.Services
             public List<IngredientTranslation> Ingredients { get; set; } = new List<IngredientTranslation>();
         }
 
-        private class InstructionTranslation
+        private class InstructionPart
         {
-            public string Instructions { get; set; }
+            public string Value { get; set; }
+            public bool IsMarkup { get; set; }
+        }
+
+        private class InstructionTextSegmentResponse
+        {
+            public List<InstructionTextSegment> Segments { get; set; } = new List<InstructionTextSegment>();
+        }
+
+        private class InstructionTextSegment
+        {
+            public int Index { get; set; }
+            public string Text { get; set; }
         }
 
         private class IngredientTranslation

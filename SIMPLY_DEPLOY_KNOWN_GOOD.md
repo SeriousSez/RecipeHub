@@ -41,6 +41,12 @@ Configure these production settings on Simply.com through the host environment o
 
 After deployment, verify that a reset request sends an email and that its link opens the deployed `/reset-password` page. If SMTP is not configured, the API deliberately returns a service-unavailable response instead of exposing a reset token.
 
+## Data Protection keys
+
+The API persists ASP.NET Core Data Protection keys under `App_Data/DataProtection-Keys` by default. The deployment must preserve this runtime directory between releases and grant the application identity read/write access. It contains sensitive key material and must not be publicly served or committed to source control.
+
+Override `DataProtection:KeysPath` with an absolute path when the host provides a private persistent directory outside the application root. On Simply.com, keep `dangerous-clean-slate: false` so password-reset tokens remain valid across application restarts and deployments.
+
 ## Why this baseline matters
 
 These settings avoid common Simply shared-hosting startup failures:

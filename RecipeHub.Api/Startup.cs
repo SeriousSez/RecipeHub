@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
@@ -25,6 +26,7 @@ using RecipeHub.Infrastructure.Repositories.Grocery;
 using RecipeHub.Infrastructure.Repositories.Plan;
 using System;
 using System.Data.Common;
+using System.IO;
 using System.Text;
 using RecipeHub.Api.Services;
 using RecipeHub.Api.Converters;
@@ -49,6 +51,15 @@ namespace RecipeHub
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMemoryCache();
+            var configuredKeysPath = Configuration["DataProtection:KeysPath"] ?? Path.Combine("App_Data", "DataProtection-Keys");
+            var keysPath = Path.IsPathRooted(configuredKeysPath)
+                ? configuredKeysPath
+                : Path.Combine(AppContext.BaseDirectory, configuredKeysPath);
+            Directory.CreateDirectory(keysPath);
+            services.AddDataProtection()
+                .SetApplicationName("RecipeHub")
+                .PersistKeysToFileSystem(new DirectoryInfo(keysPath));
+
             var groceryOfferRateLimit = Math.Max(1, Configuration.GetValue("GroceryOffers:RateLimitPerMinute", 20));
             services.AddRateLimiter(options =>
             {
