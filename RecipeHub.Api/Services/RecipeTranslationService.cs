@@ -660,8 +660,17 @@ namespace RecipeHub.Api.Services
         private int GetOpenAiMaxTokens()
         {
             var configured = _configuration.GetValue<int?>("RecipeTranslation:OpenAIMaxTokens");
-            if (configured.HasValue && configured.Value > 0)
-                return configured.Value;
+            if (configured.HasValue)
+            {
+                if (configured.Value > 0)
+                    return configured.Value;
+
+                _logger.LogWarning(
+                    "RecipeTranslation:OpenAIMaxTokens was configured with invalid value {ConfiguredValue}. Using default {DefaultValue}.",
+                    configured.Value,
+                    DefaultOpenAiMaxTokens);
+            }
+
             return DefaultOpenAiMaxTokens;
         }
 
