@@ -34,7 +34,7 @@ namespace RecipeHub.Api.Services
 
     public class OpenAiRecipeTranslationService : IRecipeTranslationService
     {
-        private const int DefaultOpenAiMaxTokens = 12000;
+        private const int DefaultOpenAiMaxTokens = 16384;
         private static readonly Regex InstructionMarkupPattern = new Regex("(<[^>]+>|&(?:#\\d+|#x[0-9A-Fa-f]+|[A-Za-z]+);)", RegexOptions.Compiled);
         private static readonly HashSet<string> SupportedLanguages = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
