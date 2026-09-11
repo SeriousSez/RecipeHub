@@ -341,6 +341,7 @@ jobs:
           }
           New-Item -ItemType Directory -Path $payloadDir | Out-Null
           Set-Content -Path "$payloadDir/app_offline.htm" -Value $content -Encoding UTF8
+          Set-Content -Path "${{ env.PUBLISH_PATH }}/app_offline.htm" -Value $content -Encoding UTF8
 
       - name: Take API offline before deployment
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
