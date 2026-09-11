@@ -670,47 +670,59 @@ namespace RecipeHub.Api.Services
             content = null;
             finishReason = null;
 
-            using var document = JsonDocument.Parse(responseBody);
-            if (!document.RootElement.TryGetProperty("choices", out var choices) ||
-                choices.ValueKind != JsonValueKind.Array ||
-                choices.GetArrayLength() == 0)
+            JsonDocument document;
+            try
+            {
+                document = JsonDocument.Parse(responseBody);
+            }
+            catch (JsonException)
             {
                 return false;
             }
 
-            var choice = choices[0];
-            if (choice.TryGetProperty("finish_reason", out var finishReasonProperty) &&
-                finishReasonProperty.ValueKind == JsonValueKind.String)
+            using (document)
             {
-                finishReason = finishReasonProperty.GetString();
-            }
+                if (!document.RootElement.TryGetProperty("choices", out var choices) ||
+                    choices.ValueKind != JsonValueKind.Array ||
+                    choices.GetArrayLength() == 0)
+                {
+                    return false;
+                }
 
-            if (!choice.TryGetProperty("message", out var message) ||
-                !message.TryGetProperty("content", out var contentProperty))
-            {
+                var choice = choices[0];
+                if (choice.TryGetProperty("finish_reason", out var finishReasonProperty) &&
+                    finishReasonProperty.ValueKind == JsonValueKind.String)
+                {
+                    finishReason = finishReasonProperty.GetString();
+                }
+
+                if (!choice.TryGetProperty("message", out var message) ||
+                    !message.TryGetProperty("content", out var contentProperty))
+                {
+                    return false;
+                }
+
+                if (contentProperty.ValueKind == JsonValueKind.String)
+                {
+                    content = contentProperty.GetString();
+                    return !string.IsNullOrWhiteSpace(content);
+                }
+
+                if (contentProperty.ValueKind == JsonValueKind.Array)
+                {
+                    content = string.Concat(contentProperty.EnumerateArray()
+                        .Where(item => item.ValueKind == JsonValueKind.Object &&
+                                       item.TryGetProperty("type", out var type) &&
+                                       type.ValueKind == JsonValueKind.String &&
+                                       type.GetString() == "text" &&
+                                       item.TryGetProperty("text", out var text) &&
+                                       text.ValueKind == JsonValueKind.String)
+                        .Select(item => item.GetProperty("text").GetString()));
+                    return !string.IsNullOrWhiteSpace(content);
+                }
+
                 return false;
             }
-
-            if (contentProperty.ValueKind == JsonValueKind.String)
-            {
-                content = contentProperty.GetString();
-                return !string.IsNullOrWhiteSpace(content);
-            }
-
-            if (contentProperty.ValueKind == JsonValueKind.Array)
-            {
-                content = string.Concat(contentProperty.EnumerateArray()
-                    .Where(item => item.ValueKind == JsonValueKind.Object &&
-                                   item.TryGetProperty("type", out var type) &&
-                                   type.ValueKind == JsonValueKind.String &&
-                                   type.GetString() == "text" &&
-                                   item.TryGetProperty("text", out var text) &&
-                                   text.ValueKind == JsonValueKind.String)
-                    .Select(item => item.GetProperty("text").GetString()));
-                return !string.IsNullOrWhiteSpace(content);
-            }
-
-            return false;
         }
 
         private static string NormalizeCanonicalIngredientName(string name)
