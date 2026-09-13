@@ -441,16 +441,26 @@ namespace RecipeHub.Api.Services
                 var response = JsonSerializer.Deserialize<IngredientCanonicalizationResponse>(content, JsonOptions);
                 if (response?.Ingredients == null || response.Ingredients.Count != source.Count ||
                     response.Ingredients.Select((item, index) => item.Index != index ||
-                        !string.Equals(item.OriginalName, source[index].OriginalName, StringComparison.Ordinal) ||
                         string.IsNullOrWhiteSpace(item.CanonicalName)).Any(invalid => invalid))
                 {
+                    _logger.LogWarning(
+                        "Ingredient canonicalization response was invalid for language {Language}. Expected {ExpectedCount} indexed ingredients; received {ReceivedCount}.",
+                        language,
+                        source.Count,
+                        response?.Ingredients?.Count);
                     return null;
                 }
 
-                var canonicalNames = response.Ingredients.ToDictionary(
-                    item => item.OriginalName,
-                    item => NormalizeCanonicalIngredientName(item.CanonicalName),
-                    StringComparer.OrdinalIgnoreCase);
+                var canonicalNames = response.Ingredients
+                    .Select((item, index) => new
+                    {
+                        source[index].OriginalName,
+                        CanonicalName = NormalizeCanonicalIngredientName(item.CanonicalName)
+                    })
+                    .ToDictionary(
+                        item => item.OriginalName,
+                        item => item.CanonicalName,
+                        StringComparer.OrdinalIgnoreCase);
                 _cache.Set(cacheKey, canonicalNames, TimeSpan.FromDays(30));
                 return canonicalNames;
             }
