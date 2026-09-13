@@ -773,16 +773,14 @@ export class RecipeComponent implements OnInit {
     deleteRequest.pipe(
       concatMap(() => {
         this.ingredientsToDelete = [];
-        return this.recipeService.update(this.createRecipeUpgradeModel(this.recipe)) as Observable<unknown>;
+        return this.recipeService.update(this.createRecipeUpgradeModel(this.recipe));
       })
-    ).subscribe(result => {
+    ).subscribe(updatedRecipe => {
+      this.edit = false;
+      this.setRecipeState(updatedRecipe);
       this.router.navigate([
-        `recipe/${this.utilityService.toRecipeKey(this.recipe.id, this.recipe.title)}`
+        `recipe/${this.utilityService.toRecipeKey(updatedRecipe.id, updatedRecipe.title)}`
       ], { replaceUrl: true }).then(() => {
-        this.title = this.recipe.title;
-        this.creator = this.recipe.creator;
-        this.recipeId = this.recipe.id;
-        this.edit = false;
         this.isRequesting = false;
       }, () => {
         this.isRequesting = false;

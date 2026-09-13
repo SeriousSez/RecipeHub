@@ -137,8 +137,8 @@ export class RecipeService extends BaseService {
       ));
   }
 
-  update(recipe: RecipeUpdate): Observable<RecipeUpdate> {
-    return this.http.post<RecipeUpdate>(this.baseUrl + "/recipe/update", recipe, this.httpOptions)
+  update(recipe: RecipeUpdate): Observable<Recipe> {
+    return this.http.post<Recipe>(this.baseUrl + "/recipe/update", recipe, this.httpOptions)
       .pipe(map(details => {
         return details;
       }, (error: any) => console.log(error, "fails")
